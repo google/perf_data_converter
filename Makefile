@@ -115,7 +115,7 @@ ALL_SOURCES = $(MAIN_SOURCES) $(COMMON_SOURCES) $(TEST_SOURCES)
 
 INTERMEDIATES = $(ALL_SOURCES:.cc=.d*)
 
-all: $(PROGRAMS) $(PROTOBUF_DEP)
+all: $(PROGRAMS)
 	@echo Sources compiled!
 
 # Protobuf dependence configuration
@@ -130,14 +130,14 @@ else
 PROTOC = third_party/protobuf/src/protoc
 PROTOBUF_CFLAGS := -Ithird_party/protobuf/src
 PROTOBUF_LIBS := third_party/protobuf/src/.libs/libprotobuf.a  -lz
-PROTOBUF_DEP = $(PROTOBUF_LIBS)
+PROTOBUF_DEP := third_party/protobuf/src/.libs/libprotobuf.a
 endif
 
 third_party/protobuf/configure:
 	echo "[AUTOGEN] Preparing protobuf"
 	(cd third_party/protobuf ; autoreconf -f -i -Wall,no-obsolete)
 
-third_party/protobuf/libprotobuf.a: third_party/protobuf/configure
+third_party/protobuf/src/.libs/libprotobuf.a: third_party/protobuf/configure
 	echo "[MAKE]    Building protobuf"
 	(cd third_party/protobuf ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="$(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
 	$(MAKE) -C third_party/protobuf clean
@@ -165,8 +165,8 @@ endif
 	rm -f $@.$$$$
 
 # Rule for compiling protobufs.
-%.pb.h %.pb.cc: %.proto
-	$(PROTOC) --cpp_out=. $^
+%.pb.h %.pb.cc: %.proto $(PROTOBUF_DEP)
+	$(PROTOC) --cpp_out=. $<
 
 # Do not remove protobuf headers that were generated as dependencies of other
 # modules.
