@@ -29,9 +29,10 @@ CXX ?= g++
 
 BASE_VER ?= 369476
 PKG_CONFIG ?= pkg-config
-PC_DEPS = openssl protobuf
+PC_DEPS = openssl
 PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
 PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
+
 CWP = third_party/chromiumos-wide-profiling
 
 CXXFLAGS += -std=c++11 -g -Wall -Werror -Wall -Wno-error
@@ -39,8 +40,8 @@ CPPFLAGS += -Icompat -I${CWP}/mybase \
 						-I${CWP}/compat/ext \
 						-I${CWP} \
 						-Ithird_party \
-						-I. -I.. $(PC_CFLAGS)
-LDLIBS += -lelf -lpthread -lgcov -lgtest $(PC_LIBS)
+						-I. -I.. $(PC_CFLAGS) $(PROTOBUF_CFLAGS)
+LDLIBS += -lelf -lpthread $(PC_LIBS) $(PROTOBUF_LIBS)
 
 QUIPPER_PROGRAMS = quipper perf_converter
 CONVERTER_PROGRAMS = perf_to_profile
@@ -114,8 +115,42 @@ ALL_SOURCES = $(MAIN_SOURCES) $(COMMON_SOURCES) $(TEST_SOURCES)
 
 INTERMEDIATES = $(ALL_SOURCES:.cc=.d*)
 
-all: $(PROGRAMS)
+all: $(PROGRAMS) $(PROTOBUF_DEP)
 	@echo Sources compiled!
+
+# Protobuf dependence configuration
+ifeq ($(wildcard third_party/protobuf/src/google/protobuf/descriptor.pb.h),)
+# Protobuf module hasn't been populated, attempt using local installation.
+PROTOC = protoc
+PROTOBUF_DEP =
+PROTOBUF_CFLAGS := $(shell $(PKG_CONFIG) --cflags protobuf)
+PROTOBUF_LIBS := $(shell $(PKG_CONFIG) --libs protobuf)
+else
+# Use protobuf compiler and libraries from submodule.
+PROTOC = third_party/protobuf/src/protoc
+PROTOBUF_CFLAGS := -Ithird_party/protobuf/src
+PROTOBUF_LIBS := third_party/protobuf/src/.libs/libprotobuf.a  -lz
+PROTOBUF_DEP = $(PROTOBUF_LIBS)
+endif
+
+third_party/protobuf/configure:
+	echo "[AUTOGEN] Preparing protobuf"
+	(cd third_party/protobuf ; autoreconf -f -i -Wall,no-obsolete)
+
+third_party/protobuf/libprotobuf.a: third_party/protobuf/configure
+	echo "[MAKE]    Building protobuf"
+	(cd third_party/protobuf ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="$(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
+	$(MAKE) -C third_party/protobuf clean
+	$(MAKE) -C third_party/protobuf
+
+# Googletest dependence configuration
+ifeq ($(wildcard third_party/googletest/googletest/include/gtest/gtest.h),)
+# Use local gtest includes, already on the system path
+GTEST_LIB =
+else
+# Pick up gtest includes from submodule.
+GTEST_LIB = -Ithird_party/googletest/googletest/include
+endif
 
 ifneq ($(MAKECMDGOALS),clean)
   -include $(ALL_SOURCES:.cc=.d)
@@ -131,7 +166,7 @@ endif
 
 # Rule for compiling protobufs.
 %.pb.h %.pb.cc: %.proto
-	protoc --cpp_out=. $^
+	$(PROTOC) --cpp_out=. $^
 
 # Do not remove protobuf headers that were generated as dependencies of other
 # modules.
@@ -144,25 +179,19 @@ $(CONVERTER_PROGRAMS): %: %.o $(COMMON_OBJECTS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 INTEGRATION_TEST_OBJECTS = $(INTEGRATION_TEST_SOURCES:.cc=.o) ${CWP}/test_runner.o
-integration_tests: LDLIBS += -lgtest -lelf -lcap
 integration_tests: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(INTEGRATION_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
 
 PERF_RECORDER_TEST_OBJECTS = $(PERF_RECORDER_TEST_SOURCES:.cc=.o)
-perf_recorder_test: LDLIBS += -lgtest -lelf -lcap
-perf_recorder_test: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) \
-		       $(PERF_RECORDER_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+perf_recorder_test: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(PERF_RECORDER_TEST_OBJECTS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
 
-QUIPPER_UNIT_TEST_OBJECTS = $(QUIPPER_UNIT_TEST_SOURCES:.cc=.o) \
-	${CWP}/test_runner.o
-unit_tests: LDLIBS += -lgtest -lelf -lcap
+QUIPPER_UNIT_TEST_OBJECTS = $(QUIPPER_UNIT_TEST_SOURCES:.cc=.o) ${CWP}/test_runner.o
 unit_tests: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(QUIPPER_UNIT_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
 
-$(CONVERTER_UNIT_TEST_BINARIES): LDLIBS += -lgtest
 $(CONVERTER_UNIT_TEST_BINARIES): %: %.o $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
 
 # build all unit tests
 tests: $(CONVERTER_UNIT_TEST_BINARIES)
