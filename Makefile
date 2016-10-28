@@ -37,10 +37,10 @@ CWP = third_party/chromiumos-wide-profiling
 
 CXXFLAGS += -std=c++11 -g -Wall -Werror -Wall -Wno-error
 CPPFLAGS += -Icompat -I${CWP}/mybase \
-						-I${CWP}/compat/ext \
-						-I${CWP} \
-						-Ithird_party \
-						-I. -I.. $(PC_CFLAGS) $(PROTOBUF_CFLAGS)
+		-I${CWP}/compat/ext \
+		-I${CWP} \
+		-Ithird_party \
+		-I. -I.. $(PC_CFLAGS) $(PROTOBUF_CFLAGS) $(GTEST_INCLUDES)
 LDLIBS += -lelf -lpthread $(PC_LIBS) $(PROTOBUF_LIBS)
 
 QUIPPER_PROGRAMS = quipper perf_converter
@@ -150,8 +150,8 @@ GTEST_INCLUDES =
 GTEST_LIBS = -lgtest
 else
 # Pick up gtest includes from submodule.
-GTEST_LIBS = -Ithird_party/googletest/googletest third_party/googletest/googletest/src/gtest-all.cc
 GTEST_INCLUDES = -Ithird_party/googletest/googletest/include
+GTEST_LIBS = -Ithird_party/googletest/googletest third_party/googletest/googletest/src/gtest-all.cc
 endif
 
 ifneq ($(MAKECMDGOALS),clean)
