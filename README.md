@@ -14,9 +14,27 @@ For details on pprof, see https://github.com/google/pprof
 - Google Test: http://github.com/google/googletest
 
 # Compilation
+
+To install all dependences and build the binary, run the following commands.
+These were tested on Debian GNU/Linux 8 (jessie):
 ```
+sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+git clone https://github.com/rauls5382/perf_data_converter.git
+cd perf_data_converter
+git submodule update --init
 make perf_to_profile
 ```
+
+If you already have protocol buffers and googletest installed on your system,
+you can compile using your local packages with the following commands:
+```
+sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+git clone https://github.com/rauls5382/perf_data_converter.git
+cd perf_data_converter
+make perf_to_profile
+```
+
+Place the perf_to_profile binary in a place accessible from your path (eg /usr/local/bin).
 
 # Usage:
 Profile a command using perf, for example:
