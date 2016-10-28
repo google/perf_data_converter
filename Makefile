@@ -146,10 +146,12 @@ third_party/protobuf/src/.libs/libprotobuf.a: third_party/protobuf/configure
 # Googletest dependence configuration
 ifeq ($(wildcard third_party/googletest/googletest/include/gtest/gtest.h),)
 # Use local gtest includes, already on the system path
-GTEST_LIB =
+GTEST_INCLUDES =
+GTEST_LIBS = -lgtest
 else
 # Pick up gtest includes from submodule.
-GTEST_LIB = -Ithird_party/googletest/googletest/include
+GTEST_LIBS = -Ithird_party/googletest/googletest third_party/googletest/googletest/src/gtest-all.cc
+GTEST_INCLUDES = -Ithird_party/googletest/googletest/include
 endif
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -180,18 +182,18 @@ $(CONVERTER_PROGRAMS): %: %.o $(COMMON_OBJECTS)
 
 INTEGRATION_TEST_OBJECTS = $(INTEGRATION_TEST_SOURCES:.cc=.o) ${CWP}/test_runner.o
 integration_tests: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(INTEGRATION_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIBS)
 
 PERF_RECORDER_TEST_OBJECTS = $(PERF_RECORDER_TEST_SOURCES:.cc=.o)
 perf_recorder_test: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(PERF_RECORDER_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIBS)
 
 QUIPPER_UNIT_TEST_OBJECTS = $(QUIPPER_UNIT_TEST_SOURCES:.cc=.o) ${CWP}/test_runner.o
 unit_tests: %: $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS) $(QUIPPER_UNIT_TEST_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIBS)
 
 $(CONVERTER_UNIT_TEST_BINARIES): %: %.o $(COMMON_OBJECTS) $(TEST_COMMON_OBJECTS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIB)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(GTEST_LIBS)
 
 # build all unit tests
 tests: $(CONVERTER_UNIT_TEST_BINARIES)
