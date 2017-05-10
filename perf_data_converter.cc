@@ -394,9 +394,13 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       const string& sample_filename = MappingFilename(sample.main_mapping);
 
       if (filename != sample_filename) {
-        ((options_ & kFailOnMainMappingMismatch) ? LOG(FATAL) : LOG(WARNING))
-            << "main mapping mismatch: " << sample.sample.pid() << " "
-            << filename << " " << sample_filename;
+        if (options_ & kFailOnMainMappingMismatch) {
+          LOG(FATAL) << "main mapping mismatch: " << sample.sample.pid() << " "
+                     << filename << " " << sample_filename;
+        } else {
+          LOG(WARNING) << "main mapping mismatch: " << sample.sample.pid()
+                       << " " << filename << " " << sample_filename;
+        }
       }
     }
   }
