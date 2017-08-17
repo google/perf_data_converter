@@ -5,7 +5,7 @@ sudo: required
 deploy:
         provider: releases
         api_key: 61bbf4af71193916ece76014e212a9642623c390
-        file:
+        file: quipper/unit_tests.stderr.log
         skip_cleanup: true
         on:
                 tag: true
