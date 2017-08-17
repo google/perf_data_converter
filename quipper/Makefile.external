@@ -8,7 +8,7 @@ CXX ?= g++
 
 BASE_VER ?= 369476
 PKG_CONFIG ?= pkg-config
-PC_DEPS = openssl protobuf
+PC_DEPS = openssl
 PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
 PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
 
