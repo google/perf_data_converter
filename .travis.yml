@@ -2,9 +2,17 @@ language: cpp
 
 sudo: required
 
+deploy:
+        provider: releases
+        api_key: 61bbf4af71193916ece76014e212a9642623c390
+        file: quipper/unit_tests.stderr.log
+        skip_cleanup: true
+        on:
+                tag: true
+
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libelf-dev libssl-dev
+  - sudo apt-get install -y libelf-dev libssl-dev libcap-dev
   - git submodule update --init --recursive
 
 install:
@@ -20,4 +28,5 @@ compiler:
   - gcc
 
 script:
-  - make perf_to_profile check
+  - make perf_to_profile check clean
+  - make quipper perf_converter check clean --directory quipper/ -f Makefile.external
