@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "builder.h"
+#include "src/builder.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -15,7 +15,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <iostream>
+#include "base/logging.h"
 #include "google/protobuf/io/gzip_stream.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 
@@ -85,7 +85,7 @@ bool Builder::Marshal(const Profile &profile, string *output) {
   StringOutputStream stream(output);
   GzipOutputStream gzip_stream(&stream);
   if (!profile.SerializeToZeroCopyStream(&gzip_stream)) {
-    std::cerr << "Failed to serialize to gzip stream";
+    LOG(ERROR) << "Failed to serialize to gzip stream";
     return false;
   }
   return gzip_stream.Close();
@@ -95,7 +95,7 @@ bool Builder::MarshalToFile(const Profile &profile, int fd) {
   FileOutputStream stream(fd);
   GzipOutputStream gzip_stream(&stream);
   if (!profile.SerializeToZeroCopyStream(&gzip_stream)) {
-    std::cerr << "Failed to serialize to gzip stream";
+    LOG(ERROR) << "Failed to serialize to gzip stream";
     return false;
   }
   return gzip_stream.Close();
@@ -121,7 +121,7 @@ bool Builder::CheckValid(const Profile &profile) {
     if (id != 0) {
       const bool insert_successful = mapping_ids.insert(id).second;
       if (!insert_successful) {
-        std::cerr << "Duplicate mapping id: " << id;
+        LOG(ERROR) << "Duplicate mapping id: " << id;
         return false;
       }
     }
@@ -133,7 +133,7 @@ bool Builder::CheckValid(const Profile &profile) {
     if (id != 0) {
       const bool insert_successful = function_ids.insert(id).second;
       if (!insert_successful) {
-        std::cerr << "Duplicate function id: " << id;
+        LOG(ERROR) << "Duplicate function id: " << id;
         return false;
       }
     }
@@ -145,19 +145,19 @@ bool Builder::CheckValid(const Profile &profile) {
     if (id != 0) {
       const bool insert_successful = location_ids.insert(id).second;
       if (!insert_successful) {
-        std::cerr << "Duplicate location id: " << id;
+        LOG(ERROR) << "Duplicate location id: " << id;
         return false;
       }
     }
     const int64 mapping_id = location.mapping_id();
     if (mapping_id != 0 && mapping_ids.count(mapping_id) == 0) {
-      std::cerr << "Missing mapping " << mapping_id << " from location " << id;
+      LOG(ERROR) << "Missing mapping " << mapping_id << " from location " << id;
       return false;
     }
     for (const auto &line : location.line()) {
       int64 function_id = line.function_id();
       if (function_id != 0 && function_ids.count(function_id) == 0) {
-        std::cerr << "Missing function " << function_id;
+        LOG(ERROR) << "Missing function " << function_id;
         return false;
       }
     }
@@ -165,24 +165,24 @@ bool Builder::CheckValid(const Profile &profile) {
 
   int sample_type_len = profile.sample_type_size();
   if (sample_type_len == 0) {
-    std::cerr << "No sample type specified";
+    LOG(ERROR) << "No sample type specified";
     return false;
   }
 
   for (const auto &sample : profile.sample()) {
     if (sample.value_size() != sample_type_len) {
-      std::cerr << "Found sample with " << sample.value_size()
+      LOG(ERROR) << "Found sample with " << sample.value_size()
                  << " values, expecting " << sample_type_len;
       return false;
     }
     for (uint64 location_id : sample.location_id()) {
       if (location_id == 0) {
-        std::cerr << "Sample referencing location_id=0";
+        LOG(ERROR) << "Sample referencing location_id=0";
         return false;
       }
 
       if (location_ids.count(location_id) == 0) {
-        std::cerr << "Missing location " << location_id;
+        LOG(ERROR) << "Missing location " << location_id;
         return false;
       }
     }
@@ -191,7 +191,7 @@ bool Builder::CheckValid(const Profile &profile) {
       int64 str = label.str();
       int64 num = label.num();
       if (str != 0 && num != 0) {
-        std::cerr << "One of str/num must be unset, got " << str << "," << num;
+        LOG(ERROR) << "One of str/num must be unset, got " << str << "," << num;
         return false;
       }
     }
