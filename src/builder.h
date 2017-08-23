@@ -3,6 +3,8 @@
  * All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
  */
 
 #ifndef PERFTOOLS_PROFILES_PROTO_BUILDER_H_
@@ -23,7 +25,7 @@ typedef std::string string;
 
 }
 }
-#include "profile.pb.h"
+#include "src/profile.pb.h"
 
 namespace perftools {
 namespace profiles {

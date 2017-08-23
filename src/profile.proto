@@ -116,6 +116,13 @@ message Label {
   // At most one of the following must be present
   int64 str = 2;   // Index into string table
   int64 num = 3;
+
+  // Should only be present when num is present.
+  // Specifies the units of num.
+  // Use string "bytes" as a memory unit
+  // Use string "nanoseconds", "microseconds", "milliseconds" or "seconds"
+  // as a time unit.
+  int64 num_unit = 4;  // Index into string table
 }
 
 message Mapping {
