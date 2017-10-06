@@ -264,7 +264,7 @@ class PerfReader {
   Arena arena_;
   PerfDataProto* proto_;
   // Attribute ids that have been added to |proto_|, for deduplication.
-  std::unordered_set<u64> attrs_seen_;
+  std::unordered_set<u64> file_attrs_seen_;
 
   // Whether the incoming data is from a machine with a different endianness. We
   // got rid of this flag in the past but now we need to store this so it can be
