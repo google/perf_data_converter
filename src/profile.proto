@@ -158,7 +158,7 @@ message Location {
   // instruction addresses or any integer sequence as ids.
   uint64 id = 1;
   // The id of the corresponding profile.Mapping for this location.
-  // If can be unset if the mapping is unknown or not applicable for
+  // It can be unset if the mapping is unknown or not applicable for
   // this profile type.
   uint64 mapping_id = 2;
   // The instruction address for this location, if available.  It
