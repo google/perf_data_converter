@@ -5073,14 +5073,6 @@ events {
 }
 events {
   header {
-    type: 12
-    misc: 0
-    size: 48
-  }
-  timestamp: 0
-}
-events {
-  header {
     type: 15
     misc: 0
     size: 48
@@ -5467,14 +5459,6 @@ events {
 events {
   header {
     type: 15
-    misc: 0
-    size: 48
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 12
     misc: 0
     size: 48
   }
@@ -6171,6 +6155,25 @@ events {
 }
 events {
   header {
+    type: 12
+    misc: 0
+    size: 48
+  }
+  timestamp: 3314127893397
+  itrace_start_event {
+    pid: 3587
+    tid: 3587
+    sample_info {
+      pid: 3587
+      tid: 3587
+      sample_time_ns: 3314127893397
+      id: 151
+      cpu: 3
+    }
+  }
+}
+events {
+  header {
     type: 3
     misc: 8192
     size: 56
@@ -6787,6 +6790,25 @@ events {
     period: 1
   }
   timestamp: 3314128487047
+}
+events {
+  header {
+    type: 12
+    misc: 0
+    size: 48
+  }
+  timestamp: 3314128489254
+  itrace_start_event {
+    pid: 3587
+    tid: 3587
+    sample_info {
+      pid: 3587
+      tid: 3587
+      sample_time_ns: 3314128489254
+      id: 148
+      cpu: 0
+    }
+  }
 }
 events {
   header {

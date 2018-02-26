@@ -1847,6 +1847,10 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->aux.aux_size);
       ByteSwap(&event->aux.flags);
       break;
+    case PERF_RECORD_ITRACE_START:
+      ByteSwap(&event->itrace_start.pid);
+      ByteSwap(&event->itrace_start.tid);
+      break;
     case PERF_RECORD_AUXTRACE:
       ByteSwap(&event->auxtrace.size);
       ByteSwap(&event->auxtrace.offset);

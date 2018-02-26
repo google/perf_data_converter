@@ -730,6 +730,7 @@ enum perf_event_type {
    *	struct perf_event_header	header;
    *	u32				pid;
    *	u32				tid;
+   * 	struct sample_id		sample_id;
    * };
    */
   PERF_RECORD_ITRACE_START = 12,

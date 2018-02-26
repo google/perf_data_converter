@@ -474,6 +474,16 @@ message PerfDataProto {
   }
 
   // Next tag: 4
+  message ItraceStartEvent {
+    optional uint32 pid = 1;
+
+    optional uint32 tid = 2;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 3;
+  }
+
+  // Next tag: 4
   message EventHeader {
     // Type of event.
     optional uint32 type = 1;
@@ -482,7 +492,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 13
+  // Next tag: 14
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -499,6 +509,7 @@ message PerfDataProto {
       ThrottleEvent throttle_event = 7;
       ReadEvent read_event = 8;
       AuxEvent aux_event = 11;
+      ItraceStartEvent itrace_start_event = 13;
       AuxtraceEvent auxtrace_event = 12;
     }
     // Time after boot in nanoseconds corresponding to the event.

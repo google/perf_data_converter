@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "perf_to_profile_lib.h"
+#include "src/perf_to_profile_lib.h"
 #include "base/logging.h"
-#include "test_compat.h"
+#include "src/test_compat.h"
 
 namespace {
 
