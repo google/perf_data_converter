@@ -7,9 +7,9 @@
 
 #include <vector>
 
-#include "path_matching.h"
-#include "string_compat.h"
-#include "test_compat.h"
+#include "src/path_matching.h"
+#include "src/string_compat.h"
+#include "src/test_compat.h"
 
 namespace perftools {
 

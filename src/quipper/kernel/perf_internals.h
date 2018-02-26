@@ -354,6 +354,11 @@ struct aux_event {
   u64 flags;
 };
 
+struct itrace_start_event {
+  struct perf_event_header header;
+  u32 pid, tid;
+};
+
 union perf_event {
   struct perf_event_header header;
   struct mmap_event mmap;
@@ -370,6 +375,7 @@ union perf_event {
   struct build_id_event build_id;
   struct auxtrace_event auxtrace;
   struct aux_event aux;
+  struct itrace_start_event itrace_start;
 };
 
 typedef perf_event event_t;

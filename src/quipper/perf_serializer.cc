@@ -224,6 +224,9 @@ bool PerfSerializer::SerializeKernelEvent(
       return SerializeReadEvent(event, event_proto->mutable_read_event());
     case PERF_RECORD_AUX:
       return SerializeAuxEvent(event, event_proto->mutable_aux_event());
+    case PERF_RECORD_ITRACE_START:
+      return SerializeItraceStartEvent(
+          event, event_proto->mutable_itrace_start_event());
     default:
       LOG(ERROR) << "Unknown event type: " << event.header.type;
   }
@@ -299,6 +302,8 @@ bool PerfSerializer::DeserializeKernelEvent(
     case PERF_RECORD_AUX:
       return DeserializeAuxEvent(event_proto.aux_event(), event);
     case PERF_RECORD_ITRACE_START:
+      return DeserializeItraceStartEvent(event_proto.itrace_start_event(),
+                                         event);
     case PERF_RECORD_LOST_SAMPLES:
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
@@ -702,6 +707,24 @@ bool PerfSerializer::DeserializeAuxEvent(const PerfDataProto_AuxEvent& sample,
   aux.flags |= sample.is_truncated() ? PERF_AUX_FLAG_TRUNCATED : 0;
   aux.flags |= sample.is_overwrite() ? PERF_AUX_FLAG_OVERWRITE : 0;
   aux.flags |= sample.is_partial() ? PERF_AUX_FLAG_PARTIAL : 0;
+
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
+bool PerfSerializer::SerializeItraceStartEvent(
+    const event_t& event, PerfDataProto_ItraceStartEvent* sample) const {
+  const struct itrace_start_event& it_start = event.itrace_start;
+  sample->set_pid(it_start.pid);
+  sample->set_tid(it_start.tid);
+
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeItraceStartEvent(
+    const PerfDataProto_ItraceStartEvent& sample, event_t* event) const {
+  struct itrace_start_event& it_start = event->itrace_start;
+  it_start.pid = sample.pid();
+  it_start.tid = sample.tid();
 
   return DeserializeSampleInfo(sample.sample_info(), event);
 }

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "perf_to_profile_lib.h"
+#include "src/perf_to_profile_lib.h"
 
 #include "base/logging.h"
-#include "perf_data_converter.h"
+#include "src/perf_data_converter.h"
 
 int main(int argc, char** argv) {
   string input, output;

@@ -7,7 +7,7 @@
 
 // Tests converting perf.data files to sets of Profile
 
-#include "perf_data_converter.h"
+#include "src/perf_data_converter.h"
 
 #include <unistd.h>
 #include <cstdlib>
@@ -20,12 +20,12 @@
 #include <utility>
 #include <vector>
 
-#include "int_compat.h"
-#include "intervalmap.h"
-#include "string_compat.h"
-#include "test_compat.h"
-#include "quipper/perf_parser.h"
-#include "quipper/perf_reader.h"
+#include "src/int_compat.h"
+#include "src/intervalmap.h"
+#include "src/string_compat.h"
+#include "src/test_compat.h"
+#include "src/quipper/perf_parser.h"
+#include "src/quipper/perf_reader.h"
 
 using perftools::ProcessProfiles;
 using perftools::profiles::Location;

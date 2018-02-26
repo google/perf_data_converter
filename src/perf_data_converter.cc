@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "perf_data_converter.h"
+#include "src/perf_data_converter.h"
 
 #include <algorithm>
 #include <deque>
@@ -13,13 +13,13 @@
 #include <sstream>
 #include <vector>
 
-#include "int_compat.h"
-#include "perf_data_handler.h"
-#include "string_compat.h"
-#include "builder.h"
-#include "quipper/perf_data.pb.h"
-#include "quipper/perf_parser.h"
-#include "quipper/perf_reader.h"
+#include "src/int_compat.h"
+#include "src/perf_data_handler.h"
+#include "src/string_compat.h"
+#include "src/builder.h"
+#include "src/quipper/perf_data.pb.h"
+#include "src/quipper/perf_parser.h"
+#include "src/quipper/perf_reader.h"
 
 namespace perftools {
 namespace {

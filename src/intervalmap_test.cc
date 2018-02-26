@@ -11,10 +11,10 @@
 #include <utility>
 #include <vector>
 
-#include "int_compat.h"
-#include "intervalmap.h"
-#include "string_compat.h"
-#include "test_compat.h"
+#include "src/int_compat.h"
+#include "src/intervalmap.h"
+#include "src/string_compat.h"
+#include "src/test_compat.h"
 
 namespace perftools {
 namespace {

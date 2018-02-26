@@ -233,10 +233,10 @@ bool PerfParser::ProcessEvents() {
       case PERF_RECORD_UNTHROTTLE:
       case PERF_RECORD_READ:
       case PERF_RECORD_AUX:
+      case PERF_RECORD_ITRACE_START:
         VLOG(1) << "Parsed event type: " << event.header().type()
                 << ". Doing nothing.";
         break;
-      case PERF_RECORD_ITRACE_START:
       case PERF_RECORD_LOST_SAMPLES:
       case PERF_RECORD_SWITCH:
       case PERF_RECORD_SWITCH_CPU_WIDE:

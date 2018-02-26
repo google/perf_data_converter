@@ -19,7 +19,7 @@ These were tested on Debian GNU/Linux 8 (jessie):
 ```
 sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
 git clone --recursive https://github.com/google/perf_data_converter.git
-cd perf_data_converter/src
+cd perf_data_converter
 make perf_to_profile
 ```
 
@@ -28,7 +28,7 @@ you can compile using your local packages with the following commands:
 ```
 sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
 git clone https://github.com/google/perf_data_converter.git
-cd perf_data_converter/src
+cd perf_data_converter
 make perf_to_profile
 ```
 
@@ -38,8 +38,7 @@ Place the `perf_to_profile` binary in a place accessible from your path (eg `/us
 There are a small number of tests that verify the basic functionality.
 To run these, after successful compilation, run:
 ```
-make check clean
-make check clean -C quipper/ -f Makefile.external
+make check
 ```
 
 # Usage:
