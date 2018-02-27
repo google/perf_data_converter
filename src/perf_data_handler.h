@@ -10,8 +10,8 @@
 
 #include <vector>
 
-#include "src/int_compat.h"
-#include "src/string_compat.h"
+#include "src/compat/int_compat.h"
+#include "src/compat/string_compat.h"
 #include "src/quipper/perf_data.pb.h"
 
 namespace perftools {

@@ -13,10 +13,10 @@
 #include <sstream>
 #include <vector>
 
-#include "src/int_compat.h"
-#include "src/perf_data_handler.h"
-#include "src/string_compat.h"
 #include "src/builder.h"
+#include "src/compat/int_compat.h"
+#include "src/compat/string_compat.h"
+#include "src/perf_data_handler.h"
 #include "src/quipper/perf_data.pb.h"
 #include "src/quipper/perf_parser.h"
 #include "src/quipper/perf_reader.h"
