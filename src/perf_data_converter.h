@@ -11,9 +11,9 @@
 #include <memory>
 #include <vector>
 
-#include "src/int_compat.h"
-#include "src/string_compat.h"
 #include "src/profile.pb.h"
+#include "src/compat/int_compat.h"
+#include "src/compat/string_compat.h"
 
 namespace quipper {
 class PerfDataProto;
@@ -68,7 +68,6 @@ enum ConversionOptions {
   // the main mapping in the sample data vs. mapping data.
   kFailOnMainMappingMismatch = 2,
 };
-
 
 struct ProcessProfile {
   // Process PID or 0 if no process grouping was requested.

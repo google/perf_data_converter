@@ -12,7 +12,7 @@
 #include <fstream>
 
 #include "base/logging.h"
-#include "src/string_compat.h"
+#include "src/compat/string_compat.h"
 
 // Checks and returns whether or not the file at the given |path| already
 // exists.

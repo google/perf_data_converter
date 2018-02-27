@@ -14,7 +14,7 @@
 #include <map>
 #include <sstream>
 
-#include "src/int_compat.h"
+#include "src/compat/int_compat.h"
 
 namespace perftools {
 

@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "src/string_compat.h"
+#include "src/compat/string_compat.h"
 
 namespace perftools {
 

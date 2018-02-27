@@ -12,11 +12,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "src/int_compat.h"
+#include "src/compat/int_compat.h"
+#include "src/compat/string_compat.h"
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
 #include "src/perf_data_handler.h"
-#include "src/string_compat.h"
 #include "src/quipper/perf_reader.h"
 
 using quipper::PerfDataProto;

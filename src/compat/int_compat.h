@@ -27,7 +27,6 @@
 
 #ifndef PERFTOOLS_COMPAT_INT_COMPAT_H_
 #define PERFTOOLS_COMPAT_INT_COMPAT_H_
-
 #include "profile.pb.h"
 
 using uint64 = ::google::protobuf::uint64;
