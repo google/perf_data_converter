@@ -34,12 +34,14 @@ PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
 PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
 
 CWP = quipper
+PROTOBUF = ../third_party/protobuf
+GOOGLETEST = ../third_party/googletest
 
 CXXFLAGS += -std=c++11 -g -Wall -Werror -Wall -Wno-error
 CPPFLAGS += -Icompat -I${CWP}/mybase \
 		-I${CWP}/compat/ext \
 		-I${CWP} \
-		-Ithird_party \
+		-I../third_party \
 		-I. $(PC_CFLAGS) $(PROTOBUF_CFLAGS) $(GTEST_INCLUDES)
 LDLIBS += -lelf -lpthread $(PC_LIBS) $(PROTOBUF_LIBS)
 
@@ -88,7 +90,7 @@ all: $(PROGRAMS)
 	@echo Sources compiled!
 
 # Protobuf dependence configuration
-ifeq ($(wildcard third_party/protobuf/src/google/protobuf/descriptor.pb.h),)
+ifeq ($(wildcard ${PROTOBUF}/src/google/protobuf/descriptor.pb.h),)
 # Protobuf module hasn't been populated, attempt using local installation.
 PROTOC = protoc
 PROTOBUF_DEP =
@@ -96,31 +98,31 @@ PROTOBUF_CFLAGS := $(shell $(PKG_CONFIG) --cflags protobuf)
 PROTOBUF_LIBS := $(shell $(PKG_CONFIG) --libs protobuf)
 else
 # Use protobuf compiler and libraries from submodule.
-PROTOC = third_party/protobuf/src/protoc
-PROTOBUF_CFLAGS := -Ithird_party/protobuf/src
-PROTOBUF_LIBS := third_party/protobuf/src/.libs/libprotobuf.a  -lz
-PROTOBUF_DEP := third_party/protobuf/src/.libs/libprotobuf.a
+PROTOC = ${PROTOBUF}/src/protoc
+PROTOBUF_CFLAGS := -I${PROTOBUF}/src
+PROTOBUF_LIBS := ${PROTOBUF}/src/.libs/libprotobuf.a  -lz
+PROTOBUF_DEP := ${PROTOBUF}/src/.libs/libprotobuf.a
 endif
 
-third_party/protobuf/configure:
+${PROTOBUF}/configure:
 	echo "[AUTOGEN] Preparing protobuf"
-	(cd third_party/protobuf ; autoreconf -f -i -Wall,no-obsolete)
+	(cd ${PROTOBUF} ; autoreconf -f -i -Wall,no-obsolete)
 
-third_party/protobuf/src/.libs/libprotobuf.a: third_party/protobuf/configure
+${PROTOBUF}/src/.libs/libprotobuf.a: ${PROTOBUF}/configure
 	echo "[MAKE]    Building protobuf"
-	(cd third_party/protobuf ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="$(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
-	$(MAKE) -C third_party/protobuf clean
-	$(MAKE) -C third_party/protobuf
+	(cd ${PROTOBUF} ; CC="$(CC)" CXX="$(CXX)" LDFLAGS="$(LDFLAGS_$(CONFIG)) -g $(PROTOBUF_LDFLAGS_EXTRA)" CPPFLAGS="$(PIC_CPPFLAGS) $(CPPFLAGS_$(CONFIG)) -g $(PROTOBUF_CPPFLAGS_EXTRA)" ./configure --disable-shared --enable-static $(PROTOBUF_CONFIG_OPTS))
+	$(MAKE) -C ${PROTOBUF} clean
+	$(MAKE) -C ${PROTOBUF}
 
 # Googletest dependence configuration
-ifeq ($(wildcard third_party/googletest/googletest/include/gtest/gtest.h),)
+ifeq ($(wildcard ${GOOGLETEST}/googletest/include/gtest/gtest.h),)
 # Use local gtest includes, already on the system path
 GTEST_INCLUDES =
 GTEST_LIBS = -lgtest -lgmock
 else
 # Pick up gtest includes from submodule.
-GTEST_INCLUDES = -Ithird_party/googletest/googlemock/include -Ithird_party/googletest/googletest/include
-GTEST_LIBS = -Ithird_party/googletest/googlemock third_party/googletest/googlemock/src/gmock-all.cc -Ithird_party/googletest/googletest third_party/googletest/googletest/src/gtest-all.cc
+GTEST_INCLUDES = -I${GOOGLETEST}/googlemock/include -I${GOOGLETEST}/googletest/include
+GTEST_LIBS = -I${GOOGLETEST}/googlemock ${GOOGLETEST}/googlemock/src/gmock-all.cc -I${GOOGLETEST}/googletest ${GOOGLETEST}/googletest/src/gtest-all.cc
 endif
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -137,7 +139,7 @@ endif
 
 # Rule for compiling protobufs.
 %.pb.h %.pb.cc: %.proto $(PROTOBUF_DEP)
-	$(PROTOC) --cpp_out=. $<
+	$(PROTOC) --cpp_out=`dirname $<` -I`dirname $<` $<
 
 # Do not remove protobuf headers that were generated as dependencies of other
 # modules.

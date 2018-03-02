@@ -11,13 +11,13 @@ PC_DEPS = openssl
 PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
 PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
 
-PROTOBUF = ../third_party/protobuf
-GOOGLETEST = ../third_party/googletest
+PROTOBUF = ../../third_party/protobuf
+GOOGLETEST = ../../third_party/googletest
 
 CXXFLAGS += -std=c++11 -g -Wall -Werror -Wall -Wno-error
 CPPFLAGS += -Imybase \
             -Icompat/non_cros \
-            -I../third_party \
+            -I../../third_party \
             -I. -I.. $(PC_CFLAGS) $(PROTOBUF_CFLAGS) $(GTEST_INCLUDES)
 LDLIBS += -lpthread -lgcov -lelf $(PC_LIBS) $(PROTOBUF_LIBS)
 
