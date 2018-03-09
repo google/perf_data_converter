@@ -283,7 +283,7 @@ message PerfDataProto {
     repeated ReadValue read_value = 3;
   }
 
-  // Next tag: 4
+  // Next tag: 8
   message BranchStackEntry {
     // Branch source address.
     optional uint64 from_ip = 1;
@@ -293,6 +293,18 @@ message PerfDataProto {
 
     // Indicates a mispredicted branch.
     optional bool mispredicted = 3;
+
+    // Indicates a predicted branch.
+    optional bool predicted = 4;
+
+    // Indicates running in a hardware transaction
+    optional bool in_transaction = 5;
+
+    // Indicates aborting a hardware transaction
+    optional bool abort = 6;
+
+    // Cycle count to last branch
+    optional uint32 cycles = 7;
   }
 
   // Next tag: 19
