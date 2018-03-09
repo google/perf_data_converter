@@ -1,0 +1,4995 @@
+file_attrs {
+  attr {
+    type: 0
+    size: 96
+    config: 0
+    sample_period: 4000
+    sample_type: 2311
+    read_format: 0
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: true
+    inherit_stat: false
+    enable_on_exec: true
+    task: true
+    watermark: false
+    precise_ip: 3
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 8
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0
+    sample_stack_user: 0
+  }
+}
+events {
+  header {
+    type: 79
+    misc: 0
+    size: 32
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 80
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072436580352
+    len: 200998912
+    pgoff: 18446744072436580352
+    filename: "[kernel.kallsyms]_text"
+    filename_md5_prefix: 9918483331179727898
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072637579264
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/net/usb/cdc_ether.ko"
+    filename_md5_prefix: 4326183393196963868
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 104
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072637599744
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/net/mii.ko"
+    filename_md5_prefix: 15471336300297244017
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072637628416
+    len: 57344
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/net/usb/r8152.ko"
+    filename_md5_prefix: 14008244948043366549
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072637714432
+    len: 32768
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/net/usb/usbnet.ko"
+    filename_md5_prefix: 11603049205859932489
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072638107648
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/sound/core/snd-seq-device.ko"
+    filename_md5_prefix: 11575303946476544346
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072638140416
+    len: 57344
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/sound/core/seq/snd-seq.ko"
+    filename_md5_prefix: 4073893546580802502
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072638279680
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/netfilter/xt_mark.ko"
+    filename_md5_prefix: 3629648585593385446
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 144
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072638300160
+    len: 495616
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/net/wireless/iwl7000/wireless/iwl7000_cfg80211.ko"
+    filename_md5_prefix: 11985212401014569664
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072639868928
+    len: 20480
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/drivers/block/zram/zram.ko"
+    filename_md5_prefix: 2470876557629542673
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640208896
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/lib/lzo/lzo_compress.ko"
+    filename_md5_prefix: 7767358083436011379
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640356352
+    len: 20480
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/crypto/ecdh_generic.ko"
+    filename_md5_prefix: 47765849327238807
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 104
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640442368
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/crypto/lzo.ko"
+    filename_md5_prefix: 8346705626002633389
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640577536
+    len: 352256
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/bluetooth/bluetooth.ko"
+    filename_md5_prefix: 4222203254579246083
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640933888
+    len: 45056
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/netfilter/nf_nat.ko"
+    filename_md5_prefix: 14836431252568936112
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 136
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072640983040
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/ipv4/netfilter/nf_nat_masquerade_ipv4.ko"
+    filename_md5_prefix: 13140196274934546188
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 128
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072641048576
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/ipv6/netfilter/ip6table_filter.ko"
+    filename_md5_prefix: 8927101511769522745
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072641138688
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/ipv4/netfilter/nf_nat_ipv4.ko"
+    filename_md5_prefix: 16693067058356980361
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072641216512
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/ipv4/netfilter/iptable_nat.ko"
+    filename_md5_prefix: 14757832664300166671
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 128
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072641236992
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/ipv4/netfilter/ipt_MASQUERADE.ko"
+    filename_md5_prefix: 12280652108147212954
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072641462272
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.14.18/kernel/net/netfilter/xt_nat.ko"
+    filename_md5_prefix: 8019086406885588685
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 5805
+    tid: 5805
+    comm: "418244077874547"
+    comm_md5_prefix: 34177195656094620
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436609522
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245939019
+    period: 1
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436627076
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436627052
+      to_ip: 18446744072436627075
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+    branch_stack {
+      from_ip: 0
+      to_ip: 0
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+    }
+  }
+  timestamp: 12631245939019
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436609522
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245946340
+    period: 1
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072436628825
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 25
+    }
+    branch_stack {
+      from_ip: 18446744072436628710
+      to_ip: 18446744072436628823
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 27
+    }
+    branch_stack {
+      from_ip: 18446744072436616699
+      to_ip: 18446744072436628649
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436622723
+      to_ip: 18446744072436616695
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622699
+      to_ip: 18446744072436622722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 251
+    }
+    branch_stack {
+      from_ip: 18446744072436625945
+      to_ip: 18446744072436622672
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 9
+    }
+    branch_stack {
+      from_ip: 18446744072436616690
+      to_ip: 18446744072436625903
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 24
+    }
+    branch_stack {
+      from_ip: 18446744072436615186
+      to_ip: 18446744072436616660
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 31
+    }
+    branch_stack {
+      from_ip: 18446744072436612701
+      to_ip: 18446744072436615153
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436612684
+      to_ip: 18446744072436612696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 111
+    }
+    branch_stack {
+      from_ip: 18446744072436615148
+      to_ip: 18446744072436612657
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 22
+    }
+    branch_stack {
+      from_ip: 18446744072436614887
+      to_ip: 18446744072436615143
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827237
+      to_ip: 18446744072436614882
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 24
+    }
+    branch_stack {
+      from_ip: 18446744072439827190
+      to_ip: 18446744072439827233
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072439827231
+      to_ip: 18446744072439827187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 21
+    }
+    branch_stack {
+      from_ip: 18446744072439827206
+      to_ip: 18446744072439827228
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436614877
+      to_ip: 18446744072439827181
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 31
+    }
+    branch_stack {
+      from_ip: 18446744072436614841
+      to_ip: 18446744072436614851
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+    branch_stack {
+      from_ip: 18446744072436622490
+      to_ip: 18446744072436614796
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 33
+    }
+    branch_stack {
+      from_ip: 18446744072436622469
+      to_ip: 18446744072436622476
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 38
+    }
+    branch_stack {
+      from_ip: 18446744072436622318
+      to_ip: 18446744072436622456
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 12
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 20
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 38
+    }
+    branch_stack {
+      from_ip: 18446744072436621917
+      to_ip: 18446744072436622448
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 34
+    }
+    branch_stack {
+      from_ip: 18446744072436621888
+      to_ip: 18446744072436621895
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 28
+    }
+    branch_stack {
+      from_ip: 18446744072436621863
+      to_ip: 18446744072436621875
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072437898735
+      to_ip: 18446744072436621861
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 27
+    }
+    branch_stack {
+      from_ip: 18446744072437898661
+      to_ip: 18446744072437898722
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+  }
+  timestamp: 12631245946340
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436609522
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245951290
+    period: 5
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628825
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628710
+      to_ip: 18446744072436628823
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 14
+    }
+    branch_stack {
+      from_ip: 18446744072436616699
+      to_ip: 18446744072436628649
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436622723
+      to_ip: 18446744072436616695
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436622699
+      to_ip: 18446744072436622722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 183
+    }
+    branch_stack {
+      from_ip: 18446744072436625945
+      to_ip: 18446744072436622672
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436616690
+      to_ip: 18446744072436625903
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 9
+    }
+    branch_stack {
+      from_ip: 18446744072436615186
+      to_ip: 18446744072436616660
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436612701
+      to_ip: 18446744072436615153
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436612684
+      to_ip: 18446744072436612696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 82
+    }
+    branch_stack {
+      from_ip: 18446744072436615148
+      to_ip: 18446744072436612657
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436614887
+      to_ip: 18446744072436615143
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827237
+      to_ip: 18446744072436614882
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827190
+      to_ip: 18446744072439827233
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827231
+      to_ip: 18446744072439827187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827206
+      to_ip: 18446744072439827228
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436614877
+      to_ip: 18446744072439827181
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436614841
+      to_ip: 18446744072436614851
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 16
+    }
+    branch_stack {
+      from_ip: 18446744072436622490
+      to_ip: 18446744072436614796
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072436622469
+      to_ip: 18446744072436622476
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622318
+      to_ip: 18446744072436622456
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436621917
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436621888
+      to_ip: 18446744072436621895
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436621863
+      to_ip: 18446744072436621875
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437898735
+      to_ip: 18446744072436621861
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072437898661
+      to_ip: 18446744072437898722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+  }
+  timestamp: 12631245951290
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436609524
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245970874
+    period: 36
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628825
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628710
+      to_ip: 18446744072436628823
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 14
+    }
+    branch_stack {
+      from_ip: 18446744072436616699
+      to_ip: 18446744072436628649
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436622723
+      to_ip: 18446744072436616695
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622699
+      to_ip: 18446744072436622722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 42141
+    }
+    branch_stack {
+      from_ip: 18446744072436625945
+      to_ip: 18446744072436622672
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436616690
+      to_ip: 18446744072436625903
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072436615186
+      to_ip: 18446744072436616660
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436612701
+      to_ip: 18446744072436615153
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436612684
+      to_ip: 18446744072436612696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 83
+    }
+    branch_stack {
+      from_ip: 18446744072436615148
+      to_ip: 18446744072436612657
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436614887
+      to_ip: 18446744072436615143
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827237
+      to_ip: 18446744072436614882
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827190
+      to_ip: 18446744072439827233
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827231
+      to_ip: 18446744072439827187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827206
+      to_ip: 18446744072439827228
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436614877
+      to_ip: 18446744072439827181
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436614841
+      to_ip: 18446744072436614851
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 12
+    }
+    branch_stack {
+      from_ip: 18446744072436622490
+      to_ip: 18446744072436614796
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622469
+      to_ip: 18446744072436622476
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622318
+      to_ip: 18446744072436622456
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436621917
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436621888
+      to_ip: 18446744072436621895
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436621863
+      to_ip: 18446744072436621875
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437898735
+      to_ip: 18446744072436621861
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072437898661
+      to_ip: 18446744072437898722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+  }
+  timestamp: 12631245970874
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436619409
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245976354
+    period: 89
+    branch_stack {
+      from_ip: 18446744072436615191
+      to_ip: 18446744072436619393
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436616782
+      to_ip: 18446744072436615191
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436616744
+      to_ip: 18446744072436616778
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436609558
+      to_ip: 18446744072436616731
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436609534
+      to_ip: 18446744072436609557
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 144
+    }
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628825
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628710
+      to_ip: 18446744072436628823
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 14
+    }
+    branch_stack {
+      from_ip: 18446744072436616699
+      to_ip: 18446744072436628649
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436622723
+      to_ip: 18446744072436616695
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622699
+      to_ip: 18446744072436622722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2019
+    }
+    branch_stack {
+      from_ip: 18446744072436625945
+      to_ip: 18446744072436622672
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436616690
+      to_ip: 18446744072436625903
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 9
+    }
+    branch_stack {
+      from_ip: 18446744072436615186
+      to_ip: 18446744072436616660
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072436612701
+      to_ip: 18446744072436615153
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436612684
+      to_ip: 18446744072436612696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 82
+    }
+    branch_stack {
+      from_ip: 18446744072436615148
+      to_ip: 18446744072436612657
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436614887
+      to_ip: 18446744072436615143
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827237
+      to_ip: 18446744072436614882
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827190
+      to_ip: 18446744072439827233
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827231
+      to_ip: 18446744072439827187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827206
+      to_ip: 18446744072439827228
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 18446744072436614877
+      to_ip: 18446744072439827181
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436614841
+      to_ip: 18446744072436614851
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+    branch_stack {
+      from_ip: 18446744072436622490
+      to_ip: 18446744072436614796
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622469
+      to_ip: 18446744072436622476
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622318
+      to_ip: 18446744072436622456
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622343
+      to_ip: 18446744072436622448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436622451
+      to_ip: 18446744072436622307
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+  }
+  timestamp: 12631245976354
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436615257
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245982862
+    period: 586
+    branch_stack {
+      from_ip: 18446744072436615250
+      to_ip: 18446744072436615257
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436813089
+      to_ip: 18446744072436615234
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 32
+    }
+    branch_stack {
+      from_ip: 18446744072449175856
+      to_ip: 18446744072436813076
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072449175840
+      to_ip: 18446744072449175852
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436615229
+      to_ip: 18446744072449175840
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436619451
+      to_ip: 18446744072436615196
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436619434
+      to_ip: 18446744072436619450
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436619426
+      to_ip: 18446744072436619432
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 17
+    }
+    branch_stack {
+      from_ip: 18446744072436615191
+      to_ip: 18446744072436619393
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436616782
+      to_ip: 18446744072436615191
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436616744
+      to_ip: 18446744072436616778
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436609558
+      to_ip: 18446744072436616731
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436609534
+      to_ip: 18446744072436609557
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 146
+    }
+    branch_stack {
+      from_ip: 18446744072436616726
+      to_ip: 18446744072436609507
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628825
+      to_ip: 18446744072436616704
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436628710
+      to_ip: 18446744072436628823
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+    branch_stack {
+      from_ip: 18446744072436616699
+      to_ip: 18446744072436628649
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436622723
+      to_ip: 18446744072436616695
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436622699
+      to_ip: 18446744072436622722
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1660
+    }
+    branch_stack {
+      from_ip: 18446744072436625945
+      to_ip: 18446744072436622672
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436616690
+      to_ip: 18446744072436625903
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072436615186
+      to_ip: 18446744072436616660
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072436612701
+      to_ip: 18446744072436615153
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072436612684
+      to_ip: 18446744072436612696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 80
+    }
+    branch_stack {
+      from_ip: 18446744072436615148
+      to_ip: 18446744072436612657
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436614887
+      to_ip: 18446744072436615143
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827237
+      to_ip: 18446744072436614882
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827190
+      to_ip: 18446744072439827233
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827231
+      to_ip: 18446744072439827187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072439827206
+      to_ip: 18446744072439827228
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 18446744072436614877
+      to_ip: 18446744072439827181
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072436614841
+      to_ip: 18446744072436614851
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 14
+    }
+  }
+  timestamp: 12631245982862
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072447072065
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245991077
+    period: 3326
+    branch_stack {
+      from_ip: 18446744072447072032
+      to_ip: 18446744072447072037
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 210
+    }
+    branch_stack {
+      from_ip: 18446744072447071985
+      to_ip: 18446744072447072021
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436684306
+      to_ip: 18446744072447071976
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072436684264
+      to_ip: 18446744072436684278
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436684231
+      to_ip: 18446744072436684249
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437356654
+      to_ip: 18446744072436684222
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436684217
+      to_ip: 18446744072437356633
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436684202
+      to_ip: 18446744072436684206
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437409150
+      to_ip: 18446744072436684190
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437409130
+      to_ip: 18446744072437409134
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437405839
+      to_ip: 18446744072437409128
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072437409123
+      to_ip: 18446744072437405803
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437409119
+      to_ip: 18446744072437409123
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436684185
+      to_ip: 18446744072437409090
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683720
+      to_ip: 18446744072436684185
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683501
+      to_ip: 18446744072436683707
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072437394045
+      to_ip: 18446744072436683485
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394003
+      to_ip: 18446744072437394043
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436683480
+      to_ip: 18446744072437393965
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683269
+      to_ip: 18446744072436683480
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683475
+      to_ip: 18446744072436683265
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683451
+      to_ip: 18446744072436683472
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436683331
+      to_ip: 18446744072436683444
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436704136
+      to_ip: 18446744072436683309
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436701141
+      to_ip: 18446744072436704125
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436704120
+      to_ip: 18446744072436701132
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 17
+    }
+    branch_stack {
+      from_ip: 18446744072436704164
+      to_ip: 18446744072436704019
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 18
+    }
+    branch_stack {
+      from_ip: 18446744072436683304
+      to_ip: 18446744072436704137
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436801125
+      to_ip: 18446744072436683299
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072444994160
+      to_ip: 18446744072436801121
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072444994013
+      to_ip: 18446744072444994156
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 17
+    }
+    branch_stack {
+      from_ip: 18446744072436801116
+      to_ip: 18446744072444993980
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 23
+    }
+  }
+  timestamp: 12631245991077
+}
+events {
+  header {
+    type: 3
+    misc: 8192
+    size: 48
+  }
+  comm_event {
+    pid: 5805
+    tid: 5805
+    comm: "146775465757492"
+    comm_md5_prefix: 15671392160032608659
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631245992425
+    }
+  }
+  timestamp: 12631245992425
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072437919396
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631245996882
+    period: 15566
+    branch_stack {
+      from_ip: 18446744072437919396
+      to_ip: 18446744072437919417
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 30
+    }
+    branch_stack {
+      from_ip: 18446744072437393964
+      to_ip: 18446744072437919358
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 13
+    }
+    branch_stack {
+      from_ip: 18446744072437919353
+      to_ip: 18446744072437393939
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 36
+    }
+    branch_stack {
+      from_ip: 18446744072437902240
+      to_ip: 18446744072437919282
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 22
+    }
+    branch_stack {
+      from_ip: 18446744072437884213
+      to_ip: 18446744072437902226
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437884188
+      to_ip: 18446744072437884207
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437884170
+      to_ip: 18446744072437884184
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437884129
+      to_ip: 18446744072437884163
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437221351
+      to_ip: 18446744072437884118
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437220990
+      to_ip: 18446744072437221343
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436704136
+      to_ip: 18446744072437220983
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436701141
+      to_ip: 18446744072436704125
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436704120
+      to_ip: 18446744072436701132
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+    branch_stack {
+      from_ip: 18446744072436704164
+      to_ip: 18446744072436704019
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 13
+    }
+    branch_stack {
+      from_ip: 18446744072437220978
+      to_ip: 18446744072436704137
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 19
+    }
+    branch_stack {
+      from_ip: 18446744072437911646
+      to_ip: 18446744072437220957
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 19
+    }
+    branch_stack {
+      from_ip: 18446744072449175568
+      to_ip: 18446744072437911634
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072449175552
+      to_ip: 18446744072449175564
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437884113
+      to_ip: 18446744072449175552
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437870969
+      to_ip: 18446744072437884096
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437870950
+      to_ip: 18446744072437870967
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437157616
+      to_ip: 18446744072437870948
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394045
+      to_ip: 18446744072437157605
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394003
+      to_ip: 18446744072437394043
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072437157600
+      to_ip: 18446744072437393965
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072437157524
+      to_ip: 18446744072437157545
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437157474
+      to_ip: 18446744072437157509
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437393964
+      to_ip: 18446744072437157471
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072437157466
+      to_ip: 18446744072437393939
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072437870943
+      to_ip: 18446744072437157442
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072437884091
+      to_ip: 18446744072437870909
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437870969
+      to_ip: 18446744072437884074
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+  }
+  timestamp: 12631245996882
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072438160775
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631246006264
+    period: 97316
+    branch_stack {
+      from_ip: 18446744072436862944
+      to_ip: 18446744072438160769
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436864281
+      to_ip: 18446744072436862923
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436864252
+      to_ip: 18446744072436864263
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436862918
+      to_ip: 18446744072436864240
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438170579
+      to_ip: 18446744072436862900
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072438148628
+      to_ip: 18446744072438170529
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072438170524
+      to_ip: 18446744072438148570
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438170488
+      to_ip: 18446744072438170501
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438170049
+      to_ip: 18446744072438170485
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438170470
+      to_ip: 18446744072438170038
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438170688
+      to_ip: 18446744072438170451
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 22
+    }
+    branch_stack {
+      from_ip: 18446744072437981024
+      to_ip: 18446744072438170680
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 25
+    }
+    branch_stack {
+      from_ip: 18446744072437980528
+      to_ip: 18446744072437981006
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437980474
+      to_ip: 18446744072437980516
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 57
+    }
+    branch_stack {
+      from_ip: 18446744072437964475
+      to_ip: 18446744072437980345
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 33
+    }
+    branch_stack {
+      from_ip: 18446744072437980340
+      to_ip: 18446744072437964429
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072437980301
+      to_ip: 18446744072437980311
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072437965164
+      to_ip: 18446744072437980296
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437965059
+      to_ip: 18446744072437965164
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 34
+    }
+    branch_stack {
+      from_ip: 18446744072437980291
+      to_ip: 18446744072437965051
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 17
+    }
+    branch_stack {
+      from_ip: 18446744072438005311
+      to_ip: 18446744072437980244
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438008324
+      to_ip: 18446744072438005304
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438008046
+      to_ip: 18446744072438008308
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438002335
+      to_ip: 18446744072438008041
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438008036
+      to_ip: 18446744072438002315
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438005299
+      to_ip: 18446744072438008011
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438252191
+      to_ip: 18446744072438005270
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438252183
+      to_ip: 18446744072438252187
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 17
+    }
+    branch_stack {
+      from_ip: 18446744072438249318
+      to_ip: 18446744072438252179
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438252174
+      to_ip: 18446744072438249298
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 47
+    }
+    branch_stack {
+      from_ip: 18446744072438249819
+      to_ip: 18446744072438252170
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438249746
+      to_ip: 18446744072438249800
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+  }
+  timestamp: 12631246006264
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 94015252189184
+    len: 1200128
+    pgoff: 0
+    filename: "/usr/bin/coreutils"
+    filename_md5_prefix: 4731110125692343336
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246012584
+    }
+    maj: 179
+    min: 5
+    ino: 26037
+    ino_generation: 2948000201
+    prot: 5
+    flags: 6146
+  }
+  timestamp: 12631246012584
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921339899904
+    len: 2256896
+    pgoff: 0
+    filename: "/lib64/ld-2.23.so"
+    filename_md5_prefix: 16298180877303668667
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246024530
+    }
+    maj: 179
+    min: 5
+    ino: 32003
+    ino_generation: 2947997514
+    prot: 5
+    flags: 6146
+  }
+  timestamp: 12631246024530
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 96
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 140722445361152
+    len: 8192
+    pgoff: 0
+    filename: "[vdso]"
+    filename_md5_prefix: 2667416218816914640
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246034265
+    }
+    maj: 0
+    min: 0
+    ino: 0
+    ino_generation: 0
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246034265
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072436845632
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631246042354
+    period: 410302
+    branch_stack {
+      from_ip: 18446744072436845582
+      to_ip: 18446744072436845592
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072436845531
+      to_ip: 18446744072436845578
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 19
+    }
+    branch_stack {
+      from_ip: 18446744072436846724
+      to_ip: 18446744072436845431
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072436846492
+      to_ip: 18446744072436846707
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 16
+    }
+    branch_stack {
+      from_ip: 18446744072447071079
+      to_ip: 18446744072436846463
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072447071534
+      to_ip: 18446744072447071062
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072447071578
+      to_ip: 18446744072447071534
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072447071494
+      to_ip: 18446744072447071535
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 30
+    }
+    branch_stack {
+      from_ip: 18446744072447071057
+      to_ip: 18446744072447071408
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 45
+    }
+    branch_stack {
+      from_ip: 18446744072438715562
+      to_ip: 18446744072447071040
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 673
+    }
+    branch_stack {
+      from_ip: 18446744072438198434
+      to_ip: 18446744072438715540
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072438198380
+      to_ip: 18446744072438198425
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438198365
+      to_ip: 18446744072438198371
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438193299
+      to_ip: 18446744072438198362
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438132335
+      to_ip: 18446744072438193290
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 16
+    }
+    branch_stack {
+      from_ip: 18446744072438193285
+      to_ip: 18446744072438132264
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 23
+    }
+    branch_stack {
+      from_ip: 18446744072438193250
+      to_ip: 18446744072438193267
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 18446744072438193259
+      to_ip: 18446744072438193231
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 29
+    }
+    branch_stack {
+      from_ip: 18446744072438193265
+      to_ip: 18446744072438193231
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438193244
+      to_ip: 18446744072438193261
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438193265
+      to_ip: 18446744072438193231
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438193244
+      to_ip: 18446744072438193261
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072438132495
+      to_ip: 18446744072438193221
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 18446744072438132432
+      to_ip: 18446744072438132494
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438132492
+      to_ip: 18446744072438132430
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 23
+    }
+    branch_stack {
+      from_ip: 18446744072438132460
+      to_ip: 18446744072438132483
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438132490
+      to_ip: 18446744072438132446
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438132460
+      to_ip: 18446744072438132483
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438132490
+      to_ip: 18446744072438132446
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438132460
+      to_ip: 18446744072438132483
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 18446744072438132490
+      to_ip: 18446744072438132446
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438132466
+      to_ip: 18446744072438132472
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 26
+    }
+  }
+  timestamp: 12631246042354
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921341923328
+    len: 163840
+    pgoff: 0
+    filename: "/lib64/libselinux.so.1"
+    filename_md5_prefix: 11923237026864309557
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246115339
+    }
+    maj: 179
+    min: 5
+    ino: 32117
+    ino_generation: 2947999215
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246115339
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921341894656
+    len: 24576
+    pgoff: 0
+    filename: "/lib64/libattr.so.1.1.0"
+    filename_md5_prefix: 5078625996439060330
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246147645
+    }
+    maj: 179
+    min: 5
+    ino: 32036
+    ino_generation: 2947998017
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246147645
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921337769984
+    len: 2129920
+    pgoff: 0
+    filename: "/lib64/librt-2.23.so"
+    filename_md5_prefix: 6237228259942116
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246169509
+    }
+    maj: 179
+    min: 5
+    ino: 32017
+    ino_generation: 2947997528
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246169509
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 816
+  }
+  sample_event {
+    ip: 18446744072437915483
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631246180064
+    period: 714311
+    branch_stack {
+      from_ip: 18446744072437915469
+      to_ip: 18446744072437915483
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437915481
+      to_ip: 18446744072437915465
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 18
+    }
+    branch_stack {
+      from_ip: 18446744072437915481
+      to_ip: 18446744072437915465
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072437915481
+      to_ip: 18446744072437915465
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 73
+    }
+    branch_stack {
+      from_ip: 18446744072437915263
+      to_ip: 18446744072437915448
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 26
+    }
+    branch_stack {
+      from_ip: 18446744072438483598
+      to_ip: 18446744072437915206
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438483536
+      to_ip: 18446744072438483584
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394045
+      to_ip: 18446744072438483526
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394023
+      to_ip: 18446744072437394033
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437393993
+      to_ip: 18446744072437394005
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 18446744072438483521
+      to_ip: 18446744072437393965
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483494
+      to_ip: 18446744072438483518
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483469
+      to_ip: 18446744072438483483
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438470276
+      to_ip: 18446744072438483446
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438483441
+      to_ip: 18446744072438470256
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394045
+      to_ip: 18446744072438483427
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394003
+      to_ip: 18446744072437394043
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 18446744072438483422
+      to_ip: 18446744072437393965
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483402
+      to_ip: 18446744072438483416
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438470276
+      to_ip: 18446744072438483383
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 18446744072438483378
+      to_ip: 18446744072438470256
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394045
+      to_ip: 18446744072438483363
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072437394003
+      to_ip: 18446744072437394043
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 15
+    }
+    branch_stack {
+      from_ip: 18446744072438483358
+      to_ip: 18446744072437393965
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483327
+      to_ip: 18446744072438483350
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483204
+      to_ip: 18446744072438483314
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483312
+      to_ip: 18446744072438483200
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483287
+      to_ip: 18446744072438483309
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 18446744072438483307
+      to_ip: 18446744072438483284
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438483307
+      to_ip: 18446744072438483284
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438483307
+      to_ip: 18446744072438483284
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 18446744072438483307
+      to_ip: 18446744072438483284
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+  }
+  timestamp: 12631246180064
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921335554048
+    len: 2215936
+    pgoff: 0
+    filename: "/lib64/libpthread-2.23.so"
+    filename_md5_prefix: 5142068807737746811
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246200660
+    }
+    maj: 179
+    min: 5
+    ino: 32002
+    ino_generation: 2947997513
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246200660
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921331707904
+    len: 3846144
+    pgoff: 0
+    filename: "/lib64/libc-2.23.so"
+    filename_md5_prefix: 3973648559293380385
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246229725
+    }
+    maj: 179
+    min: 5
+    ino: 32008
+    ino_generation: 2947997519
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246229725
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921341390848
+    len: 499712
+    pgoff: 0
+    filename: "/lib64/libpcre.so.1.2.8"
+    filename_md5_prefix: 18115729936721711819
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246260999
+    }
+    maj: 179
+    min: 5
+    ino: 32034
+    ino_generation: 2947998009
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246260999
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5805
+    tid: 5805
+    start: 132921329594368
+    len: 2113536
+    pgoff: 0
+    filename: "/lib64/libdl-2.23.so"
+    filename_md5_prefix: 1516848400377836469
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246282809
+    }
+    maj: 179
+    min: 5
+    ino: 32010
+    ino_generation: 2947997521
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 12631246282809
+}
+events {
+  header {
+    type: 9
+    misc: 16386
+    size: 816
+  }
+  sample_event {
+    ip: 132921339949339
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631246458024
+    period: 717905
+    branch_stack {
+      from_ip: 132921339950741
+      to_ip: 132921339949322
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 10
+    }
+    branch_stack {
+      from_ip: 132921332270688
+      to_ip: 132921339950720
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 24
+    }
+    branch_stack {
+      from_ip: 132921332270667
+      to_ip: 132921332270688
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339950718
+      to_ip: 132921332270624
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339949316
+      to_ip: 132921339950672
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339941857
+      to_ip: 132921339949253
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 132921339939575
+      to_ip: 132921339941727
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 3
+    }
+    branch_stack {
+      from_ip: 132921339939213
+      to_ip: 132921339939542
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339941257
+      to_ip: 132921339939176
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339939510
+      to_ip: 132921339941236
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339938249
+      to_ip: 132921339939505
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938284
+      to_ip: 132921339938236
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339938277
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339938272
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938216
+      to_ip: 132921339938256
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339939500
+      to_ip: 132921339938144
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339939462
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 9
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 20
+    }
+    branch_stack {
+      from_ip: 132921339939457
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 348
+    }
+    branch_stack {
+      from_ip: 132921339939313
+      to_ip: 132921339939333
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 27
+    }
+    branch_stack {
+      from_ip: 132921339938690
+      to_ip: 132921339939248
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 132921339938806
+      to_ip: 132921339938568
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938779
+      to_ip: 132921339938790
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339968992
+      to_ip: 132921339938724
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968951
+      to_ip: 132921339968984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968966
+      to_ip: 132921339968944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968964
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339968959
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968934
+      to_ip: 132921339968953
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968918
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+  }
+  timestamp: 12631246458024
+}
+events {
+  header {
+    type: 9
+    misc: 16386
+    size: 816
+  }
+  sample_event {
+    ip: 132921339938216
+    pid: 5805
+    tid: 5805
+    sample_time_ns: 12631246708679
+    period: 708888
+    branch_stack {
+      from_ip: 132921339938216
+      to_ip: 132921339938256
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 8
+    }
+    branch_stack {
+      from_ip: 132921339939500
+      to_ip: 132921339938144
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 5
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339939462
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 39
+    }
+    branch_stack {
+      from_ip: 132921339939457
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 339
+    }
+    branch_stack {
+      from_ip: 132921339939313
+      to_ip: 132921339939333
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 65
+    }
+    branch_stack {
+      from_ip: 132921339938690
+      to_ip: 132921339939248
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 7
+    }
+    branch_stack {
+      from_ip: 132921339938806
+      to_ip: 132921339938568
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938779
+      to_ip: 132921339938790
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339968992
+      to_ip: 132921339938724
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968951
+      to_ip: 132921339968984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968966
+      to_ip: 132921339968944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968964
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339968959
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968934
+      to_ip: 132921339968953
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968918
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 6
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339968913
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938719
+      to_ip: 132921339968896
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 10
+    }
+    branch_stack {
+      from_ip: 132921339938806
+      to_ip: 132921339938568
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339938779
+      to_ip: 132921339938790
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921339968992
+      to_ip: 132921339938724
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968951
+      to_ip: 132921339968984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968966
+      to_ip: 132921339968944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968964
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340007874
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+    branch_stack {
+      from_ip: 132921339968959
+      to_ip: 132921340007808
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921339968934
+      to_ip: 132921339968953
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 1
+    }
+    branch_stack {
+      from_ip: 132921340012958
+      to_ip: 132921339968918
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921340012928
+      to_ip: 132921340012944
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 2
+    }
+    branch_stack {
+      from_ip: 132921340012314
+      to_ip: 132921340012917
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 4
+    }
+  }
+  timestamp: 12631246708679
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 5805
+    tid: 5805
+    comm: "146775465757492"
+    comm_md5_prefix: 15671392160032608659
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246809675
+    }
+  }
+  timestamp: 12631246809675
+}
+events {
+  header {
+    type: 4
+    misc: 0
+    size: 48
+  }
+  exit_event {
+    pid: 5805
+    ppid: 5805
+    tid: 5805
+    ptid: 5805
+    fork_time_ns: 12631246949592
+    sample_info {
+      pid: 5805
+      tid: 5805
+      sample_time_ns: 12631246949434
+    }
+  }
+  timestamp: 12631246949434
+}
+timestamp_sec: 0
+stats {
+  num_sample_events: 13
+  num_mmap_events: 31
+  num_fork_events: 0
+  num_exit_events: 1
+  num_sample_events_mapped: 13
+  did_remap: false
+}
+metadata_mask: 114684
+build_ids {
+  misc: 1
+  pid: 4294967295
+  build_id_hash: "g&y\316\256\317\027\267\250y\345lV\200*\374V\212\242B"
+  filename: "[kernel.kallsyms]"
+  filename_md5_prefix: 280564236321828871
+}
+build_ids {
+  misc: 2
+  pid: 4294967295
+  build_id_hash: "\243\370<\323y\236\364\024\2357c\316\345M\321\213\226{}\333"
+  filename: "/lib64/ld-2.23.so"
+  filename_md5_prefix: 16298180877303668667
+}
+build_ids {
+  misc: 2
+  pid: 4294967295
+  build_id_hash: "-\026\014W\"%\027H\357\\\"9\373i@\031]<\031\267"
+  filename: "[vdso]"
+  filename_md5_prefix: 2667416218816914640
+}
+uint32_metadata {
+  type: 7
+  data: 4
+  data: 4
+}
+uint64_metadata {
+  type: 10
+  data: 16299868
+}
+event_types {
+  id: 0
+  name: "cycles:ppp"
+  name_md5_prefix: 5968173510929201826
+}
+cpu_topology {
+  core_siblings: "0-3"
+  core_siblings_md5_prefix: 6955206273986717419
+  thread_siblings: "0-1"
+  thread_siblings: "2-3"
+  thread_siblings_md5_prefix: 14045363986529205085
+  thread_siblings_md5_prefix: 13991663921307637384
+}
+string_metadata {
+  hostname {
+    value: "localhost"
+    value_md5_prefix: 4763305433620259622
+  }
+  kernel_version {
+    value: "4.14.18"
+    value_md5_prefix: 5822857973331273200
+  }
+  perf_version {
+    value: ""
+    value_md5_prefix: 15284527576400310788
+  }
+  architecture {
+    value: "x86_64"
+    value_md5_prefix: 11246003006864564
+  }
+  cpu_description {
+    value: "Intel(R) Core(TM) m7-6Y75 CPU @ 1.20GHz"
+    value_md5_prefix: 9538301509962256736
+  }
+  cpu_id {
+    value: "GenuineIntel,6,78,3"
+    value_md5_prefix: 4188185387426374524
+  }
+  perf_command_line_token {
+    value: "/usr/bin/perf"
+    value_md5_prefix: 17155547145735550491
+  }
+  perf_command_line_token {
+    value: "record"
+    value_md5_prefix: 16003524724320237622
+  }
+  perf_command_line_token {
+    value: "-b"
+    value_md5_prefix: 1577424657589311166
+  }
+  perf_command_line_token {
+    value: "-o"
+    value_md5_prefix: 12893035396610391846
+  }
+  perf_command_line_token {
+    value: "/tmp/perf.data.branch-4.14"
+    value_md5_prefix: 11053111605770861348
+  }
+  perf_command_line_token {
+    value: "--"
+    value_md5_prefix: 14964084598567107715
+  }
+  perf_command_line_token {
+    value: "echo"
+    value_md5_prefix: 14677546575749228893
+  }
+  perf_command_line_token {
+    value: "Hello, World!"
+    value_md5_prefix: 7325353822706542648
+  }
+  perf_command_line_whole {
+    value: "/usr/bin/perf record -b -o /tmp/perf.data.branch-4.14 -- echo Hello, World!"
+    value_md5_prefix: 14361631288454701458
+  }
+}
+pmu_mappings {
+  type: 6
+  name: "intel_pt"
+  name_md5_prefix: 14362431286216788648
+}
+pmu_mappings {
+  type: 12
+  name: "uncore_arb"
+  name_md5_prefix: 10537321641683048938
+}
+pmu_mappings {
+  type: 14
+  name: "cstate_pkg"
+  name_md5_prefix: 1518627369180422309
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
+}
+pmu_mappings {
+  type: 11
+  name: "uncore_cbox_1"
+  name_md5_prefix: 15013062577747304375
+}
+pmu_mappings {
+  type: 8
+  name: "power"
+  name_md5_prefix: 7119389851461848805
+}
+pmu_mappings {
+  type: 4
+  name: "cpu"
+  name_md5_prefix: 15669287738006486457
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 9
+  name: "uncore_imc"
+  name_md5_prefix: 12063633140019392405
+}
+pmu_mappings {
+  type: 10
+  name: "uncore_cbox_0"
+  name_md5_prefix: 1137124233652450800
+}
+pmu_mappings {
+  type: 13
+  name: "cstate_core"
+  name_md5_prefix: 7698971831218560044
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 7
+  name: "msr"
+  name_md5_prefix: 4085670281987242153
+}

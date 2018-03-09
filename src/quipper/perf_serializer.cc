@@ -404,6 +404,17 @@ bool PerfSerializer::SerializeSampleEvent(
       sample->mutable_branch_stack(i)->set_from_ip(entry.from);
       sample->mutable_branch_stack(i)->set_to_ip(entry.to);
       sample->mutable_branch_stack(i)->set_mispredicted(entry.flags.mispred);
+      // Support for mispred, predicted is optional. In case it
+      // is not supported mispred = predicted = 0. So, set predicted
+      // separately.
+      sample->mutable_branch_stack(i)->set_predicted(entry.flags.predicted);
+      sample->mutable_branch_stack(i)->set_in_transaction(entry.flags.in_tx);
+      sample->mutable_branch_stack(i)->set_abort(entry.flags.abort);
+      sample->mutable_branch_stack(i)->set_cycles(entry.flags.cycles);
+      if (entry.flags.reserved != 0) {
+        LOG(WARNING) << "Ignoring branch stack entry reserved bits: "
+                     << entry.flags.reserved;
+      }
     }
   }
 
@@ -482,7 +493,10 @@ bool PerfSerializer::DeserializeSampleEvent(
       entry.from = sample.branch_stack(i).from_ip();
       entry.to = sample.branch_stack(i).to_ip();
       entry.flags.mispred = sample.branch_stack(i).mispredicted();
-      entry.flags.predicted = !entry.flags.mispred;
+      entry.flags.predicted = sample.branch_stack(i).predicted();
+      entry.flags.in_tx = sample.branch_stack(i).in_transaction();
+      entry.flags.abort = sample.branch_stack(i).abort();
+      entry.flags.cycles = sample.branch_stack(i).cycles();
     }
   }
 

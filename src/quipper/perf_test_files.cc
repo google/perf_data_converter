@@ -43,8 +43,7 @@ const std::vector<const char*>& GetPerfDataFiles() {
       // Obtained with "perf record -a -g -- sleep 2"
       "perf.data.callgraph-3.4",
 #endif
-      // Obtained with "perf record -a -b -- sleep 2"
-      "perf.data.branch-3.4",
+
 #ifdef TEST_CALLGRAPH
       // Obtained with "perf record -a -g -b -- sleep 2"
       "perf.data.callgraph_and_branch-3.4",
@@ -76,7 +75,7 @@ const std::vector<const char*>& GetPerfDataFiles() {
 #ifdef TEST_CALLGRAPH
       "perf.data.callgraph-3.8",
 #endif
-      "perf.data.branch-3.8",
+
 #ifdef TEST_CALLGRAPH
       "perf.data.callgraph_and_branch-3.8",
 #endif
@@ -112,6 +111,11 @@ const std::vector<const char*>& GetPerfDataFiles() {
       //    perf record -e intel_pt// -e cycles -o /tmp/perf.data.intel_pt-4.14
       //    -- echo "Hello, World!"
       "perf.data.intel_pt-4.14",
+
+      // Obtained with:
+      //    "perf record -b -o /tmp/perf.data.branch-4.14 -- \
+      //    echo "Hello, World!"
+      "perf.data.branch-4.14",
   };
   return *files;
 }
