@@ -6,7 +6,7 @@
  */
 
 #include "src/perf_to_profile_lib.h"
-#include "base/logging.h"
+#include "src/quipper/base/logging.h"
 #include "src/compat/test_compat.h"
 
 namespace {

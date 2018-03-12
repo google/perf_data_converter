@@ -387,6 +387,9 @@ message PerfDataProto {
     optional SampleInfo sample_info = 11;
   }
 
+  // The kernel collects the number of events it couldn't send in a stretch and
+  // when possible sends this number in a PERF_RECORD_LOST event, which is
+  // stored in LostEvent.
   // Next tag: 4
   message LostEvent {
     // Id of the event which has been lost.  This should be an id found in a
@@ -495,6 +498,17 @@ message PerfDataProto {
     optional SampleInfo sample_info = 3;
   }
 
+  // The kernel discards mixed up samples and sends the number in a
+  // PERF_RECORD_LOST_SAMPLES event. This event is stored in LostSamplesEvent.
+  // Next tag: 3
+  message LostSamplesEvent {
+    // Number of lost samples.
+    optional uint64 num_lost = 1;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 2;
+  }
+
   // Next tag: 4
   message EventHeader {
     // Type of event.
@@ -504,7 +518,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 14
+  // Next tag: 15
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -522,6 +536,7 @@ message PerfDataProto {
       ReadEvent read_event = 8;
       AuxEvent aux_event = 11;
       ItraceStartEvent itrace_start_event = 13;
+      LostSamplesEvent lost_samples_event = 14;
       AuxtraceEvent auxtrace_event = 12;
     }
     // Time after boot in nanoseconds corresponding to the event.

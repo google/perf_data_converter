@@ -71,6 +71,8 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
       return &event.aux_event().sample_info();
     case PERF_RECORD_ITRACE_START:
       return &event.itrace_start_event().sample_info();
+    case PERF_RECORD_LOST_SAMPLES:
+      return &event.lost_samples_event().sample_info();
   }
   return nullptr;
 }

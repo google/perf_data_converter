@@ -116,6 +116,13 @@ const std::vector<const char*>& GetPerfDataFiles() {
       //    "perf record -b -o /tmp/perf.data.branch-4.14 -- \
       //    echo "Hello, World!"
       "perf.data.branch-4.14",
+
+      // Perf data that contains lost sample events from perf-4.4
+      // Command:
+      //    perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
+      //    -P -c 20003 -o /tmp/perf.data.lost_samples-4.4 -- \
+      //    echo "Hello, World!"
+      "perf.data.lost_samples-4.4",
   };
   return *files;
 }
@@ -144,6 +151,14 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       //    perf record -e intel_pt// -e cycles -o - -- echo "Hello, World!" | \
       //    cat &> /tmp/perf.data.piped.intel_pt-4.14
       "perf.data.piped.intel_pt-4.14",
+
+      // Perf data that contains lost sample events collected in piped mode from
+      // perf-4.4
+      // Command:
+      //    perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
+      //    -P -c 20003 -o - -- echo "Hello, World!" | cat &> \
+      //    /tmp/perf.data.piped.lost_samples-4.4
+      "perf.data.piped.lost_samples-4.4",
   };
   return *files;
 }
