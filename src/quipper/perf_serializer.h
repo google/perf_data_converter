@@ -123,6 +123,11 @@ class PerfSerializer {
                                  PerfDataProto_ItraceStartEvent* sample) const;
   bool DeserializeItraceStartEvent(const PerfDataProto_ItraceStartEvent& sample,
                                    event_t* event) const;
+  bool SerializeLostSamplesEvent(const event_t& event,
+                                 PerfDataProto_LostSamplesEvent* sample) const;
+  bool DeserializeLostSamplesEvent(const PerfDataProto_LostSamplesEvent& sample,
+                                   event_t* event) const;
+
   bool SerializeSampleInfo(const event_t& event,
                            PerfDataProto_SampleInfo* sample_info) const;
   bool DeserializeSampleInfo(const PerfDataProto_SampleInfo& info,

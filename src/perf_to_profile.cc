@@ -7,7 +7,7 @@
 
 #include "src/perf_to_profile_lib.h"
 
-#include "base/logging.h"
+#include "src/quipper/base/logging.h"
 #include "src/perf_data_converter.h"
 
 int main(int argc, char** argv) {

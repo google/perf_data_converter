@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "base/logging.h"
+#include "src/quipper/base/logging.h"
 #include "src/compat/string_compat.h"
 
 // Checks and returns whether or not the file at the given |path| already

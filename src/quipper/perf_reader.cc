@@ -1851,6 +1851,9 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->itrace_start.pid);
       ByteSwap(&event->itrace_start.tid);
       break;
+    case PERF_RECORD_LOST_SAMPLES:
+      ByteSwap(&event->lost_samples.lost);
+      break;
     case PERF_RECORD_AUXTRACE:
       ByteSwap(&event->auxtrace.size);
       ByteSwap(&event->auxtrace.offset);

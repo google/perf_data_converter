@@ -38,7 +38,7 @@ PROTOBUF = ../third_party/protobuf
 GOOGLETEST = ../third_party/googletest
 
 CXXFLAGS += -std=c++11 -g -Wall -Werror -Wall -Wno-error
-CPPFLAGS += -Icompat -I${CWP}/mybase \
+CPPFLAGS += -Icompat \
 		-I${CWP}/compat/ext \
 		-I${CWP} \
 		-I../third_party \
@@ -53,7 +53,7 @@ QUIPPER_LIBRARY_SOURCES = \
 	address_mapper.cc binary_data_utils.cc buffer_reader.cc buffer_writer.cc \
 	conversion_utils.cc compat/log_level.cc data_reader.cc \
 	data_writer.cc dso.cc file_reader.cc file_utils.cc \
-	mybase/base/logging.cc perf_option_parser.cc perf_data_utils.cc \
+	base/logging.cc perf_option_parser.cc perf_data_utils.cc \
 	perf_parser.cc perf_protobuf_io.cc perf_reader.cc perf_recorder.cc \
 	perf_serializer.cc perf_stat_parser.cc run_command.cc \
 	sample_info_reader.cc scoped_temp_path.cc string_utils.cc \

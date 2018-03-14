@@ -227,6 +227,9 @@ bool PerfSerializer::SerializeKernelEvent(
     case PERF_RECORD_ITRACE_START:
       return SerializeItraceStartEvent(
           event, event_proto->mutable_itrace_start_event());
+    case PERF_RECORD_LOST_SAMPLES:
+      return SerializeLostSamplesEvent(
+          event, event_proto->mutable_lost_samples_event());
     default:
       LOG(ERROR) << "Unknown event type: " << event.header.type;
   }
@@ -305,6 +308,8 @@ bool PerfSerializer::DeserializeKernelEvent(
       return DeserializeItraceStartEvent(event_proto.itrace_start_event(),
                                          event);
     case PERF_RECORD_LOST_SAMPLES:
+      return DeserializeLostSamplesEvent(event_proto.lost_samples_event(),
+                                         event);
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
     case PERF_RECORD_NAMESPACES:
@@ -739,6 +744,22 @@ bool PerfSerializer::DeserializeItraceStartEvent(
   struct itrace_start_event& it_start = event->itrace_start;
   it_start.pid = sample.pid();
   it_start.tid = sample.tid();
+
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
+bool PerfSerializer::SerializeLostSamplesEvent(
+    const event_t& event, PerfDataProto_LostSamplesEvent* sample) const {
+  const struct lost_samples_event& lost_samples = event.lost_samples;
+  sample->set_num_lost(lost_samples.lost);
+
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeLostSamplesEvent(
+    const PerfDataProto_LostSamplesEvent& sample, event_t* event) const {
+  struct lost_samples_event& lost_samples = event->lost_samples;
+  lost_samples.lost = sample.num_lost();
 
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
