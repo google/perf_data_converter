@@ -85,7 +85,10 @@ const std::vector<const char*>& GetPerfDataFiles() {
       "perf.data.numatopology-3.2",
 
       // Obtained to test GROUP_DESC feature
-      "perf.data.group_desc-4.4",
+      // Command:
+      //    perf record -e "{cache-references,branch-misses}" -o \
+      //    /tmp/perf.data.group_desc-4.14 -- echo "Hello, World!"
+      "perf.data.group_desc-4.14",
 
       // Perf data that contains hardware and software events.
       // Command:

@@ -889,7 +889,7 @@ bool PerfReader::ReadMetadata(DataReader* data) {
         if (!ReadEventDescMetadata(data)) return false;
         break;
       case HEADER_CPU_TOPOLOGY:
-        if (!ReadCPUTopologyMetadata(data)) return false;
+        if (!ReadCPUTopologyMetadata(data, size)) return false;
         break;
       case HEADER_NUMA_TOPOLOGY:
         if (!ReadNUMATopologyMetadata(data)) return false;
@@ -905,6 +905,12 @@ bool PerfReader::ReadMetadata(DataReader* data) {
       default:
         LOG(INFO) << "Unsupported metadata type, skipping: " << type;
         break;
+    }
+    if (section_iter->size != data->Tell() - section_iter->offset) {
+      int64_t skip_size =
+          section_iter->size - (data->Tell() - section_iter->offset);
+      LOG(WARNING) << "Skipping " << skip_size
+                   << " bytes of metadata type: " << type;
     }
     ++section_iter;
   }
@@ -1093,7 +1099,8 @@ bool PerfReader::ReadEventDescMetadata(DataReader* data) {
   return true;
 }
 
-bool PerfReader::ReadCPUTopologyMetadata(DataReader* data) {
+bool PerfReader::ReadCPUTopologyMetadata(DataReader* data, size_t size) {
+  size_t begin_offset = data->Tell();
   num_siblings_type num_core_siblings;
   if (!data->ReadUint32(&num_core_siblings)) {
     LOG(ERROR) << "Error reading num core siblings.";
@@ -1117,6 +1124,39 @@ bool PerfReader::ReadCPUTopologyMetadata(DataReader* data) {
   for (size_t i = 0; i < num_thread_siblings; ++i) {
     if (!data->ReadStringWithSizeFromData(&cpu_topology.thread_siblings[i]))
       return false;
+  }
+
+  // The header may be from new perf, which includes Core ID and Socket ID
+  // information per CPU.
+  if (size > data->Tell() - begin_offset) {
+    // Read the number the number of cpus available, which is received as the
+    // first element in HEADER_NRCPUS metadata.
+    uint32_t nrcpus = 0;
+    for (const PerfDataProto_PerfUint32Metadata& proto_uint32_metadata :
+         proto_->uint32_metadata()) {
+      if (proto_uint32_metadata.type() == HEADER_NRCPUS) {
+        nrcpus = proto_uint32_metadata.data()[0];
+      }
+    }
+
+    if (nrcpus == 0) {
+      LOG(ERROR) << "HEADER_NRCPUS metadata not read before HEADER_CPU_TOPOLOGY"
+                    " metadata.";
+      return false;
+    }
+
+    for (int i = 0; i < nrcpus; ++i) {
+      PerfCPU cpu;
+      if (!data->ReadUint32(&cpu.core_id)) {
+        LOG(ERROR) << "Error reading Core ID.";
+        return false;
+      }
+      if (!data->ReadUint32(&cpu.socket_id)) {
+        LOG(ERROR) << "Error reading Socket ID.";
+        return false;
+      }
+      cpu_topology.available_cpus.push_back(cpu);
+    }
   }
 
   serializer_.SerializeCPUTopologyMetadata(cpu_topology,
@@ -1700,6 +1740,14 @@ bool PerfReader::WriteCPUTopologyMetadata(DataWriter* data) const {
     if (!data->WriteStringWithSizeToData(thread_name)) return false;
   }
 
+  for (PerfCPU cpu : cpu_topology.available_cpus) {
+    if (!data->WriteDataValue(&cpu.core_id, sizeof(cpu.core_id), "core id"))
+      return false;
+    if (!data->WriteDataValue(&cpu.socket_id, sizeof(cpu.socket_id),
+                              "socket id"))
+      return false;
+  }
+
   return true;
 }
 
@@ -1952,6 +2000,9 @@ size_t PerfReader::GetCPUTopologyMetadataSize() const {
   size += sizeof(num_siblings_type);
   for (const string& thread_sibling : proto_->cpu_topology().thread_siblings())
     size += ExpectedStorageSizeOf(thread_sibling);
+
+  // Size of Core ID and Socket ID per CPU.
+  size += proto_->cpu_topology().available_cpus().size() * 2 * sizeof(uint32_t);
 
   return size;
 }

@@ -178,7 +178,7 @@ class PerfReader {
 
   bool ReadUint32Metadata(DataReader* data, u32 type, size_t size);
   bool ReadUint64Metadata(DataReader* data, u32 type, size_t size);
-  bool ReadCPUTopologyMetadata(DataReader* data);
+  bool ReadCPUTopologyMetadata(DataReader* data, size_t size);
   bool ReadNUMATopologyMetadata(DataReader* data);
   bool ReadPMUMappingsMetadata(DataReader* data, size_t size);
   bool ReadGroupDescMetadata(DataReader* data);

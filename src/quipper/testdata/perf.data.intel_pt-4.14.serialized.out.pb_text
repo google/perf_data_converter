@@ -2589,6 +2589,22 @@ cpu_topology {
   thread_siblings: "2-3"
   thread_siblings_md5_prefix: 14045363986529205085
   thread_siblings_md5_prefix: 13991663921307637384
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
 }
 string_metadata {
   hostname {
