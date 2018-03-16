@@ -148,6 +148,12 @@ class PerfReader {
   // Reads metadata in normal mode.
   bool ReadMetadata(DataReader* data);
 
+  // Reads metadata without header. Useful for reading metadata in piped mode,
+  // where the header must be read first in order to determine that it is a
+  // header feature event (similar to metadata event in file mode) and the type
+  // of metadata.
+  bool ReadMetadataWithoutHeader(DataReader* data, u32 type, size_t size);
+
   // The following functions read various types of metadata.
   bool ReadTracingMetadata(DataReader* data, size_t size);
   bool ReadBuildIDMetadata(DataReader* data, size_t size);

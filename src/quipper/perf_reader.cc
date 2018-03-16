@@ -820,102 +820,79 @@ bool PerfReader::ReadMetadata(DataReader* data) {
     if (!get_metadata_mask_bit(type)) continue;
     data->SeekSet(section_iter->offset);
     u64 size = section_iter->size;
-
-    switch (type) {
-      case HEADER_TRACING_DATA:
-        if (!ReadTracingMetadata(data, size)) return false;
-        break;
-      case HEADER_BUILD_ID:
-        if (!ReadBuildIDMetadata(data, size)) return false;
-        break;
-      case HEADER_HOSTNAME:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_hostname())) {
-          return false;
-        }
-        break;
-      case HEADER_OSRELEASE:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_kernel_version())) {
-          return false;
-        }
-        break;
-      case HEADER_VERSION:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_perf_version())) {
-          return false;
-        }
-        break;
-      case HEADER_ARCH:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_architecture())) {
-          return false;
-        }
-        break;
-      case HEADER_CPUDESC:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_cpu_description())) {
-          return false;
-        }
-        break;
-      case HEADER_CPUID:
-        if (!ReadSingleStringMetadata(
-                data, size,
-                proto_->mutable_string_metadata()->mutable_cpu_id())) {
-          return false;
-        }
-        break;
-      case HEADER_CMDLINE: {
-        auto* string_metadata = proto_->mutable_string_metadata();
-        if (!ReadRepeatedStringMetadata(
-                data, size, string_metadata->mutable_perf_command_line_token(),
-                string_metadata->mutable_perf_command_line_whole())) {
-          return false;
-        }
-        break;
-      }
-      case HEADER_NRCPUS:
-        if (!ReadUint32Metadata(data, type, size)) return false;
-        break;
-      case HEADER_TOTAL_MEM:
-        if (!ReadUint64Metadata(data, type, size)) return false;
-        break;
-      case HEADER_EVENT_DESC:
-        if (!ReadEventDescMetadata(data)) return false;
-        break;
-      case HEADER_CPU_TOPOLOGY:
-        if (!ReadCPUTopologyMetadata(data, size)) return false;
-        break;
-      case HEADER_NUMA_TOPOLOGY:
-        if (!ReadNUMATopologyMetadata(data)) return false;
-        break;
-      case HEADER_BRANCH_STACK:
-        break;
-      case HEADER_PMU_MAPPINGS:
-        if (!ReadPMUMappingsMetadata(data, size)) return false;
-        break;
-      case HEADER_GROUP_DESC:
-        if (!ReadGroupDescMetadata(data)) return false;
-        break;
-      default:
-        LOG(INFO) << "Unsupported metadata type, skipping: " << type;
-        break;
-    }
-    if (section_iter->size != data->Tell() - section_iter->offset) {
-      int64_t skip_size =
-          section_iter->size - (data->Tell() - section_iter->offset);
-      LOG(WARNING) << "Skipping " << skip_size
-                   << " bytes of metadata type: " << type;
-    }
+    if (!ReadMetadataWithoutHeader(data, type, size)) return false;
     ++section_iter;
   }
 
   return true;
+}
+
+bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
+                                           size_t size) {
+  size_t begin_offset = data->Tell();
+  bool isRead = [&] {
+    switch (type) {
+      case HEADER_TRACING_DATA:
+        return ReadTracingMetadata(data, size);
+      case HEADER_BUILD_ID:
+        return ReadBuildIDMetadata(data, size);
+      case HEADER_HOSTNAME:
+        return ReadSingleStringMetadata(
+            data, size, proto_->mutable_string_metadata()->mutable_hostname());
+      case HEADER_OSRELEASE:
+        return ReadSingleStringMetadata(
+            data, size,
+            proto_->mutable_string_metadata()->mutable_kernel_version());
+      case HEADER_VERSION:
+        return ReadSingleStringMetadata(
+            data, size,
+            proto_->mutable_string_metadata()->mutable_perf_version());
+      case HEADER_ARCH:
+        return ReadSingleStringMetadata(
+            data, size,
+            proto_->mutable_string_metadata()->mutable_architecture());
+      case HEADER_CPUDESC:
+        return ReadSingleStringMetadata(
+            data, size,
+            proto_->mutable_string_metadata()->mutable_cpu_description());
+      case HEADER_CPUID:
+        return ReadSingleStringMetadata(
+            data, size, proto_->mutable_string_metadata()->mutable_cpu_id());
+      case HEADER_CMDLINE: {
+        auto* string_metadata = proto_->mutable_string_metadata();
+        return ReadRepeatedStringMetadata(
+            data, size, string_metadata->mutable_perf_command_line_token(),
+            string_metadata->mutable_perf_command_line_whole());
+      }
+      case HEADER_NRCPUS:
+        return ReadUint32Metadata(data, type, size);
+      case HEADER_TOTAL_MEM:
+        return ReadUint64Metadata(data, type, size);
+      case HEADER_EVENT_DESC:
+        return ReadEventDescMetadata(data);
+      case HEADER_CPU_TOPOLOGY:
+        return ReadCPUTopologyMetadata(data, size);
+      case HEADER_NUMA_TOPOLOGY:
+        return ReadNUMATopologyMetadata(data);
+      case HEADER_BRANCH_STACK:
+        return true;
+      case HEADER_PMU_MAPPINGS:
+        return ReadPMUMappingsMetadata(data, size);
+      case HEADER_GROUP_DESC:
+        return ReadGroupDescMetadata(data);
+      default:
+        LOG(INFO) << "Unsupported metadata type, skipping: " << type;
+        return true;
+    }
+  }();
+
+  if (isRead && size != data->Tell() - begin_offset) {
+    int64_t skip_size = size - (data->Tell() - begin_offset);
+    LOG(WARNING) << "Skipping " << skip_size
+                 << " bytes of metadata type: " << type;
+  }
+
+  return isRead;
 }
 
 bool PerfReader::ReadBuildIDMetadata(DataReader* data, size_t size) {
