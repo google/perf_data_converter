@@ -196,6 +196,12 @@ class PerfReader {
   // Read perf data from piped perf output data.
   bool ReadPipedData(DataReader* data);
 
+  // Processes the remaining piped-mode header events, introduced after
+  // perf-4.13.
+  bool ProcessPipedModeHeaderEvents(DataReader* data,
+                                    const perf_event_header& header,
+                                    size_t size_without_header);
+
   // Returns the size in bytes that would be written by any of the methods that
   // write the entire perf data file (WriteFile, WriteToPointer, etc).
   size_t GetSize() const;
@@ -234,6 +240,9 @@ class PerfReader {
 
   // For reading event blocks within piped perf data.
   bool ReadAttrEventBlock(DataReader* data, size_t size);
+
+  // Reads PERF_RECORD_HEADER_FEATURE within piped perf data.
+  bool ReadHeaderFeature(DataReader* data, const perf_event_header& header);
 
   // Swaps byte order for non-header fields of the data structure pointed to by
   // |event|, if |is_cross_endian| is true. Otherwise leaves the data the same.

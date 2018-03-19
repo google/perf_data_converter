@@ -162,6 +162,13 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       //    -P -c 20003 -o - -- echo "Hello, World!" | cat &> \
       //    /tmp/perf.data.piped.lost_samples-4.4
       "perf.data.piped.lost_samples-4.4",
+
+      // Perf data contains PERF_RECORD_HEADER_FEATURE events generated in piped
+      // mode from perf 4.16.
+      // Command:
+      //    /tmp/perf record -e "cycles" -o - -- echo Hello, World! | cat &> \
+      //    /tmp/perf.data.piped.header_features-4.16
+      "perf.data.piped.header_features-4.16",
   };
   return *files;
 }

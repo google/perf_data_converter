@@ -830,6 +830,9 @@ bool PerfReader::ReadMetadata(DataReader* data) {
 bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
                                            size_t size) {
   size_t begin_offset = data->Tell();
+  uint64_t metadata_mask_bit = metadata_mask();
+  set_metadata_mask_bit(type);
+
   bool isRead = [&] {
     switch (type) {
       case HEADER_TRACING_DATA:
@@ -881,6 +884,9 @@ bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
       case HEADER_GROUP_DESC:
         return ReadGroupDescMetadata(data);
       default:
+        // Set the metadata mask bit to the previous value if the header feature
+        // is not supported.
+        proto_->set_metadata_mask(0, metadata_mask_bit);
         LOG(INFO) << "Unsupported metadata type, skipping: " << type;
         return true;
     }
@@ -888,6 +894,7 @@ bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
 
   if (isRead && size != data->Tell() - begin_offset) {
     int64_t skip_size = size - (data->Tell() - begin_offset);
+    data->SeekSet(data->Tell() + skip_size);
     LOG(WARNING) << "Skipping " << skip_size
                  << " bytes of metadata type: " << type;
   }
@@ -1299,6 +1306,7 @@ bool PerfReader::ReadPipedData(DataReader* data) {
         case PERF_RECORD_HEADER_EVENT_TYPE:
         case PERF_RECORD_HEADER_TRACING_DATA:
         case PERF_RECORD_HEADER_BUILD_ID:
+        case PERF_RECORD_HEADER_FEATURE:
           return true;
         default:
           return false;
@@ -1352,17 +1360,10 @@ bool PerfReader::ReadPipedData(DataReader* data) {
         case PERF_RECORD_HEADER_BUILD_ID:
           set_metadata_mask_bit(HEADER_BUILD_ID);
           return ReadBuildIDMetadataWithoutHeader(data, header);
-        default:
-          // For unsupported event types, log a warning only if the type is an
-          // unknown type.
-          if (header.type < PERF_RECORD_USER_TYPE_START ||
-              header.type >= PERF_RECORD_HEADER_MAX) {
-            LOG(WARNING) << "Unknown event type: " << header.type;
-          }
-          // Skip over the data in this event.
-          data->SeekSet(data->Tell() + size_without_header);
-          return true;
+        case PERF_RECORD_HEADER_FEATURE:
+          return ReadHeaderFeature(data, header);
       }
+      return false;
     }();
   }
 
@@ -1809,6 +1810,36 @@ bool PerfReader::ReadAttrEventBlock(DataReader* data, size_t size) {
 
   AddPerfFileAttr(attr);
   return true;
+}
+
+bool PerfReader::ReadHeaderFeature(DataReader* data,
+                                   const perf_event_header& header) {
+  // Allocate memory for the event.
+  malloced_unique_ptr<feature_event> event(CallocMemoryForFeature(header.size));
+  event->header = header;
+
+  // Make sure there is enough data for feature id.
+  if (!data->ReadDataValue(sizeof(event->feat_id), "rest of feature id",
+                           &event->feat_id)) {
+    LOG(ERROR) << "Not enough bytes to read feature id of header feature event";
+    return false;
+  }
+  if (data->is_cross_endian()) ByteSwap(&event->feat_id);
+
+  size_t data_size = header.size - sizeof(header) - sizeof(event->feat_id);
+  switch (event->feat_id) {
+    case HEADER_TRACING_DATA:
+    case HEADER_BUILD_ID:
+    case HEADER_BRANCH_STACK:
+    case HEADER_GROUP_DESC:
+      LOG(WARNING)
+          << "Header feature type " << event->feat_id << " is not expected"
+          << " in PERF_RECORD_HEADER_FEATURE; feature information is generated"
+          << " in own event type.";
+      return false;
+  }
+  bool ret = ReadMetadataWithoutHeader(data, event->feat_id, data_size);
+  return ret;
 }
 
 void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
