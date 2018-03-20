@@ -169,7 +169,6 @@
             'buffer_writer_test.cc',
             'dso_test.cc',
             'file_reader_test.cc',
-            'huge_page_deducer_test.cc',
             'perf_data_utils_test.cc',
             'perf_option_parser_test.cc',
             'perf_parser_test.cc',
