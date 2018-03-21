@@ -27,7 +27,7 @@ bool IsPerfRecordAvailable() {
 // Runs "perf mem record" to see if the command is available on the current
 // system.
 bool IsPerfMemRecordAvailable() {
-  return RunCommand({"perf", "mem", "record", "-a", "-e", "cycles", "--",
+  return RunCommand({"perf", "mem", "record", "-a", "-e", "dummy", "--",
                      "sleep", "0.01"},
                     NULL) == 0;
 }
@@ -96,7 +96,7 @@ TEST_F(PerfRecorderTest, MemRecordToProtobuf) {
 TEST_F(PerfRecorderTest, StatSingleEvent) {
   string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "stat", "-a", "-e", "cycles"}, 0.2, &output_string));
+      {"perf", "stat", "-a", "-e", "cpu-clock"}, 0.2, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
 
@@ -104,7 +104,7 @@ TEST_F(PerfRecorderTest, StatSingleEvent) {
   ASSERT_TRUE(stat.ParseFromString(output_string));
   // Replace the placeholder "perf" with the actual perf path.
   string expected_command_line =
-      string("sudo ") + GetPerfPath() + " stat -a -e cycles -v -- sleep 0.2";
+      string("sudo ") + GetPerfPath() + " stat -a -e cpu-clock -v -- sleep 0.2";
   EXPECT_EQ(expected_command_line, stat.command_line());
 
   // Make sure the event counter was read.
@@ -114,14 +114,14 @@ TEST_F(PerfRecorderTest, StatSingleEvent) {
   EXPECT_TRUE(stat.line(0).has_event_name());
   // Running for at least one second.
   EXPECT_GE(stat.line(0).time_ms(), 200);
-  EXPECT_EQ("cycles", stat.line(0).event_name());
+  EXPECT_EQ("cpu-clock", stat.line(0).event_name());
 }
 
 TEST_F(PerfRecorderTest, StatMultipleEvents) {
   string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "stat", "-a", "-e", "cycles", "-e", "instructions", "-e",
-       "branches", "-e", "branch-misses"},
+      {"perf", "stat", "-a", "-e", "cpu-clock", "-e", "context-switches", "-e",
+       "major-faults", "-e", "page-faults"},
       0.2, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
@@ -131,10 +131,10 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
   // Replace the placeholder "perf" with the actual perf path.
   string command_line = string("sudo ") + GetPerfPath() +
                         " stat -a "
-                        "-e cycles "
-                        "-e instructions "
-                        "-e branches "
-                        "-e branch-misses "
+                        "-e cpu-clock "
+                        "-e context-switches "
+                        "-e major-faults "
+                        "-e page-faults "
                         "-v "
                         "-- sleep 0.2";
   EXPECT_TRUE(stat.has_command_line());
@@ -151,25 +151,25 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
   EXPECT_TRUE(stat.line(0).has_count());
   EXPECT_TRUE(stat.line(0).has_event_name());
   EXPECT_GE(stat.line(0).time_ms(), 200);
-  EXPECT_EQ("cycles", stat.line(0).event_name());
+  EXPECT_EQ("cpu-clock", stat.line(0).event_name());
 
   EXPECT_TRUE(stat.line(1).has_time_ms());
   EXPECT_TRUE(stat.line(1).has_count());
   EXPECT_TRUE(stat.line(1).has_event_name());
   EXPECT_GE(stat.line(1).time_ms(), 200);
-  EXPECT_EQ("instructions", stat.line(1).event_name());
+  EXPECT_EQ("context-switches", stat.line(1).event_name());
 
   EXPECT_TRUE(stat.line(2).has_time_ms());
   EXPECT_TRUE(stat.line(2).has_count());
   EXPECT_TRUE(stat.line(2).has_event_name());
   EXPECT_GE(stat.line(2).time_ms(), 200);
-  EXPECT_EQ("branches", stat.line(2).event_name());
+  EXPECT_EQ("major-faults", stat.line(2).event_name());
 
   EXPECT_TRUE(stat.line(3).has_time_ms());
   EXPECT_TRUE(stat.line(3).has_count());
   EXPECT_TRUE(stat.line(3).has_event_name());
   EXPECT_GE(stat.line(3).time_ms(), 200);
-  EXPECT_EQ("branch-misses", stat.line(3).event_name());
+  EXPECT_EQ("page-faults", stat.line(3).event_name());
 }
 
 TEST_F(PerfRecorderTest, DontAllowCommands) {
