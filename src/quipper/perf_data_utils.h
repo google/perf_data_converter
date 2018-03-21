@@ -46,6 +46,10 @@ event_t* ReallocMemoryForEvent(event_t* event, size_t new_size);
 // memory as the variable-sized build ID type.
 build_id_event* CallocMemoryForBuildID(size_t size);
 
+// Allocate |size| bytes of heap memory using calloc, returning the allocated
+// memory as the variable-sized feature event type.
+feature_event* CallocMemoryForFeature(size_t size);
+
 // In perf data, strings are packed into the smallest number of 8-byte blocks
 // possible, including a null terminator.
 // e.g.

@@ -148,6 +148,12 @@ class PerfReader {
   // Reads metadata in normal mode.
   bool ReadMetadata(DataReader* data);
 
+  // Reads metadata without header. Useful for reading metadata in piped mode,
+  // where the header must be read first in order to determine that it is a
+  // header feature event (similar to metadata event in file mode) and the type
+  // of metadata.
+  bool ReadMetadataWithoutHeader(DataReader* data, u32 type, size_t size);
+
   // The following functions read various types of metadata.
   bool ReadTracingMetadata(DataReader* data, size_t size);
   bool ReadBuildIDMetadata(DataReader* data, size_t size);
@@ -178,7 +184,7 @@ class PerfReader {
 
   bool ReadUint32Metadata(DataReader* data, u32 type, size_t size);
   bool ReadUint64Metadata(DataReader* data, u32 type, size_t size);
-  bool ReadCPUTopologyMetadata(DataReader* data);
+  bool ReadCPUTopologyMetadata(DataReader* data, size_t size);
   bool ReadNUMATopologyMetadata(DataReader* data);
   bool ReadPMUMappingsMetadata(DataReader* data, size_t size);
   bool ReadGroupDescMetadata(DataReader* data);
@@ -189,6 +195,12 @@ class PerfReader {
 
   // Read perf data from piped perf output data.
   bool ReadPipedData(DataReader* data);
+
+  // Processes the remaining piped-mode header events, introduced after
+  // perf-4.13.
+  bool ProcessPipedModeHeaderEvents(DataReader* data,
+                                    const perf_event_header& header,
+                                    size_t size_without_header);
 
   // Returns the size in bytes that would be written by any of the methods that
   // write the entire perf data file (WriteFile, WriteToPointer, etc).
@@ -228,6 +240,9 @@ class PerfReader {
 
   // For reading event blocks within piped perf data.
   bool ReadAttrEventBlock(DataReader* data, size_t size);
+
+  // Reads PERF_RECORD_HEADER_FEATURE within piped perf data.
+  bool ReadHeaderFeature(DataReader* data, const perf_event_header& header);
 
   // Swaps byte order for non-header fields of the data structure pointed to by
   // |event|, if |is_cross_endian| is true. Otherwise leaves the data the same.

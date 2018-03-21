@@ -85,7 +85,10 @@ const std::vector<const char*>& GetPerfDataFiles() {
       "perf.data.numatopology-3.2",
 
       // Obtained to test GROUP_DESC feature
-      "perf.data.group_desc-4.4",
+      // Command:
+      //    perf record -e "{cache-references,branch-misses}" -o \
+      //    /tmp/perf.data.group_desc-4.14 -- echo "Hello, World!"
+      "perf.data.group_desc-4.14",
 
       // Perf data that contains hardware and software events.
       // Command:
@@ -159,6 +162,13 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       //    -P -c 20003 -o - -- echo "Hello, World!" | cat &> \
       //    /tmp/perf.data.piped.lost_samples-4.4
       "perf.data.piped.lost_samples-4.4",
+
+      // Perf data contains PERF_RECORD_HEADER_FEATURE events generated in piped
+      // mode from perf 4.16.
+      // Command:
+      //    /tmp/perf record -e "cycles" -o - -- echo Hello, World! | cat &> \
+      //    /tmp/perf.data.piped.header_features-4.16
+      "perf.data.piped.header_features-4.16",
   };
   return *files;
 }

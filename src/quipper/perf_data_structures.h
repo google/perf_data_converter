@@ -31,9 +31,15 @@ struct PerfUint64Metadata {
   std::vector<uint64_t> data;
 };
 
+struct PerfCPU {
+  uint32_t core_id;
+  uint32_t socket_id;
+};
+
 struct PerfCPUTopologyMetadata {
   std::vector<string> core_siblings;
   std::vector<string> thread_siblings;
+  std::vector<PerfCPU> available_cpus;
 };
 
 struct PerfNodeTopologyMetadata {

@@ -610,7 +610,7 @@ message PerfDataProto {
     optional uint64 filename_md5_prefix = 5;
   }
 
-  // Next tag: 5
+  // Next tag: 6
   message PerfCPUTopologyMetadata {
     // Core siblings.
     repeated string core_siblings = 1;
@@ -623,6 +623,14 @@ message PerfDataProto {
 
     // Thread siblings' md5 prefixes.
     repeated uint64 thread_siblings_md5_prefix = 4;
+    // Core ID and Socket ID per CPU.
+    message CPU {
+      // Core ID
+      optional uint32 core_id = 1;
+      // Socket ID
+      optional uint32 socket_id = 2;
+    }
+    repeated CPU available_cpus = 5;
   }
 
   // Next tag: 6

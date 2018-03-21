@@ -29,6 +29,12 @@ build_id_event* CallocMemoryForBuildID(size_t size) {
   return event;
 }
 
+feature_event* CallocMemoryForFeature(size_t size) {
+  feature_event* event = reinterpret_cast<feature_event*>(calloc(1, size));
+  CHECK(event);
+  return event;
+}
+
 void PerfizeBuildIDString(string* build_id) {
   build_id->resize(kBuildIDStringLength, '0');
 }

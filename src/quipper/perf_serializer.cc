@@ -966,6 +966,12 @@ bool PerfSerializer::SerializeCPUTopologyMetadata(
     proto_metadata->add_thread_siblings(thread_name);
     proto_metadata->add_thread_siblings_md5_prefix(Md5Prefix(thread_name));
   }
+  for (PerfCPU cpu : metadata.available_cpus) {
+    PerfDataProto_PerfCPUTopologyMetadata_CPU* proto_cpu =
+        proto_metadata->add_available_cpus();
+    proto_cpu->set_core_id(cpu.core_id);
+    proto_cpu->set_socket_id(cpu.socket_id);
+  }
   return true;
 }
 
@@ -983,6 +989,15 @@ bool PerfSerializer::DeserializeCPUTopologyMetadata(
   std::copy(proto_metadata.thread_siblings().begin(),
             proto_metadata.thread_siblings().end(),
             std::back_inserter(metadata->thread_siblings));
+
+  metadata->available_cpus.clear();
+  for (const PerfDataProto_PerfCPUTopologyMetadata_CPU& proto_cpu :
+       proto_metadata.available_cpus()) {
+    PerfCPU cpu;
+    cpu.core_id = proto_cpu.core_id();
+    cpu.socket_id = proto_cpu.socket_id();
+    metadata->available_cpus.push_back(cpu);
+  }
   return true;
 }
 

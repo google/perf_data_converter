@@ -13,7 +13,6 @@ namespace quipper {
 namespace {
 
 const char kAnonFilename[] = "//anon";
-const size_t kHugepageSize = 1 << 21;
 
 bool IsAnon(const MMapEvent& event) {
   return event.filename() == kAnonFilename;
@@ -86,11 +85,6 @@ class MMapRange {
   int first_;
   int last_;
 };
-
-std::ostream& operator<<(std::ostream& os, const MMapRange& r) {
-  os << "[" << r.FirstIndex() << "," << r.LastIndex() << "]";
-  return os;
-}
 
 // MMapRange version of IsContiguous(MMapEvent, MMapEvent).
 bool IsContiguous(const RepeatedPtrField<PerfEvent>& events, const MMapRange& a,
