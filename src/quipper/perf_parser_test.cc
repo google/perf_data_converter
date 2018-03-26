@@ -227,8 +227,10 @@ TEST_P(PerfDataFiles, NormalPerfData) {
 
   // Test the PerfReader stage of the processing before continuing.
   string pr_output_perf_data = output_path + test_file + ".pr.out";
+  string pr_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(pr_output_perf_data));
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(pr_output_perf_data));
+  EXPECT_TRUE(
+      CheckPerfDataAgainstBaseline(pr_output_perf_data, pr_baseline_filename));
 
   // Run it through PerfParser.
   PerfParserOptions options = GetTestOptions();
@@ -247,9 +249,11 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_FALSE(stats.did_remap);
 
   string parsed_perf_data = output_path + test_file + ".parse.out";
+  string parsed_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(parsed_perf_data));
+  EXPECT_TRUE(
+      CheckPerfDataAgainstBaseline(parsed_perf_data, parsed_baseline_filename));
   EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, parsed_perf_data));
 
   // Run the event parsing again, this time with remapping.

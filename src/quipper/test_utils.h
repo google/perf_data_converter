@@ -59,7 +59,10 @@ void CompareTextProtoFiles(const string& filename1, const string& filename2) {
 bool GetPerfBuildIDMap(const string& filename,
                        std::map<string, string>* output);
 
-bool CheckPerfDataAgainstBaseline(const string& filename);
+// Checks the given perf.data against the golden file. Provide baseline filename
+// only for the perf.data files that have different golden filenames.
+bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
+                                  const string& baseline_filename = "");
 
 // Returns true if the perf buildid-lists are the same.
 bool ComparePerfBuildIDLists(const string& file1, const string& file2);
