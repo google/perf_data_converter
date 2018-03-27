@@ -114,7 +114,11 @@ const char* kSupportedMetadata[] = {
     NULL,
 };
 string GetTestInputFilePath(const string& filename) {
-  return "testdata/" + filename;
+  #ifdef GITHUB_BAZEL
+    return "src/quipper/testdata/" + filename;
+  # else
+    return "testdata/" + filename;
+  #endif
 }
 
 string GetPerfPath() {

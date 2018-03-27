@@ -8,29 +8,44 @@ For details on pprof, see https://github.com/google/pprof
 
 **THIS IS NOT AN OFFICIAL GOOGLE PRODUCT**
 
+**Perf data converter and quipper projects support build with bazel**
 
-# Prerequisites:
+**SUPPORT FOR MAKE FILES WILL BE REMOVED AFTER MAY 2018**
+
+# Prerequisites to build with make:
 - Protocol buffers: http://github.com/google/protobuf
 - Google Test: http://github.com/google/googletest
 
 # Compilation:
 To install all dependences and build the binary, run the following commands.
-These were tested on Debian GNU/Linux 8 (jessie):
-```
-sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
-git clone --recursive https://github.com/google/perf_data_converter.git
-cd perf_data_converter/src
-make perf_to_profile
-```
 
-If you already have protocol buffers and googletest installed on your system,
-you can compile using your local packages with the following commands:
-```
-sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
-git clone https://github.com/google/perf_data_converter.git
-cd perf_data_converter/src
-make perf_to_profile
-```
+## Compile with make:
+*  These were tested on Debian GNU/Linux 8 (jessie):
+   ```
+   sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+   git clone --recursive https://github.com/google/perf_data_converter.git
+   cd perf_data_converter/src
+   make perf_to_profile
+   ```
+*  If you already have protocol buffers and googletest installed on your system,
+   you can compile using your local packages with the following commands:
+   ```
+   sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+   git clone https://github.com/google/perf_data_converter.git
+   cd perf_data_converter/src
+   make perf_to_profile
+   ```
+
+## Compile with bazel:
+These were tested on Ubuntu 14.04 LTS:
+* Install bazel by following the instructions [here](https://docs.bazel.build/versions/master/install.html).
+* Install dependencies and build perf_to_profile using bazel
+  ```
+  sudo apt-get -y install g++ git libelf-dev libcap-dev linux-tools-`uname -r`
+  git clone https://github.com/google/perf_data_converter.git
+  cd perf_data_converter/src
+  bazel build src:perf_to_profile
+  ```
 
 Place the `perf_to_profile` binary in a place accessible from your path (eg `/usr/local/bin`).
 
@@ -40,6 +55,13 @@ To run these, after successful compilation, run:
 ```
 make check clean
 make check clean -C quipper/ -f Makefile.external
+```
+
+or
+
+```
+bazel test src:all
+bazel test src/quipper:all
 ```
 
 # Usage:

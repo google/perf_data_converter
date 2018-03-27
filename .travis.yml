@@ -2,6 +2,14 @@ language: cpp
 
 sudo: required
 
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8'
+      key_url: 'https://bazel.build/bazel-release.pub.gpg'
+    packages:
+    - bazel
+
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libelf-dev libssl-dev libcap-dev linux-tools-`uname -r` linux-cloud-tools-`uname -r`
@@ -20,5 +28,7 @@ compiler:
   - gcc
 
 script:
+  - bazel build //src:all //src/quipper:all
+  - bazel test //src:all //src/quipper:all
   - make perf_to_profile check clean -C src/
   - make quipper perf_converter check clean -C src/quipper/ -f Makefile.external
