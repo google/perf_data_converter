@@ -169,6 +169,13 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       //    /tmp/perf record -e "cycles" -o - -- echo Hello, World! | cat &> \
       //    /tmp/perf.data.piped.header_features-4.16
       "perf.data.piped.header_features-4.16",
+
+      // Perf data from perf 4.14 containing no IDs in PERF_RECORD_HEADER_ATTR
+      // event.
+      // Command:
+      //    perf record -e "cycles" -o - -- sleep 0.001 | cat &> \
+      //    perf.data.piped.no_attr_ids-4.14
+      "perf.data.piped.no_attr_ids-4.14",
   };
   return *files;
 }
