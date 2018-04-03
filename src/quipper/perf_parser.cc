@@ -235,11 +235,11 @@ bool PerfParser::ProcessEvents() {
       case PERF_RECORD_AUX:
       case PERF_RECORD_ITRACE_START:
       case PERF_RECORD_LOST_SAMPLES:
+      case PERF_RECORD_SWITCH:
+      case PERF_RECORD_SWITCH_CPU_WIDE:
         VLOG(1) << "Parsed event type: " << event.header().type()
                 << ". Doing nothing.";
         break;
-      case PERF_RECORD_SWITCH:
-      case PERF_RECORD_SWITCH_CPU_WIDE:
       case PERF_RECORD_NAMESPACES:
         VLOG(1) << "Parsed event type: " << event.header().type()
                 << ". Not yet supported.";

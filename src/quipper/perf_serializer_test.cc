@@ -77,6 +77,8 @@ const uint64_t GetSampleTimestampFromEventProto(
     return event.itrace_start_event().sample_info().sample_time_ns();
   } else if (event.has_lost_samples_event()) {
     return event.lost_samples_event().sample_info().sample_time_ns();
+  } else if (event.has_context_switch_event()) {
+    return event.context_switch_event().sample_info().sample_time_ns();
   }
   return 0;
 }
@@ -789,6 +791,91 @@ TEST(PerfSerializerTest, SerializesAndDeserializesForkAndExitEvents) {
     EXPECT_EQ(4010, sample_info.pid());
     EXPECT_EQ(4020, sample_info.tid());
     EXPECT_EQ(433ULL * 1000000000, sample_info.sample_time_ns());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesContextSwitchEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH
+  testing::ExampleSwitchEvent(true, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleSwitchEvent(false, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH_CPU_WIDE
+  testing::ExampleSwitchEvent(true, 5656, 5656, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleSwitchEvent(false, 1001, 1001,
+                              testing::SampleInfo().Tid(5656))
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(4, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_SWITCH, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(1);
+    EXPECT_EQ(PERF_RECORD_SWITCH, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(0, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(2);
+    EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, event.header().misc());
+    EXPECT_EQ(5656, context_switch_event.next_prev_pid());
+    EXPECT_EQ(5656, context_switch_event.next_prev_tid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(3);
+    EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(0, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.next_prev_pid());
+    EXPECT_EQ(1001, context_switch_event.next_prev_tid());
+    EXPECT_EQ(5656, context_switch_event.sample_info().pid());
+    EXPECT_EQ(5656, context_switch_event.sample_info().tid());
   }
 }
 

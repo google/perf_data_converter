@@ -365,6 +365,12 @@ struct itrace_start_event {
   u32 pid, tid;
 };
 
+struct context_switch_event {
+  struct perf_event_header header;
+  u32 next_prev_pid;
+  u32 next_prev_tid;
+};
+
 struct feature_event {
   struct perf_event_header header;
   u64 feat_id;
@@ -389,6 +395,7 @@ union perf_event {
   struct auxtrace_event auxtrace;
   struct aux_event aux;
   struct itrace_start_event itrace_start;
+  struct context_switch_event context_switch;
   struct feature_event feat;
 };
 

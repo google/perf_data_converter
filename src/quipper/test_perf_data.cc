@@ -475,5 +475,39 @@ void ExampleAuxtraceEvent::WriteTo(std::ostream* out) const {
   out->write(trace_data_.data(), trace_data_.size());
 }
 
+size_t ExampleSwitchEvent::GetSize() const {
+  if (type_ == PERF_RECORD_SWITCH) {
+    return sizeof(struct context_switch_event) -
+           sizeof(context_switch_event::next_prev_pid) -
+           sizeof(context_switch_event::next_prev_tid) +
+           sample_id_.size();  // Sample info fields are present for this event.
+  }
+  return sizeof(struct context_switch_event) +
+         sample_id_.size();  // Sample info fields are present for this event.
+}
+
+void ExampleSwitchEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  u16 misc_ = (is_out_ ? PERF_RECORD_MISC_SWITCH_OUT : 0);
+  struct context_switch_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(type_),
+              .misc = misc_,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .next_prev_pid = next_prev_pid_,
+      .next_prev_tid = next_prev_tid_,
+  };
+
+  const size_t pre_context_switch_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event),
+             event_size - sample_id_.size());
+  out->write(sample_id_.data(), sample_id_.size());
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_context_switch_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 }  // namespace testing
 }  // namespace quipper

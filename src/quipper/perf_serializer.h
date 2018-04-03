@@ -127,6 +127,10 @@ class PerfSerializer {
                                  PerfDataProto_LostSamplesEvent* sample) const;
   bool DeserializeLostSamplesEvent(const PerfDataProto_LostSamplesEvent& sample,
                                    event_t* event) const;
+  bool SerializeContextSwitchEvent(
+      const event_t& event, PerfDataProto_ContextSwitchEvent* sample) const;
+  bool DeserializeContextSwitchEvent(
+      const PerfDataProto_ContextSwitchEvent& sample, event_t* event) const;
 
   bool SerializeSampleInfo(const event_t& event,
                            PerfDataProto_SampleInfo* sample_info) const;

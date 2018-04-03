@@ -503,9 +503,11 @@ struct perf_event_mmap_page {
 /*
  * PERF_RECORD_MISC_MMAP_DATA and PERF_RECORD_MISC_COMM_EXEC are used on
  * different events so can reuse the same bit position.
+ * Ditto PERF_RECORD_MISC_SWITCH_OUT.
  */
 #define PERF_RECORD_MISC_MMAP_DATA (1 << 13)
 #define PERF_RECORD_MISC_COMM_EXEC (1 << 13)
+#define PERF_RECORD_MISC_SWITCH_OUT (1 << 13)
 /*
  * Indicates that the content of PERF_SAMPLE_IP points to
  * the actual instruction that triggered the event. See also

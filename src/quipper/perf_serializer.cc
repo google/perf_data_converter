@@ -230,6 +230,10 @@ bool PerfSerializer::SerializeKernelEvent(
     case PERF_RECORD_LOST_SAMPLES:
       return SerializeLostSamplesEvent(
           event, event_proto->mutable_lost_samples_event());
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      return SerializeContextSwitchEvent(
+          event, event_proto->mutable_context_switch_event());
     default:
       LOG(ERROR) << "Unknown event type: " << event.header.type;
   }
@@ -312,6 +316,8 @@ bool PerfSerializer::DeserializeKernelEvent(
                                          event);
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
+      return DeserializeContextSwitchEvent(event_proto.context_switch_event(),
+                                           event);
     case PERF_RECORD_NAMESPACES:
       LOG(ERROR) << "Event type: " << event_proto.header().type()
                  << ". Not yet supported.";
@@ -761,6 +767,27 @@ bool PerfSerializer::DeserializeLostSamplesEvent(
   struct lost_samples_event& lost_samples = event->lost_samples;
   lost_samples.lost = sample.num_lost();
 
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
+bool PerfSerializer::SerializeContextSwitchEvent(
+    const event_t& event, PerfDataProto_ContextSwitchEvent* sample) const {
+  const struct context_switch_event& context_switch = event.context_switch;
+  sample->set_is_out(context_switch.header.misc & PERF_RECORD_MISC_SWITCH_OUT);
+  if (context_switch.header.type == PERF_RECORD_SWITCH_CPU_WIDE) {
+    sample->set_next_prev_pid(context_switch.next_prev_pid);
+    sample->set_next_prev_tid(context_switch.next_prev_tid);
+  }
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeContextSwitchEvent(
+    const PerfDataProto_ContextSwitchEvent& sample, event_t* event) const {
+  struct context_switch_event& context_switch = event->context_switch;
+  if (event->header.type == PERF_RECORD_SWITCH_CPU_WIDE) {
+    context_switch.next_prev_pid = sample.next_prev_pid();
+    context_switch.next_prev_tid = sample.next_prev_tid();
+  }
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
 

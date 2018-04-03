@@ -126,6 +126,12 @@ const std::vector<const char*>& GetPerfDataFiles() {
       //    -P -c 20003 -o /tmp/perf.data.lost_samples-4.4 -- \
       //    echo "Hello, World!"
       "perf.data.lost_samples-4.4",
+
+      // Perf data that contains switch and namespace samples.
+      // Command:
+      // perf record --switch-events --namespace -e cycles -o
+      // /tmp/perf.data.ctx_switch_namespaces-4.14 -- sleep 0.001
+      "perf.data.ctx_switch_namespaces-4.14",
   };
   return *files;
 }
@@ -176,6 +182,12 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       //    perf record -e "cycles" -o - -- sleep 0.001 | cat &> \
       //    perf.data.piped.no_attr_ids-4.14
       "perf.data.piped.no_attr_ids-4.14",
+
+      // Perf data that contains switch and namespace samples.
+      // Command:
+      // perf record --switch-events --namespace -e cycles -o - -- sleep 0.001 |
+      // cat &> /tmp/perf.data.pipedctx_switch_namespaces-4.14
+      "perf.data.piped.ctx_switch_namespaces-4.14",
   };
   return *files;
 }

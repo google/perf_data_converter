@@ -514,6 +514,160 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   EXPECT_EQ(0x300b, events[13].event_ptr->sample_event().ip());
 }
 
+TEST(PerfParserTest, ContextSwitchEvents) {
+  std::stringstream input;
+  // PERF_RECORD_SWITCH
+  testing::ExampleSwitchEvent context_switch_event_1(
+      true, testing::SampleInfo().Tid(1001));  // 0
+  testing::ExampleSwitchEvent context_switch_event_2(
+      false, testing::SampleInfo().Tid(1001));  // 1
+
+  // PERF_RECORD_SWITCH_CPU_WIDE
+  testing::ExampleSwitchEvent context_switch_event_3(
+      true, 5656, 5656, testing::SampleInfo().Tid(1001));  // 2
+  testing::ExampleSwitchEvent context_switch_event_4(
+      false, 1001, 1001, testing::SampleInfo().Tid(5656));  // 3
+
+  size_t data_size =
+      context_switch_event_1.GetSize() + context_switch_event_2.GetSize() +
+      context_switch_event_3.GetSize() + context_switch_event_4.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  context_switch_event_1.WriteTo(&input);
+  context_switch_event_2.WriteTo(&input);
+  context_switch_event_3.WriteTo(&input);
+  context_switch_event_4.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  // no metadata
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(4, events.size());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH, events[0].event_ptr->header().type());
+  EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, events[0].event_ptr->header().misc());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH, events[1].event_ptr->header().type());
+  EXPECT_EQ(0, events[1].event_ptr->header().misc());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, events[2].event_ptr->header().type());
+  EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, events[2].event_ptr->header().misc());
+  EXPECT_EQ(5656, events[2].event_ptr->context_switch_event().next_prev_pid());
+  EXPECT_EQ(5656, events[2].event_ptr->context_switch_event().next_prev_tid());
+  EXPECT_EQ(1001,
+            events[2].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(1001,
+            events[2].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, events[3].event_ptr->header().type());
+  EXPECT_EQ(0, events[3].event_ptr->header().misc());
+  EXPECT_EQ(1001, events[3].event_ptr->context_switch_event().next_prev_pid());
+  EXPECT_EQ(1001, events[3].event_ptr->context_switch_event().next_prev_tid());
+  EXPECT_EQ(5656,
+            events[3].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(5656,
+            events[3].event_ptr->context_switch_event().sample_info().tid());
+}
+
+TEST(PerfParserTest, PipedContextSwitchEvents) {
+  std::stringstream input;
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH
+  testing::ExampleSwitchEvent(true, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleSwitchEvent(false, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH_CPU_WIDE
+  testing::ExampleSwitchEvent(true, 5656, 5656, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleSwitchEvent(false, 1001, 1001,
+                              testing::SampleInfo().Tid(5656))
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(4, events.size());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH, events[0].event_ptr->header().type());
+  EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, events[0].event_ptr->header().misc());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH, events[1].event_ptr->header().type());
+  EXPECT_EQ(0, events[1].event_ptr->header().misc());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(1001,
+            events[0].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, events[2].event_ptr->header().type());
+  EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, events[2].event_ptr->header().misc());
+  EXPECT_EQ(5656, events[2].event_ptr->context_switch_event().next_prev_pid());
+  EXPECT_EQ(5656, events[2].event_ptr->context_switch_event().next_prev_tid());
+  EXPECT_EQ(1001,
+            events[2].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(1001,
+            events[2].event_ptr->context_switch_event().sample_info().tid());
+
+  EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, events[3].event_ptr->header().type());
+  EXPECT_EQ(0, events[3].event_ptr->header().misc());
+  EXPECT_EQ(1001, events[3].event_ptr->context_switch_event().next_prev_pid());
+  EXPECT_EQ(1001, events[3].event_ptr->context_switch_event().next_prev_tid());
+  EXPECT_EQ(5656,
+            events[3].event_ptr->context_switch_event().sample_info().pid());
+  EXPECT_EQ(5656,
+            events[3].event_ptr->context_switch_event().sample_info().tid());
+}
+
 TEST(PerfParserTest, DsoInfoHasBuildId) {
   std::stringstream input;
 
