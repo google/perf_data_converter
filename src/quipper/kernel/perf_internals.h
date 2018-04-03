@@ -1,27 +1,15 @@
 // Copied from kernel sources. See COPYING for license details.
 
-#ifndef PERF_INTERNALS_H_
-#define PERF_INTERNALS_H_
+#ifndef PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_INTERNALS_H_
+#define PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_INTERNALS_H_
 
 #include <linux/limits.h>
 #include <stddef.h>  // For NULL
-#include <stdint.h>
 #include <sys/types.h>  // For pid_t
 
 #include "perf_event.h"  
 
 namespace quipper {
-
-// These typedefs are from tools/perf/util/types.h in the kernel.
-typedef uint64_t u64;
-typedef int64_t s64;
-typedef unsigned int u32;
-typedef signed int s32;
-typedef unsigned short u16;  
-typedef signed short s16;    
-typedef unsigned char u8;
-typedef signed char s8;
-
 // The first 64 bits of the perf header, used as a perf data file ID tag.
 const uint64_t kPerfMagic = 0x32454c4946524550LL;  // "PERFILE2" little-endian
 
@@ -166,13 +154,18 @@ struct throttle_event {
   u64 stream_id;
 };
 
-#define PERF_SAMPLE_MASK                                                    \
-  (PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_ADDR | \
-   PERF_SAMPLE_ID | PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_CPU |               \
-   PERF_SAMPLE_PERIOD | PERF_SAMPLE_IDENTIFIER)
+/*
+// The below macro is not used in quipper. It is commented out for future
+// reference.
+
+#define PERF_SAMPLE_MASK                                                 \
+    (PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |       \
+     PERF_SAMPLE_ADDR | PERF_SAMPLE_ID | PERF_SAMPLE_STREAM_ID | \
+     PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD | PERF_SAMPLE_IDENTIFIER)
+*/
 
 /* perf sample has 16 bits size limit */
-#define PERF_SAMPLE_MAX_SIZE (1 << 16)
+// #define PERF_SAMPLE_MAX_SIZE (1 << 16)
 
 struct sample_event {
   struct perf_event_header header;
@@ -403,4 +396,4 @@ typedef perf_event event_t;
 
 }  // namespace quipper
 
-#endif /*PERF_INTERNALS_H_*/
+#endif /*PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_INTERNALS_H_*/

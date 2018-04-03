@@ -58,16 +58,16 @@ const char* ExecModeString(ExecutionMode mode) {
 
 ExecutionMode PerfExecMode(const PerfDataHandler::SampleContext& sample) {
   if (sample.header.has_misc()) {
-    switch (sample.header.misc() & PERF_RECORD_MISC_CPUMODE_MASK) {
-      case PERF_RECORD_MISC_KERNEL:
+    switch (sample.header.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
+      case quipper::PERF_RECORD_MISC_KERNEL:
         return HostKernel;
-      case PERF_RECORD_MISC_USER:
+      case quipper::PERF_RECORD_MISC_USER:
         return HostUser;
-      case PERF_RECORD_MISC_GUEST_KERNEL:
+      case quipper::PERF_RECORD_MISC_GUEST_KERNEL:
         return GuestKernel;
-      case PERF_RECORD_MISC_GUEST_USER:
+      case quipper::PERF_RECORD_MISC_GUEST_USER:
         return GuestUser;
-      case PERF_RECORD_MISC_HYPERVISOR:
+      case quipper::PERF_RECORD_MISC_HYPERVISOR:
         return Hypervisor;
     }
   }
@@ -580,7 +580,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   const bool lbr_sample = !sample.branch_stack.empty();
   bool skipped_dup = false;
   for (const auto& frame : sample.callchain) {
-    if (lbr_sample && frame.ip == PERF_CONTEXT_USER) {
+    if (lbr_sample && frame.ip == quipper::PERF_CONTEXT_USER) {
       break;
     }
     if (!skipped_dup && sample_key.stack.size() == 1 && frame.ip == ip) {
@@ -601,7 +601,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     }
     // these aren't real callchain entries, just hints as to kernel/user
     // addresses.
-    if (frame_ip >= PERF_CONTEXT_MAX) {
+    if (frame_ip >= quipper::PERF_CONTEXT_MAX) {
       continue;
     }
 

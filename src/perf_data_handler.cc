@@ -251,8 +251,8 @@ void Normalizer::InvokeHandleSample(
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
   if (context.main_mapping == nullptr &&
-      (event_proto.header().misc() & PERF_RECORD_MISC_CPUMODE_MASK) ==
-          PERF_RECORD_MISC_KERNEL) {
+      (event_proto.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
+          quipper::PERF_RECORD_MISC_KERNEL) {
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(-1);
     if (comm_it != pid_to_comm_event_.end()) {
@@ -443,7 +443,7 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32 pid,
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
     uint32 pid, uint64 ip) const {
-  if (ip >= PERF_CONTEXT_MAX) {
+  if (ip >= quipper::PERF_CONTEXT_MAX) {
     // These aren't real IPs, they're context hints.  Drop them.
     return nullptr;
   }
