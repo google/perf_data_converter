@@ -507,16 +507,16 @@ class ExampleAuxtraceEvent : public StreamWriteable {
 };
 
 // Produces PERF_RECORD_SWITCH or PERF_RECORD_SWITCH_CPU_WIDE events.
-class ExampleSwitchEvent : public StreamWriteable {
+class ExampleContextSwitchEvent : public StreamWriteable {
  public:
-  ExampleSwitchEvent(bool is_out, const SampleInfo& sample_id)
+  ExampleContextSwitchEvent(bool is_out, const SampleInfo& sample_id)
       : type_(PERF_RECORD_SWITCH),
         is_out_(is_out),
         next_prev_pid_(0),
         next_prev_tid_(0),
         sample_id_(sample_id) {}
-  ExampleSwitchEvent(bool is_out, u32 next_prev_pid, u32 next_prev_tid,
-                     const SampleInfo& sample_id)
+  ExampleContextSwitchEvent(bool is_out, u32 next_prev_pid, u32 next_prev_tid,
+                            const SampleInfo& sample_id)
       : type_(PERF_RECORD_SWITCH_CPU_WIDE),
         is_out_(is_out),
         next_prev_pid_(next_prev_pid),

@@ -475,7 +475,7 @@ void ExampleAuxtraceEvent::WriteTo(std::ostream* out) const {
   out->write(trace_data_.data(), trace_data_.size());
 }
 
-size_t ExampleSwitchEvent::GetSize() const {
+size_t ExampleContextSwitchEvent::GetSize() const {
   if (type_ == PERF_RECORD_SWITCH) {
     return sizeof(struct context_switch_event) -
            sizeof(context_switch_event::next_prev_pid) -
@@ -486,7 +486,7 @@ size_t ExampleSwitchEvent::GetSize() const {
          sample_id_.size();  // Sample info fields are present for this event.
 }
 
-void ExampleSwitchEvent::WriteTo(std::ostream* out) const {
+void ExampleContextSwitchEvent::WriteTo(std::ostream* out) const {
   const size_t event_size = GetSize();
   u16 misc_ = (is_out_ ? PERF_RECORD_MISC_SWITCH_OUT : 0);
   struct context_switch_event event = {

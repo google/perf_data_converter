@@ -517,15 +517,15 @@ TEST(PerfParserTest, MapsSampleEventIp) {
 TEST(PerfParserTest, ContextSwitchEvents) {
   std::stringstream input;
   // PERF_RECORD_SWITCH
-  testing::ExampleSwitchEvent context_switch_event_1(
+  testing::ExampleContextSwitchEvent context_switch_event_1(
       true, testing::SampleInfo().Tid(1001));  // 0
-  testing::ExampleSwitchEvent context_switch_event_2(
+  testing::ExampleContextSwitchEvent context_switch_event_2(
       false, testing::SampleInfo().Tid(1001));  // 1
 
   // PERF_RECORD_SWITCH_CPU_WIDE
-  testing::ExampleSwitchEvent context_switch_event_3(
+  testing::ExampleContextSwitchEvent context_switch_event_3(
       true, 5656, 5656, testing::SampleInfo().Tid(1001));  // 2
-  testing::ExampleSwitchEvent context_switch_event_4(
+  testing::ExampleContextSwitchEvent context_switch_event_4(
       false, 1001, 1001, testing::SampleInfo().Tid(5656));  // 3
 
   size_t data_size =
@@ -608,16 +608,17 @@ TEST(PerfParserTest, PipedContextSwitchEvents) {
       .WriteTo(&input);
 
   // PERF_RECORD_SWITCH
-  testing::ExampleSwitchEvent(true, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(true, testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
-  testing::ExampleSwitchEvent(false, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(false, testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
 
   // PERF_RECORD_SWITCH_CPU_WIDE
-  testing::ExampleSwitchEvent(true, 5656, 5656, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(true, 5656, 5656,
+                                     testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
-  testing::ExampleSwitchEvent(false, 1001, 1001,
-                              testing::SampleInfo().Tid(5656))
+  testing::ExampleContextSwitchEvent(false, 1001, 1001,
+                                     testing::SampleInfo().Tid(5656))
       .WriteTo(&input);
 
   //

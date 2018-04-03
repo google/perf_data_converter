@@ -808,16 +808,17 @@ TEST(PerfSerializerTest, SerializesAndDeserializesContextSwitchEvents) {
       .WriteTo(&input);
 
   // PERF_RECORD_SWITCH
-  testing::ExampleSwitchEvent(true, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(true, testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
-  testing::ExampleSwitchEvent(false, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(false, testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
 
   // PERF_RECORD_SWITCH_CPU_WIDE
-  testing::ExampleSwitchEvent(true, 5656, 5656, testing::SampleInfo().Tid(1001))
+  testing::ExampleContextSwitchEvent(true, 5656, 5656,
+                                     testing::SampleInfo().Tid(1001))
       .WriteTo(&input);
-  testing::ExampleSwitchEvent(false, 1001, 1001,
-                              testing::SampleInfo().Tid(5656))
+  testing::ExampleContextSwitchEvent(false, 1001, 1001,
+                                     testing::SampleInfo().Tid(5656))
       .WriteTo(&input);
 
   // Parse and Serialize
