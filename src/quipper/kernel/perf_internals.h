@@ -364,6 +364,13 @@ struct context_switch_event {
   u32 next_prev_tid;
 };
 
+struct time_conv_event {
+  struct perf_event_header header;
+  u64 time_shift;
+  u64 time_mult;
+  u64 time_zero;
+};
+
 struct feature_event {
   struct perf_event_header header;
   u64 feat_id;
@@ -389,6 +396,7 @@ union perf_event {
   struct aux_event aux;
   struct itrace_start_event itrace_start;
   struct context_switch_event context_switch;
+  struct time_conv_event time_conv;
   struct feature_event feat;
 };
 

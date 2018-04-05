@@ -524,6 +524,19 @@ message PerfDataProto {
     optional SampleInfo sample_info = 4;
   }
 
+  // Time members to convert between TSC and perf time.
+  // Next tag: 4
+  message TimeConvEvent {
+    // Time shift value.
+    optional uint64 time_shift = 1;
+
+    // Time multiplier.
+    optional uint64 time_mult = 2;
+
+    // Base time.
+    optional uint64 time_zero = 3;
+  }
+
   // Next tag: 4
   message EventHeader {
     // Type of event.
@@ -533,7 +546,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 16
+  // Next tag: 18
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -554,6 +567,7 @@ message PerfDataProto {
       LostSamplesEvent lost_samples_event = 14;
       ContextSwitchEvent context_switch_event = 15;
       AuxtraceEvent auxtrace_event = 12;
+      TimeConvEvent time_conv_event = 17;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

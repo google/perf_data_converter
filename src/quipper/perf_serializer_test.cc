@@ -553,6 +553,43 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceEvents) {
   }
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_TIME_CONV
+  testing::ExampleTimeConvEvent(5656, 4, 234321).WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_TIME_CONV, event.header().type());
+    EXPECT_TRUE(event.has_time_conv_event());
+    const PerfDataProto::TimeConvEvent& time_conv_event =
+        event.time_conv_event();
+    EXPECT_EQ(5656, time_conv_event.time_shift());
+    EXPECT_EQ(4, time_conv_event.time_mult());
+    EXPECT_EQ(234321, time_conv_event.time_zero());
+  }
+}
+
 // Regression test for http://crbug.com/501004.
 TEST(PerfSerializerTest, SerializesAndDeserializesBuildIDs) {
   std::stringstream input;

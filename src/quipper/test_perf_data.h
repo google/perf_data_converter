@@ -533,6 +533,20 @@ class ExampleContextSwitchEvent : public StreamWriteable {
   const SampleInfo sample_id_;
 };
 
+// Produces PERF_RECORD_TIME_CONV event.
+class ExampleTimeConvEvent : public StreamWriteable {
+ public:
+  ExampleTimeConvEvent(u64 time_shift, u64 time_mult, u64 time_zero)
+      : time_shift_(time_shift), time_mult_(time_mult), time_zero_(time_zero) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 time_shift_;
+  const u64 time_mult_;
+  const u64 time_zero_;
+};
+
 }  // namespace testing
 }  // namespace quipper
 

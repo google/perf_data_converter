@@ -155,6 +155,10 @@ class PerfSerializer {
                                 event_t* event) const;
   bool DeserializeAuxtraceEventTraceData(
       const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const;
+  bool SerializeTimeConvEvent(const event_t& event,
+                              PerfDataProto_TimeConvEvent* sample) const;
+  bool DeserializeTimeConvEvent(const PerfDataProto_TimeConvEvent& sample,
+                                event_t* event) const;
 
   bool SerializeSingleUint32Metadata(
       const PerfUint32Metadata& metadata,

@@ -246,6 +246,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_AUXTRACE:
       return SerializeAuxtraceEvent(event,
                                     event_proto->mutable_auxtrace_event());
+    case PERF_RECORD_TIME_CONV:
+      return SerializeTimeConvEvent(event,
+                                    event_proto->mutable_time_conv_event());
     default:
       if (event.header.type >= PERF_RECORD_HEADER_MAX) {
         LOG(ERROR) << "Unknown event type: " << event.header.type;
@@ -332,6 +335,8 @@ bool PerfSerializer::DeserializeUserEvent(
   switch (event_proto.header().type()) {
     case PERF_RECORD_AUXTRACE:
       return DeserializeAuxtraceEvent(event_proto.auxtrace_event(), event);
+    case PERF_RECORD_TIME_CONV:
+      return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
       // User type events are marked as deserialized because they don't
       // have non-header data in perf.data proto.
@@ -943,6 +948,24 @@ bool PerfSerializer::DeserializeAuxtraceEvent(
 bool PerfSerializer::DeserializeAuxtraceEventTraceData(
     const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const {
   to->assign(from.trace_data().begin(), from.trace_data().end());
+  return true;
+}
+
+bool PerfSerializer::SerializeTimeConvEvent(
+    const event_t& event, PerfDataProto_TimeConvEvent* sample) const {
+  const struct time_conv_event& time_conv = event.time_conv;
+  sample->set_time_shift(time_conv.time_shift);
+  sample->set_time_mult(time_conv.time_mult);
+  sample->set_time_zero(time_conv.time_zero);
+  return true;
+}
+
+bool PerfSerializer::DeserializeTimeConvEvent(
+    const PerfDataProto_TimeConvEvent& sample, event_t* event) const {
+  struct time_conv_event& time_conv = event->time_conv;
+  time_conv.time_shift = sample.time_shift();
+  time_conv.time_mult = sample.time_mult();
+  time_conv.time_zero = sample.time_zero();
   return true;
 }
 

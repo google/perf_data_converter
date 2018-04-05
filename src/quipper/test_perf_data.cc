@@ -509,5 +509,30 @@ void ExampleContextSwitchEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleTimeConvEvent::GetSize() const {
+  return sizeof(struct time_conv_event);
+}
+
+void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct time_conv_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_TIME_CONV),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .time_shift = time_shift_,
+      .time_mult = time_mult_,
+      .time_zero = time_zero_,
+  };
+
+  const size_t pre_time_conv_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 }  // namespace testing
 }  // namespace quipper

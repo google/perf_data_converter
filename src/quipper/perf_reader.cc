@@ -1944,6 +1944,11 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->auxtrace.tid);
       ByteSwap(&event->auxtrace.cpu);
       break;
+    case PERF_RECORD_TIME_CONV:
+      ByteSwap(&event->time_conv.time_shift);
+      ByteSwap(&event->time_conv.time_mult);
+      ByteSwap(&event->time_conv.time_zero);
+      break;
     default:
       LOG(FATAL) << "Unknown event type: " << type;
   }
