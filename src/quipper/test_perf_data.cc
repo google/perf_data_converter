@@ -141,6 +141,10 @@ void ExamplePerfEventAttrEvent_Hardware::WriteTo(std::ostream* out) const {
   attr.sample_type = sample_type_;
   attr.read_format = read_format_;
   attr.sample_id_all = sample_id_all_;
+  attr.use_clockid = use_clockid_;
+  attr.context_switch = context_switch_;
+  attr.write_backward = write_backward_;
+  attr.namespaces = namespaces_;
 
   const size_t event_size = sizeof(perf_event_header) + attr.size +
                             ids_.size() * sizeof(decltype(ids_)::value_type);
@@ -177,6 +181,10 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   // Bit fields.
   attr.sample_id_all = sample_id_all_;
   attr.precise_ip = 2;  // For testing a bit field that is more than one bit.
+  attr.use_clockid = use_clockid_;
+  attr.context_switch = context_switch_;
+  attr.write_backward = write_backward_;
+  attr.namespaces = namespaces_;
 
   if (is_cross_endian()) {
     // The order of operations here is for native-to-cross-endian conversion.

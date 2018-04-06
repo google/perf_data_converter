@@ -90,6 +90,10 @@ bool PerfSerializer::SerializePerfEventAttr(
   S(exclude_callchain_user);
   S(mmap2);
   S(comm_exec);
+  S(use_clockid);
+  S(context_switch);
+  S(write_backward);
+  S(namespaces);
   if (perf_event_attr_proto->watermark())
     S(wakeup_watermark);
   else
@@ -142,6 +146,10 @@ bool PerfSerializer::DeserializePerfEventAttr(
   S(exclude_callchain_user);
   S(mmap2);
   S(comm_exec);
+  S(use_clockid);
+  S(context_switch);
+  S(write_backward);
+  S(namespaces);
   if (perf_event_attr->watermark)
     S(wakeup_watermark);
   else

@@ -445,6 +445,89 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTraceMetadata) {
   EXPECT_EQ(tracing_metadata_str, deserializer.tracing_data());
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesPerfEventAttrEvent) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // no data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.file_attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr =
+        perf_data_proto.file_attrs(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  EXPECT_EQ(0, perf_data_proto.events().size());
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesPerfFileAttr) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header((0));
+  file_header.WithAttrCount(1).WithDataSize(0);
+  file_header.WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                        true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  // no data
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.file_attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr =
+        perf_data_proto.file_attrs(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  EXPECT_EQ(0, perf_data_proto.events().size());
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
   std::stringstream input;
 

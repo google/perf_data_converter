@@ -136,6 +136,85 @@ TEST(PerfReaderTest, PipedData_IncompleteEventData) {
   EXPECT_EQ((1 << HEADER_EVENT_DESC), pr.metadata_mask());
 }
 
+TEST(PerfReaderTest, PerfEventAttrEvent) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // no data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  ASSERT_TRUE(pr.ReadFromString(input.str()));
+
+  ASSERT_EQ(1, pr.attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr = pr.attrs().Get(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  ASSERT_EQ(0, pr.event_types().size());
+}
+
+TEST(PerfReaderTest, PerfFileAttr) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header((0));
+  file_header.WithAttrCount(1).WithDataSize(0);
+  file_header.WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                        true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  // no data
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  ASSERT_TRUE(pr.ReadFromString(input.str()));
+
+  ASSERT_EQ(1, pr.attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr = pr.attrs().Get(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  ASSERT_EQ(0, pr.event_types().size());
+}
+
 TEST(PerfReaderTest, CorruptedFiles) {
   for (const char* test_file :
        perf_test_files::GetCorruptedPerfPipedDataFiles()) {

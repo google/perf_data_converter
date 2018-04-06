@@ -37,6 +37,10 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
   }
   ids: 28293
   ids: 28294

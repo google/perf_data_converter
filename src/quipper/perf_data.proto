@@ -17,7 +17,7 @@ message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
   // $kernel/include/uapi/linux/perf_event.h.
-  // Next tag: 42
+  // Next tag: 46
   message PerfEventAttr {
     // Type of the event. Type is an enumeration and can be one of the values
     // described at: $kernel/include/linux/perf_event.h.
@@ -122,6 +122,18 @@ message PerfDataProto {
 
     // Flag comm events that are due to an exec.
     optional bool comm_exec = 39;
+
+    // Indicates whether or not to use @clockid for time fields.
+    optional bool use_clockid = 42;
+
+    // Include context switch data.
+    optional bool context_switch = 43;
+
+    // Indicates whether ring buffer is written from end to beginning.
+    optional bool write_backward = 44;
+
+    // Include namespace data.
+    optional bool namespaces = 45;
 
     // Contains the number of events after which we wake up.
     optional uint32 wakeup_events = 28;

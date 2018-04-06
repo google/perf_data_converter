@@ -318,8 +318,12 @@ struct perf_event_attr {
       exclude_callchain_kernel : 1, /* exclude kernel callchains */
       exclude_callchain_user : 1,   /* exclude user callchains */
       mmap2 : 1,                    /* include mmap with inode data     */
-      comm_exec : 1, /* flag comm events that are due to an exec */
-      __reserved_1 : 39;
+      comm_exec : 1,      /* flag comm events that are due to an exec */
+      use_clockid : 1,    /* use @clockid for time fields */
+      context_switch : 1, /* context switch data */
+      write_backward : 1, /* Write ring buffer from end to beginning */
+      namespaces : 1,     /* include namespaces data */
+      __reserved_1 : 35;
 
   union {
     __u32 wakeup_events;    /* wakeup every n events */
