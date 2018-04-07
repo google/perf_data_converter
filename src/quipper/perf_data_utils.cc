@@ -79,6 +79,9 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
       return &event.itrace_start_event().sample_info();
     case PERF_RECORD_LOST_SAMPLES:
       return &event.lost_samples_event().sample_info();
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      return &event.context_switch_event().sample_info();
   }
   return nullptr;
 }

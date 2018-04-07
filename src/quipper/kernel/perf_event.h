@@ -11,12 +11,30 @@
  *
  * For licencing details see kernel-base/COPYING
  */
-#ifndef _UAPI_LINUX_PERF_EVENT_H
-#define _UAPI_LINUX_PERF_EVENT_H
+// When including both quipper/kernel/perf_event.h and uapi/linux/perf_event.h,
+// always include the former before the latter. If uapi/linux/perf_event.h were
+// to be included before quipper/kernel/perf_event.h, the macros defined in
+// uapi/linux/perf_event.h would expand the constants defined in
+// quipper/kernel/perf_event.h and cause the compiler to complain. By including
+// quipper/kernel/perf_event.h before uapi/linux/perf_event.h, the constants
+// defined in the former would be replaced by macros defined in the latter.
+#ifndef PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_EVENT_H_
+#define PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_EVENT_H_
 
-#include <asm/byteorder.h>
-#include <linux/ioctl.h>
 #include <linux/types.h>
+#include <stdint.h>
+
+namespace quipper {
+
+// These typedefs are from tools/perf/util/types.h in the kernel.
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef unsigned int u32;
+typedef signed int s32;
+typedef unsigned short u16;  
+typedef signed short s16;    
+typedef unsigned char u8;
+typedef signed char s8;
 
 /*
  * User-space ABI bits:
@@ -168,8 +186,9 @@ enum perf_branch_sample_type {
   PERF_SAMPLE_BRANCH_MAX = 1U << 11, /* non-ABI */
 };
 
-#define PERF_SAMPLE_BRANCH_PLM_ALL \
-  (PERF_SAMPLE_BRANCH_USER | PERF_SAMPLE_BRANCH_KERNEL | PERF_SAMPLE_BRANCH_HV)
+const u16 PERF_SAMPLE_BRANCH_PLM_ALL =
+    (PERF_SAMPLE_BRANCH_USER | PERF_SAMPLE_BRANCH_KERNEL |
+     PERF_SAMPLE_BRANCH_HV);
 
 /*
  * Values to determine ABI of the registers dump.
@@ -231,11 +250,11 @@ enum perf_event_read_format {
   PERF_FORMAT_MAX = 1U << 4, /* non-ABI */
 };
 
-#define PERF_ATTR_SIZE_VER0 64 /* sizeof first published struct */
-#define PERF_ATTR_SIZE_VER1 72 /* add: config2 */
-#define PERF_ATTR_SIZE_VER2 80 /* add: branch_sample_type */
-#define PERF_ATTR_SIZE_VER3 96 /* add: sample_regs_user */
-                               /* add: sample_stack_user */
+const u16 PERF_ATTR_SIZE_VER0 = 64; /* sizeof first published struct */
+const u16 PERF_ATTR_SIZE_VER1 = 72; /* add: config2 */
+const u16 PERF_ATTR_SIZE_VER2 = 80; /* add: branch_sample_type */
+const u16 PERF_ATTR_SIZE_VER3 = 96; /* add: sample_regs_user */
+                                    /* add: sample_stack_user */
 
 /*
  * Hardware event_id to monitor via a performance monitoring event:
@@ -299,8 +318,12 @@ struct perf_event_attr {
       exclude_callchain_kernel : 1, /* exclude kernel callchains */
       exclude_callchain_user : 1,   /* exclude user callchains */
       mmap2 : 1,                    /* include mmap with inode data     */
-      comm_exec : 1, /* flag comm events that are due to an exec */
-      __reserved_1 : 39;
+      comm_exec : 1,      /* flag comm events that are due to an exec */
+      use_clockid : 1,    /* use @clockid for time fields */
+      context_switch : 1, /* context switch data */
+      write_backward : 1, /* Write ring buffer from end to beginning */
+      namespaces : 1,     /* include namespaces data */
+      __reserved_1 : 35;
 
   union {
     __u32 wakeup_events;    /* wakeup every n events */
@@ -331,24 +354,6 @@ struct perf_event_attr {
 
   /* Align to u64. */
   __u32 __reserved_2;
-};
-
-#define perf_flags(attr) (*(&(attr)->read_format + 1))
-
-/*
- * Ioctls that can be done on a perf event fd:
- */
-#define PERF_EVENT_IOC_ENABLE _IO('$', 0)
-#define PERF_EVENT_IOC_DISABLE _IO('$', 1)
-#define PERF_EVENT_IOC_REFRESH _IO('$', 2)
-#define PERF_EVENT_IOC_RESET _IO('$', 3)
-#define PERF_EVENT_IOC_PERIOD _IOW('$', 4, __u64)
-#define PERF_EVENT_IOC_SET_OUTPUT _IO('$', 5)
-#define PERF_EVENT_IOC_SET_FILTER _IOW('$', 6, char *)
-#define PERF_EVENT_IOC_ID _IOR('$', 7, __u64 *)
-
-enum perf_event_ioc_flags {
-  PERF_IOC_FLAG_GROUP = 1U << 0,
 };
 
 /*
@@ -492,30 +497,32 @@ struct perf_event_mmap_page {
   __u64 data_tail; /* user-space written tail */
 };
 
-#define PERF_RECORD_MISC_CPUMODE_MASK (7 << 0)
-#define PERF_RECORD_MISC_CPUMODE_UNKNOWN (0 << 0)
-#define PERF_RECORD_MISC_KERNEL (1 << 0)
-#define PERF_RECORD_MISC_USER (2 << 0)
-#define PERF_RECORD_MISC_HYPERVISOR (3 << 0)
-#define PERF_RECORD_MISC_GUEST_KERNEL (4 << 0)
-#define PERF_RECORD_MISC_GUEST_USER (5 << 0)
+const u16 PERF_RECORD_MISC_CPUMODE_MASK = 7 << 0;
+const u16 PERF_RECORD_MISC_CPUMODE_UNKNOWN = 0 << 0;
+const u16 PERF_RECORD_MISC_KERNEL = 1 << 0;
+const u16 PERF_RECORD_MISC_USER = 2 << 0;
+const u16 PERF_RECORD_MISC_HYPERVISOR = 3 << 0;
+const u16 PERF_RECORD_MISC_GUEST_KERNEL = 4 << 0;
+const u16 PERF_RECORD_MISC_GUEST_USER = 5 << 0;
 
 /*
  * PERF_RECORD_MISC_MMAP_DATA and PERF_RECORD_MISC_COMM_EXEC are used on
  * different events so can reuse the same bit position.
+ * Ditto PERF_RECORD_MISC_SWITCH_OUT.
  */
-#define PERF_RECORD_MISC_MMAP_DATA (1 << 13)
-#define PERF_RECORD_MISC_COMM_EXEC (1 << 13)
+const u16 PERF_RECORD_MISC_MMAP_DATA = 1 << 13;
+const u16 PERF_RECORD_MISC_COMM_EXEC = 1 << 13;
+#define PERF_RECORD_MISC_SWITCH_OUT (1 << 13)
 /*
  * Indicates that the content of PERF_SAMPLE_IP points to
  * the actual instruction that triggered the event. See also
  * perf_event_attr::precise_ip.
  */
-#define PERF_RECORD_MISC_EXACT_IP (1 << 14)
+const u16 PERF_RECORD_MISC_EXACT_IP = 1 << 14;
 /*
  * Reserve the last bit to indicate some extended misc field
  */
-#define PERF_RECORD_MISC_EXT_RESERVED (1 << 15)
+const u16 PERF_RECORD_MISC_EXT_RESERVED = 1 << 15;
 
 struct perf_event_header {
   __u32 type;
@@ -805,14 +812,15 @@ enum perf_callchain_context {
 /**
  * PERF_RECORD_AUX::flags bits
  */
-#define PERF_AUX_FLAG_TRUNCATED 0x01 /* record was truncated to fit */
-#define PERF_AUX_FLAG_OVERWRITE 0x02 /* snapshot from overwrite mode */
-#define PERF_AUX_FLAG_PARTIAL 0x04   /* record contains gaps */
+const u64 PERF_AUX_FLAG_TRUNCATED = 0x01; /* record was truncated to fit */
+const u64 PERF_AUX_FLAG_OVERWRITE = 0x02; /* snapshot from overwrite mode */
+const u64 PERF_AUX_FLAG_PARTIAL = 0x04;   /* record contains gaps */
 
-#define PERF_FLAG_FD_NO_GROUP (1UL << 0)
-#define PERF_FLAG_FD_OUTPUT (1UL << 1)
-#define PERF_FLAG_PID_CGROUP (1UL << 2) /* pid=cgroup id, per-cpu mode only */
-#define PERF_FLAG_FD_CLOEXEC (1UL << 3) /* O_CLOEXEC */
+const u64 PERF_FLAG_FD_NO_GROUP = 1UL << 0;
+const u64 PERF_FLAG_FD_OUTPUT = 1UL << 1;
+const u64 PERF_FLAG_PID_CGROUP = 1UL
+                                 << 2; /* pid=cgroup id, per-cpu mode only */
+const u64 PERF_FLAG_FD_CLOEXEC = 1UL << 3; /* O_CLOEXEC */
 
 union perf_mem_data_src {
   __u64 val;
@@ -826,55 +834,59 @@ union perf_mem_data_src {
   };
 };
 
-/* type of opcode (load/store/prefetch,code) */
-#define PERF_MEM_OP_NA 0x01     /* not available */
-#define PERF_MEM_OP_LOAD 0x02   /* load instruction */
-#define PERF_MEM_OP_STORE 0x04  /* store instruction */
-#define PERF_MEM_OP_PFETCH 0x08 /* prefetch */
-#define PERF_MEM_OP_EXEC 0x10   /* code (execution) */
+/*
+// The below macros are not used in quipper. They are commented out for future
+// reference.
+// type of opcode (load/store/prefetch,code)
+#define PERF_MEM_OP_NA 0x01     // not available
+#define PERF_MEM_OP_LOAD 0x02   // load instruction
+#define PERF_MEM_OP_STORE 0x04  // store instruction
+#define PERF_MEM_OP_PFETCH 0x08 // prefetch
+#define PERF_MEM_OP_EXEC 0x10   // code (execution)
 #define PERF_MEM_OP_SHIFT 0
 
-/* memory hierarchy (memory level, hit or miss) */
-#define PERF_MEM_LVL_NA 0x01        /* not available */
-#define PERF_MEM_LVL_HIT 0x02       /* hit level */
-#define PERF_MEM_LVL_MISS 0x04      /* miss level  */
-#define PERF_MEM_LVL_L1 0x08        /* L1 */
-#define PERF_MEM_LVL_LFB 0x10       /* Line Fill Buffer */
-#define PERF_MEM_LVL_L2 0x20        /* L2 */
-#define PERF_MEM_LVL_L3 0x40        /* L3 */
-#define PERF_MEM_LVL_LOC_RAM 0x80   /* Local DRAM */
-#define PERF_MEM_LVL_REM_RAM1 0x100 /* Remote DRAM (1 hop) */
-#define PERF_MEM_LVL_REM_RAM2 0x200 /* Remote DRAM (2 hops) */
-#define PERF_MEM_LVL_REM_CCE1 0x400 /* Remote Cache (1 hop) */
-#define PERF_MEM_LVL_REM_CCE2 0x800 /* Remote Cache (2 hops) */
-#define PERF_MEM_LVL_IO 0x1000      /* I/O memory */
-#define PERF_MEM_LVL_UNC 0x2000     /* Uncached memory */
+// memory hierarchy (memory level, hit or miss)
+#define PERF_MEM_LVL_NA 0x01        // not available
+#define PERF_MEM_LVL_HIT 0x02       // hit level
+#define PERF_MEM_LVL_MISS 0x04      // miss level
+#define PERF_MEM_LVL_L1 0x08        // L1
+#define PERF_MEM_LVL_LFB 0x10       // Line Fill Buffer
+#define PERF_MEM_LVL_L2 0x20        // L2
+#define PERF_MEM_LVL_L3 0x40        // L3
+#define PERF_MEM_LVL_LOC_RAM 0x80   // Local DRAM
+#define PERF_MEM_LVL_REM_RAM1 0x100 // Remote DRAM (1 hop)
+#define PERF_MEM_LVL_REM_RAM2 0x200 // Remote DRAM (2 hops)
+#define PERF_MEM_LVL_REM_CCE1 0x400 // Remote Cache (1 hop)
+#define PERF_MEM_LVL_REM_CCE2 0x800 // Remote Cache (2 hops)
+#define PERF_MEM_LVL_IO 0x1000      // I/O memory
+#define PERF_MEM_LVL_UNC 0x2000     // Uncached memory
 #define PERF_MEM_LVL_SHIFT 5
 
-/* snoop mode */
-#define PERF_MEM_SNOOP_NA 0x01   /* not available */
-#define PERF_MEM_SNOOP_NONE 0x02 /* no snoop */
-#define PERF_MEM_SNOOP_HIT 0x04  /* snoop hit */
-#define PERF_MEM_SNOOP_MISS 0x08 /* snoop miss */
-#define PERF_MEM_SNOOP_HITM 0x10 /* snoop hit modified */
+// snoop mode
+#define PERF_MEM_SNOOP_NA 0x01   // not available
+#define PERF_MEM_SNOOP_NONE 0x02 // no snoop
+#define PERF_MEM_SNOOP_HIT 0x04  // snoop hit
+#define PERF_MEM_SNOOP_MISS 0x08 // snoop miss
+#define PERF_MEM_SNOOP_HITM 0x10 // snoop hit modified
 #define PERF_MEM_SNOOP_SHIFT 19
 
-/* locked instruction */
-#define PERF_MEM_LOCK_NA 0x01     /* not available */
-#define PERF_MEM_LOCK_LOCKED 0x02 /* locked transaction */
+// locked instruction
+#define PERF_MEM_LOCK_NA 0x01     // not available
+#define PERF_MEM_LOCK_LOCKED 0x02 // locked transaction
 #define PERF_MEM_LOCK_SHIFT 24
 
-/* TLB access */
-#define PERF_MEM_TLB_NA 0x01   /* not available */
-#define PERF_MEM_TLB_HIT 0x02  /* hit level */
-#define PERF_MEM_TLB_MISS 0x04 /* miss level */
-#define PERF_MEM_TLB_L1 0x08   /* L1 */
-#define PERF_MEM_TLB_L2 0x10   /* L2 */
-#define PERF_MEM_TLB_WK 0x20   /* Hardware Walker*/
-#define PERF_MEM_TLB_OS 0x40   /* OS fault handler */
+// TLB access
+#define PERF_MEM_TLB_NA 0x01   // not available
+#define PERF_MEM_TLB_HIT 0x02  // hit level
+#define PERF_MEM_TLB_MISS 0x04 // miss level
+#define PERF_MEM_TLB_L1 0x08   // L1
+#define PERF_MEM_TLB_L2 0x10   // L2
+#define PERF_MEM_TLB_WK 0x20   // Hardware Walker
+#define PERF_MEM_TLB_OS 0x40   // OS fault handler
 #define PERF_MEM_TLB_SHIFT 26
 
 #define PERF_MEM_S(a, s) (((__u64)PERF_MEM_##a##_##s) << PERF_MEM_##a##_SHIFT)
+*/
 
 /*
  * single taken branch record layout:
@@ -902,4 +914,6 @@ struct perf_branch_entry {
       reserved : 44;
 };
 
-#endif /* _UAPI_LINUX_PERF_EVENT_H */
+}  // namespace quipper
+
+#endif /* PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_EVENT_H_ */

@@ -27,6 +27,12 @@
 #include "src/quipper/perf_parser.h"
 #include "src/quipper/perf_reader.h"
 
+#ifdef GITHUB_BAZEL
+#define PDC_TESTDATA_PDIR std::string("src/")
+#else
+#define PDC_TESTDATA_PDIR std::string("")
+#endif
+
 using perftools::ProcessProfiles;
 using perftools::profiles::Location;
 using perftools::profiles::Mapping;
@@ -129,17 +135,6 @@ void GetContents(const string& path, string* content) {
   *content = contents.str();
 }
 
-// Set dir to the current directory, or return false if an error occurs.
-bool GetCurrentDirectory(string* dir) {
-  std::unique_ptr<char, decltype(std::free)*> cwd(getcwd(nullptr, 0),
-                                                  std::free);
-  if (cwd == nullptr) {
-    return false;
-  }
-  *dir = cwd.get();
-  return true;
-}
-
 // Gets the string after the last '/' or returns the entire string if there are
 // no slashes.
 inline string Basename(const string& path) {
@@ -148,10 +143,7 @@ inline string Basename(const string& path) {
 
 // Assumes relpath does not begin with a '/'
 string GetResource(const string& relpath) {
-  string cwd;
-  GetCurrentDirectory(&cwd);
-  string resdir = cwd + "/" + relpath;
-  return resdir;
+  return PDC_TESTDATA_PDIR + relpath;
 }
 
 PerfDataProto ToPerfDataProto(const string& raw_perf_data) {

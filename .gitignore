@@ -2,6 +2,7 @@
 *.d.*
 *.d
 *.o
+*.log
 
 quipper
 perf_converter
@@ -13,3 +14,4 @@ chrome_huge_pages_mapping_deducer_test
 unit_tests
 integration_tests
 perf_recorder_test
+bazel-*

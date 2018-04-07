@@ -37,6 +37,10 @@ file_attrs {
     comm_exec: true
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
   }
 }
 events {
@@ -46,6 +50,11 @@ events {
     size: 32
   }
   timestamp: 0
+  time_conv_event {
+    time_shift: 31
+    time_mult: 1789569706
+    time_zero: 18446744040838051763
+  }
 }
 events {
   header {

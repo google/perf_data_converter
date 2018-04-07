@@ -127,6 +127,10 @@ class PerfSerializer {
                                  PerfDataProto_LostSamplesEvent* sample) const;
   bool DeserializeLostSamplesEvent(const PerfDataProto_LostSamplesEvent& sample,
                                    event_t* event) const;
+  bool SerializeContextSwitchEvent(
+      const event_t& event, PerfDataProto_ContextSwitchEvent* sample) const;
+  bool DeserializeContextSwitchEvent(
+      const PerfDataProto_ContextSwitchEvent& sample, event_t* event) const;
 
   bool SerializeSampleInfo(const event_t& event,
                            PerfDataProto_SampleInfo* sample_info) const;
@@ -151,6 +155,10 @@ class PerfSerializer {
                                 event_t* event) const;
   bool DeserializeAuxtraceEventTraceData(
       const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const;
+  bool SerializeTimeConvEvent(const event_t& event,
+                              PerfDataProto_TimeConvEvent* sample) const;
+  bool DeserializeTimeConvEvent(const PerfDataProto_TimeConvEvent& sample,
+                                event_t* event) const;
 
   bool SerializeSingleUint32Metadata(
       const PerfUint32Metadata& metadata,

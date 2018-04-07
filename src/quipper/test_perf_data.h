@@ -106,7 +106,11 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
         sample_type_(sample_type),
         read_format_(0),
         sample_id_all_(sample_id_all),
-        config_(0) {}
+        config_(0),
+        use_clockid_(false),
+        context_switch_(false),
+        write_backward_(false),
+        namespaces_(false) {}
   SelfT& WithConfig(u64 config) {
     config_ = config;
     return *this;
@@ -128,6 +132,22 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
     ids_.insert(ids_.end(), ids.begin(), ids.end());
     return *this;
   }
+  SelfT& WithUseClockid(bool use_clockid) {
+    use_clockid_ = use_clockid;
+    return *this;
+  }
+  SelfT& WithContextSwitch(bool context_switch) {
+    context_switch_ = context_switch;
+    return *this;
+  }
+  SelfT& WithWriteBackward(bool write_backward) {
+    write_backward_ = write_backward;
+    return *this;
+  }
+  SelfT& WithNamespaces(bool namespaces) {
+    namespaces_ = namespaces;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -137,6 +157,10 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
   const bool sample_id_all_;
   u64 config_;
   std::vector<u64> ids_;
+  bool use_clockid_;
+  bool context_switch_;
+  bool write_backward_;
+  bool namespaces_;
 };
 
 class AttrIdsSection : public StreamWriteable {
@@ -170,7 +194,11 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
         sample_type_(sample_type),
         sample_id_all_(sample_id_all),
         config_(0),
-        ids_section_({.offset = MaybeSwap64(104), .size = MaybeSwap64(0)}) {}
+        ids_section_({.offset = MaybeSwap64(104), .size = MaybeSwap64(0)}),
+        use_clockid_(false),
+        context_switch_(false),
+        write_backward_(false),
+        namespaces_(false) {}
   SelfT& WithAttrSize(u32 size) {
     attr_size_ = size;
     return *this;
@@ -183,6 +211,22 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
     ids_section_ = section;
     return *this;
   }
+  SelfT& WithUseClockid(bool use_clockid) {
+    use_clockid_ = use_clockid;
+    return *this;
+  }
+  SelfT& WithContextSwitch(bool context_switch) {
+    context_switch_ = context_switch;
+    return *this;
+  }
+  SelfT& WithWriteBackward(bool write_backward) {
+    write_backward_ = write_backward;
+    return *this;
+  }
+  SelfT& WithNamespaces(bool namespaces) {
+    namespaces_ = namespaces;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -191,6 +235,10 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
   const bool sample_id_all_;
   u64 config_;
   perf_file_section ids_section_;
+  bool use_clockid_;
+  bool context_switch_;
+  bool write_backward_;
+  bool namespaces_;
 };
 
 // Produces a struct perf_file_attr with a perf_event_attr describing a
@@ -504,6 +552,47 @@ class ExampleAuxtraceEvent : public StreamWriteable {
   const u32 cpu_;
   const u32 reserved_;
   const string trace_data_;
+};
+
+// Produces PERF_RECORD_SWITCH or PERF_RECORD_SWITCH_CPU_WIDE events.
+class ExampleContextSwitchEvent : public StreamWriteable {
+ public:
+  ExampleContextSwitchEvent(bool is_out, const SampleInfo& sample_id)
+      : type_(PERF_RECORD_SWITCH),
+        is_out_(is_out),
+        next_prev_pid_(0),
+        next_prev_tid_(0),
+        sample_id_(sample_id) {}
+  ExampleContextSwitchEvent(bool is_out, u32 next_prev_pid, u32 next_prev_tid,
+                            const SampleInfo& sample_id)
+      : type_(PERF_RECORD_SWITCH_CPU_WIDE),
+        is_out_(is_out),
+        next_prev_pid_(next_prev_pid),
+        next_prev_tid_(next_prev_tid),
+        sample_id_(sample_id) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u32 type_;
+  const bool is_out_;
+  const u32 next_prev_pid_;
+  const u32 next_prev_tid_;
+  const SampleInfo sample_id_;
+};
+
+// Produces PERF_RECORD_TIME_CONV event.
+class ExampleTimeConvEvent : public StreamWriteable {
+ public:
+  ExampleTimeConvEvent(u64 time_shift, u64 time_mult, u64 time_zero)
+      : time_shift_(time_shift), time_mult_(time_mult), time_zero_(time_zero) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 time_shift_;
+  const u64 time_mult_;
+  const u64 time_zero_;
 };
 
 }  // namespace testing

@@ -30,6 +30,8 @@ bool IsSupportedEventType(uint32_t type) {
     case PERF_RECORD_AUX:
     case PERF_RECORD_ITRACE_START:
     case PERF_RECORD_LOST_SAMPLES:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
       return true;
     case PERF_RECORD_READ:
     case PERF_RECORD_MAX:
@@ -553,6 +555,8 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
     case PERF_RECORD_AUX:
     case PERF_RECORD_ITRACE_START:
     case PERF_RECORD_LOST_SAMPLES:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
       // See perf_event.h "struct" sample_id and sample_id_all.
       mask = PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_ID |
              PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_IDENTIFIER;
@@ -606,6 +610,14 @@ uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
       break;
     case PERF_RECORD_LOST_SAMPLES:
       offset = sizeof(event.lost_samples);
+      break;
+    case PERF_RECORD_SWITCH:
+      offset = sizeof(event.context_switch) -
+               sizeof(event.context_switch.next_prev_pid) -
+               sizeof(event.context_switch.next_prev_tid);
+      break;
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      offset = sizeof(event.context_switch);
       break;
     default:
       LOG(FATAL) << "Unknown event type " << event.header.type;

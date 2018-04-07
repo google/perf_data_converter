@@ -17,7 +17,7 @@ message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
   // $kernel/include/uapi/linux/perf_event.h.
-  // Next tag: 42
+  // Next tag: 46
   message PerfEventAttr {
     // Type of the event. Type is an enumeration and can be one of the values
     // described at: $kernel/include/linux/perf_event.h.
@@ -122,6 +122,18 @@ message PerfDataProto {
 
     // Flag comm events that are due to an exec.
     optional bool comm_exec = 39;
+
+    // Indicates whether or not to use @clockid for time fields.
+    optional bool use_clockid = 42;
+
+    // Include context switch data.
+    optional bool context_switch = 43;
+
+    // Indicates whether ring buffer is written from end to beginning.
+    optional bool write_backward = 44;
+
+    // Include namespace data.
+    optional bool namespaces = 45;
 
     // Contains the number of events after which we wake up.
     optional uint32 wakeup_events = 28;
@@ -509,6 +521,34 @@ message PerfDataProto {
     optional SampleInfo sample_info = 2;
   }
 
+  // Next tag: 5
+  message ContextSwitchEvent {
+    // Indicates whether the context switch is in or out.
+    optional bool is_out = 1;
+
+    // Next (switching out) or previous (switching in) pid.
+    optional uint32 next_prev_pid = 2;
+
+    // Next (switching out) or previous (switching in) tid.
+    optional uint32 next_prev_tid = 3;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 4;
+  }
+
+  // Time members to convert between TSC and perf time.
+  // Next tag: 4
+  message TimeConvEvent {
+    // Time shift value.
+    optional uint64 time_shift = 1;
+
+    // Time multiplier.
+    optional uint64 time_mult = 2;
+
+    // Base time.
+    optional uint64 time_zero = 3;
+  }
+
   // Next tag: 4
   message EventHeader {
     // Type of event.
@@ -518,7 +558,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 15
+  // Next tag: 18
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -537,7 +577,9 @@ message PerfDataProto {
       AuxEvent aux_event = 11;
       ItraceStartEvent itrace_start_event = 13;
       LostSamplesEvent lost_samples_event = 14;
+      ContextSwitchEvent context_switch_event = 15;
       AuxtraceEvent auxtrace_event = 12;
+      TimeConvEvent time_conv_event = 17;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

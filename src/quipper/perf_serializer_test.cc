@@ -77,6 +77,8 @@ const uint64_t GetSampleTimestampFromEventProto(
     return event.itrace_start_event().sample_info().sample_time_ns();
   } else if (event.has_lost_samples_event()) {
     return event.lost_samples_event().sample_info().sample_time_ns();
+  } else if (event.has_context_switch_event()) {
+    return event.context_switch_event().sample_info().sample_time_ns();
   }
   return 0;
 }
@@ -443,6 +445,89 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTraceMetadata) {
   EXPECT_EQ(tracing_metadata_str, deserializer.tracing_data());
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesPerfEventAttrEvent) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // no data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.file_attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr =
+        perf_data_proto.file_attrs(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  EXPECT_EQ(0, perf_data_proto.events().size());
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesPerfFileAttr) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header((0));
+  file_header.WithAttrCount(1).WithDataSize(0);
+  file_header.WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                        true /*sample_id_all*/)
+      .WithUseClockid(true)
+      .WithContextSwitch(true)
+      .WithWriteBackward(true)
+      .WithNamespaces(true)
+      .WriteTo(&input);
+
+  // no data
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.file_attrs().size());
+  {
+    const PerfDataProto::PerfFileAttr& file_attr =
+        perf_data_proto.file_attrs(0);
+    EXPECT_TRUE(file_attr.has_attr());
+    const PerfDataProto::PerfEventAttr& attr = file_attr.attr();
+    EXPECT_TRUE(attr.use_clockid());
+    EXPECT_TRUE(attr.context_switch());
+    EXPECT_TRUE(attr.write_backward());
+    EXPECT_TRUE(attr.namespaces());
+  }
+
+  EXPECT_EQ(0, perf_data_proto.events().size());
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
   std::stringstream input;
 
@@ -548,6 +633,43 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceEvents) {
     EXPECT_EQ(3, auxtrace_event.idx());
     EXPECT_EQ(0x68d, auxtrace_event.tid());
     EXPECT_EQ("/dev/zero", auxtrace_event.trace_data());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_TIME_CONV
+  testing::ExampleTimeConvEvent(5656, 4, 234321).WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_TIME_CONV, event.header().type());
+    EXPECT_TRUE(event.has_time_conv_event());
+    const PerfDataProto::TimeConvEvent& time_conv_event =
+        event.time_conv_event();
+    EXPECT_EQ(5656, time_conv_event.time_shift());
+    EXPECT_EQ(4, time_conv_event.time_mult());
+    EXPECT_EQ(234321, time_conv_event.time_zero());
   }
 }
 
@@ -789,6 +911,92 @@ TEST(PerfSerializerTest, SerializesAndDeserializesForkAndExitEvents) {
     EXPECT_EQ(4010, sample_info.pid());
     EXPECT_EQ(4020, sample_info.tid());
     EXPECT_EQ(433ULL * 1000000000, sample_info.sample_time_ns());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesContextSwitchEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH
+  testing::ExampleContextSwitchEvent(true, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleContextSwitchEvent(false, testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  // PERF_RECORD_SWITCH_CPU_WIDE
+  testing::ExampleContextSwitchEvent(true, 5656, 5656,
+                                     testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+  testing::ExampleContextSwitchEvent(false, 1001, 1001,
+                                     testing::SampleInfo().Tid(5656))
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(4, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_SWITCH, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(1);
+    EXPECT_EQ(PERF_RECORD_SWITCH, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(0, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(2);
+    EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(PERF_RECORD_MISC_SWITCH_OUT, event.header().misc());
+    EXPECT_EQ(5656, context_switch_event.next_prev_pid());
+    EXPECT_EQ(5656, context_switch_event.next_prev_tid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().pid());
+    EXPECT_EQ(1001, context_switch_event.sample_info().tid());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(3);
+    EXPECT_EQ(PERF_RECORD_SWITCH_CPU_WIDE, event.header().type());
+    EXPECT_TRUE(event.has_context_switch_event());
+    const PerfDataProto::ContextSwitchEvent& context_switch_event =
+        event.context_switch_event();
+    EXPECT_EQ(0, event.header().misc());
+    EXPECT_EQ(1001, context_switch_event.next_prev_pid());
+    EXPECT_EQ(1001, context_switch_event.next_prev_tid());
+    EXPECT_EQ(5656, context_switch_event.sample_info().pid());
+    EXPECT_EQ(5656, context_switch_event.sample_info().tid());
   }
 }
 

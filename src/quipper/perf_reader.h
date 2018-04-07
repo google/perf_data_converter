@@ -289,8 +289,18 @@ class PerfReader {
   // Store the perf data as a protobuf.
   Arena arena_;
   PerfDataProto* proto_;
-  // Attribute ids that have been added to |proto_|, for deduplication.
+
+  // Attribute ids that have been added to |proto_|. PerfFileAttr is generated
+  // in PERF_RECORD_HEADER_ATTR, PERF_RECORD_HEADER_EVENT_TYPE, and
+  // HEADER_EVENT_DESC. file_attrs_seen_ is used to deduplicate PerfFileAttr
+  // read from these records.
   std::unordered_set<u64> file_attrs_seen_;
+
+  // Attribute configs that have been added to |proto_|. PERF_RECORD_HEADER_ATTR
+  // generated with perf-4.14 doesn't contain IDs for some perf events. In such
+  // cases, PerfFileAttr could be deduplicated using PerfFileAttr.config if the
+  // config is previously seen.
+  std::unordered_set<u64> file_attr_configs_seen_;
 
   // Whether the incoming data is from a machine with a different endianness. We
   // got rid of this flag in the past but now we need to store this so it can be

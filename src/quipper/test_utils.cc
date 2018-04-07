@@ -114,7 +114,11 @@ const char* kSupportedMetadata[] = {
     NULL,
 };
 string GetTestInputFilePath(const string& filename) {
-  return "testdata/" + filename;
+  #ifdef GITHUB_BAZEL
+    return "src/quipper/testdata/" + filename;
+  # else
+    return "testdata/" + filename;
+  #endif
 }
 
 string GetPerfPath() {
@@ -184,24 +188,31 @@ static const bool kWriteNewGoldenFiles = false;
 const bool UseProtobufDataFormat = true;
 }  // namespace
 
-bool CheckPerfDataAgainstBaseline(const string& filename) {
+bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
+                                  const string& baseline_filename) {
   string extension =
       UseProtobufDataFormat ? kProtobufDataExtension : kProtobufTextExtension;
   string protobuf_representation;
   if (UseProtobufDataFormat) {
-    if (!PerfDataToProtoRepresentation(filename, nullptr,
+    if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
                                        &protobuf_representation)) {
       return false;
     }
   } else {
-    if (!PerfDataToProtoRepresentation(filename, &protobuf_representation,
-                                       nullptr)) {
+    if (!PerfDataToProtoRepresentation(perfdata_filepath,
+                                       &protobuf_representation, nullptr)) {
       return false;
     }
   }
 
-  string existing_input_file =
-      GetTestInputFilePath(basename(filename.c_str())) + extension;
+  string existing_input_file;
+  if (baseline_filename.empty()) {
+    existing_input_file =
+        GetTestInputFilePath(basename(perfdata_filepath.c_str())) + extension;
+  } else {
+    existing_input_file = GetTestInputFilePath(baseline_filename) + extension;
+  }
+
   string baseline;
   if (!ReadExistingProtobufText(existing_input_file, &baseline)) {
     return false;

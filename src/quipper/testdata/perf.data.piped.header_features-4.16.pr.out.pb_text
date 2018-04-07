@@ -37,6 +37,10 @@ file_attrs {
     comm_exec: true
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
   }
   ids: 767
   ids: 768
@@ -48,6 +52,11 @@ events {
     size: 32
   }
   timestamp: 0
+  time_conv_event {
+    time_shift: 31
+    time_mult: 976128931
+    time_zero: 18446744071723584293
+  }
 }
 events {
   header {

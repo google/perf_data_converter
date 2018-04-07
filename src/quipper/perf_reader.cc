@@ -1052,6 +1052,7 @@ bool PerfReader::ReadEventDescMetadata(DataReader* data) {
   }
 
   file_attrs_seen_.clear();
+  file_attr_configs_seen_.clear();
   proto_->clear_file_attrs();
   proto_->mutable_file_attrs()->Reserve(nr_events);
 
@@ -1801,6 +1802,27 @@ bool PerfReader::ReadAttrEventBlock(DataReader* data, size_t size) {
       (size - actual_attr_size) / sizeof(decltype(attr.ids)::value_type);
   if (!ReadUniqueIDs(data, num_ids, &attr.ids)) return false;
 
+  // PerfFileAttr is generated as part of HEADER_EVENT_DESC in file mode and in
+  // pipe mode (beginning perf-4.14 as a PERF_RECORD_HEADER_FEATURE record), and
+  // as part of PERF_RECORD_HEADER_ATTR and PERF_RECORD_HEADER_EVENT_TYPE in
+  // pipe mode. And also in google specific pipe mode events.  //
+
+  // So, PerfFileAttr.IDs is used to deduplicate PerfFileAttr seen in the
+  // aforementioned records. Beginning perf-4.14 HEADER_EVENT_DESC is supported
+  // in pipe mode and HEADER_EVENT_DESC always appears before
+  // PERF_RECORD_HEADER_ATTR. So, PERF_RECORD_HEADER_ATTR contains duplicate
+  // information and this record could be safely dropped. However, quipper has
+  // to support older perf versions. So, the deduplication using IDs could be
+  // used in this case except when perf-4.14 doesn't generate PerfFileAttr.IDs
+  // in PERF_RECORD_HEADER_ATTR for some perf events. In such cases,
+  // PerfFileAttr.attr.config could be used to deduplicate PerfFileAttr. Also a
+  // PerfFileAttr without IDs is not useful as it cannot be associated with a
+  // sample.
+  if (attr.ids.empty() && file_attr_configs_seen_.find(attr.attr.config) !=
+                              file_attr_configs_seen_.end()) {
+    return true;
+  }
+
   // Event types are found many times in the perf data file.
   // Only add this event type if it is not already present.
   if (!attr.ids.empty() &&
@@ -1910,6 +1932,10 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
     case PERF_RECORD_LOST_SAMPLES:
       ByteSwap(&event->lost_samples.lost);
       break;
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      ByteSwap(&event->context_switch.next_prev_pid);
+      ByteSwap(&event->context_switch.next_prev_tid);
+      break;
     case PERF_RECORD_AUXTRACE:
       ByteSwap(&event->auxtrace.size);
       ByteSwap(&event->auxtrace.offset);
@@ -1917,6 +1943,11 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->auxtrace.idx);
       ByteSwap(&event->auxtrace.tid);
       ByteSwap(&event->auxtrace.cpu);
+      break;
+    case PERF_RECORD_TIME_CONV:
+      ByteSwap(&event->time_conv.time_shift);
+      ByteSwap(&event->time_conv.time_mult);
+      ByteSwap(&event->time_conv.time_zero);
       break;
     default:
       LOG(FATAL) << "Unknown event type: " << type;
@@ -2083,6 +2114,7 @@ void PerfReader::AddPerfFileAttr(const PerfFileAttr& attr) {
   if (!attr.ids.empty()) {
     file_attrs_seen_.insert(attr.ids[0]);
   }
+  file_attr_configs_seen_.insert(attr.attr.config);
 }
 
 }  // namespace quipper

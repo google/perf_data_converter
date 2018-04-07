@@ -141,6 +141,10 @@ void ExamplePerfEventAttrEvent_Hardware::WriteTo(std::ostream* out) const {
   attr.sample_type = sample_type_;
   attr.read_format = read_format_;
   attr.sample_id_all = sample_id_all_;
+  attr.use_clockid = use_clockid_;
+  attr.context_switch = context_switch_;
+  attr.write_backward = write_backward_;
+  attr.namespaces = namespaces_;
 
   const size_t event_size = sizeof(perf_event_header) + attr.size +
                             ids_.size() * sizeof(decltype(ids_)::value_type);
@@ -177,6 +181,10 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   // Bit fields.
   attr.sample_id_all = sample_id_all_;
   attr.precise_ip = 2;  // For testing a bit field that is more than one bit.
+  attr.use_clockid = use_clockid_;
+  attr.context_switch = context_switch_;
+  attr.write_backward = write_backward_;
+  attr.namespaces = namespaces_;
 
   if (is_cross_endian()) {
     // The order of operations here is for native-to-cross-endian conversion.
@@ -473,6 +481,65 @@ void ExampleAuxtraceEvent::WriteTo(std::ostream* out) const {
 
   out->write(reinterpret_cast<const char*>(&event), event_size);
   out->write(trace_data_.data(), trace_data_.size());
+}
+
+size_t ExampleContextSwitchEvent::GetSize() const {
+  if (type_ == PERF_RECORD_SWITCH) {
+    return sizeof(struct context_switch_event) -
+           sizeof(context_switch_event::next_prev_pid) -
+           sizeof(context_switch_event::next_prev_tid) +
+           sample_id_.size();  // Sample info fields are present for this event.
+  }
+  return sizeof(struct context_switch_event) +
+         sample_id_.size();  // Sample info fields are present for this event.
+}
+
+void ExampleContextSwitchEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  u16 misc_ = (is_out_ ? PERF_RECORD_MISC_SWITCH_OUT : 0);
+  struct context_switch_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(type_),
+              .misc = misc_,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .next_prev_pid = next_prev_pid_,
+      .next_prev_tid = next_prev_tid_,
+  };
+
+  const size_t pre_context_switch_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event),
+             event_size - sample_id_.size());
+  out->write(sample_id_.data(), sample_id_.size());
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_context_switch_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleTimeConvEvent::GetSize() const {
+  return sizeof(struct time_conv_event);
+}
+
+void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct time_conv_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_TIME_CONV),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .time_shift = time_shift_,
+      .time_mult = time_mult_,
+      .time_zero = time_zero_,
+  };
+
+  const size_t pre_time_conv_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
 }  // namespace testing
