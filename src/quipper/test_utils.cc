@@ -221,7 +221,7 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
   if (kWriteNewGoldenFiles) {
     string existing_input_pb_text = existing_input_file + ".new";
     if (matches_baseline) {
-      LOG(ERROR) << "Not writing non-identical golden file: "
+      LOG(ERROR) << "Not writing identical golden file: "
                  << existing_input_pb_text;
       return true;
     }
