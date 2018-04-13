@@ -189,22 +189,10 @@ const bool UseProtobufDataFormat = true;
 }  // namespace
 
 bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
-                                  const string& baseline_filename) {
+                                  const string& baseline_filename,
+                                  string* difference) {
   string extension =
       UseProtobufDataFormat ? kProtobufDataExtension : kProtobufTextExtension;
-  string protobuf_representation;
-  if (UseProtobufDataFormat) {
-    if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
-                                       &protobuf_representation)) {
-      return false;
-    }
-  } else {
-    if (!PerfDataToProtoRepresentation(perfdata_filepath,
-                                       &protobuf_representation, nullptr)) {
-      return false;
-    }
-  }
-
   string existing_input_file;
   if (baseline_filename.empty()) {
     existing_input_file =
@@ -212,12 +200,39 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
   } else {
     existing_input_file = GetTestInputFilePath(baseline_filename) + extension;
   }
+  if (difference != nullptr) {
+    difference->clear();
+  }
 
-  string baseline;
+  bool matches_baseline = false;
+  string protobuf_representation, baseline;
   if (!ReadExistingProtobufText(existing_input_file, &baseline)) {
     return false;
   }
-  bool matches_baseline = (baseline == protobuf_representation);
+  if (UseProtobufDataFormat) {
+    if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
+                                       &protobuf_representation)) {
+      return false;
+    }
+    matches_baseline = (baseline == protobuf_representation);
+  } else {
+    PerfDataProto actual, expected;
+    if (!SerializeFromFile(perfdata_filepath, &actual)) {
+      return false;
+    }
+    // Reset the timestamp field because it causes reproducability issues when
+    // testing.
+    actual.set_timestamp_sec(0);
+
+    if (!TextFormat::ParseFromString(baseline, &expected)) {
+      return false;
+    }
+    matches_baseline = PartiallyEqualsProto(actual, expected, difference);
+    if (kWriteNewGoldenFiles &&
+        !TextFormat::PrintToString(actual, &protobuf_representation)) {
+      return false;
+    }
+  }
   if (kWriteNewGoldenFiles) {
     string existing_input_pb_text = existing_input_file + ".new";
     if (matches_baseline) {

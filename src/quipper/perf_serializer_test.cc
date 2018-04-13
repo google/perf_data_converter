@@ -244,9 +244,13 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
     ASSERT_EQ(output_perf_reader2.events().size(),
               input_perf_reader.events().size());
 
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+    string difference;
+    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+        << difference;
     EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, output_perf_data));
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data2));
+    EXPECT_TRUE(
+        CheckPerfDataAgainstBaseline(output_perf_data2, "", &difference))
+        << difference;
     EXPECT_TRUE(ComparePerfBuildIDLists(output_perf_data, output_perf_data2));
 }
 
@@ -310,8 +314,10 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
     }
 
     const string output_perf_data = output_path + test_file + ".ser.comm.out";
+    string difference;
     EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+        << difference;
 }
 
 TEST_P(SerializePerfDataFiles, TestMmapMd5s) {

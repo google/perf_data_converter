@@ -229,8 +229,10 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   string pr_output_perf_data = output_path + test_file + ".pr.out";
   string pr_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(pr_output_perf_data));
-  EXPECT_TRUE(
-      CheckPerfDataAgainstBaseline(pr_output_perf_data, pr_baseline_filename));
+  string difference;
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(pr_output_perf_data,
+                                           pr_baseline_filename, &difference))
+      << difference;
 
   // Run it through PerfParser.
   PerfParserOptions options = GetTestOptions();
@@ -252,8 +254,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   string parsed_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
-  EXPECT_TRUE(
-      CheckPerfDataAgainstBaseline(parsed_perf_data, parsed_baseline_filename));
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(
+      parsed_perf_data, parsed_baseline_filename, &difference))
+      << difference;
   EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, parsed_perf_data));
 
   // Run the event parsing again, this time with remapping.
@@ -271,7 +274,8 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   // Remapped addresses should not match the original addresses.
   string remapped_perf_data = output_path + test_file + ".parse.remap.out";
   ASSERT_TRUE(reader.WriteFile(remapped_perf_data));
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data));
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data, "", &difference))
+      << difference;
 
   // Remapping again should produce the same addresses.
   LOG(INFO) << "Reading in remapped data: " << remapped_perf_data;
@@ -326,7 +330,9 @@ TEST_P(PerfPipedDataFiles, PipedModePerfData) {
 
   // Check results from the PerfReader stage.
   ASSERT_TRUE(reader.WriteFile(output_perf_data));
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+  string difference;
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+      << difference;
 
   PerfParserOptions options = GetTestOptions();
   options.do_remap = true;
@@ -2027,6 +2033,7 @@ TEST(PerfParserTest, Regression62446346) {
   EXPECT_EQ(0, parser.stats().num_sample_events_mapped);
 
   const std::vector<ParsedEvent> &events = parser.parsed_events();
+  string difference;
 
   {
     PerfDataProto expected;
@@ -2048,7 +2055,8 @@ TEST(PerfParserTest, Regression62446346) {
       *actual.add_events() = *ev.event_ptr;
     }
 
-    EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+    EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+        << difference;
   }
   ASSERT_EQ(1, events.size());
 
@@ -2064,7 +2072,9 @@ TEST(PerfParserTest, Regression62446346) {
     PerfDataProto_MMapEvent roundtrip;
     ASSERT_TRUE(serializer.SerializeMMapEvent(*e, &roundtrip));
     // sample_info does not roundtrip through an event_t.
-    EXPECT_TRUE(PartiallyEqualsProto(ev.event_ptr->mmap_event(), roundtrip));
+    EXPECT_TRUE(PartiallyEqualsProto(ev.event_ptr->mmap_event(), roundtrip,
+                                     &difference))
+        << difference;
   }
 }
 
@@ -2142,7 +2152,9 @@ TEST(PerfParserTest, Regression62446346_Perf3_12_0_11) {
 
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   ASSERT_EQ(1, parser.parsed_events().size());
 }
 
@@ -2220,7 +2232,9 @@ TEST(PerfParserTest, Regression62446346_Perf3_12_0_14) {
 
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   EXPECT_EQ(1, parser.parsed_events().size());
 }
 
@@ -2297,7 +2311,9 @@ TEST(PerfParserTest, DiscontiguousMappings) {
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
 
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   EXPECT_EQ(3, parser.parsed_events().size());
 }
 }  // namespace quipper
