@@ -362,6 +362,9 @@ TEST_P(PerfPipedDataFiles, PipedModePerfData) {
   EXPECT_GT(parser.stats().num_sample_events_mapped, 0U);
   EXPECT_TRUE(parser.stats().did_remap);
 
+  // Kernel MMAP entries should have zero file offsets when remapped.
+  CheckKernelHasZeroPgoff(reader);
+
   // This must be called when |reader| is no longer going to be used, as it
   // modifies the contents of |reader|.
   CheckFilenameAndBuildIDMethods(&reader, output_path + test_file, seed);
