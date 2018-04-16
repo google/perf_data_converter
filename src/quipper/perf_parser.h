@@ -228,7 +228,8 @@ class PerfParser {
   // Parses a MMAP event. Adds the mapping to the AddressMapper of the event's
   // process. If |options_.do_remap| is set, will update |event| with the
   // remapped address.
-  bool MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id);
+  bool MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id,
+                    bool is_kernel);
 
   // Processes a COMM event. Creates a new AddressMapper for the new command's
   // process.

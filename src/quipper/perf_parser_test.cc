@@ -199,6 +199,20 @@ void CopyActualEvents(const std::vector<ParsedEvent> &events,
   }
 }
 
+// Given a PerfReader that has already consumed an input perf data file using
+// address remapping, check that the MMAP entries corresponding to the kernel
+// have zero file offsets.
+void CheckKernelHasZeroPgoff(const PerfReader &reader) {
+  for (const auto &event : reader.events()) {
+    if ((event.header().type() == PERF_RECORD_MMAP ||
+         event.header().type() == PERF_RECORD_MMAP2) &&
+        event.mmap_event().filename().find("kernel.kallsyms") != string::npos) {
+      EXPECT_EQ(0, event.mmap_event().pgoff())
+          << "remapped kernel offset must be zero";
+    }
+  }
+}
+
 }  // namespace
 
 TEST(PerfParserTest, TestDSOAndOffsetConstructor) {
@@ -270,6 +284,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_GT(stats.num_mmap_events, 0U);
   EXPECT_GT(stats.num_sample_events_mapped, 0U);
   EXPECT_TRUE(stats.did_remap);
+
+  // Kernel MMAP entries should have zero file offsets when remapped.
+  CheckKernelHasZeroPgoff(reader);
 
   // Remapped addresses should not match the original addresses.
   string remapped_perf_data = output_path + test_file + ".parse.remap.out";

@@ -153,6 +153,12 @@ bool PerfParser::ProcessEvents() {
   pidtid_to_comm_map_[std::make_pair(kSwapperPid, kSwapperPid)] =
       &(*commands_.find(kSwapperCommandName));
 
+  // Keep track of the first MMAP or MMAP2 event. The first mapping corresponds
+  // to the kernel, and requires special handling. It used to be that the kernel
+  // mapping was the first event in a perf.data file, but recent versions of the
+  // tool may include additional user events before the kernel mapping.
+  bool first_mmap = true;
+
   // NB: Not necessarily actually sorted by time.
   for (size_t i = 0; i < parsed_events_.size(); ++i) {
     ParsedEvent& parsed_event = parsed_events_[i];
@@ -181,7 +187,8 @@ bool PerfParser::ProcessEvents() {
         VLOG(1) << mmap_type_name << ": " << event.mmap_event().filename();
         ++stats_.num_mmap_events;
         // Use the array index of the current mmap event as a unique identifier.
-        CHECK(MapMmapEvent(event.mutable_mmap_event(), i))
+        CHECK(MapMmapEvent(event.mutable_mmap_event(), i,
+                           /*is_kernel=*/first_mmap))
             << "Unable to map " << mmap_type_name << " event!";
         // No samples in this MMAP region yet, hopefully.
         parsed_event.num_samples_in_mmap_region = 0;
@@ -193,6 +200,7 @@ bool PerfParser::ProcessEvents() {
           dso_info.ino = event.mmap_event().ino();
         }
         name_to_dso_.emplace(dso_info.name, dso_info);
+        first_mmap = false;
         break;
       }
       case PERF_RECORD_FORK:
@@ -603,7 +611,8 @@ bool PerfParser::MapIPAndPidAndGetNameAndOffset(
   return mapped;
 }
 
-bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id) {
+bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id,
+                              bool is_kernel) {
   // We need to hide only the real kernel addresses.  However, to make things
   // more secure, and make the mapping idempotent, we should remap all
   // addresses, both kernel and non-kernel.
@@ -614,7 +623,7 @@ bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id) {
   uint64_t len = event->len();
   uint64_t pgoff = event->pgoff();
 
-  // |id| == 0 corresponds to the kernel mmap. We have several cases here:
+  // We have several cases for the kernel mmap:
   //
   // For ARM and x86, in sudo mode, pgoff == start, example:
   // start=0x80008200
@@ -637,7 +646,7 @@ bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id) {
   // start=0x0
   // pgoff=0x0
   // len  =0xffffffff
-  if (id == 0) {
+  if (is_kernel) {
     // If pgoff is between start and len, we normalize the event by setting
     // start to be pgoff just like how it is for ARM and x86. We also set len to
     // be a much smaller number (closer to the real length of the kernel binary)

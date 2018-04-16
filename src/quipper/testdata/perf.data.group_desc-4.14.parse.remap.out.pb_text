@@ -120,7 +120,7 @@ events {
     tid: 0
     start: 0
     len: 200998912
-    pgoff: 18446744072436580352
+    pgoff: 0
     filename: "[kernel.kallsyms]_text"
     filename_md5_prefix: 9918483331179727898
     sample_info {
