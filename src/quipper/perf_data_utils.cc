@@ -82,6 +82,8 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
       return &event.context_switch_event().sample_info();
+    case PERF_RECORD_NAMESPACES:
+      return &event.namespaces_event().sample_info();
   }
   return nullptr;
 }

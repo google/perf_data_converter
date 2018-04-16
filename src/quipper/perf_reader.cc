@@ -1936,6 +1936,15 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->context_switch.next_prev_pid);
       ByteSwap(&event->context_switch.next_prev_tid);
       break;
+    case PERF_RECORD_NAMESPACES:
+      ByteSwap(&event->namespaces.pid);
+      ByteSwap(&event->namespaces.tid);
+      ByteSwap(&event->namespaces.nr_namespaces);
+      for (u64 i = 0; i < event->namespaces.nr_namespaces; ++i) {
+        ByteSwap(&event->namespaces.link_info[i].dev);
+        ByteSwap(&event->namespaces.link_info[i].ino);
+      }
+      break;
     case PERF_RECORD_AUXTRACE:
       ByteSwap(&event->auxtrace.size);
       ByteSwap(&event->auxtrace.offset);

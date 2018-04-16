@@ -675,6 +675,122 @@ TEST(PerfParserTest, PipedContextSwitchEvents) {
             events[3].event_ptr->context_switch_event().sample_info().tid());
 }
 
+TEST(PerfParserTest, NamespacesEvents) {
+  std::stringstream input;
+  std::vector<struct perf_ns_link_info> link_infos;
+  struct perf_ns_link_info link_info1 = {
+      .dev = 1234,
+      .ino = 5678,
+  };
+  struct perf_ns_link_info link_info2 = {
+      .dev = 223344,
+      .ino = 556677,
+  };
+
+  link_infos.push_back(link_info1);
+  link_infos.push_back(link_info2);
+
+  // PERF_RECORD_NAMESPACES
+  testing::ExampleNamespacesEvent namespaces_event(
+      5656, 5656, link_infos, testing::SampleInfo().Tid(1001));
+
+  size_t data_size = namespaces_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  namespaces_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_NAMESPACES, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().pid());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().tid());
+  EXPECT_EQ(2, events[0].event_ptr->namespaces_event().link_info_size());
+  EXPECT_EQ(1234, events[0].event_ptr->namespaces_event().link_info(0).dev());
+  EXPECT_EQ(5678, events[0].event_ptr->namespaces_event().link_info(0).ino());
+  EXPECT_EQ(223344, events[0].event_ptr->namespaces_event().link_info(1).dev());
+  EXPECT_EQ(556677, events[0].event_ptr->namespaces_event().link_info(1).ino());
+}
+
+TEST(PerfParserTest, PipedNamespacesEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  std::vector<struct perf_ns_link_info> link_infos;
+  struct perf_ns_link_info link_info1 = {
+      .dev = 1234,
+      .ino = 5678,
+  };
+  struct perf_ns_link_info link_info2 = {
+      .dev = 223344,
+      .ino = 556677,
+  };
+
+  link_infos.push_back(link_info1);
+  link_infos.push_back(link_info2);
+
+  // PERF_RECORD_NAMESPACES
+  testing::ExampleNamespacesEvent(5656, 5656, link_infos,
+                                  testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_NAMESPACES, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().pid());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().tid());
+  EXPECT_EQ(2, events[0].event_ptr->namespaces_event().link_info_size());
+  EXPECT_EQ(1234, events[0].event_ptr->namespaces_event().link_info(0).dev());
+  EXPECT_EQ(5678, events[0].event_ptr->namespaces_event().link_info(0).ino());
+  EXPECT_EQ(223344, events[0].event_ptr->namespaces_event().link_info(1).dev());
+  EXPECT_EQ(556677, events[0].event_ptr->namespaces_event().link_info(1).ino());
+}
+
 TEST(PerfParserTest, TimeConvEvents) {
   std::stringstream input;
 

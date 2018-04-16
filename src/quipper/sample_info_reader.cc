@@ -32,6 +32,7 @@ bool IsSupportedEventType(uint32_t type) {
     case PERF_RECORD_LOST_SAMPLES:
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
+    case PERF_RECORD_NAMESPACES:
       return true;
     case PERF_RECORD_READ:
     case PERF_RECORD_MAX:
@@ -557,6 +558,7 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
     case PERF_RECORD_LOST_SAMPLES:
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
+    case PERF_RECORD_NAMESPACES:
       // See perf_event.h "struct" sample_id and sample_id_all.
       mask = PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_ID |
              PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_IDENTIFIER;
@@ -618,6 +620,10 @@ uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
       break;
     case PERF_RECORD_SWITCH_CPU_WIDE:
       offset = sizeof(event.context_switch);
+      break;
+    case PERF_RECORD_NAMESPACES:
+      offset = sizeof(event.namespaces) +
+               event.namespaces.nr_namespaces * sizeof(perf_ns_link_info);
       break;
     default:
       LOG(FATAL) << "Unknown event type " << event.header.type;
