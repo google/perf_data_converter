@@ -530,6 +530,23 @@ struct perf_event_header {
   __u16 size;
 };
 
+struct perf_ns_link_info {
+  __u64 dev;
+  __u64 ino;
+};
+
+enum {
+  NET_NS_INDEX = 0,
+  UTS_NS_INDEX = 1,
+  IPC_NS_INDEX = 2,
+  PID_NS_INDEX = 3,
+  USER_NS_INDEX = 4,
+  MNT_NS_INDEX = 5,
+  CGROUP_NS_INDEX = 6,
+
+  NR_NAMESPACES, /* number of available namespaces */
+};
+
 enum perf_event_type {
   /*
    * If perf_event_attr.sample_id_all is set then all event types will

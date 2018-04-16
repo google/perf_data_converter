@@ -79,6 +79,8 @@ const uint64_t GetSampleTimestampFromEventProto(
     return event.lost_samples_event().sample_info().sample_time_ns();
   } else if (event.has_context_switch_event()) {
     return event.context_switch_event().sample_info().sample_time_ns();
+  } else if (event.has_namespaces_event()) {
+    return event.namespaces_event().sample_info().sample_time_ns();
   }
   return 0;
 }
@@ -244,9 +246,13 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
     ASSERT_EQ(output_perf_reader2.events().size(),
               input_perf_reader.events().size());
 
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+    string difference;
+    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+        << difference;
     EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, output_perf_data));
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data2));
+    EXPECT_TRUE(
+        CheckPerfDataAgainstBaseline(output_perf_data2, "", &difference))
+        << difference;
     EXPECT_TRUE(ComparePerfBuildIDLists(output_perf_data, output_perf_data2));
 }
 
@@ -310,8 +316,10 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
     }
 
     const string output_perf_data = output_path + test_file + ".ser.comm.out";
+    string difference;
     EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
-    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+    EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+        << difference;
 }
 
 TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
@@ -997,6 +1005,62 @@ TEST(PerfSerializerTest, SerializesAndDeserializesContextSwitchEvents) {
     EXPECT_EQ(1001, context_switch_event.next_prev_tid());
     EXPECT_EQ(5656, context_switch_event.sample_info().pid());
     EXPECT_EQ(5656, context_switch_event.sample_info().tid());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesNamespacesEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  std::vector<struct perf_ns_link_info> link_infos;
+  struct perf_ns_link_info link_info1 = {
+      .dev = 1234,
+      .ino = 5678,
+  };
+  struct perf_ns_link_info link_info2 = {
+      .dev = 223344,
+      .ino = 556677,
+  };
+
+  link_infos.push_back(link_info1);
+  link_infos.push_back(link_info2);
+
+  // PERF_RECORD_NAMESPACES
+  testing::ExampleNamespacesEvent(5656, 5656, link_infos,
+                                  testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_NAMESPACES, event.header().type());
+    EXPECT_TRUE(event.has_namespaces_event());
+    const PerfDataProto::NamespacesEvent& namespaces_event =
+        event.namespaces_event();
+    EXPECT_EQ(5656, namespaces_event.pid());
+    EXPECT_EQ(5656, namespaces_event.tid());
+    EXPECT_EQ(2, namespaces_event.link_info_size());
+    EXPECT_EQ(1234, namespaces_event.link_info(0).dev());
+    EXPECT_EQ(5678, namespaces_event.link_info(0).ino());
+    EXPECT_EQ(223344, namespaces_event.link_info(1).dev());
+    EXPECT_EQ(556677, namespaces_event.link_info(1).ino());
   }
 }
 

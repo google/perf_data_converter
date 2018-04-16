@@ -517,6 +517,36 @@ void ExampleContextSwitchEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleNamespacesEvent::GetSize() const {
+  return sizeof(struct namespaces_event) +
+         link_info_.size() * sizeof(struct perf_ns_link_info) +
+         sample_id_.size();  // Sample info fields are present for this event.
+}
+
+void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<namespaces_event> event(
+      reinterpret_cast<struct namespaces_event*>(
+          calloc(1, event_size - sample_id_.size())));
+  event->header.type = MaybeSwap32(PERF_RECORD_NAMESPACES);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+  event->pid = pid_;
+  event->tid = tid_;
+  event->nr_namespaces = link_info_.size();
+
+  for (int i = 0; i < link_info_.size(); ++i) {
+    event->link_info[i] = link_info_[i];
+  }
+  const size_t pre_namespaces_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()),
+             event_size - sample_id_.size());
+  out->write(sample_id_.data(), sample_id_.size());
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_namespaces_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }

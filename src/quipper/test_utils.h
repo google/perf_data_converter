@@ -62,7 +62,8 @@ bool GetPerfBuildIDMap(const string& filename,
 // Checks the given perf.data against the golden file. Provide baseline filename
 // only for the perf.data files that have different golden filenames.
 bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
-                                  const string& baseline_filename = "");
+                                  const string& baseline_filename = "",
+                                  string* difference = nullptr);
 
 // Returns true if the perf buildid-lists are the same.
 bool ComparePerfBuildIDLists(const string& file1, const string& file2);
@@ -78,10 +79,13 @@ bool EqualsProto(T actual, T expected) {
 }
 
 template <typename T>
-bool PartiallyEqualsProto(T actual, T expected) {
+bool PartiallyEqualsProto(T actual, T expected, string* difference = nullptr) {
   MessageDifferencer differencer;
   differencer.set_message_field_comparison(MessageDifferencer::EQUAL);
   differencer.set_scope(MessageDifferencer::PARTIAL);
+  if (difference != nullptr) {
+    difference->clear();
+  }
   return differencer.Compare(expected, actual);
 }
 

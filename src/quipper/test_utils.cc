@@ -42,6 +42,10 @@ enum PerfDataType {
   kPerfDataPiped,   // Perf data is in piped format.
 };
 
+// Folder where to save new golden files. When not empty, new golden files for
+// failing tests are written in this folder.
+constexpr char FLAGS_new_golden_file_path[] = "";
+
 // The piped commands above produce comma-separated lines with the following
 // fields:
 enum {
@@ -177,10 +181,6 @@ bool GetPerfBuildIDMap(const string& filename,
 }
 
 namespace {
-// Running tests while this is true will blindly make tests pass. So, remember
-// to look at the diffs and explain them before submitting.
-static const bool kWriteNewGoldenFiles = false;
-
 // This flag enables comparisons of protobufs in serialized format as a faster
 // alternative to comparing their human-readable text representations. Set this
 // flag to false to compare text representations instead. It's also useful for
@@ -189,46 +189,60 @@ const bool UseProtobufDataFormat = true;
 }  // namespace
 
 bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
-                                  const string& baseline_filename) {
+                                  const string& baseline_filename,
+                                  string* difference) {
   string extension =
       UseProtobufDataFormat ? kProtobufDataExtension : kProtobufTextExtension;
-  string protobuf_representation;
+  string golden_name = baseline_filename;
+  if (baseline_filename.empty()) {
+    golden_name = basename(perfdata_filepath.c_str());
+  }
+  string golden_path = GetTestInputFilePath(golden_name) + extension;
+  if (difference != nullptr) {
+    difference->clear();
+  }
+
+  bool matches_baseline = false;
+  string new_golden_dir = FLAGS_new_golden_file_path;
+  string protobuf_representation, baseline;
+  if (!ReadExistingProtobufText(golden_path, &baseline)) {
+    LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
+    return false;
+  }
   if (UseProtobufDataFormat) {
     if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
                                        &protobuf_representation)) {
+      LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
       return false;
     }
+    matches_baseline = (baseline == protobuf_representation);
   } else {
-    if (!PerfDataToProtoRepresentation(perfdata_filepath,
-                                       &protobuf_representation, nullptr)) {
+    PerfDataProto actual, expected;
+    if (!SerializeFromFile(perfdata_filepath, &actual)) {
+      LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
+      return false;
+    }
+    // Reset the timestamp field because it causes reproducability issues when
+    // testing.
+    actual.set_timestamp_sec(0);
+
+    if (!TextFormat::ParseFromString(baseline, &expected)) {
+      LOG(ERROR) << "Failed to parse proto from golden text proto.";
+      return false;
+    }
+    matches_baseline = PartiallyEqualsProto(actual, expected, difference);
+    if (!matches_baseline && !new_golden_dir.empty() &&
+        !TextFormat::PrintToString(actual, &protobuf_representation)) {
+      LOG(ERROR) << "Failed to serialize new proto to string.";
       return false;
     }
   }
-
-  string existing_input_file;
-  if (baseline_filename.empty()) {
-    existing_input_file =
-        GetTestInputFilePath(basename(perfdata_filepath.c_str())) + extension;
-  } else {
-    existing_input_file = GetTestInputFilePath(baseline_filename) + extension;
-  }
-
-  string baseline;
-  if (!ReadExistingProtobufText(existing_input_file, &baseline)) {
-    return false;
-  }
-  bool matches_baseline = (baseline == protobuf_representation);
-  if (kWriteNewGoldenFiles) {
-    string existing_input_pb_text = existing_input_file + ".new";
-    if (matches_baseline) {
-      LOG(ERROR) << "Not writing non-identical golden file: "
-                 << existing_input_pb_text;
-      return true;
+  if (!new_golden_dir.empty() && !matches_baseline) {
+    string new_golden_path = new_golden_dir + "/" + golden_name + extension;
+    LOG(INFO) << "Writing new golden file: " << new_golden_path;
+    if (!BufferToFile(new_golden_path, protobuf_representation)) {
+      LOG(ERROR) << "Failed to write new golden file: " << new_golden_path;
     }
-    LOG(INFO) << "Writing new golden file: " << existing_input_pb_text;
-    BufferToFile(existing_input_pb_text, protobuf_representation);
-
-    return true;
   }
   return matches_baseline;
 }

@@ -67,7 +67,7 @@ events {
     tid: 0
     start: 0
     len: 200998912
-    pgoff: 18446744072436580352
+    pgoff: 0
     filename: "[kernel.kallsyms]_text"
     filename_md5_prefix: 9918483331179727898
     sample_info {
@@ -544,6 +544,43 @@ events {
     size: 152
   }
   timestamp: 0
+  namespaces_event {
+    pid: 5969
+    tid: 5969
+    link_info {
+      dev: 3
+      ino: 4026532000
+    }
+    link_info {
+      dev: 3
+      ino: 4026531838
+    }
+    link_info {
+      dev: 3
+      ino: 4026531839
+    }
+    link_info {
+      dev: 3
+      ino: 4026531836
+    }
+    link_info {
+      dev: 3
+      ino: 4026531837
+    }
+    link_info {
+      dev: 3
+      ino: 4026531840
+    }
+    link_info {
+      dev: 3
+      ino: 4026531835
+    }
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
 }
 events {
   header {

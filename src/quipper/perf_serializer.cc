@@ -242,6 +242,9 @@ bool PerfSerializer::SerializeKernelEvent(
     case PERF_RECORD_SWITCH_CPU_WIDE:
       return SerializeContextSwitchEvent(
           event, event_proto->mutable_context_switch_event());
+    case PERF_RECORD_NAMESPACES:
+      return SerializeNamespacesEvent(event,
+                                      event_proto->mutable_namespaces_event());
     default:
       LOG(ERROR) << "Unknown event type: " << event.header.type;
   }
@@ -330,9 +333,7 @@ bool PerfSerializer::DeserializeKernelEvent(
       return DeserializeContextSwitchEvent(event_proto.context_switch_event(),
                                            event);
     case PERF_RECORD_NAMESPACES:
-      LOG(ERROR) << "Event type: " << event_proto.header().type()
-                 << ". Not yet supported.";
-      return true;
+      return DeserializeNamespacesEvent(event_proto.namespaces_event(), event);
       break;
   }
   return false;
@@ -804,6 +805,31 @@ bool PerfSerializer::DeserializeContextSwitchEvent(
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
 
+bool PerfSerializer::SerializeNamespacesEvent(
+    const event_t& event, PerfDataProto_NamespacesEvent* sample) const {
+  const struct namespaces_event& namespaces = event.namespaces;
+  sample->set_pid(namespaces.pid);
+  sample->set_tid(namespaces.tid);
+  for (u64 i = 0; i < namespaces.nr_namespaces; ++i) {
+    sample->add_link_info();
+    sample->mutable_link_info(i)->set_dev(namespaces.link_info[i].dev);
+    sample->mutable_link_info(i)->set_ino(namespaces.link_info[i].ino);
+  }
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeNamespacesEvent(
+    const PerfDataProto_NamespacesEvent& sample, event_t* event) const {
+  struct namespaces_event& namespaces = event->namespaces;
+  namespaces.pid = sample.pid();
+  namespaces.tid = sample.tid();
+  namespaces.nr_namespaces = sample.link_info_size();
+  for (u64 i = 0; i < namespaces.nr_namespaces; ++i) {
+    namespaces.link_info[i].dev = sample.link_info(i).dev();
+    namespaces.link_info[i].ino = sample.link_info(i).ino();
+  }
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
 bool PerfSerializer::SerializeSampleInfo(
     const event_t& event, PerfDataProto_SampleInfo* sample) const {
   if (!SampleIdAll()) return true;

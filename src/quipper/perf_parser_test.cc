@@ -199,6 +199,20 @@ void CopyActualEvents(const std::vector<ParsedEvent> &events,
   }
 }
 
+// Given a PerfReader that has already consumed an input perf data file using
+// address remapping, check that the MMAP entries corresponding to the kernel
+// have zero file offsets.
+void CheckKernelHasZeroPgoff(const PerfReader &reader) {
+  for (const auto &event : reader.events()) {
+    if ((event.header().type() == PERF_RECORD_MMAP ||
+         event.header().type() == PERF_RECORD_MMAP2) &&
+        event.mmap_event().filename().find("kernel.kallsyms") != string::npos) {
+      EXPECT_EQ(0, event.mmap_event().pgoff())
+          << "remapped kernel offset must be zero";
+    }
+  }
+}
+
 }  // namespace
 
 TEST(PerfParserTest, TestDSOAndOffsetConstructor) {
@@ -229,8 +243,10 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   string pr_output_perf_data = output_path + test_file + ".pr.out";
   string pr_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(pr_output_perf_data));
-  EXPECT_TRUE(
-      CheckPerfDataAgainstBaseline(pr_output_perf_data, pr_baseline_filename));
+  string difference;
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(pr_output_perf_data,
+                                           pr_baseline_filename, &difference))
+      << difference;
 
   // Run it through PerfParser.
   PerfParserOptions options = GetTestOptions();
@@ -252,8 +268,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   string parsed_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
-  EXPECT_TRUE(
-      CheckPerfDataAgainstBaseline(parsed_perf_data, parsed_baseline_filename));
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(
+      parsed_perf_data, parsed_baseline_filename, &difference))
+      << difference;
   EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, parsed_perf_data));
 
   // Run the event parsing again, this time with remapping.
@@ -268,10 +285,14 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_GT(stats.num_sample_events_mapped, 0U);
   EXPECT_TRUE(stats.did_remap);
 
+  // Kernel MMAP entries should have zero file offsets when remapped.
+  CheckKernelHasZeroPgoff(reader);
+
   // Remapped addresses should not match the original addresses.
   string remapped_perf_data = output_path + test_file + ".parse.remap.out";
   ASSERT_TRUE(reader.WriteFile(remapped_perf_data));
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data));
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data, "", &difference))
+      << difference;
 
   // Remapping again should produce the same addresses.
   LOG(INFO) << "Reading in remapped data: " << remapped_perf_data;
@@ -326,7 +347,9 @@ TEST_P(PerfPipedDataFiles, PipedModePerfData) {
 
   // Check results from the PerfReader stage.
   ASSERT_TRUE(reader.WriteFile(output_perf_data));
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data));
+  string difference;
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
+      << difference;
 
   PerfParserOptions options = GetTestOptions();
   options.do_remap = true;
@@ -338,6 +361,9 @@ TEST_P(PerfPipedDataFiles, PipedModePerfData) {
   EXPECT_GT(parser.stats().num_mmap_events, 0U);
   EXPECT_GT(parser.stats().num_sample_events_mapped, 0U);
   EXPECT_TRUE(parser.stats().did_remap);
+
+  // Kernel MMAP entries should have zero file offsets when remapped.
+  CheckKernelHasZeroPgoff(reader);
 
   // This must be called when |reader| is no longer going to be used, as it
   // modifies the contents of |reader|.
@@ -667,6 +693,122 @@ TEST(PerfParserTest, PipedContextSwitchEvents) {
             events[3].event_ptr->context_switch_event().sample_info().pid());
   EXPECT_EQ(5656,
             events[3].event_ptr->context_switch_event().sample_info().tid());
+}
+
+TEST(PerfParserTest, NamespacesEvents) {
+  std::stringstream input;
+  std::vector<struct perf_ns_link_info> link_infos;
+  struct perf_ns_link_info link_info1 = {
+      .dev = 1234,
+      .ino = 5678,
+  };
+  struct perf_ns_link_info link_info2 = {
+      .dev = 223344,
+      .ino = 556677,
+  };
+
+  link_infos.push_back(link_info1);
+  link_infos.push_back(link_info2);
+
+  // PERF_RECORD_NAMESPACES
+  testing::ExampleNamespacesEvent namespaces_event(
+      5656, 5656, link_infos, testing::SampleInfo().Tid(1001));
+
+  size_t data_size = namespaces_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  namespaces_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_NAMESPACES, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().pid());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().tid());
+  EXPECT_EQ(2, events[0].event_ptr->namespaces_event().link_info_size());
+  EXPECT_EQ(1234, events[0].event_ptr->namespaces_event().link_info(0).dev());
+  EXPECT_EQ(5678, events[0].event_ptr->namespaces_event().link_info(0).ino());
+  EXPECT_EQ(223344, events[0].event_ptr->namespaces_event().link_info(1).dev());
+  EXPECT_EQ(556677, events[0].event_ptr->namespaces_event().link_info(1).ino());
+}
+
+TEST(PerfParserTest, PipedNamespacesEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  std::vector<struct perf_ns_link_info> link_infos;
+  struct perf_ns_link_info link_info1 = {
+      .dev = 1234,
+      .ino = 5678,
+  };
+  struct perf_ns_link_info link_info2 = {
+      .dev = 223344,
+      .ino = 556677,
+  };
+
+  link_infos.push_back(link_info1);
+  link_infos.push_back(link_info2);
+
+  // PERF_RECORD_NAMESPACES
+  testing::ExampleNamespacesEvent(5656, 5656, link_infos,
+                                  testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_NAMESPACES, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().pid());
+  EXPECT_EQ(5656, events[0].event_ptr->namespaces_event().tid());
+  EXPECT_EQ(2, events[0].event_ptr->namespaces_event().link_info_size());
+  EXPECT_EQ(1234, events[0].event_ptr->namespaces_event().link_info(0).dev());
+  EXPECT_EQ(5678, events[0].event_ptr->namespaces_event().link_info(0).ino());
+  EXPECT_EQ(223344, events[0].event_ptr->namespaces_event().link_info(1).dev());
+  EXPECT_EQ(556677, events[0].event_ptr->namespaces_event().link_info(1).ino());
 }
 
 TEST(PerfParserTest, TimeConvEvents) {
@@ -2027,6 +2169,7 @@ TEST(PerfParserTest, Regression62446346) {
   EXPECT_EQ(0, parser.stats().num_sample_events_mapped);
 
   const std::vector<ParsedEvent> &events = parser.parsed_events();
+  string difference;
 
   {
     PerfDataProto expected;
@@ -2048,7 +2191,8 @@ TEST(PerfParserTest, Regression62446346) {
       *actual.add_events() = *ev.event_ptr;
     }
 
-    EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+    EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+        << difference;
   }
   ASSERT_EQ(1, events.size());
 
@@ -2064,7 +2208,9 @@ TEST(PerfParserTest, Regression62446346) {
     PerfDataProto_MMapEvent roundtrip;
     ASSERT_TRUE(serializer.SerializeMMapEvent(*e, &roundtrip));
     // sample_info does not roundtrip through an event_t.
-    EXPECT_TRUE(PartiallyEqualsProto(ev.event_ptr->mmap_event(), roundtrip));
+    EXPECT_TRUE(PartiallyEqualsProto(ev.event_ptr->mmap_event(), roundtrip,
+                                     &difference))
+        << difference;
   }
 }
 
@@ -2142,7 +2288,9 @@ TEST(PerfParserTest, Regression62446346_Perf3_12_0_11) {
 
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   ASSERT_EQ(1, parser.parsed_events().size());
 }
 
@@ -2220,7 +2368,9 @@ TEST(PerfParserTest, Regression62446346_Perf3_12_0_14) {
 
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   EXPECT_EQ(1, parser.parsed_events().size());
 }
 
@@ -2297,7 +2447,9 @@ TEST(PerfParserTest, DiscontiguousMappings) {
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
 
-  EXPECT_TRUE(PartiallyEqualsProto(actual, expected));
+  string difference;
+  EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
+      << difference;
   EXPECT_EQ(3, parser.parsed_events().size());
 }
 }  // namespace quipper

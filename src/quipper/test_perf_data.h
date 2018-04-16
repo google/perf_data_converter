@@ -581,6 +581,26 @@ class ExampleContextSwitchEvent : public StreamWriteable {
   const SampleInfo sample_id_;
 };
 
+// Produces PERF_RECORD_NAMESPACES event.
+class ExampleNamespacesEvent : public StreamWriteable {
+ public:
+  ExampleNamespacesEvent(u32 pid, u32 tid,
+                         std::vector<struct perf_ns_link_info> link_info,
+                         const SampleInfo& sample_id)
+      : pid_(pid),
+        tid_(tid),
+        link_info_(std::move(link_info)),
+        sample_id_(sample_id) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u32 pid_;
+  const u32 tid_;
+  const std::vector<struct perf_ns_link_info> link_info_;
+  const SampleInfo sample_id_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:
