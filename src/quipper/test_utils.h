@@ -72,21 +72,26 @@ bool ComparePerfBuildIDLists(const string& file1, const string& file2);
 PerfParserOptions GetTestOptions();
 
 template <typename T>
-bool EqualsProto(T actual, T expected) {
-  MessageDifferencer differencer;
-  differencer.set_message_field_comparison(MessageDifferencer::EQUAL);
-  return differencer.Compare(expected, actual);
+bool EqualsProto(T actual, T expected, string* difference = nullptr) {
+  std::unique_ptr<MessageDifferencer> differencer(new MessageDifferencer);
+  return CompareProto(std::move(differencer), actual, expected, difference);
 }
 
 template <typename T>
 bool PartiallyEqualsProto(T actual, T expected, string* difference = nullptr) {
-  MessageDifferencer differencer;
-  differencer.set_message_field_comparison(MessageDifferencer::EQUAL);
-  differencer.set_scope(MessageDifferencer::PARTIAL);
+  std::unique_ptr<MessageDifferencer> differencer(new MessageDifferencer);
+  differencer->set_scope(MessageDifferencer::PARTIAL);
+  return CompareProto(std::move(differencer), actual, expected, difference);
+}
+
+template <typename T>
+bool CompareProto(std::unique_ptr<MessageDifferencer> differencer, T actual,
+                  T expected, string* difference) {
+  differencer->set_message_field_comparison(MessageDifferencer::EQUAL);
   if (difference != nullptr) {
     difference->clear();
   }
-  return differencer.Compare(expected, actual);
+  return differencer->Compare(expected, actual);
 }
 
 }  // namespace quipper

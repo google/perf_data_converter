@@ -230,7 +230,7 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
       LOG(ERROR) << "Failed to parse proto from golden text proto.";
       return false;
     }
-    matches_baseline = PartiallyEqualsProto(actual, expected, difference);
+    matches_baseline = EqualsProto(actual, expected, difference);
     if (!matches_baseline && !new_golden_dir.empty() &&
         !TextFormat::PrintToString(actual, &protobuf_representation)) {
       LOG(ERROR) << "Failed to serialize new proto to string.";
