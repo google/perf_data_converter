@@ -37,21 +37,36 @@ int64_t GetFileSize(const string& filename);
 // Returns true if the contents of the two files are the same, false otherwise.
 bool CompareFileContents(const string& filename1, const string& filename2);
 
+// MaybeWriteGolden writes the given golden file, which can be provided either
+// as a string protobuf representation or as a proto.
+bool MaybeWriteGolden(const string& protobuf_representation,
+                      const string& golden_filename);
+bool MaybeWriteGolden(const proto2::Message& proto,
+                      const string& golden_filename);
+
 template <typename T>
-void CompareTextProtoFiles(const string& filename1, const string& filename2) {
-  std::vector<char> file1_contents;
-  std::vector<char> file2_contents;
-  ASSERT_TRUE(FileToBuffer(filename1, &file1_contents));
-  ASSERT_TRUE(FileToBuffer(filename2, &file2_contents));
+void CompareTextProtoFiles(const string& actual, const string& expected,
+                           const string& golden_filename = "") {
+  std::vector<char> actual_contents;
+  std::vector<char> expected_contents;
+  ASSERT_TRUE(FileToBuffer(actual, &actual_contents));
+  ASSERT_TRUE(FileToBuffer(expected, &expected_contents));
 
-  ArrayInputStream arr1(file1_contents.data(), file1_contents.size());
-  ArrayInputStream arr2(file2_contents.data(), file2_contents.size());
+  ArrayInputStream actual_arr(actual_contents.data(), actual_contents.size());
+  ArrayInputStream expected_arr(expected_contents.data(),
+                                expected_contents.size());
 
-  T proto1, proto2;
-  ASSERT_TRUE(TextFormat::Parse(&arr1, &proto1));
-  ASSERT_TRUE(TextFormat::Parse(&arr2, &proto2));
+  T actual_proto, expected_proto;
+  ASSERT_TRUE(TextFormat::Parse(&actual_arr, &actual_proto));
+  ASSERT_TRUE(TextFormat::Parse(&expected_arr, &expected_proto));
 
-  EXPECT_TRUE(EqualsProto(proto1, proto2));
+  string difference;
+  bool matches_baseline =
+      EqualsProto(actual_proto, expected_proto, &difference);
+  if (!matches_baseline) {
+    MaybeWriteGolden(actual_proto, golden_filename);
+  }
+  EXPECT_TRUE(matches_baseline) << difference;
 }
 
 // Given a perf data file, get the list of build ids and create a map from
