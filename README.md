@@ -8,83 +8,88 @@ For details on pprof, see https://github.com/google/pprof
 
 **THIS IS NOT AN OFFICIAL GOOGLE PRODUCT**
 
-**Perf data converter and quipper projects support build with bazel**
+# Prerequisites to build
+* Install dependencies
 
-**SUPPORT FOR MAKE FILES WILL BE REMOVED AFTER MAY 2018**
+  ```
+  sudo apt-get -y install g++ git libelf-dev libcap-dev
+  ```
 
-# Prerequisites to build with make:
-- Protocol buffers: http://github.com/google/protobuf
-- Google Test: http://github.com/google/googletest
-
-# Compilation:
+# Compile and Test
 To install all dependences and build the binary, run the following commands.
+These were tested on Ubuntu 14.04 LTS:
 
-## Compile with make:
+### Compile
+* Install bazel by following the instructions [here](https://docs.bazel.build/versions/master/install.html).
+* Install dependencies and build perf_to_profile using bazel
+
+  ```
+  git clone https://github.com/google/perf_data_converter.git
+  cd perf_data_converter
+  bazel build src:perf_to_profile
+  ```
+
+Place the `perf_to_profile` binary in a place accessible from your PATH (e.g. `/usr/local/bin`).
+
+
+### Running tests
+* There are a small number of tests that verify the basic functionality.
+  To run these, after successful compilation, run:
+
+  ```
+  bazel test src:all
+  bazel test src/quipper:all
+  ```
+
+Note: Executables generated using `bazel build` are available under the
+directory `bazel-bin/`.
+
+# Usage
+* Profile a command using perf, for example:
+
+  ```
+  perf record /bin/ls
+  ```
+
+* Recent versions of pprof will automatically invoke `perf_to_profile`:
+
+  ```
+  pprof -web perf.data
+  ```
+
+## Compile and test with Makefiles
+
+### Compile
+
+*  **SUPPORT FOR MAKE FILES WILL BE REMOVED AFTER MAY 2018**
+
 *  These were tested on Debian GNU/Linux 8 (jessie):
+
    ```
-   sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+   sudo apt-get -y install autoconf automake libssl-dev make libtool pkg-config
    git clone --recursive https://github.com/google/perf_data_converter.git
    cd perf_data_converter/src
    make perf_to_profile
    ```
 *  If you already have protocol buffers and googletest installed on your system,
    you can compile using your local packages with the following commands:
+
    ```
-   sudo apt-get -y install autoconf automake g++ git libelf-dev libssl-dev libtool make pkg-config
+   sudo apt-get -y install autoconf automake libssl-dev make libtool pkg-config
    git clone https://github.com/google/perf_data_converter.git
    cd perf_data_converter/src
    make perf_to_profile
    ```
 
-## Compile with bazel:
-These were tested on Ubuntu 14.04 LTS:
-* Install bazel by following the instructions [here](https://docs.bazel.build/versions/master/install.html).
-* Install dependencies and build perf_to_profile using bazel
+### Running tests
+*  To run test, after successful compilation, run:
+
   ```
-  sudo apt-get -y install g++ git libelf-dev libcap-dev linux-tools-`uname -r`
-  git clone https://github.com/google/perf_data_converter.git
-  cd perf_data_converter/src
-  bazel build src:perf_to_profile
+  make check clean
+  make check clean -C quipper/ -f Makefile.external
   ```
 
-Place the `perf_to_profile` binary in a place accessible from your path (eg `/usr/local/bin`).
-
-# Running tests:
-There are a small number of tests that verify the basic functionality.
-To run these, after successful compilation, run:
-```
-make check clean
-make check clean -C quipper/ -f Makefile.external
-```
-
-or
-
-```
-bazel test src:all
-bazel test src/quipper:all
-```
-
-# Usage:
-Profile a command using perf, for example:
-```
-perf record /bin/ls
-```
-
-The example command will generate a profile named perf.data, you
-should convert this into a profile.proto then visualize it using
-pprof:
-
-```
-perf_to_profile perf.data profile.pb
-pprof -web profile.pb
-```
-
-Recent versions of pprof will automatically invoke `perf_to_profile`:
-```
-pprof -web perf.data
-```
-
-# Contribution:
+# Contribution
 We appreciate your help!
 
 Note that perf data converter and quipper projects do not use GitHub pull
