@@ -41,8 +41,7 @@ bool CompareFileContents(const string& filename1, const string& filename2);
 // as a string protobuf representation or as a proto.
 bool MaybeWriteGolden(const string& protobuf_representation,
                       const string& golden_filename);
-bool MaybeWriteGolden(const proto2::Message& proto,
-                      const string& golden_filename);
+bool MaybeWriteGolden(const Message& proto, const string& golden_filename);
 
 template <typename T>
 void CompareTextProtoFiles(const string& actual, const string& expected,

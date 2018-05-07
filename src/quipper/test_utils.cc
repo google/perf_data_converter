@@ -211,8 +211,7 @@ bool MaybeWriteGolden(const string& protobuf_representation,
   return true;
 }
 
-bool MaybeWriteGolden(const proto2::Message& proto,
-                      const string& golden_filename) {
+bool MaybeWriteGolden(const Message& proto, const string& golden_filename) {
   if (string(FLAGS_new_golden_file_path).empty()) {
     return true;
   }
