@@ -188,6 +188,41 @@ namespace {
 const bool UseProtobufDataFormat = true;
 }  // namespace
 
+bool MaybeWriteGolden(const string& protobuf_representation,
+                      const string& golden_filename) {
+  if (string(FLAGS_new_golden_file_path).empty()) {
+    return true;
+  }
+  if (protobuf_representation.empty()) {
+    LOG(ERROR) << "Must provide a string proto.";
+    return false;
+  }
+  if (golden_filename.empty()) {
+    LOG(ERROR) << "Must provide a golden file name.";
+    return false;
+  }
+  string new_golden_path =
+      string(FLAGS_new_golden_file_path) + "/" + golden_filename;
+  LOG(INFO) << "Writing new golden file: " << new_golden_path;
+  if (!BufferToFile(new_golden_path, protobuf_representation)) {
+    LOG(ERROR) << "Failed to write new golden file: " << new_golden_path;
+    return false;
+  }
+  return true;
+}
+
+bool MaybeWriteGolden(const Message& proto, const string& golden_filename) {
+  if (string(FLAGS_new_golden_file_path).empty()) {
+    return true;
+  }
+  string protobuf_representation;
+  if (!TextFormat::PrintToString(proto, &protobuf_representation)) {
+    LOG(ERROR) << "Failed to serialize new proto to string.";
+    return false;
+  }
+  return MaybeWriteGolden(protobuf_representation, golden_filename);
+}
+
 bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
                                   const string& baseline_filename,
                                   string* difference) {
@@ -203,7 +238,6 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
   }
 
   bool matches_baseline = false;
-  string new_golden_dir = FLAGS_new_golden_file_path;
   string protobuf_representation, baseline;
   if (!ReadExistingProtobufText(golden_path, &baseline)) {
     LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
@@ -216,6 +250,9 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
       return false;
     }
     matches_baseline = (baseline == protobuf_representation);
+    if (!matches_baseline) {
+      MaybeWriteGolden(protobuf_representation, golden_name + extension);
+    }
   } else {
     PerfDataProto actual, expected;
     if (!SerializeFromFile(perfdata_filepath, &actual)) {
@@ -230,18 +267,9 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
       LOG(ERROR) << "Failed to parse proto from golden text proto.";
       return false;
     }
-    matches_baseline = PartiallyEqualsProto(actual, expected, difference);
-    if (!matches_baseline && !new_golden_dir.empty() &&
-        !TextFormat::PrintToString(actual, &protobuf_representation)) {
-      LOG(ERROR) << "Failed to serialize new proto to string.";
-      return false;
-    }
-  }
-  if (!new_golden_dir.empty() && !matches_baseline) {
-    string new_golden_path = new_golden_dir + "/" + golden_name + extension;
-    LOG(INFO) << "Writing new golden file: " << new_golden_path;
-    if (!BufferToFile(new_golden_path, protobuf_representation)) {
-      LOG(ERROR) << "Failed to write new golden file: " << new_golden_path;
+    matches_baseline = EqualsProto(actual, expected, difference);
+    if (!matches_baseline) {
+      MaybeWriteGolden(actual, golden_name + extension);
     }
   }
   return matches_baseline;

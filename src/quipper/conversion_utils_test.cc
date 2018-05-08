@@ -34,7 +34,8 @@ TEST_P(PerfFile, TextOutput) {
   LOG(INFO) << "golden: " << golden_file;
   LOG(INFO) << "output: " << output.filename;
 
-  CompareTextProtoFiles<PerfDataProto>(output.filename, golden_file);
+  CompareTextProtoFiles<PerfDataProto>(output.filename, golden_file,
+                                       basename(output.filename.c_str()));
 }
 
 INSTANTIATE_TEST_CASE_P(
