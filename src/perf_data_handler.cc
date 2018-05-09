@@ -307,7 +307,7 @@ void Normalizer::InvokeHandleSample(
 static void CheckStat(int64 num, int64 denom, const string& desc) {
   const int max_missing_pct = 1;
   if (denom > 0 && num * 100 / denom > max_missing_pct) {
-    LOG(ERROR) << "stat: " << desc << " " << num << "/" << denom;
+    LOG(WARNING) << "stat: " << desc << " " << num << "/" << denom;
   }
 }
 
