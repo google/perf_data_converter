@@ -1953,6 +1953,12 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->auxtrace.tid);
       ByteSwap(&event->auxtrace.cpu);
       break;
+    case PERF_RECORD_THREAD_MAP:
+      ByteSwap(&event->thread_map.nr);
+      for (u64 i = 0; i < event->thread_map.nr; ++i) {
+        ByteSwap(&event->thread_map.entries[i].pid);
+      }
+      break;
     case PERF_RECORD_TIME_CONV:
       ByteSwap(&event->time_conv.time_shift);
       ByteSwap(&event->time_conv.time_mult);

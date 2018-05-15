@@ -717,6 +717,13 @@ events {
     size: 40
   }
   timestamp: 0
+  thread_map_event {
+    entries {
+      pid: 22943
+      comm: ""
+      comm_md5_prefix: 15284527576400310788
+    }
+  }
 }
 events {
   header {
