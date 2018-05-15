@@ -547,6 +547,33 @@ void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleThreadMapEvent::GetSize() const {
+  return offsetof(struct thread_map_event, entries) +
+         entries_.size() * sizeof(struct thread_map_event_entry);
+}
+
+void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<thread_map_event> event(
+      reinterpret_cast<struct thread_map_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_THREAD_MAP);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+  event->nr = MaybeSwap64(entries_.size());
+
+  for (int i = 0; i < entries_.size(); ++i) {
+    event->entries[i].pid = MaybeSwap64(entries_[i].pid);
+    snprintf(event->entries[i].comm, sizeof(entries_[i].comm), "%s",
+             entries_[i].comm);
+  }
+
+  const size_t pre_thread_map_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_thread_map_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }
