@@ -644,6 +644,62 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceEvents) {
   }
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesThreadMapEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  std::vector<struct thread_map_event_entry> entries;
+  struct thread_map_event_entry entry1 = {
+      .pid = 1234,
+  };
+  snprintf(entry1.comm, sizeof(entry1.comm), "%s", "comm1");
+  struct thread_map_event_entry entry2 = {
+      .pid = 223344,
+  };
+  snprintf(entry2.comm, sizeof(entry2.comm) + 1, "%s", "comm2");
+
+  entries.push_back(entry1);
+  entries.push_back(entry2);
+
+  // PERF_RECORD_THREAD_MAP
+  testing::ExampleThreadMapEvent(entries).WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_THREAD_MAP, event.header().type());
+    EXPECT_TRUE(event.has_thread_map_event());
+    const PerfDataProto::ThreadMapEvent& thread_map_event =
+        event.thread_map_event();
+    EXPECT_EQ(2, thread_map_event.entries_size());
+    EXPECT_EQ(1234, thread_map_event.entries(0).pid());
+    EXPECT_EQ("comm1", thread_map_event.entries(0).comm());
+    EXPECT_EQ(Md5Prefix("comm1"),
+              thread_map_event.entries(0).comm_md5_prefix());
+    EXPECT_EQ(223344, thread_map_event.entries(1).pid());
+    EXPECT_EQ("comm2", thread_map_event.entries(1).comm());
+    EXPECT_EQ(Md5Prefix("comm2"),
+              thread_map_event.entries(1).comm_md5_prefix());
+  }
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
   std::stringstream input;
 

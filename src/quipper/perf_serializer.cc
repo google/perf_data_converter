@@ -257,6 +257,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_AUXTRACE:
       return SerializeAuxtraceEvent(event,
                                     event_proto->mutable_auxtrace_event());
+    case PERF_RECORD_THREAD_MAP:
+      return SerializeThreadMapEvent(event,
+                                     event_proto->mutable_thread_map_event());
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
@@ -344,6 +347,8 @@ bool PerfSerializer::DeserializeUserEvent(
   switch (event_proto.header().type()) {
     case PERF_RECORD_AUXTRACE:
       return DeserializeAuxtraceEvent(event_proto.auxtrace_event(), event);
+    case PERF_RECORD_THREAD_MAP:
+      return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
@@ -982,6 +987,30 @@ bool PerfSerializer::DeserializeAuxtraceEvent(
 bool PerfSerializer::DeserializeAuxtraceEventTraceData(
     const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const {
   to->assign(from.trace_data().begin(), from.trace_data().end());
+  return true;
+}
+
+bool PerfSerializer::SerializeThreadMapEvent(
+    const event_t& event, PerfDataProto_ThreadMapEvent* sample) const {
+  const struct thread_map_event& thread_map = event.thread_map;
+  for (u64 i = 0; i < thread_map.nr; ++i) {
+    auto entry = sample->add_entries();
+    entry->set_pid(thread_map.entries[i].pid);
+    entry->set_comm(thread_map.entries[i].comm);
+    entry->set_comm_md5_prefix(Md5Prefix(thread_map.entries[i].comm));
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeThreadMapEvent(
+    const PerfDataProto_ThreadMapEvent& sample, event_t* event) const {
+  struct thread_map_event& thread_map = event->thread_map;
+  thread_map.nr = sample.entries_size();
+  for (u64 i = 0; i < thread_map.nr; ++i) {
+    thread_map.entries[i].pid = sample.entries(i).pid();
+    snprintf(thread_map.entries[i].comm, sizeof(thread_map.entries[i].comm),
+             "%s", sample.entries(i).comm().c_str());
+  }
   return true;
 }
 
