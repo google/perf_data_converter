@@ -560,6 +560,22 @@ message PerfDataProto {
     optional SampleInfo sample_info = 4;
   }
 
+  // Next Tag: 4
+  message ThreadMapEventEntry {
+    optional uint64 pid = 1;
+
+    // Thread name.
+    optional string comm = 2;
+
+    // Thread name's md5 prefix.
+    optional uint64 comm_md5_prefix = 3;
+  }
+
+  // Next Tag: 2
+  message ThreadMapEvent {
+    repeated ThreadMapEventEntry entries = 1;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -582,7 +598,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 18
+  // Next tag: 21
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -604,6 +620,7 @@ message PerfDataProto {
       ContextSwitchEvent context_switch_event = 15;
       NamespacesEvent namespaces_event = 16;
       AuxtraceEvent auxtrace_event = 12;
+      ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
     }
     // Time after boot in nanoseconds corresponding to the event.

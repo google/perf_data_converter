@@ -601,6 +601,18 @@ class ExampleNamespacesEvent : public StreamWriteable {
   const SampleInfo sample_id_;
 };
 
+// Produces PERF_RECORD_THREAD_MAP event.
+class ExampleThreadMapEvent : public StreamWriteable {
+ public:
+  ExampleThreadMapEvent(std::vector<struct thread_map_event_entry> entries)
+      : entries_(std::move(entries)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const std::vector<struct thread_map_event_entry> entries_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:
