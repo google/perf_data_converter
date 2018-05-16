@@ -601,6 +601,19 @@ class ExampleNamespacesEvent : public StreamWriteable {
   const SampleInfo sample_id_;
 };
 
+// Produces PERF_RECORD_AUXTRACE_INFO event.
+class ExampleAuxtraceInfoEvent : public StreamWriteable {
+ public:
+  ExampleAuxtraceInfoEvent(u32 type, std::vector<u64> priv)
+      : type_(type), priv_(std::move(priv)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u32 type_;
+  const std::vector<u64> priv_;
+};
+
 // Produces PERF_RECORD_THREAD_MAP event.
 class ExampleThreadMapEvent : public StreamWriteable {
  public:

@@ -128,6 +128,7 @@ bool PerfParser::ParseRawEvents() {
 bool PerfParser::ProcessUserEvents(PerfEvent& event) {
   // New user events from PERF-4.13 is not yet supported
   switch (event.header().type()) {
+    case PERF_RECORD_AUXTRACE_INFO:
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_THREAD_MAP:
     case PERF_RECORD_TIME_CONV:

@@ -151,6 +151,10 @@ class PerfSerializer {
   bool DeserializeBuildIDEvent(const PerfDataProto_PerfBuildID& from,
                                malloced_unique_ptr<build_id_event>* to) const;
 
+  bool SerializeAuxtraceInfoEvent(
+      const event_t& event, PerfDataProto_AuxtraceInfoEvent* sample) const;
+  bool DeserializeAuxtraceInfoEvent(
+      const PerfDataProto_AuxtraceInfoEvent& sample, event_t* event) const;
   bool SerializeAuxtraceEvent(const event_t& event,
                               PerfDataProto_AuxtraceEvent* sample) const;
   bool SerializeAuxtraceEventTraceData(const std::vector<char>& from,
