@@ -1945,6 +1945,19 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
         ByteSwap(&event->namespaces.link_info[i].ino);
       }
       break;
+    case PERF_RECORD_AUXTRACE_INFO: {
+      ByteSwap(&event->auxtrace_info.type);
+      u64 priv_size =
+          (event->header.size -
+           (sizeof(event->header) + sizeof(event->auxtrace_info.type) +
+            sizeof(u32)  // size of auxtrace_info_event.reserved__
+            )) /
+          sizeof(u64);
+      for (u64 i = 0; i < priv_size; ++i) {
+        ByteSwap(&event->auxtrace_info.priv[i]);
+      }
+      break;
+    }
     case PERF_RECORD_AUXTRACE:
       ByteSwap(&event->auxtrace.size);
       ByteSwap(&event->auxtrace.offset);

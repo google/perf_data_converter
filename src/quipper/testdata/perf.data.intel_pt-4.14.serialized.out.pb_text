@@ -214,6 +214,26 @@ events {
     size: 152
   }
   timestamp: 0
+  auxtrace_info_event {
+    type: 1
+    unparsed_binary_blob_priv_data: 6
+    unparsed_binary_blob_priv_data: 31
+    unparsed_binary_blob_priv_data: 1789569706
+    unparsed_binary_blob_priv_data: 18446744041015200657
+    unparsed_binary_blob_priv_data: 1
+    unparsed_binary_blob_priv_data: 1024
+    unparsed_binary_blob_priv_data: 2048
+    unparsed_binary_blob_priv_data: 3
+    unparsed_binary_blob_priv_data: 0
+    unparsed_binary_blob_priv_data: 1
+    unparsed_binary_blob_priv_data: 512
+    unparsed_binary_blob_priv_data: 245760
+    unparsed_binary_blob_priv_data: 100
+    unparsed_binary_blob_priv_data: 2
+    unparsed_binary_blob_priv_data: 2
+    unparsed_binary_blob_priv_data: 12
+    unparsed_binary_blob_priv_data: 0
+  }
 }
 events {
   header {

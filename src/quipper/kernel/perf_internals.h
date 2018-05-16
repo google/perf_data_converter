@@ -342,6 +342,13 @@ struct tracing_data_event {
   u32 size;
 };
 
+struct auxtrace_info_event {
+  struct perf_event_header header;
+  u32 type;
+  u32 reserved__; /* For alignment */
+  u64 priv[];
+};
+
 struct auxtrace_event {
   struct perf_event_header header;
   u64 size;
@@ -411,6 +418,7 @@ union perf_event {
   struct event_type_event event_type;
   struct tracing_data_event tracing_data;
   struct build_id_event build_id;
+  struct auxtrace_info_event auxtrace_info;
   struct auxtrace_event auxtrace;
   struct aux_event aux;
   struct itrace_start_event itrace_start;
