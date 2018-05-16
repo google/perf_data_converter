@@ -535,7 +535,7 @@ void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
   event->tid = tid_;
   event->nr_namespaces = link_info_.size();
 
-  for (int i = 0; i < link_info_.size(); ++i) {
+  for (u64 i = 0; i < link_info_.size(); ++i) {
     event->link_info[i] = link_info_[i];
   }
   const size_t pre_namespaces_offset = out->tellp();
@@ -544,6 +544,29 @@ void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_namespaces_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleAuxtraceInfoEvent::GetSize() const {
+  return sizeof(struct auxtrace_info_event) + priv_.size() * sizeof(u64);
+}
+
+void ExampleAuxtraceInfoEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<auxtrace_info_event> event(
+      reinterpret_cast<struct auxtrace_info_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_AUXTRACE_INFO),
+  event->header.misc = 0,
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size)),
+  event->type = MaybeSwap32(type_);
+  for (u64 i = 0; i < priv_.size(); ++i) {
+    event->priv[i] = MaybeSwap64(priv_[i]);
+  }
+
+  const size_t pre_auxtrace_info_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_auxtrace_info_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 

@@ -810,6 +810,114 @@ TEST(PerfParserTest, PipedNamespacesEvents) {
   EXPECT_EQ(223344, events[0].event_ptr->namespaces_event().link_info(1).dev());
   EXPECT_EQ(556677, events[0].event_ptr->namespaces_event().link_info(1).ino());
 }
+
+TEST(PerfParserTest, AuxtraceInfoEvents) {
+  std::stringstream input;
+  std::vector<u64> priv;
+
+  priv.push_back(67548);
+  priv.push_back(320945);
+
+  // PERF_RECORD_AUXTRACE_INFO
+  testing::ExampleAuxtraceInfoEvent auxtrace_info_event(1, priv);
+
+  size_t data_size = auxtrace_info_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  auxtrace_info_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_AUXTRACE_INFO, events[0].event_ptr->header().type());
+  EXPECT_EQ(1, events[0].event_ptr->auxtrace_info_event().type());
+  EXPECT_EQ(2, events[0]
+                   .event_ptr->auxtrace_info_event()
+                   .unparsed_binary_blob_priv_data_size());
+  EXPECT_EQ(
+      67548,
+      events[0].event_ptr->auxtrace_info_event().unparsed_binary_blob_priv_data(
+          0));
+  EXPECT_EQ(
+      320945,
+      events[0].event_ptr->auxtrace_info_event().unparsed_binary_blob_priv_data(
+          1));
+}
+
+TEST(PerfParserTest, PipedAuxtraceInfoEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  std::vector<u64> priv;
+
+  priv.push_back(67548);
+  priv.push_back(320945);
+
+  // PERF_RECORD_AUXTRACE_INFO
+  testing::ExampleAuxtraceInfoEvent(1, priv).WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_AUXTRACE_INFO, events[0].event_ptr->header().type());
+  EXPECT_EQ(1, events[0].event_ptr->auxtrace_info_event().type());
+  EXPECT_EQ(2, events[0]
+                   .event_ptr->auxtrace_info_event()
+                   .unparsed_binary_blob_priv_data_size());
+  EXPECT_EQ(
+      67548,
+      events[0].event_ptr->auxtrace_info_event().unparsed_binary_blob_priv_data(
+          0));
+  EXPECT_EQ(
+      320945,
+      events[0].event_ptr->auxtrace_info_event().unparsed_binary_blob_priv_data(
+          1));
+}
+
 TEST(PerfSerializerTest, ThreadMapEvents) {
   std::stringstream input;
   std::vector<struct thread_map_event_entry> entries;

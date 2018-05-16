@@ -603,6 +603,48 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
   }
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceInfoEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  std::vector<u64> priv;
+  priv.push_back(67548);
+  priv.push_back(320945);
+
+  // PERF_RECORD_AUXTRACE_INFO
+  testing::ExampleAuxtraceInfoEvent(1, priv).WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_AUXTRACE_INFO, event.header().type());
+    EXPECT_TRUE(event.has_auxtrace_info_event());
+    const PerfDataProto::AuxtraceInfoEvent& auxtrace_info_event =
+        event.auxtrace_info_event();
+    EXPECT_EQ(1, auxtrace_info_event.type());
+    EXPECT_EQ(2, auxtrace_info_event.unparsed_binary_blob_priv_data_size());
+    EXPECT_EQ(67548, auxtrace_info_event.unparsed_binary_blob_priv_data(0));
+    EXPECT_EQ(320945, auxtrace_info_event.unparsed_binary_blob_priv_data(1));
+  }
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceEvents) {
   std::stringstream input;
 

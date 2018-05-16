@@ -254,6 +254,9 @@ bool PerfSerializer::SerializeKernelEvent(
 bool PerfSerializer::SerializeUserEvent(
     const event_t& event, PerfDataProto_PerfEvent* event_proto) const {
   switch (event.header.type) {
+    case PERF_RECORD_AUXTRACE_INFO:
+      return SerializeAuxtraceInfoEvent(
+          event, event_proto->mutable_auxtrace_info_event());
     case PERF_RECORD_AUXTRACE:
       return SerializeAuxtraceEvent(event,
                                     event_proto->mutable_auxtrace_event());
@@ -345,6 +348,9 @@ bool PerfSerializer::DeserializeKernelEvent(
 bool PerfSerializer::DeserializeUserEvent(
     const PerfDataProto_PerfEvent& event_proto, event_t* event) const {
   switch (event_proto.header().type()) {
+    case PERF_RECORD_AUXTRACE_INFO:
+      return DeserializeAuxtraceInfoEvent(event_proto.auxtrace_info_event(),
+                                          event);
     case PERF_RECORD_AUXTRACE:
       return DeserializeAuxtraceEvent(event_proto.auxtrace_event(), event);
     case PERF_RECORD_THREAD_MAP:
@@ -944,6 +950,35 @@ bool PerfSerializer::DeserializeBuildIDEvent(
     CHECK_GT(
         snprintf(event->filename, filename.size() + 1, "%s", filename.c_str()),
         0);
+  }
+  return true;
+}
+
+bool PerfSerializer::SerializeAuxtraceInfoEvent(
+    const event_t& event, PerfDataProto_AuxtraceInfoEvent* sample) const {
+  const struct auxtrace_info_event& auxtrace_info = event.auxtrace_info;
+  u64 priv_size =
+      (event.header.size - sizeof(struct auxtrace_info_event)) / sizeof(u64);
+  sample->set_type(auxtrace_info.type);
+  if (auxtrace_info.reserved__ != 0) {
+    LOG(WARNING) << "PERF_RECORD_AUXTRACE_INFO's auxtrace_info_event.reserved__"
+                    " contains a non-zero value: "
+                 << auxtrace_info.reserved__
+                 << ". This"
+                    " record's format has changed.";
+  }
+  for (u64 i = 0; i < priv_size; ++i) {
+    sample->add_unparsed_binary_blob_priv_data(auxtrace_info.priv[i]);
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeAuxtraceInfoEvent(
+    const PerfDataProto_AuxtraceInfoEvent& sample, event_t* event) const {
+  struct auxtrace_info_event& auxtrace_info = event->auxtrace_info;
+  auxtrace_info.type = sample.type();
+  for (u64 i = 0; i < sample.unparsed_binary_blob_priv_data_size(); ++i) {
+    auxtrace_info.priv[i] = sample.unparsed_binary_blob_priv_data(i);
   }
   return true;
 }
