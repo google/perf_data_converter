@@ -686,6 +686,84 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceEvents) {
   }
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
+  string auxtrace_error_msg =
+      "0000011111222223333344444555556666677777888889999900000111112222233333";
+
+  string expected_auxtrace_error_msg =
+      "0000011111222223333344444555556666677777888889999900000111112222";
+
+  // PERF_RECORD_AUXTRACE_ERROR
+  testing::ExampleAuxtraceErrorEvent(1, 9876, 10, 4365, 4365, 86758,
+                                     auxtrace_error_msg)
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_AUXTRACE_ERROR, event.header().type());
+    EXPECT_TRUE(event.has_auxtrace_error_event());
+    const PerfDataProto::AuxtraceErrorEvent& auxtrace_error_event =
+        event.auxtrace_error_event();
+    EXPECT_EQ(1, auxtrace_error_event.type());
+    EXPECT_EQ(9876, auxtrace_error_event.code());
+    EXPECT_EQ(10, auxtrace_error_event.cpu());
+    EXPECT_EQ(4365, auxtrace_error_event.pid());
+    EXPECT_EQ(4365, auxtrace_error_event.tid());
+    EXPECT_EQ(86758, auxtrace_error_event.ip());
+    EXPECT_EQ(expected_auxtrace_error_msg, auxtrace_error_event.msg());
+    EXPECT_EQ(Md5Prefix(expected_auxtrace_error_msg),
+              auxtrace_error_event.msg_md5_prefix());
+  }
+
+  // Check deserialization.
+  PerfReader out_reader;
+  EXPECT_TRUE(out_reader.Deserialize(perf_data_proto));
+
+  PerfDataProto perf_data_proto_2;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
+
+  EXPECT_EQ(1, perf_data_proto_2.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto_2.events(0);
+    EXPECT_EQ(PERF_RECORD_AUXTRACE_ERROR, event.header().type());
+    EXPECT_TRUE(event.has_auxtrace_error_event());
+    const PerfDataProto::AuxtraceErrorEvent& auxtrace_error_event =
+        event.auxtrace_error_event();
+    EXPECT_EQ(1, auxtrace_error_event.type());
+    EXPECT_EQ(9876, auxtrace_error_event.code());
+    EXPECT_EQ(10, auxtrace_error_event.cpu());
+    EXPECT_EQ(4365, auxtrace_error_event.pid());
+    EXPECT_EQ(4365, auxtrace_error_event.tid());
+    EXPECT_EQ(86758, auxtrace_error_event.ip());
+    EXPECT_EQ(expected_auxtrace_error_msg, auxtrace_error_event.msg());
+    EXPECT_EQ(Md5Prefix(expected_auxtrace_error_msg),
+              auxtrace_error_event.msg_md5_prefix());
+  }
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesThreadMapEvents) {
   std::stringstream input;
 

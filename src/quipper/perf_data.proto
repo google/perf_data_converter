@@ -527,6 +527,33 @@ message PerfDataProto {
     optional bytes trace_data = 7;
   }
 
+  // Next tag: 9
+  message AuxtraceErrorEvent {
+    // Error type as defined by the enum auxtrace_error_type_name.
+    optional uint32 type = 1;
+
+    // Intel PT or Intel BTS specific error code.
+    optional uint32 code = 2;
+
+    // In per-cpu mode, the cpu this auxtrace error is associated with.
+    optional uint32 cpu = 3;
+
+    // Process ID.
+    optional uint32 pid = 4;
+
+    // In per-thread mode, the tid this auxtrace error is associated with.
+    optional uint32 tid = 5;
+
+    // From instruction pointer.
+    optional uint64 ip = 6;
+
+    // Auxtrace error message.
+    optional string msg = 7;
+
+    // Message's md5 prefix.
+    optional uint64 msg_md5_prefix = 8;
+  }
+
   // Next tag: 4
   message ItraceStartEvent {
     optional uint32 pid = 1;
@@ -648,6 +675,7 @@ message PerfDataProto {
       NamespacesEvent namespaces_event = 16;
       AuxtraceInfoEvent auxtrace_info_event = 18;
       AuxtraceEvent auxtrace_event = 12;
+      AuxtraceErrorEvent auxtrace_error_event = 19;
       ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
     }
