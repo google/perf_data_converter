@@ -260,6 +260,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_AUXTRACE:
       return SerializeAuxtraceEvent(event,
                                     event_proto->mutable_auxtrace_event());
+    case PERF_RECORD_AUXTRACE_ERROR:
+      return SerializeAuxtraceErrorEvent(
+          event, event_proto->mutable_auxtrace_error_event());
     case PERF_RECORD_THREAD_MAP:
       return SerializeThreadMapEvent(event,
                                      event_proto->mutable_thread_map_event());
@@ -353,6 +356,9 @@ bool PerfSerializer::DeserializeUserEvent(
                                           event);
     case PERF_RECORD_AUXTRACE:
       return DeserializeAuxtraceEvent(event_proto.auxtrace_event(), event);
+    case PERF_RECORD_AUXTRACE_ERROR:
+      return DeserializeAuxtraceErrorEvent(event_proto.auxtrace_error_event(),
+                                           event);
     case PERF_RECORD_THREAD_MAP:
       return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
     case PERF_RECORD_TIME_CONV:
@@ -1022,6 +1028,44 @@ bool PerfSerializer::DeserializeAuxtraceEvent(
 bool PerfSerializer::DeserializeAuxtraceEventTraceData(
     const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const {
   to->assign(from.trace_data().begin(), from.trace_data().end());
+  return true;
+}
+
+bool PerfSerializer::SerializeAuxtraceErrorEvent(
+    const event_t& event, PerfDataProto_AuxtraceErrorEvent* sample) const {
+  const struct auxtrace_error_event& auxtrace_error = event.auxtrace_error;
+  sample->set_type(auxtrace_error.type);
+  sample->set_code(auxtrace_error.code);
+  sample->set_cpu(auxtrace_error.cpu);
+  sample->set_pid(auxtrace_error.pid);
+  sample->set_tid(auxtrace_error.tid);
+  sample->set_ip(auxtrace_error.ip);
+  if (auxtrace_error.reserved__ != 0) {
+    LOG(WARNING)
+        << "PERF_RECORD_AUXTRACE_ERROR's auxtrace_error_event.reserved__ "
+        << "contains a non-zero value: " << auxtrace_error.reserved__ << ". "
+        << "This record's format has changed.";
+  }
+  u16 len = strnlen(auxtrace_error.msg,
+                    std::min((u64)MAX_AUXTRACE_ERROR_MSG,
+                             auxtrace_error.header.size -
+                                 offsetof(struct auxtrace_error_event, msg)));
+  sample->set_msg(auxtrace_error.msg, len);
+  sample->set_msg_md5_prefix(Md5Prefix(sample->msg()));
+  return true;
+}
+
+bool PerfSerializer::DeserializeAuxtraceErrorEvent(
+    const PerfDataProto_AuxtraceErrorEvent& sample, event_t* event) const {
+  struct auxtrace_error_event& auxtrace_error = event->auxtrace_error;
+  auxtrace_error.type = sample.type();
+  auxtrace_error.code = sample.code();
+  auxtrace_error.cpu = sample.cpu();
+  auxtrace_error.pid = sample.pid();
+  auxtrace_error.tid = sample.tid();
+  auxtrace_error.ip = sample.ip();
+  snprintf(auxtrace_error.msg, MAX_AUXTRACE_ERROR_MSG, "%s",
+           sample.msg().c_str());
   return true;
 }
 
