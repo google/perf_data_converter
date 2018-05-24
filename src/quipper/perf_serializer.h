@@ -163,6 +163,10 @@ class PerfSerializer {
                                 event_t* event) const;
   bool DeserializeAuxtraceEventTraceData(
       const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const;
+  bool SerializeAuxtraceErrorEvent(
+      const event_t& event, PerfDataProto_AuxtraceErrorEvent* sample) const;
+  bool DeserializeAuxtraceErrorEvent(
+      const PerfDataProto_AuxtraceErrorEvent& sample, event_t* event) const;
   bool SerializeThreadMapEvent(const event_t& event,
                                PerfDataProto_ThreadMapEvent* sample) const;
   bool DeserializeThreadMapEvent(const PerfDataProto_ThreadMapEvent& sample,
