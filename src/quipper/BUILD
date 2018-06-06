@@ -89,6 +89,7 @@ cc_library(
     name = "dso",
     srcs = ["dso.cc"],
     hdrs = ["dso.h"],
+    visibility = ["//src:__subpackages__"],
     deps = [
         ":compat",
         ":data_reader",
