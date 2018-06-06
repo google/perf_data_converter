@@ -601,6 +601,56 @@ class ExampleNamespacesEvent : public StreamWriteable {
   const SampleInfo sample_id_;
 };
 
+// Produces PERF_RECORD_AUXTRACE_INFO event.
+class ExampleAuxtraceInfoEvent : public StreamWriteable {
+ public:
+  ExampleAuxtraceInfoEvent(u32 type, std::vector<u64> priv)
+      : type_(type), priv_(std::move(priv)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u32 type_;
+  const std::vector<u64> priv_;
+};
+
+// Produces PERF_RECORD_AUXTRACE_ERROR event.
+class ExampleAuxtraceErrorEvent : public StreamWriteable {
+ public:
+  ExampleAuxtraceErrorEvent(u32 type, u32 code, u32 cpu, u32 pid, u32 tid,
+                            u32 ip, string msg)
+      : type_(type),
+        code_(code),
+        cpu_(cpu),
+        pid_(pid),
+        tid_(tid),
+        ip_(ip),
+        msg_(std::move(msg)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u32 type_;
+  const u32 code_;
+  const u32 cpu_;
+  const u32 pid_;
+  const u32 tid_;
+  const u64 ip_;
+  const string msg_;
+};
+
+// Produces PERF_RECORD_THREAD_MAP event.
+class ExampleThreadMapEvent : public StreamWriteable {
+ public:
+  ExampleThreadMapEvent(std::vector<struct thread_map_event_entry> entries)
+      : entries_(std::move(entries)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const std::vector<struct thread_map_event_entry> entries_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:

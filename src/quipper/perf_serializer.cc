@@ -254,9 +254,18 @@ bool PerfSerializer::SerializeKernelEvent(
 bool PerfSerializer::SerializeUserEvent(
     const event_t& event, PerfDataProto_PerfEvent* event_proto) const {
   switch (event.header.type) {
+    case PERF_RECORD_AUXTRACE_INFO:
+      return SerializeAuxtraceInfoEvent(
+          event, event_proto->mutable_auxtrace_info_event());
     case PERF_RECORD_AUXTRACE:
       return SerializeAuxtraceEvent(event,
                                     event_proto->mutable_auxtrace_event());
+    case PERF_RECORD_AUXTRACE_ERROR:
+      return SerializeAuxtraceErrorEvent(
+          event, event_proto->mutable_auxtrace_error_event());
+    case PERF_RECORD_THREAD_MAP:
+      return SerializeThreadMapEvent(event,
+                                     event_proto->mutable_thread_map_event());
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
@@ -342,8 +351,16 @@ bool PerfSerializer::DeserializeKernelEvent(
 bool PerfSerializer::DeserializeUserEvent(
     const PerfDataProto_PerfEvent& event_proto, event_t* event) const {
   switch (event_proto.header().type()) {
+    case PERF_RECORD_AUXTRACE_INFO:
+      return DeserializeAuxtraceInfoEvent(event_proto.auxtrace_info_event(),
+                                          event);
     case PERF_RECORD_AUXTRACE:
       return DeserializeAuxtraceEvent(event_proto.auxtrace_event(), event);
+    case PERF_RECORD_AUXTRACE_ERROR:
+      return DeserializeAuxtraceErrorEvent(event_proto.auxtrace_error_event(),
+                                           event);
+    case PERF_RECORD_THREAD_MAP:
+      return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
@@ -943,6 +960,35 @@ bool PerfSerializer::DeserializeBuildIDEvent(
   return true;
 }
 
+bool PerfSerializer::SerializeAuxtraceInfoEvent(
+    const event_t& event, PerfDataProto_AuxtraceInfoEvent* sample) const {
+  const struct auxtrace_info_event& auxtrace_info = event.auxtrace_info;
+  u64 priv_size =
+      (event.header.size - sizeof(struct auxtrace_info_event)) / sizeof(u64);
+  sample->set_type(auxtrace_info.type);
+  if (auxtrace_info.reserved__ != 0) {
+    LOG(WARNING) << "PERF_RECORD_AUXTRACE_INFO's auxtrace_info_event.reserved__"
+                    " contains a non-zero value: "
+                 << auxtrace_info.reserved__
+                 << ". This"
+                    " record's format has changed.";
+  }
+  for (u64 i = 0; i < priv_size; ++i) {
+    sample->add_unparsed_binary_blob_priv_data(auxtrace_info.priv[i]);
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeAuxtraceInfoEvent(
+    const PerfDataProto_AuxtraceInfoEvent& sample, event_t* event) const {
+  struct auxtrace_info_event& auxtrace_info = event->auxtrace_info;
+  auxtrace_info.type = sample.type();
+  for (u64 i = 0; i < sample.unparsed_binary_blob_priv_data_size(); ++i) {
+    auxtrace_info.priv[i] = sample.unparsed_binary_blob_priv_data(i);
+  }
+  return true;
+}
+
 bool PerfSerializer::SerializeAuxtraceEvent(
     const event_t& event, PerfDataProto_AuxtraceEvent* sample) const {
   const struct auxtrace_event& auxtrace = event.auxtrace;
@@ -982,6 +1028,68 @@ bool PerfSerializer::DeserializeAuxtraceEvent(
 bool PerfSerializer::DeserializeAuxtraceEventTraceData(
     const PerfDataProto_AuxtraceEvent& from, std::vector<char>* to) const {
   to->assign(from.trace_data().begin(), from.trace_data().end());
+  return true;
+}
+
+bool PerfSerializer::SerializeAuxtraceErrorEvent(
+    const event_t& event, PerfDataProto_AuxtraceErrorEvent* sample) const {
+  const struct auxtrace_error_event& auxtrace_error = event.auxtrace_error;
+  sample->set_type(auxtrace_error.type);
+  sample->set_code(auxtrace_error.code);
+  sample->set_cpu(auxtrace_error.cpu);
+  sample->set_pid(auxtrace_error.pid);
+  sample->set_tid(auxtrace_error.tid);
+  sample->set_ip(auxtrace_error.ip);
+  if (auxtrace_error.reserved__ != 0) {
+    LOG(WARNING)
+        << "PERF_RECORD_AUXTRACE_ERROR's auxtrace_error_event.reserved__ "
+        << "contains a non-zero value: " << auxtrace_error.reserved__ << ". "
+        << "This record's format has changed.";
+  }
+  u16 len = strnlen(auxtrace_error.msg,
+                    std::min((u64)MAX_AUXTRACE_ERROR_MSG,
+                             auxtrace_error.header.size -
+                                 offsetof(struct auxtrace_error_event, msg)));
+  sample->set_msg(auxtrace_error.msg, len);
+  sample->set_msg_md5_prefix(Md5Prefix(sample->msg()));
+  return true;
+}
+
+bool PerfSerializer::DeserializeAuxtraceErrorEvent(
+    const PerfDataProto_AuxtraceErrorEvent& sample, event_t* event) const {
+  struct auxtrace_error_event& auxtrace_error = event->auxtrace_error;
+  auxtrace_error.type = sample.type();
+  auxtrace_error.code = sample.code();
+  auxtrace_error.cpu = sample.cpu();
+  auxtrace_error.pid = sample.pid();
+  auxtrace_error.tid = sample.tid();
+  auxtrace_error.ip = sample.ip();
+  snprintf(auxtrace_error.msg, MAX_AUXTRACE_ERROR_MSG, "%s",
+           sample.msg().c_str());
+  return true;
+}
+
+bool PerfSerializer::SerializeThreadMapEvent(
+    const event_t& event, PerfDataProto_ThreadMapEvent* sample) const {
+  const struct thread_map_event& thread_map = event.thread_map;
+  for (u64 i = 0; i < thread_map.nr; ++i) {
+    auto entry = sample->add_entries();
+    entry->set_pid(thread_map.entries[i].pid);
+    entry->set_comm(thread_map.entries[i].comm);
+    entry->set_comm_md5_prefix(Md5Prefix(thread_map.entries[i].comm));
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeThreadMapEvent(
+    const PerfDataProto_ThreadMapEvent& sample, event_t* event) const {
+  struct thread_map_event& thread_map = event->thread_map;
+  thread_map.nr = sample.entries_size();
+  for (u64 i = 0; i < thread_map.nr; ++i) {
+    thread_map.entries[i].pid = sample.entries(i).pid();
+    snprintf(thread_map.entries[i].comm, sizeof(thread_map.entries[i].comm),
+             "%s", sample.entries(i).comm().c_str());
+  }
   return true;
 }
 

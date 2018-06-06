@@ -535,7 +535,7 @@ void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
   event->tid = tid_;
   event->nr_namespaces = link_info_.size();
 
-  for (int i = 0; i < link_info_.size(); ++i) {
+  for (u64 i = 0; i < link_info_.size(); ++i) {
     event->link_info[i] = link_info_[i];
   }
   const size_t pre_namespaces_offset = out->tellp();
@@ -544,6 +544,90 @@ void ExampleNamespacesEvent::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_namespaces_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleAuxtraceInfoEvent::GetSize() const {
+  return sizeof(struct auxtrace_info_event) + priv_.size() * sizeof(u64);
+}
+
+void ExampleAuxtraceInfoEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<auxtrace_info_event> event(
+      reinterpret_cast<struct auxtrace_info_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_AUXTRACE_INFO),
+  event->header.misc = 0,
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size)),
+  event->type = MaybeSwap32(type_);
+  for (u64 i = 0; i < priv_.size(); ++i) {
+    event->priv[i] = MaybeSwap64(priv_[i]);
+  }
+
+  const size_t pre_auxtrace_info_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_auxtrace_info_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleAuxtraceErrorEvent::GetSize() const {
+  return offsetof(struct auxtrace_error_event, msg) +
+         GetUint64AlignedStringLength(msg_);
+}
+
+void ExampleAuxtraceErrorEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  const size_t msg_aligned_length = GetUint64AlignedStringLength(msg_);
+  struct auxtrace_error_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_AUXTRACE_ERROR),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .type = MaybeSwap32(type_),
+      .code = MaybeSwap32(code_),
+      .cpu = MaybeSwap32(cpu_),
+      .pid = MaybeSwap32(pid_),
+      .tid = MaybeSwap32(tid_),
+      .reserved__ = 0,
+      .ip = MaybeSwap64(ip_),
+      // .msg = msg_,  // written separately
+  };
+
+  const size_t pre_auxtrace_error_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event),
+             offsetof(struct auxtrace_error_event, msg));
+  *out << msg_ << string(msg_aligned_length - msg_.size(), '\0');
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_auxtrace_error_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleThreadMapEvent::GetSize() const {
+  return offsetof(struct thread_map_event, entries) +
+         entries_.size() * sizeof(struct thread_map_event_entry);
+}
+
+void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<thread_map_event> event(
+      reinterpret_cast<struct thread_map_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_THREAD_MAP);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+  event->nr = MaybeSwap64(entries_.size());
+
+  for (int i = 0; i < entries_.size(); ++i) {
+    event->entries[i].pid = MaybeSwap64(entries_[i].pid);
+    snprintf(event->entries[i].comm, sizeof(entries_[i].comm), "%s",
+             entries_[i].comm);
+  }
+
+  const size_t pre_thread_map_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_thread_map_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 

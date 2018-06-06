@@ -475,6 +475,33 @@ message PerfDataProto {
     optional SampleInfo sample_info = 6;
   }
 
+  // Next tag: 3
+  message AuxtraceInfoEvent {
+    // Auxtrace type from the auxtrace_type enum in tools/perf/util/auxtrace.h.
+    optional uint32 type = 1;
+
+    // Private data.
+    // WARNING: unparsed_binary_blob_priv_data contains unparsed private data
+    // specific to the type stored in the above field. This data is included to
+    // support serialization of a perf.data to perf_data.proto and
+    // deserialization of a perf_data.proto to perf.data. If this data is used
+    // for something other than the aforementioned usecase, this data has to be
+    // parsed based on the type.
+    // For example:
+    // If type == PERF_AUXTRACE_INTEL_PT, unparsed_binary_blob_priv_data
+    // contains fields filled by intel_pt_info_fill() function in the file
+    // tools/perf/arch/x86/util/intel-pt.c.
+    // If type == PERF_AUXTRACE_INTEL_BTS, unparsed_binary_blob_priv_data
+    // contains fields filled by intel_bts_info_fill() function in the file
+    // tools/perf/arch/x86/util/intel-bts.c.
+    //
+    // NOTE: Do not read this unparsed data directly. Quipper should be
+    // modified to parse the data into a new field before reading. Please
+    // contact developers of quipper to add support for parsing this data.
+    //
+    repeated uint64 unparsed_binary_blob_priv_data = 2;
+  }
+
   // Next tag: 8
   message AuxtraceEvent {
     // Size of AUX area tracing buffer.
@@ -498,6 +525,33 @@ message PerfDataProto {
 
     // The trace data.
     optional bytes trace_data = 7;
+  }
+
+  // Next tag: 9
+  message AuxtraceErrorEvent {
+    // Error type as defined by the enum auxtrace_error_type_name.
+    optional uint32 type = 1;
+
+    // Intel PT or Intel BTS specific error code.
+    optional uint32 code = 2;
+
+    // In per-cpu mode, the cpu this auxtrace error is associated with.
+    optional uint32 cpu = 3;
+
+    // Process ID.
+    optional uint32 pid = 4;
+
+    // In per-thread mode, the tid this auxtrace error is associated with.
+    optional uint32 tid = 5;
+
+    // From instruction pointer.
+    optional uint64 ip = 6;
+
+    // Auxtrace error message.
+    optional string msg = 7;
+
+    // Message's md5 prefix.
+    optional uint64 msg_md5_prefix = 8;
   }
 
   // Next tag: 4
@@ -560,6 +614,22 @@ message PerfDataProto {
     optional SampleInfo sample_info = 4;
   }
 
+  // Next Tag: 4
+  message ThreadMapEventEntry {
+    optional uint64 pid = 1;
+
+    // Thread name.
+    optional string comm = 2;
+
+    // Thread name's md5 prefix.
+    optional uint64 comm_md5_prefix = 3;
+  }
+
+  // Next Tag: 2
+  message ThreadMapEvent {
+    repeated ThreadMapEventEntry entries = 1;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -582,7 +652,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 18
+  // Next tag: 21
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -603,7 +673,10 @@ message PerfDataProto {
       LostSamplesEvent lost_samples_event = 14;
       ContextSwitchEvent context_switch_event = 15;
       NamespacesEvent namespaces_event = 16;
+      AuxtraceInfoEvent auxtrace_info_event = 18;
       AuxtraceEvent auxtrace_event = 12;
+      AuxtraceErrorEvent auxtrace_error_event = 19;
+      ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
     }
     // Time after boot in nanoseconds corresponding to the event.
