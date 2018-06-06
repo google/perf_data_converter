@@ -6,6 +6,7 @@
  */
 
 #include <vector>
+#include <unordered_map>
 
 #include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
