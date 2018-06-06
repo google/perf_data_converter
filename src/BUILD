@@ -19,6 +19,8 @@ cc_library(
         ":intervalmap",
         "//src/compat:int_compat",
         "//src/compat:string_compat",
+        "//src/quipper:dso",
+        "//src/quipper:kernel",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_reader",
     ],
@@ -62,6 +64,9 @@ cc_test(
         ":perf_data_handler",
         "//src/compat:string_compat",
         "//src/compat:test_compat",
+        "//src/quipper:binary_data_utils",
+        "//src/quipper:kernel",
+        "//src/quipper:perf_data_utils",
     ],
 )
 
