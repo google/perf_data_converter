@@ -17,6 +17,8 @@
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
 #include "src/perf_data_handler.h"
+#include "src/quipper/dso.h"
+#include "src/quipper/kernel/perf_event.h"
 #include "src/quipper/perf_reader.h"
 
 using quipper::PerfDataProto;
@@ -25,6 +27,21 @@ using quipper::PerfDataProto_CommEvent;
 
 namespace perftools {
 namespace {
+
+static const char kKernelPrefix[] = "[kernel.kallsyms]";
+
+bool HasPrefixString(const string& s, const char* substr) {
+  const size_t substr_len = strlen(substr);
+  const size_t s_len = s.length();
+  return s_len >= substr_len && s.compare(0, substr_len, substr) == 0;
+}
+
+bool HasSuffixString(const string& s, const char* substr) {
+  const size_t substr_len = strlen(substr);
+  const size_t s_len = s.length();
+  return s_len >= substr_len &&
+         s.compare(s_len - substr_len, substr_len, substr) == 0;
+}
 
 // Normalizer processes a PerfDataProto and maintains tables to the
 // current metadata for each process.  It drives callbacks to
@@ -44,12 +61,34 @@ class Normalizer {
         hex << std::hex << std::setfill('0') << std::setw(2)
             << static_cast<int>(byte);
       }
-      if (build_id.filename() != "") {
-        filename_to_build_id_[build_id.filename()] = hex.str();
+      string filename;
+      if (!build_id.filename().empty()) {
+        filename = build_id.filename();
       } else {
-        std::stringstream filename;
-        filename << std::hex << build_id.filename_md5_prefix();
-        filename_to_build_id_[filename.str().c_str()] = hex.str();
+        std::stringstream filename_stream;
+        filename_stream << std::hex << build_id.filename_md5_prefix();
+        filename = filename_stream.str();
+      }
+      filename_to_build_id_[filename.c_str()] = hex.str();
+
+      switch (build_id.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
+        case quipper::PERF_RECORD_MISC_KERNEL:
+          if (quipper::IsKernelNonModuleName(filename) ||
+              !HasSuffixString(filename, ".ko")) {
+            string build_id = hex.str();
+            if (!maybe_kernel_build_id_.empty() &&
+                maybe_kernel_build_id_ != build_id) {
+              LOG(WARNING) << "Multiple kernel buildids found, file name: "
+                           << filename << ", build id: " << build_id
+                           << ". Using the "
+                              "first found buildid: "
+                           << maybe_kernel_build_id_ << ".";
+              break;
+            }
+            LOG(INFO) << "Using the build id found for the file name: "
+                      << filename << ", build id: " << build_id << ".";
+            maybe_kernel_build_id_ = build_id;
+          }
       }
     }
 
@@ -70,11 +109,15 @@ class Normalizer {
   // Convert to a protobuf using quipper and then aggregate the results.
   void Normalize();
 
+  // Get buildID using the filename from the mmap. This method should be only
+  // called directly for testing.
+  const string* GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
+
  private:
   // Using a 32-bit type for the PID values as the max PID value on 64-bit
   // systems is 2^22, see http://man7.org/linux/man-pages/man5/proc.5.html.
   typedef std::unordered_map<uint32, PerfDataHandler::Mapping*> PidToMMapMap;
-  typedef std::unordered_map<uint32, const PerfDataProto_CommEvent*>
+  typedef std::unordered_map<uint32, const quipper::PerfDataProto_CommEvent*>
       PidToCommMap;
 
   typedef IntervalMap<const PerfDataHandler::Mapping*> MMapIntervalMap;
@@ -87,7 +130,7 @@ class Normalizer {
   void LogStats();
 
   // Normalize the sample_event in event_proto and call handler_->Sample
-  void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& perf_event);
+  void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& event_proto);
 
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
@@ -134,6 +177,12 @@ class Normalizer {
   // map filenames to build-ids.
   std::unordered_map<string, string> filename_to_build_id_;
 
+  // maybe_kernel_build_id_ contains a possible kernel build id obtained from a
+  // perf proto buildid whose misc bits set to
+  // quipper::PERF_RECORD_MISC_CPUMODE_MASK. This is used as a kernel buildid
+  // when no buildid found for the filename [kernel.kallsyms] .
+  string maybe_kernel_build_id_;
+
   struct {
     int64 samples = 0;
     int64 missing_main_mmap = 0;
@@ -168,20 +217,6 @@ void Normalizer::UpdateMapsWithForkEvent(
   if (exec_mmap_it != pid_to_executable_mmap_.end()) {
     pid_to_executable_mmap_[fork.pid()] = exec_mmap_it->second;
   }
-}
-
-inline bool HasPrefixString(const string& haystack, const char* needle) {
-  const size_t needle_len = strlen(needle);
-  const size_t haystack_len = haystack.length();
-  return haystack_len >= needle_len &&
-         haystack.compare(0, needle_len, needle) == 0;
-}
-
-inline bool HasSuffixString(const string& haystack, const char* needle) {
-  const size_t needle_len = strlen(needle);
-  const size_t haystack_len = haystack.length();
-  return haystack_len >= needle_len &&
-         haystack.compare(haystack_len - needle_len, needle_len, needle) == 0;
 }
 
 void Normalizer::Normalize() {
@@ -307,7 +342,7 @@ void Normalizer::InvokeHandleSample(
 static void CheckStat(int64 num, int64 denom, const string& desc) {
   const int max_missing_pct = 1;
   if (denom > 0 && num * 100 / denom > max_missing_pct) {
-    LOG(ERROR) << "stat: " << desc << " " << num << "/" << denom;
+    LOG(WARNING) << "stat: " << desc << " " << num << "/" << denom;
   }
 }
 
@@ -319,6 +354,37 @@ void Normalizer::LogStats() {
   CheckStat(stat_.missing_branch_stack_mmap, stat_.branch_stack_ips,
             "missing_branch_stack_mmap");
   CheckStat(stat_.no_event_errors, 1, "unknown event id");
+}
+
+const string* Normalizer::GetBuildId(
+    const quipper::PerfDataProto_MMapEvent* mmap) {
+  string filename;
+
+  if (!mmap->filename().empty()) {
+    filename = mmap->filename();
+  } else {
+    std::stringstream filename_stream;
+    filename_stream << std::hex << mmap->filename_md5_prefix();
+    filename = filename_stream.str();
+  }
+
+  const string* build_id = nullptr;
+  std::unordered_map<string, string>::const_iterator build_id_it =
+      filename_to_build_id_.find(filename);
+
+  if (build_id_it != filename_to_build_id_.end()) {
+    build_id = &build_id_it->second;
+  } else if (HasPrefixString(filename, kKernelPrefix)) {
+    // The build ID of a kernel non-module filename with its
+    // quipper::PERF_RECORD_MISC_CPUMODE_MASK misc bits set to
+    // quipper::PERF_RECORD_MISC_KERNEL is used as the kernel build id when no
+    // build id was found for the filename |kKernelPrefix|. E.g. Build Id of the
+    // filename /usr/lib/debug/boot/vmlinux-4.16.0-1-amd64 as referenced in the
+    // github issue(https://github.com/google/perf_data_converter/issues/36),
+    // will be used when [kernel.kallsyms] has no buildid.
+    build_id = &maybe_kernel_build_id_;
+  }
+  return build_id;
 }
 
 static bool IsVirtualMapping(const string& map_name) {
@@ -341,18 +407,9 @@ void Normalizer::UpdateMapsWithMMapEvent(
   } else {
     interval_map = it->second.get();
   }
-  std::unordered_map<string, string>::const_iterator build_id_it;
-  if (mmap->filename() != "") {
-    build_id_it = filename_to_build_id_.find(mmap->filename());
-  } else {
-    std::stringstream filename;
-    filename << std::hex << mmap->filename_md5_prefix();
-    build_id_it = filename_to_build_id_.find(filename.str());
-  }
 
-  const string* build_id = build_id_it == filename_to_build_id_.end()
-                               ? nullptr
-                               : &build_id_it->second;
+  const string* build_id = GetBuildId(mmap);
+
   PerfDataHandler::Mapping* mapping = new PerfDataHandler::Mapping(
       &mmap->filename(), build_id, mmap->start(), mmap->start() + mmap->len(),
       mmap->pgoff(), mmap->filename_md5_prefix());
@@ -399,8 +456,6 @@ void Normalizer::UpdateMapsWithMMapEvent(
     // its name, so we have this hack.
     old_mapping->filename = &mmap->filename();
   }
-
-  static const char kKernelPrefix[] = "[kernel.kallsyms]";
 
   if (old_mapping == nullptr && !HasSuffixString(mmap->filename(), ".ko") &&
       !HasSuffixString(mmap->filename(), ".so") &&

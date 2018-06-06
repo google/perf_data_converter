@@ -317,6 +317,11 @@ enum perf_user_event_type {
   PERF_RECORD_HEADER_MAX = 81,
 };
 
+enum auxtrace_error_type {
+  PERF_AUXTRACE_ERROR_ITRACE = 1,
+  PERF_AUXTRACE_ERROR_MAX
+};
+
 struct attr_event {
   struct perf_event_header header;
   struct perf_event_attr attr;
@@ -342,6 +347,13 @@ struct tracing_data_event {
   u32 size;
 };
 
+struct auxtrace_info_event {
+  struct perf_event_header header;
+  u32 type;
+  u32 reserved__; /* For alignment */
+  u64 priv[];
+};
+
 struct auxtrace_event {
   struct perf_event_header header;
   u64 size;
@@ -351,6 +363,20 @@ struct auxtrace_event {
   u32 tid;
   u32 cpu;
   u32 reserved__; /* For alignment */
+};
+
+const u16 MAX_AUXTRACE_ERROR_MSG = 64;
+
+struct auxtrace_error_event {
+  struct perf_event_header header;
+  u32 type;
+  u32 code;
+  u32 cpu;
+  u32 pid;
+  u32 tid;
+  u32 reserved__; /* For alignment */
+  u64 ip;
+  char msg[MAX_AUXTRACE_ERROR_MSG];
 };
 
 struct aux_event {
@@ -369,6 +395,17 @@ struct context_switch_event {
   struct perf_event_header header;
   u32 next_prev_pid;
   u32 next_prev_tid;
+};
+
+struct thread_map_event_entry {
+  u64 pid;
+  char comm[16];
+};
+
+struct thread_map_event {
+  struct perf_event_header header;
+  u64 nr;
+  struct thread_map_event_entry entries[];
 };
 
 struct time_conv_event {
@@ -400,10 +437,13 @@ union perf_event {
   struct event_type_event event_type;
   struct tracing_data_event tracing_data;
   struct build_id_event build_id;
+  struct auxtrace_info_event auxtrace_info;
   struct auxtrace_event auxtrace;
+  struct auxtrace_error_event auxtrace_error;
   struct aux_event aux;
   struct itrace_start_event itrace_start;
   struct context_switch_event context_switch;
+  struct thread_map_event thread_map;
   struct time_conv_event time_conv;
   struct feature_event feat;
 };
