@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "src/compat/string_compat.h"
