@@ -132,6 +132,7 @@ bool PerfParser::ProcessUserEvents(PerfEvent& event) {
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_AUXTRACE_ERROR:
     case PERF_RECORD_THREAD_MAP:
+    case PERF_RECORD_STAT_CONFIG:
     case PERF_RECORD_TIME_CONV:
       VLOG(1) << "Parsed event type: " << event.header().type()
               << ". Doing nothing.";

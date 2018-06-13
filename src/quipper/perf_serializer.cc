@@ -266,6 +266,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_THREAD_MAP:
       return SerializeThreadMapEvent(event,
                                      event_proto->mutable_thread_map_event());
+    case PERF_RECORD_STAT_CONFIG:
+      return SerializeStatConfigEvent(event,
+                                      event_proto->mutable_stat_config_event());
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
@@ -361,6 +364,8 @@ bool PerfSerializer::DeserializeUserEvent(
                                            event);
     case PERF_RECORD_THREAD_MAP:
       return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
+    case PERF_RECORD_STAT_CONFIG:
+      return DeserializeStatConfigEvent(event_proto.stat_config_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
@@ -1089,6 +1094,37 @@ bool PerfSerializer::DeserializeThreadMapEvent(
     thread_map.entries[i].pid = sample.entries(i).pid();
     snprintf(thread_map.entries[i].comm, sizeof(thread_map.entries[i].comm),
              "%s", sample.entries(i).comm().c_str());
+  }
+  return true;
+}
+
+bool PerfSerializer::SerializeStatConfigEvent(
+    const event_t& event, PerfDataProto_StatConfigEvent* sample) const {
+  const struct stat_config_event& stat_config = event.stat_config;
+  for (u64 i = 0; i < stat_config.nr; ++i) {
+    auto data = sample->add_data();
+    if (stat_config.data[i].tag >= PERF_STAT_CONFIG_TERM__MAX) {
+      LOG(WARNING) << "Unknown stat_config_event_entry.tag, got "
+                   << stat_config.data[i].tag;
+    } else if (stat_config.data[i].tag == PERF_STAT_CONFIG_TERM__AGGR_MODE &&
+               stat_config.data[i].val >= aggr_mode::AGGR_MAX) {
+      LOG(WARNING) << "Unknown perf_stat_config.aggr_mode, got "
+                   << stat_config.data[i].val;
+    }
+
+    data->set_tag(stat_config.data[i].tag);
+    data->set_val(stat_config.data[i].val);
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeStatConfigEvent(
+    const PerfDataProto_StatConfigEvent& sample, event_t* event) const {
+  struct stat_config_event& stat_config = event->stat_config;
+  stat_config.nr = sample.data_size();
+  for (u64 i = 0; i < stat_config.nr; ++i) {
+    stat_config.data[i].tag = sample.data(i).tag();
+    stat_config.data[i].val = sample.data(i).val();
   }
   return true;
 }
