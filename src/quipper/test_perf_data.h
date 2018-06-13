@@ -651,6 +651,18 @@ class ExampleThreadMapEvent : public StreamWriteable {
   const std::vector<struct thread_map_event_entry> entries_;
 };
 
+// Produces PERF_RECORD_STAT_CONFIG event.
+class ExampleStatConfigEvent : public StreamWriteable {
+ public:
+  ExampleStatConfigEvent(std::vector<struct stat_config_event_entry> data)
+      : data_(std::move(data)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const std::vector<struct stat_config_event_entry> data_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:

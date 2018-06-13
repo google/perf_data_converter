@@ -744,24 +744,9 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
   PerfDataProto perf_data_proto_2;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
 
-  EXPECT_EQ(1, perf_data_proto_2.events().size());
-
-  {
-    const PerfDataProto::PerfEvent& event = perf_data_proto_2.events(0);
-    EXPECT_EQ(PERF_RECORD_AUXTRACE_ERROR, event.header().type());
-    EXPECT_TRUE(event.has_auxtrace_error_event());
-    const PerfDataProto::AuxtraceErrorEvent& auxtrace_error_event =
-        event.auxtrace_error_event();
-    EXPECT_EQ(1, auxtrace_error_event.type());
-    EXPECT_EQ(9876, auxtrace_error_event.code());
-    EXPECT_EQ(10, auxtrace_error_event.cpu());
-    EXPECT_EQ(4365, auxtrace_error_event.pid());
-    EXPECT_EQ(4365, auxtrace_error_event.tid());
-    EXPECT_EQ(86758, auxtrace_error_event.ip());
-    EXPECT_EQ(expected_auxtrace_error_msg, auxtrace_error_event.msg());
-    EXPECT_EQ(Md5Prefix(expected_auxtrace_error_msg),
-              auxtrace_error_event.msg_md5_prefix());
-  }
+  string difference;
+  bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
+  EXPECT_TRUE(matches) << difference;
 }
 
 TEST(PerfSerializerTest, SerializesAndDeserializesThreadMapEvents) {
@@ -818,6 +803,76 @@ TEST(PerfSerializerTest, SerializesAndDeserializesThreadMapEvents) {
     EXPECT_EQ(Md5Prefix("comm2"),
               thread_map_event.entries(1).comm_md5_prefix());
   }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesStatConfigEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  std::vector<struct stat_config_event_entry> data;
+  struct stat_config_event_entry entry1 = {
+      .tag = 0,
+      .val = 3,
+  };
+  struct stat_config_event_entry entry2 = {
+      .tag = 1,
+      .val = 20030,
+  };
+  struct stat_config_event_entry entry3 = {
+      .tag = 2,
+      .val = 1,
+  };
+
+  data.push_back(entry1);
+  data.push_back(entry2);
+  data.push_back(entry3);
+
+  // PERF_RECORD_STAT_CONFIG
+  testing::ExampleStatConfigEvent(data).WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_STAT_CONFIG, event.header().type());
+    EXPECT_TRUE(event.has_stat_config_event());
+    const PerfDataProto::StatConfigEvent& stat_config_event =
+        event.stat_config_event();
+    EXPECT_EQ(3, stat_config_event.data_size());
+    EXPECT_EQ(0, stat_config_event.data(0).tag());
+    EXPECT_EQ(3, stat_config_event.data(0).val());
+    EXPECT_EQ(1, stat_config_event.data(1).tag());
+    EXPECT_EQ(20030, stat_config_event.data(1).val());
+    EXPECT_EQ(2, stat_config_event.data(2).tag());
+    EXPECT_EQ(1, stat_config_event.data(2).val());
+  }
+
+  // Check deserialization.
+  PerfReader out_reader;
+  EXPECT_TRUE(out_reader.Deserialize(perf_data_proto));
+
+  PerfDataProto perf_data_proto_2;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
+
+  string difference;
+  bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
+  EXPECT_TRUE(matches) << difference;
 }
 
 TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {

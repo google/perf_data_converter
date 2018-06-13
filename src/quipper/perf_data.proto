@@ -630,6 +630,22 @@ message PerfDataProto {
     repeated ThreadMapEventEntry entries = 1;
   }
 
+  // Next Tag: 3
+  message StatConfigEventEntry {
+    // An enum value representing a field in the struct perf_stat_config.
+    optional uint64 tag = 1;
+
+    // Value of the field represented by the enum value in tag.
+    optional uint64 val = 2;
+  }
+
+  // Next Tag: 2
+  message StatConfigEvent {
+    // Key-value entries representing some fields of the struct
+    // perf_stat_config.
+    repeated StatConfigEventEntry data = 1;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -652,7 +668,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 21
+  // Next tag: 22
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -678,6 +694,7 @@ message PerfDataProto {
       AuxtraceErrorEvent auxtrace_error_event = 19;
       ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
+      StatConfigEvent stat_config_event = 21;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;
