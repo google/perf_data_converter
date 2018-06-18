@@ -155,8 +155,10 @@ enum perf_event_sample_format {
   PERF_SAMPLE_DATA_SRC = 1U << 15,
   PERF_SAMPLE_IDENTIFIER = 1U << 16,
   PERF_SAMPLE_TRANSACTION = 1U << 17,
+  PERF_SAMPLE_REGS_INTR = 1U << 18,
+  PERF_SAMPLE_PHYS_ADDR = 1U << 19,
 
-  PERF_SAMPLE_MAX = 1U << 18, /* non-ABI */
+  PERF_SAMPLE_MAX = 1U << 20, /* non-ABI */
 };
 
 /*

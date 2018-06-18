@@ -264,6 +264,7 @@ struct perf_sample {
   // struct regs_dump  user_regs;  // See struct regs_dump above.
   struct stack_dump user_stack;
   struct sample_read read;
+  u64 physical_addr;
 
   perf_sample() : raw_data(NULL), callchain(NULL), branch_stack(NULL) {
     read.group.values = NULL;
