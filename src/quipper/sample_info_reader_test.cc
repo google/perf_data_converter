@@ -29,7 +29,8 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
       PERF_SAMPLE_PERIOD |
       PERF_SAMPLE_WEIGHT |
       PERF_SAMPLE_DATA_SRC |
-      PERF_SAMPLE_TRANSACTION;
+      PERF_SAMPLE_TRANSACTION |
+      PERF_SAMPLE_PHYS_ADDR;
   // clang-format on
   struct perf_event_attr attr = {0};
   attr.sample_type = sample_type;
@@ -48,6 +49,7 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
       12345,                                 // WEIGHT
       0x68100142,                            // DATA_SRC
       67890,                                 // TRANSACTIONS
+      0x00003f324c43d23b,                    // PHYSICAL_ADDR
   };
   const sample_event sample_event_struct = {
       .header = {
@@ -79,6 +81,7 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
   EXPECT_EQ(12345, sample.weight);
   EXPECT_EQ(0x68100142, sample.data_src);
   EXPECT_EQ(67890, sample.transaction);
+  EXPECT_EQ(0x00003f324c43d23b, sample.physical_addr);
 }
 
 TEST(SampleInfoReaderTest, ReadSampleEventCrossEndian) {

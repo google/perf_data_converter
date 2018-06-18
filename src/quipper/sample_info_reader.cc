@@ -299,6 +299,18 @@ size_t ReadPerfSampleFromData(const event_t& event,
     reader.ReadUint64(&sample->transaction);
   }
 
+  // { u64                   abi; # enum perf_sample_regs_abi
+  //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_INTR
+  if (sample_fields & PERF_SAMPLE_REGS_INTR) {
+    LOG(ERROR) << "PERF_SAMPLE_REGS_INTR is not yet supported.";
+    return reader.Tell();
+  }
+
+  // { u64                   phys_addr; } && PERF_SAMPLE_PHYS_ADDR
+  if (sample_fields & PERF_SAMPLE_PHYS_ADDR) {
+    reader.ReadUint64(&sample->physical_addr);
+  }
+
   if (sample_fields & ~(PERF_SAMPLE_MAX - 1)) {
     LOG(WARNING) << "Unrecognized sample fields 0x" << std::hex
                  << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
@@ -493,6 +505,18 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
   // { u64                   transaction; } && PERF_SAMPLE_TRANSACTION
   if (sample_fields & PERF_SAMPLE_TRANSACTION) {
     *array++ = sample.transaction;
+  }
+
+  // { u64                   abi; # enum perf_sample_regs_abi
+  //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_INTR
+  if (sample_fields & PERF_SAMPLE_REGS_INTR) {
+    LOG(ERROR) << "PERF_SAMPLE_REGS_INTR is not yet supported.";
+    return (array - initial_array_ptr) * sizeof(uint64_t);
+  }
+
+  // { u64                   phys_addr; } && PERF_SAMPLE_PHYS_ADDR
+  if (sample_fields & PERF_SAMPLE_PHYS_ADDR) {
+    *array++ = sample.physical_addr;
   }
 
   return (array - initial_array_ptr) * sizeof(uint64_t);

@@ -319,7 +319,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 19
+  // Next tag: 20
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -373,6 +373,9 @@ message PerfDataProto {
 
     // Sample transaction flags for special events.
     optional uint64 transaction = 17;
+
+    // Physical address of the sample.
+    optional uint64 physical_addr = 19;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data
