@@ -470,6 +470,8 @@ bool PerfSerializer::SerializeSampleEvent(
     sample->set_data_src(sample_info.data_src);
   if (sample_type & PERF_SAMPLE_TRANSACTION)
     sample->set_transaction(sample_info.transaction);
+  if (sample_type & PERF_SAMPLE_PHYS_ADDR)
+    sample->set_physical_addr(sample_info.physical_addr);
 
   return true;
 }
@@ -550,6 +552,8 @@ bool PerfSerializer::DeserializeSampleEvent(
   if (sample.has_weight()) sample_info.weight = sample.weight();
   if (sample.has_data_src()) sample_info.data_src = sample.data_src();
   if (sample.has_transaction()) sample_info.transaction = sample.transaction();
+  if (sample.has_physical_addr())
+    sample_info.physical_addr = sample.physical_addr();
 
   const SampleInfoReader* writer = GetSampleInfoReaderForId(sample.id());
   CHECK(writer);
