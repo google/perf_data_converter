@@ -269,6 +269,8 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_STAT_CONFIG:
       return SerializeStatConfigEvent(event,
                                       event_proto->mutable_stat_config_event());
+    case PERF_RECORD_STAT:
+      return SerializeStatEvent(event, event_proto->mutable_stat_event());
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
@@ -366,6 +368,8 @@ bool PerfSerializer::DeserializeUserEvent(
       return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
     case PERF_RECORD_STAT_CONFIG:
       return DeserializeStatConfigEvent(event_proto.stat_config_event(), event);
+    case PERF_RECORD_STAT:
+      return DeserializeStatEvent(event_proto.stat_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
@@ -1130,6 +1134,30 @@ bool PerfSerializer::DeserializeStatConfigEvent(
     stat_config.data[i].tag = sample.data(i).tag();
     stat_config.data[i].val = sample.data(i).val();
   }
+  return true;
+}
+
+bool PerfSerializer::SerializeStatEvent(const event_t& event,
+                                        PerfDataProto_StatEvent* sample) const {
+  const struct stat_event& stat = event.stat;
+  sample->set_id(stat.id);
+  sample->set_cpu(stat.cpu);
+  sample->set_thread(stat.thread);
+  sample->set_value(stat.val);
+  sample->set_enabled(stat.ena);
+  sample->set_running(stat.run);
+  return true;
+}
+
+bool PerfSerializer::DeserializeStatEvent(const PerfDataProto_StatEvent& sample,
+                                          event_t* event) const {
+  struct stat_event& stat = event->stat;
+  stat.id = sample.id();
+  stat.cpu = sample.cpu();
+  stat.thread = sample.thread();
+  stat.val = sample.value();
+  stat.ena = sample.enabled();
+  stat.run = sample.running();
   return true;
 }
 

@@ -649,6 +649,27 @@ message PerfDataProto {
     repeated StatConfigEventEntry data = 1;
   }
 
+  // Next Tag: 7
+  message StatEvent {
+    // Perf sample identifier.
+    optional uint64 id = 1;
+
+    // CPU for which the performance statistics was collected.
+    optional uint32 cpu = 2;
+
+    // Thread for which the performance statistics was collected.
+    optional uint32 thread = 3;
+
+    // Counter value.
+    optional uint64 value = 4;
+
+    // Number of times the counter was enabled.
+    optional uint64 enabled = 5;
+
+    // Number of times the counter was running.
+    optional uint64 running = 6;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -671,7 +692,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 22
+  // Next tag: 23
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -698,6 +719,7 @@ message PerfDataProto {
       ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
       StatConfigEvent stat_config_event = 21;
+      StatEvent stat_event = 22;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;
