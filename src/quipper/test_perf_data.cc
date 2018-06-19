@@ -657,6 +657,32 @@ void ExampleStatConfigEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleStatEvent::GetSize() const { return sizeof(struct stat_event); }
+
+void ExampleStatEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct stat_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_STAT),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .id = MaybeSwap64(id_),
+      .cpu = MaybeSwap32(cpu_),
+      .thread = MaybeSwap32(thread_),
+  };
+  event.val = MaybeSwap64(value_);
+  event.ena = MaybeSwap64(enabled_);
+  event.run = MaybeSwap64(running_);
+
+  const size_t pre_stat_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_stat_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }
