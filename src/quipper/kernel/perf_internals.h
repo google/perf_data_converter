@@ -438,6 +438,23 @@ struct stat_config_event {
   struct stat_config_event_entry data[];
 };
 
+struct stat_event {
+  struct perf_event_header header;
+
+  u64 id;
+  u32 cpu;
+  u32 thread;
+
+  union {
+    struct {
+      u64 val;
+      u64 ena;
+      u64 run;
+    };
+    u64 values[3];
+  };
+};
+
 struct time_conv_event {
   struct perf_event_header header;
   u64 time_shift;
@@ -475,6 +492,7 @@ union perf_event {
   struct context_switch_event context_switch;
   struct thread_map_event thread_map;
   struct stat_config_event stat_config;
+  struct stat_event stat;
   struct time_conv_event time_conv;
   struct feature_event feat;
 };

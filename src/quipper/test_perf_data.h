@@ -663,6 +663,29 @@ class ExampleStatConfigEvent : public StreamWriteable {
   const std::vector<struct stat_config_event_entry> data_;
 };
 
+// Produces PERF_RECORD_STAT event.
+class ExampleStatEvent : public StreamWriteable {
+ public:
+  ExampleStatEvent(u64 id, u32 cpu, u32 thread, u64 value, u64 enabled,
+                   u64 running)
+      : id_(id),
+        cpu_(cpu),
+        thread_(thread),
+        value_(value),
+        enabled_(enabled),
+        running_(running) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 id_;
+  const u32 cpu_;
+  const u32 thread_;
+  const u64 value_;
+  const u64 enabled_;
+  const u64 running_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:

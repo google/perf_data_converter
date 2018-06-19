@@ -1979,6 +1979,14 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
         ByteSwap(&event->stat_config.data[i].val);
       }
       break;
+    case PERF_RECORD_STAT:
+      ByteSwap(&event->stat.id);
+      ByteSwap(&event->stat.cpu);
+      ByteSwap(&event->stat.thread);
+      ByteSwap(&event->stat.val);
+      ByteSwap(&event->stat.ena);
+      ByteSwap(&event->stat.run);
+      break;
     case PERF_RECORD_AUXTRACE_ERROR:
       ByteSwap(&event->auxtrace_error.type);
       ByteSwap(&event->auxtrace_error.code);

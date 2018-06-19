@@ -175,6 +175,10 @@ class PerfSerializer {
                                 PerfDataProto_StatConfigEvent* sample) const;
   bool DeserializeStatConfigEvent(const PerfDataProto_StatConfigEvent& sample,
                                   event_t* event) const;
+  bool SerializeStatEvent(const event_t& event,
+                          PerfDataProto_StatEvent* sample) const;
+  bool DeserializeStatEvent(const PerfDataProto_StatEvent& sample,
+                            event_t* event) const;
   bool SerializeTimeConvEvent(const event_t& event,
                               PerfDataProto_TimeConvEvent* sample) const;
   bool DeserializeTimeConvEvent(const PerfDataProto_TimeConvEvent& sample,

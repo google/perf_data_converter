@@ -875,6 +875,57 @@ TEST(PerfSerializerTest, SerializesAndDeserializesStatConfigEvents) {
   EXPECT_TRUE(matches) << difference;
 }
 
+TEST(PerfSerializerTest, SerializesAndDeserializesStatEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // PERF_RECORD_STAT
+  testing::ExampleStatEvent(10, 2, 3454, 8967584, 123423, 123056)
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_STAT, event.header().type());
+    EXPECT_TRUE(event.has_stat_event());
+    const PerfDataProto::StatEvent& stat_event = event.stat_event();
+    EXPECT_EQ(10, stat_event.id());
+    EXPECT_EQ(2, stat_event.cpu());
+    EXPECT_EQ(3454, stat_event.thread());
+    EXPECT_EQ(8967584, stat_event.value());
+    EXPECT_EQ(123423, stat_event.enabled());
+    EXPECT_EQ(123056, stat_event.running());
+  }
+
+  // Check deserialization.
+  PerfReader out_reader;
+  EXPECT_TRUE(out_reader.Deserialize(perf_data_proto));
+
+  PerfDataProto perf_data_proto_2;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
+
+  string difference;
+  bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
+  EXPECT_TRUE(matches) << difference;
+}
+
 TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
   std::stringstream input;
 
