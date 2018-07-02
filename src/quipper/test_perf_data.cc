@@ -683,6 +683,30 @@ void ExampleStatEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleStatRoundEvent::GetSize() const {
+  return sizeof(struct stat_round_event);
+}
+
+void ExampleStatRoundEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct stat_round_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_STAT_ROUND),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .type = MaybeSwap64(type_),
+      .time = MaybeSwap64(time_),
+  };
+
+  const size_t pre_stat_round_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_stat_round_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }
