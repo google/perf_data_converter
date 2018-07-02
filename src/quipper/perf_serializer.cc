@@ -271,6 +271,9 @@ bool PerfSerializer::SerializeUserEvent(
                                       event_proto->mutable_stat_config_event());
     case PERF_RECORD_STAT:
       return SerializeStatEvent(event, event_proto->mutable_stat_event());
+    case PERF_RECORD_STAT_ROUND:
+      return SerializeStatRoundEvent(event,
+                                     event_proto->mutable_stat_round_event());
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
@@ -370,6 +373,8 @@ bool PerfSerializer::DeserializeUserEvent(
       return DeserializeStatConfigEvent(event_proto.stat_config_event(), event);
     case PERF_RECORD_STAT:
       return DeserializeStatEvent(event_proto.stat_event(), event);
+    case PERF_RECORD_STAT_ROUND:
+      return DeserializeStatRoundEvent(event_proto.stat_round_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
     default:
@@ -1158,6 +1163,22 @@ bool PerfSerializer::DeserializeStatEvent(const PerfDataProto_StatEvent& sample,
   stat.val = sample.value();
   stat.ena = sample.enabled();
   stat.run = sample.running();
+  return true;
+}
+
+bool PerfSerializer::SerializeStatRoundEvent(
+    const event_t& event, PerfDataProto_StatRoundEvent* sample) const {
+  const struct stat_round_event& stat_round = event.stat_round;
+  sample->set_type(stat_round.type);
+  sample->set_time(stat_round.time);
+  return true;
+}
+
+bool PerfSerializer::DeserializeStatRoundEvent(
+    const PerfDataProto_StatRoundEvent& sample, event_t* event) const {
+  struct stat_round_event& stat_round = event->stat_round;
+  stat_round.type = sample.type();
+  stat_round.time = sample.time();
   return true;
 }
 

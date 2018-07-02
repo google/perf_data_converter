@@ -1345,6 +1345,87 @@ TEST(PerfSerializerTest, PipedStatEvents) {
   EXPECT_EQ(123056, events[0].event_ptr->stat_event().running());
 }
 
+TEST(PerfSerializerTest, StatRoundEvents) {
+  std::stringstream input;
+
+  // PERF_RECORD_STAT_ROUND
+  testing::ExampleStatRoundEvent stat_round_event(PERF_STAT_ROUND_TYPE__FINAL,
+                                                  134256);
+  size_t data_size = stat_round_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  stat_round_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_STAT_ROUND, events[0].event_ptr->header().type());
+  EXPECT_EQ(PERF_STAT_ROUND_TYPE__FINAL,
+            events[0].event_ptr->stat_round_event().type());
+  EXPECT_EQ(134256, events[0].event_ptr->stat_round_event().time());
+}
+
+TEST(PerfSerializerTest, PipedStatRoundEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // PERF_RECORD_STAT_ROUND
+  testing::ExampleStatRoundEvent(PERF_STAT_ROUND_TYPE__FINAL, 134256)
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_STAT_ROUND, events[0].event_ptr->header().type());
+  EXPECT_EQ(PERF_STAT_ROUND_TYPE__FINAL,
+            events[0].event_ptr->stat_round_event().type());
+  EXPECT_EQ(134256, events[0].event_ptr->stat_round_event().time());
+}
+
 TEST(PerfParserTest, TimeConvEvents) {
   std::stringstream input;
 

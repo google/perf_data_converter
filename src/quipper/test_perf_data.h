@@ -686,6 +686,19 @@ class ExampleStatEvent : public StreamWriteable {
   const u64 running_;
 };
 
+// Produces PERF_RECORD_STAT_ROUND event.
+class ExampleStatRoundEvent : public StreamWriteable {
+ public:
+  ExampleStatRoundEvent(u64 type, u64 time) : type_(type), time_(time) {}
+
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 type_;
+  const u64 time_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:
