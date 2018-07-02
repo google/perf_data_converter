@@ -1987,6 +1987,10 @@ void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
       ByteSwap(&event->stat.ena);
       ByteSwap(&event->stat.run);
       break;
+    case PERF_RECORD_STAT_ROUND:
+      ByteSwap(&event->stat_round.type);
+      ByteSwap(&event->stat_round.time);
+      break;
     case PERF_RECORD_AUXTRACE_ERROR:
       ByteSwap(&event->auxtrace_error.type);
       ByteSwap(&event->auxtrace_error.code);

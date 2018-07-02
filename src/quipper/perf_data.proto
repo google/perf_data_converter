@@ -670,6 +670,19 @@ message PerfDataProto {
     optional uint64 running = 6;
   }
 
+  // Next Tag: 3
+  message StatRoundEvent {
+    // Type is an enumeration defining the type of stat round described at:
+    // $kernel/tools/perf/util/event.h.
+    // Example types are:
+    // PERF_STAT_ROUND_TYPE__INTERVAL
+    // PERF_STAT_ROUND_TYPE__FINAL
+    optional uint64 type = 1;
+
+    // Time taken in nanoseconds by the type of stat round.
+    optional uint64 time = 2;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -692,7 +705,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 23
+  // Next tag: 24
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -720,6 +733,7 @@ message PerfDataProto {
       TimeConvEvent time_conv_event = 17;
       StatConfigEvent stat_config_event = 21;
       StatEvent stat_event = 22;
+      StatRoundEvent stat_round_event = 23;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;
