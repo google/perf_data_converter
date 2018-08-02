@@ -15,13 +15,48 @@ namespace {
 const char kAnonFilename[] = "//anon";
 
 bool IsAnon(const MMapEvent& event) {
-  return event.filename() == kAnonFilename;
+  bool is_anon = event.filename() == kAnonFilename;
+  if (is_anon && event.pgoff() != 0) {
+    LOG(WARNING) << "//anon should have offset=0 for mmap"
+                 << event.ShortDebugString();
+  }
+  return is_anon;
 }
 
-// IsContiguous returns true if mmap |a| is immediately followed by |b|
+// IsVmaContiguous returns true if mmap |a| is immediately followed by |b|
 // within a process' address space.
-bool IsContiguous(const MMapEvent& a, const MMapEvent& b) {
+bool IsVmaContiguous(const MMapEvent& a, const MMapEvent& b) {
   return a.pid() == b.pid() && (a.start() + a.len()) == b.start();
+}
+
+// IsFileContiguous returns true if mmap offset of |a| is immediately followed
+// by |b|.
+bool IsFileContiguous(const MMapEvent& a, const MMapEvent& b) {
+  return (a.pgoff() + a.len()) == b.pgoff();
+}
+
+// Does mmap look like it comes from a huge page source?  Note: this will return
+// true for sufficiently large anonymous JIT caches. It does not return true if
+// the huge page has already been deduced by perf.
+// TODO(b/73721724): unify approaches to huge pages in Google 3.
+bool IsHugePage(const MMapEvent& mmap) {
+  if (IsAnon(mmap)) {
+    // A transparent huge page.
+    return true;
+  }
+  // TODO(irogers): filter pages that can't be huge because of size?
+  // Filesystem backed huge pages encode the build id in the form:
+  // <filesystem path>/<prefix>.buildid_<hash>
+  const char kBuildIdStr[] = ".buildid_";
+  size_t file_start = mmap.filename().rfind('/');
+  if (file_start == string::npos) {
+    return false;
+  }
+  size_t buildid_start = mmap.filename().find(kBuildIdStr, file_start);
+  if (buildid_start == string::npos) {
+    return false;
+  }
+  return mmap.filename().length() > buildid_start + strlen(kBuildIdStr);
 }
 
 // IsEquivalentFile returns true iff |a| and |b| have the same name, or if
@@ -31,7 +66,7 @@ bool IsEquivalentFile(const MMapEvent& a, const MMapEvent& b) {
   // perf attributes neighboring anonymous mappings under the argv[0]
   // filename rather than "//anon", so check filename equality, as well as
   // anonymous.
-  return a.filename() == b.filename() || IsAnon(a) || IsAnon(b);
+  return a.filename() == b.filename() || IsHugePage(a) || IsHugePage(b);
 }
 
 // Helper to correctly update a filename on a PerfEvent that contains an
@@ -86,10 +121,10 @@ class MMapRange {
   int last_;
 };
 
-// MMapRange version of IsContiguous(MMapEvent, MMapEvent).
-bool IsContiguous(const RepeatedPtrField<PerfEvent>& events, const MMapRange& a,
-                  const MMapRange& b) {
-  return IsContiguous(a.LastMmap(events), b.FirstMmap(events));
+// MMapRange version of IsVmaContiguous(MMapEvent, MMapEvent).
+bool IsVmaContiguous(const RepeatedPtrField<PerfEvent>& events,
+                     const MMapRange& a, const MMapRange& b) {
+  return IsVmaContiguous(a.LastMmap(events), b.FirstMmap(events));
 }
 
 // MMapRange version of IsIsEquivalent(MMapEvent, MMapEvent).
@@ -100,16 +135,18 @@ bool IsEquivalentFile(const RepeatedPtrField<PerfEvent>& events,
   return IsEquivalentFile(a.LastMmap(events), b.FirstMmap(events));
 }
 
-// FindRange returns a MMapRange of contiguous MmapEvents that:
-// - either:
-//   - contains 1 or more MmapEvents with pgoff == 0
-//   - is a single MmapEvent with pgoff != 0
-// - and:
-//   - has the same filename for all entries
-// Otherwise, if none can be found, an invalid range will be returned.
+// FindRange returns a maximal MMapRange such that:
+//  - all mmap events are from the same PID and filename,
+//  - all mmap events are VMA contiguous,
+//  - either:
+//     - all file offsets are contiguous,
+//     - all file offsets are 0. Note, this allows for anonymous pages to be in
+//     a maximal range but allows the filename to not be anonymous to work
+//     around an issue with perf.
 MMapRange FindRange(const RepeatedPtrField<PerfEvent>& events, int start) {
   const MMapEvent* prev_mmap = nullptr;
   MMapRange range;
+  bool range_pgoffs_are_all_zero = true;
   for (int i = start; i < events.size(); i++) {
     const PerfEvent& event = events.Get(i);
     // Skip irrelevant events
@@ -124,33 +161,37 @@ MMapRange FindRange(const RepeatedPtrField<PerfEvent>& events, int start) {
       continue;
     }
     const MMapEvent& mmap = events.Get(i).mmap_event();
+    range_pgoffs_are_all_zero =
+        range_pgoffs_are_all_zero && (mmap.pgoff() == 0);
     if (prev_mmap == nullptr) {
-      range = MMapRange(i, i);
+      // First entry of the range.
       prev_mmap = &mmap;
+      range = MMapRange(i, i);
+      continue;
     }
     // Ranges match exactly: //anon,//anon, or file,file; If they use different
     // names, then deduction needs to consider them independently.
     if (prev_mmap->filename() != mmap.filename()) {
       break;
     }
-    // If they're not virtually contiguous, they're not a single range.
-    if (start != i && !IsContiguous(*prev_mmap, mmap)) {
+    // If they're not virtually contiguous they're not a single range.
+    if (!IsVmaContiguous(*prev_mmap, mmap)) {
       break;
     }
-    // If this segment has a page offset, assume that it is *not* hugepage
-    // backed, and thus does not need separate deduction.
-    if (mmap.pgoff() != 0) {
+    // If the file offsets aren't contiguous they're not a single range unless
+    // the pages are all possibly anonymous. Note, pgoff is 0 is tested rather
+    // than IsAnon as some versions of Google's perf will rename //anon to
+    // argv[0].
+    if (!range_pgoffs_are_all_zero && !IsFileContiguous(*prev_mmap, mmap)) {
       break;
     }
-    CHECK(mmap.pgoff() == 0 || !IsAnon(mmap))
-        << "Anonymous pages can't have pgoff set";
     prev_mmap = &mmap;
     range = MMapRange(range.FirstIndex(), i);
   }
   // Range has:
   // - single file
   // - virtually contiguous
-  // - either: is multiple mappings *or* has pgoff=0
+  // - either: all entries are either pgoff=0 or file contiguous
   return range;
 }
 
@@ -180,16 +221,19 @@ void UpdateRangeFromNext(const MMapRange& range, const MMapRange& next_range,
     }
     PerfEvent* event = events->Mutable(i);
     MMapEvent* mmap = event->mutable_mmap_event();
-
-    // Replace "//anon" with a regular name if possible.
-    if (IsAnon(*mmap)) {
-      CHECK_EQ(mmap->pgoff(), 0) << "//anon should have offset=0 for mmap"
-                                 << event->ShortDebugString();
+    // As perf will rename huge pages to the executable name but not update the
+    // pgoff, treat any offset of 0 as a huge page.
+    const bool is_hugepage = IsHugePage(*mmap) || mmap->pgoff() == 0;
+    // Replace pages mapped from a huge page source with a regular name if
+    // possible.
+    if (is_hugepage) {
       SetMmapFilename(event, src.filename(), src.filename_md5_prefix());
-    }
-
-    if (mmap->pgoff() == 0) {
-      mmap->set_pgoff(pgoff);
+      if (mmap->pgoff() == 0) {
+        // Correct anonymous page file offsets.
+        mmap->set_pgoff(pgoff);
+      }
+      // Correct other fields where mmap is associated with a huge page text
+      // source.
       if (src.has_maj()) {
         mmap->set_maj(src.maj());
       }
@@ -217,14 +261,13 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
   // its hugepages ranges deduced.
   MMapRange range = FindRange(*events, 0);
   // |next_range| contains the next range to process, possibily containing
-  // pgoff != 0 or !IsAnon(filename) from which the current range can be
-  // updated.
+  // a huge page from which the current range can be updated.
   MMapRange next_range = FindNextRange(*events, range);
 
   for (; range.IsValid(); prev_range = range, range = next_range,
                           next_range = FindNextRange(*events, range)) {
     const bool have_next =
-        (next_range.IsValid() && IsContiguous(*events, range, next_range) &&
+        (next_range.IsValid() && IsVmaContiguous(*events, range, next_range) &&
          IsEquivalentFile(*events, range, next_range));
 
     // If there's no mmap after this, then we assume that this is *not* viable
@@ -237,7 +280,7 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
     }
 
     const bool have_prev =
-        (prev_range.IsValid() && IsContiguous(*events, prev_range, range) &&
+        (prev_range.IsValid() && IsVmaContiguous(*events, prev_range, range) &&
          IsEquivalentFile(*events, prev_range, range) &&
          IsEquivalentFile(*events, prev_range, next_range));
 
@@ -250,7 +293,7 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
     // prev.pgoff should be valid now, so let's double-check that
     // if next has a non-zero pgoff, that {prev,curr,next} will have
     // contiguous pgoff once updated.
-    if (next.pgoff() >= range.Len(*events) &&
+    if (!IsHugePage(next) && next.pgoff() >= range.Len(*events) &&
         (next.pgoff() - range.Len(*events)) == start_pgoff) {
       UpdateRangeFromNext(range, next_range, events);
     }
@@ -289,10 +332,10 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
     // files if DeduceHugepages didn't already fix up the mappings.
     const bool file_match = prev_mmap->filename() == mmap.filename();
     const bool pgoff_contiguous =
-        file_match && (prev_mmap->pgoff() + prev_mmap->len() == mmap.pgoff());
+        file_match && IsFileContiguous(*prev_mmap, mmap);
 
     const bool combine_mappings =
-        IsContiguous(*prev_mmap, mmap) && pgoff_contiguous;
+        IsVmaContiguous(*prev_mmap, mmap) && pgoff_contiguous;
     if (!combine_mappings) {
       new_events.Add()->Swap(event);
       prev++;
