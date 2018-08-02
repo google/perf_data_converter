@@ -618,7 +618,7 @@ void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
   event->header.size = MaybeSwap16(static_cast<u16>(event_size));
   event->nr = MaybeSwap64(entries_.size());
 
-  for (int i = 0; i < entries_.size(); ++i) {
+  for (u64 i = 0; i < entries_.size(); ++i) {
     event->entries[i].pid = MaybeSwap64(entries_[i].pid);
     snprintf(event->entries[i].comm, sizeof(entries_[i].comm), "%s",
              entries_[i].comm);
@@ -628,6 +628,82 @@ void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
   out->write(reinterpret_cast<const char*>(event.get()), event_size);
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_thread_map_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleStatConfigEvent::GetSize() const {
+  return offsetof(struct stat_config_event, data) +
+         data_.size() * sizeof(struct stat_config_event_entry);
+}
+
+void ExampleStatConfigEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<stat_config_event> event(
+      reinterpret_cast<struct stat_config_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_STAT_CONFIG);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+  event->nr = MaybeSwap64(data_.size());
+
+  for (u64 i = 0; i < data_.size(); ++i) {
+    event->data[i].tag = MaybeSwap64(data_[i].tag);
+    event->data[i].val = MaybeSwap64(data_[i].val);
+  }
+
+  const size_t pre_stat_config_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_stat_config_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleStatEvent::GetSize() const { return sizeof(struct stat_event); }
+
+void ExampleStatEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct stat_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_STAT),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .id = MaybeSwap64(id_),
+      .cpu = MaybeSwap32(cpu_),
+      .thread = MaybeSwap32(thread_),
+  };
+  event.val = MaybeSwap64(value_);
+  event.ena = MaybeSwap64(enabled_);
+  event.run = MaybeSwap64(running_);
+
+  const size_t pre_stat_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_stat_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleStatRoundEvent::GetSize() const {
+  return sizeof(struct stat_round_event);
+}
+
+void ExampleStatRoundEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct stat_round_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_STAT_ROUND),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .type = MaybeSwap64(type_),
+      .time = MaybeSwap64(time_),
+  };
+
+  const size_t pre_stat_round_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_stat_round_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 

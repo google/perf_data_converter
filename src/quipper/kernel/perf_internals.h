@@ -264,6 +264,7 @@ struct perf_sample {
   // struct regs_dump  user_regs;  // See struct regs_dump above.
   struct stack_dump user_stack;
   struct sample_read read;
+  u64 physical_addr;
 
   perf_sample() : raw_data(NULL), callchain(NULL), branch_stack(NULL) {
     read.group.values = NULL;
@@ -408,6 +409,63 @@ struct thread_map_event {
   struct thread_map_event_entry entries[];
 };
 
+enum aggr_mode {
+  AGGR_NONE,
+  AGGR_GLOBAL,
+  AGGR_SOCKET,
+  AGGR_CORE,
+  AGGR_THREAD,
+  AGGR_UNSET,
+  AGGR_MAX,
+};
+
+// Enum values correspond to fields in perf's perf_stat_config struct.
+enum {
+  PERF_STAT_CONFIG_TERM__AGGR_MODE = 0,
+  PERF_STAT_CONFIG_TERM__INTERVAL = 1,
+  PERF_STAT_CONFIG_TERM__SCALE = 2,
+  PERF_STAT_CONFIG_TERM__MAX = 3,
+};
+
+struct stat_config_event_entry {
+  u64 tag;
+  u64 val;
+};
+
+struct stat_config_event {
+  struct perf_event_header header;
+  u64 nr;
+  struct stat_config_event_entry data[];
+};
+
+struct stat_event {
+  struct perf_event_header header;
+
+  u64 id;
+  u32 cpu;
+  u32 thread;
+
+  union {
+    struct {
+      u64 val;
+      u64 ena;
+      u64 run;
+    };
+    u64 values[3];
+  };
+};
+
+enum {
+  PERF_STAT_ROUND_TYPE__INTERVAL = 0,
+  PERF_STAT_ROUND_TYPE__FINAL = 1,
+};
+
+struct stat_round_event {
+  struct perf_event_header header;
+  u64 type;
+  u64 time;
+};
+
 struct time_conv_event {
   struct perf_event_header header;
   u64 time_shift;
@@ -444,6 +502,9 @@ union perf_event {
   struct itrace_start_event itrace_start;
   struct context_switch_event context_switch;
   struct thread_map_event thread_map;
+  struct stat_config_event stat_config;
+  struct stat_event stat;
+  struct stat_round_event stat_round;
   struct time_conv_event time_conv;
   struct feature_event feat;
 };

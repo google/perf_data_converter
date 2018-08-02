@@ -319,7 +319,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 19
+  // Next tag: 20
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -373,6 +373,9 @@ message PerfDataProto {
 
     // Sample transaction flags for special events.
     optional uint64 transaction = 17;
+
+    // Physical address of the sample.
+    optional uint64 physical_addr = 19;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data
@@ -630,6 +633,56 @@ message PerfDataProto {
     repeated ThreadMapEventEntry entries = 1;
   }
 
+  // Next Tag: 3
+  message StatConfigEventEntry {
+    // An enum value representing a field in the struct perf_stat_config.
+    optional uint64 tag = 1;
+
+    // Value of the field represented by the enum value in tag.
+    optional uint64 val = 2;
+  }
+
+  // Next Tag: 2
+  message StatConfigEvent {
+    // Key-value entries representing some fields of the struct
+    // perf_stat_config.
+    repeated StatConfigEventEntry data = 1;
+  }
+
+  // Next Tag: 7
+  message StatEvent {
+    // Perf sample identifier.
+    optional uint64 id = 1;
+
+    // CPU for which the performance statistics was collected.
+    optional uint32 cpu = 2;
+
+    // Thread for which the performance statistics was collected.
+    optional uint32 thread = 3;
+
+    // Counter value.
+    optional uint64 value = 4;
+
+    // Number of times the counter was enabled.
+    optional uint64 enabled = 5;
+
+    // Number of times the counter was running.
+    optional uint64 running = 6;
+  }
+
+  // Next Tag: 3
+  message StatRoundEvent {
+    // Type is an enumeration defining the type of stat round described at:
+    // $kernel/tools/perf/util/event.h.
+    // Example types are:
+    // PERF_STAT_ROUND_TYPE__INTERVAL
+    // PERF_STAT_ROUND_TYPE__FINAL
+    optional uint64 type = 1;
+
+    // Time taken in nanoseconds by the type of stat round.
+    optional uint64 time = 2;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -652,7 +705,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 21
+  // Next tag: 24
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -678,6 +731,9 @@ message PerfDataProto {
       AuxtraceErrorEvent auxtrace_error_event = 19;
       ThreadMapEvent thread_map_event = 20;
       TimeConvEvent time_conv_event = 17;
+      StatConfigEvent stat_config_event = 21;
+      StatEvent stat_event = 22;
+      StatRoundEvent stat_round_event = 23;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

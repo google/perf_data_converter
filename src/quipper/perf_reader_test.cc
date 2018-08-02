@@ -643,13 +643,13 @@ TEST(PerfReaderTest, ReadsAndWritesSampleEvent) {
   // data
 
   // PERF_RECORD_HEADER_ATTR
-  const u64 sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
-                          PERF_SAMPLE_ADDR | PERF_SAMPLE_READ |
-                          PERF_SAMPLE_CALLCHAIN | PERF_SAMPLE_CPU |
-                          PERF_SAMPLE_ID | PERF_SAMPLE_PERIOD |
-                          PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_BRANCH_STACK;
+  const u64 sample_type =
+      PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_ADDR |
+      PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN | PERF_SAMPLE_CPU |
+      PERF_SAMPLE_ID | PERF_SAMPLE_PERIOD | PERF_SAMPLE_STREAM_ID |
+      PERF_SAMPLE_BRANCH_STACK | PERF_SAMPLE_PHYS_ADDR;
 
-  const size_t num_sample_event_bits = 10;
+  const size_t num_sample_event_bits = 11;
   // not tested:
   // PERF_SAMPLE_RAW |
   testing::ExamplePerfEventAttrEvent_Hardware(sample_type,
@@ -708,6 +708,8 @@ TEST(PerfReaderTest, ReadsAndWritesSampleEvent) {
       0x00007f4a313bb8b0, 0x00007f4a30ce4de0, 0x01,  // mispredict = 0x1
       0x00007f4a30ff45c1, 0x00007f4a313bb8a0, 0x02,
       0x00007f4a30ff49f2, 0x00007f4a30ff45bb, 0x02,
+
+      0x00003f324c43d23b,  // PHYSICAL ADDRESS
       // clang-format on
   };
   ASSERT_EQ(written_sample_event.header.size,
@@ -747,6 +749,7 @@ TEST(PerfReaderTest, ReadsAndWritesSampleEvent) {
     EXPECT_EQ(1, sample.stream_id());
     EXPECT_EQ(8, sample.cpu());
     EXPECT_EQ(10001, sample.period());
+    EXPECT_EQ(0x00003f324c43d23b, sample.physical_addr());
 
     // Read info
     EXPECT_TRUE(sample.has_read_info());

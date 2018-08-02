@@ -114,6 +114,7 @@ TEST(HugePageDeducer, HugePagesMappings) {
 enum HugepageTextStyle {
   kAnonHugepageText,
   kNoHugepageText,
+  kMemFdHugePageText,
 };
 
 class HugepageTextStyleDependent
@@ -134,6 +135,13 @@ class HugepageTextStyleDependent
         // '//anon'. Anonymous sections have no pgoff.
         file = "//anon";
         pgoff = 0;
+        break;
+      case kMemFdHugePageText:
+        // exec is remapped onto hugepages obtained from tmpfs/tlbfs using
+        // memfd_create that doesn't create (even momentarily) a backing file.
+        file =
+            "/memfd:hugepage_text.buildid_aabbccddeeff00112233445566778899 "
+            "(deleted)";
         break;
       default:
         CHECK(false) << "Unimplemented";
@@ -396,6 +404,8 @@ INSTANTIATE_TEST_CASE_P(NoHugepageText, HugepageTextStyleDependent,
                         ::testing::Values(kNoHugepageText));
 INSTANTIATE_TEST_CASE_P(AnonHugepageText, HugepageTextStyleDependent,
                         ::testing::Values(kAnonHugepageText));
+INSTANTIATE_TEST_CASE_P(MemFdHugepageText, HugepageTextStyleDependent,
+                        ::testing::Values(kMemFdHugePageText));
 
 TEST(HugePageDeducer, DoesNotChangeVirtuallyContiguousPgoffNonContiguous) {
   // We've seen programs with strange memory layouts having virtually contiguous

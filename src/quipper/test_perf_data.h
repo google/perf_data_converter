@@ -651,6 +651,54 @@ class ExampleThreadMapEvent : public StreamWriteable {
   const std::vector<struct thread_map_event_entry> entries_;
 };
 
+// Produces PERF_RECORD_STAT_CONFIG event.
+class ExampleStatConfigEvent : public StreamWriteable {
+ public:
+  ExampleStatConfigEvent(std::vector<struct stat_config_event_entry> data)
+      : data_(std::move(data)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const std::vector<struct stat_config_event_entry> data_;
+};
+
+// Produces PERF_RECORD_STAT event.
+class ExampleStatEvent : public StreamWriteable {
+ public:
+  ExampleStatEvent(u64 id, u32 cpu, u32 thread, u64 value, u64 enabled,
+                   u64 running)
+      : id_(id),
+        cpu_(cpu),
+        thread_(thread),
+        value_(value),
+        enabled_(enabled),
+        running_(running) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 id_;
+  const u32 cpu_;
+  const u32 thread_;
+  const u64 value_;
+  const u64 enabled_;
+  const u64 running_;
+};
+
+// Produces PERF_RECORD_STAT_ROUND event.
+class ExampleStatRoundEvent : public StreamWriteable {
+ public:
+  ExampleStatRoundEvent(u64 type, u64 time) : type_(type), time_(time) {}
+
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 type_;
+  const u64 time_;
+};
+
 // Produces PERF_RECORD_TIME_CONV event.
 class ExampleTimeConvEvent : public StreamWriteable {
  public:
