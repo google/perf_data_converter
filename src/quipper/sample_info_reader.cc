@@ -465,6 +465,8 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
   //   { u64 from, to, flags } lbr[nr];} && PERF_SAMPLE_BRANCH_STACK
   if (sample_fields & PERF_SAMPLE_BRANCH_STACK) {
     if (!sample.branch_stack) {
+      // When no branch stack is available, write the branch stack size as 0.
+      *array++ = 0;
       LOG(ERROR) << "Expecting branch stack data, but none was found.";
     } else {
       *array++ = sample.branch_stack->nr;
