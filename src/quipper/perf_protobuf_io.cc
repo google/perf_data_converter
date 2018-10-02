@@ -12,6 +12,28 @@
 
 namespace quipper {
 
+bool SerializeFromString(const string& contents,
+                         PerfDataProto* perf_data_proto) {
+  return SerializeFromStringWithOptions(contents, PerfParserOptions(),
+                                        perf_data_proto);
+}
+
+bool SerializeFromStringWithOptions(const string& contents,
+                                    const PerfParserOptions& options,
+                                    PerfDataProto* perf_data_proto) {
+  PerfReader reader;
+  if (!reader.ReadFromString(contents)) return false;
+
+  PerfParser parser(&reader, options);
+  if (!parser.ParseRawEvents()) return false;
+
+  if (!reader.Serialize(perf_data_proto)) return false;
+
+  // Append parser stats to protobuf.
+  PerfSerializer::SerializeParserStats(parser.stats(), perf_data_proto);
+  return true;
+}
+
 bool SerializeFromFile(const string& filename, PerfDataProto* perf_data_proto) {
   return SerializeFromFileWithOptions(filename, PerfParserOptions(),
                                       perf_data_proto);

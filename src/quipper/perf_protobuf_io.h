@@ -12,6 +12,16 @@
 
 namespace quipper {
 
+// Convert a raw perf data string to a PerfDataProto protobuf. Uses PerfParser
+// to process the data before writing it to the protobuf.
+bool SerializeFromString(const string& contents, PerfDataProto* proto);
+
+// Same as SerializeFromString(), but passes the given PerfParserOptions to
+// PerfParser.
+bool SerializeFromStringWithOptions(const string& contents,
+                                    const PerfParserOptions& options,
+                                    PerfDataProto* proto);
+
 // Convert a raw perf data file to a PerfDataProto protobuf. Uses PerfParser to
 // to process the data before writing it to the protobuf.
 bool SerializeFromFile(const string& filename, PerfDataProto* proto);
