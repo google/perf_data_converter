@@ -112,7 +112,9 @@ TEST(HugePageDeducer, HugePagesMappings) {
 }
 
 enum HugepageTextStyle {
-  kAnonHugepageText,
+  kSlashSlashAnon,
+  kAnonHugepage,
+  kAnonHugepageDeleted,
   kNoHugepageText,
   kMemFdHugePageText,
 };
@@ -130,10 +132,18 @@ class HugepageTextStyleDependent
       case kNoHugepageText:
         // Do nothing; the maps are complete and file-backed
         break;
-      case kAnonHugepageText:
+      case kSlashSlashAnon:
         // exec is remapped into anonymous memory, which perf reports as
         // '//anon'. Anonymous sections have no pgoff.
         file = "//anon";
+        pgoff = 0;
+        break;
+      case kAnonHugepage:
+        file = "/anon_hugepage";
+        pgoff = 0;
+        break;
+      case kAnonHugepageDeleted:
+        file = "/anon_hugepage (deleted)";
         pgoff = 0;
         break;
       case kMemFdHugePageText:
@@ -402,8 +412,12 @@ TEST_P(HugepageTextStyleDependent, NonMmapAfterLastMmap) {
 
 INSTANTIATE_TEST_CASE_P(NoHugepageText, HugepageTextStyleDependent,
                         ::testing::Values(kNoHugepageText));
-INSTANTIATE_TEST_CASE_P(AnonHugepageText, HugepageTextStyleDependent,
-                        ::testing::Values(kAnonHugepageText));
+INSTANTIATE_TEST_CASE_P(SlashSlashAnon, HugepageTextStyleDependent,
+                        ::testing::Values(kSlashSlashAnon));
+INSTANTIATE_TEST_CASE_P(AnonHugepage, HugepageTextStyleDependent,
+                        ::testing::Values(kAnonHugepage));
+INSTANTIATE_TEST_CASE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
+                        ::testing::Values(kAnonHugepageDeleted));
 INSTANTIATE_TEST_CASE_P(MemFdHugepageText, HugepageTextStyleDependent,
                         ::testing::Values(kMemFdHugePageText));
 
@@ -482,6 +496,27 @@ TEST(HugePageDeducer, IgnoresDynamicMmaps) {
               "mmap_event: { pgoff: 0x7f68663f8000 filename: '//anon' }",
               "mmap_event: { pgoff: 0x7f6866525000 filename: '//anon' }",
           }));
+}
+
+TEST(HugePageDeducer, Regression117238226) {
+  RepeatedPtrField<PerfEvent> events;
+  AddMmap(10, 0x560334899000, 0x967000, 0, "main", &events);
+  AddMmap(10, 0x560335200000, 0xe00000, 0, "/anon_hugepage", &events);
+  AddMmap(10, 0x560336000000, 0x3800000, 0x1767000, "main", &events);
+  AddMmap(10, 0x560339800000, 0x2600000, 0, "/anon_hugepage", &events);
+  AddMmap(10, 0x56033be00000, 0xd3d000, 0x7567000, "main", &events);
+  AddMmap(10, 0x7fab5e83e000, 0xb000, 0, "lib1.so", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(
+      events,
+      Pointwise(Partially(EqualsProto()),
+                {
+                    "mmap_event: { pgoff: 0 filename: 'main' len: 0x82a4000 }",
+                    "mmap_event: { pgoff: 0 filename: 'lib1.so', len: 0xb000 }",
+                }));
 }
 
 TEST(HugePageDeducer, Regression62446346) {
