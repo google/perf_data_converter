@@ -57,38 +57,6 @@ directory `bazel-bin/`.
   pprof -web perf.data
   ```
 
-## Compile and test with Makefiles
-
-### Compile
-
-*  **SUPPORT FOR MAKE FILES WILL BE REMOVED AFTER MAY 2018**
-
-*  These were tested on Debian GNU/Linux 8 (jessie):
-
-   ```
-   sudo apt-get -y install autoconf automake libssl-dev make libtool pkg-config
-   git clone --recursive https://github.com/google/perf_data_converter.git
-   cd perf_data_converter/src
-   make perf_to_profile
-   ```
-*  If you already have protocol buffers and googletest installed on your system,
-   you can compile using your local packages with the following commands:
-
-   ```
-   sudo apt-get -y install autoconf automake libssl-dev make libtool pkg-config
-   git clone https://github.com/google/perf_data_converter.git
-   cd perf_data_converter/src
-   make perf_to_profile
-   ```
-
-### Running tests
-*  To run test, after successful compilation, run:
-
-  ```
-  make check clean
-  make check clean -C quipper/ -f Makefile.external
-  ```
-
 # Contribution
 We appreciate your help!
 

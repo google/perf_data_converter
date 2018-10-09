@@ -30,5 +30,3 @@ compiler:
 script:
   - bazel build //src:all //src/quipper:all
   - bazel test //src:all //src/quipper:all
-  - make perf_to_profile check clean -C src/
-  - make quipper perf_converter check clean -C src/quipper/ -f Makefile.external
