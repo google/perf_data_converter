@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "perf_stat_parser.h"
+
 #include <string>
 
 #include "base/logging.h"
@@ -9,7 +11,6 @@
 #include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
-#include "perf_stat_parser.h"
 #include "scoped_temp_path.h"
 
 namespace quipper {

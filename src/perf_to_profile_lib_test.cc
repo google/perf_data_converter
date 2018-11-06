@@ -81,6 +81,28 @@ TEST(PerfToProfileTest, ParseArguments) {
   }
 }
 
+// Assumes relpath does not begin with a '/'
+string GetResource(const string& relpath) {
+  return "src/" + relpath;
+}
+
+TEST(PerfToProfileTest, RawPerfDataStringToProfiles) {
+  string raw_perf_data_path(
+      GetResource("testdata"
+                  "/multi-event-single-process.perf.data"));
+  const auto profiles = StringToProfiles(ReadFileToString(raw_perf_data_path));
+  EXPECT_EQ(profiles.size(), 1);
+}
+
+TEST(PerfToProfileTest, PerfDataProtoStringToProfiles) {
+  string perf_data_proto_path(
+      GetResource("testdata"
+                  "/multi-event-single-process.perf_data.pb.data"));
+  const auto profiles =
+      StringToProfiles(ReadFileToString(perf_data_proto_path));
+  EXPECT_EQ(profiles.size(), 1);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {

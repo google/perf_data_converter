@@ -27,12 +27,6 @@
 #include "src/quipper/perf_parser.h"
 #include "src/quipper/perf_reader.h"
 
-#ifdef GITHUB_BAZEL
-#define PDC_TESTDATA_PDIR std::string("src/")
-#else
-#define PDC_TESTDATA_PDIR std::string("")
-#endif
-
 using perftools::ProcessProfiles;
 using perftools::profiles::Location;
 using perftools::profiles::Mapping;
@@ -143,7 +137,7 @@ inline string Basename(const string& path) {
 
 // Assumes relpath does not begin with a '/'
 string GetResource(const string& relpath) {
-  return PDC_TESTDATA_PDIR + relpath;
+  return "src/" + relpath;
 }
 
 PerfDataProto ToPerfDataProto(const string& raw_perf_data) {

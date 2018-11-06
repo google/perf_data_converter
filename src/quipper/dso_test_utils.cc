@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "base/logging.h"
+
 #include "binary_data_utils.h"
 
 namespace quipper {

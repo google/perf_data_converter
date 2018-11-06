@@ -305,6 +305,7 @@ cc_library(
 cc_binary(
     name = "perf_converter",
     srcs = ["perf_converter.cc"],
+    visibility = ["//src:__subpackages__"],
     deps = [
         ":compat",
         ":conversion_utils",
@@ -319,6 +320,7 @@ cc_library(
     deps = [
         ":binary_data_utils",
         ":compat",
+        ":kernel",
         ":base",
     ],
 )
@@ -435,11 +437,73 @@ cc_test(
     ],
 )
 
+cc_library(
+    name = "heap_profile_parser",
+    srcs = ["heap_profile_parser.cc"],
+    hdrs = ["heap_profile_parser.h"],
+    deps = [
+        ":binary_data_utils",
+        ":compat",
+        ":kernel",
+        ":perf_data_utils",
+        ":perf_serializer",
+        ":base",
+        "@com_google_re2//:re2",
+    ],
+)
+
+cc_test(
+    name = "heap_profile_parser_test",
+    srcs = ["heap_profile_parser_test.cc"],
+    deps = [
+        ":binary_data_utils",
+        ":compat_gunit",
+        ":heap_profile_parser",
+        ":kernel",
+        ":test_runner",
+        ":test_utils",
+    ],
+)
+
+cc_library(
+    name = "process_heap_profile",
+    srcs = ["process_heap_profile.cc"],
+    hdrs = ["process_heap_profile.h"],
+    deps = [
+        ":compat",
+        ":heap_profile_parser",
+        ":kernel",
+        ":perf_parser",
+        ":perf_reader",
+        ":base",
+    ],
+)
+
+cc_test(
+    name = "process_heap_profile_test",
+    srcs = ["process_heap_profile_test.cc"],
+    deps = [
+        ":binary_data_utils",
+        ":compat_gunit",
+        ":kernel",
+        ":process_heap_profile",
+        ":test_runner",
+        ":test_utils",
+    ],
+)
+
 cc_binary(
     name = "quipper",
     srcs = ["quipper.cc"],
+    visibility = ["//src:__subpackages__"],
     deps = [
+        ":compat",
+        ":file_utils",
+        ":perf_protobuf_io",
         ":perf_recorder",
+        ":process_heap_profile",
+        ":base",
+        "@com_github_gflags_gflags//:gflags",
     ],
 )
 

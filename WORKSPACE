@@ -37,3 +37,15 @@ bind(
     name = "zlib",  # required by @com_google_protobuf
     actual = "@io_bazel//third_party/zlib:zlib",
 )
+
+http_archive(
+    name   = "com_github_gflags_gflags",
+    urls = ["https://github.com/gflags/gflags/archive/master.zip"],
+    strip_prefix = "gflags-master",
+)
+
+http_archive(
+    name = "com_google_re2",
+    urls = ["https://github.com/google/re2/archive/master.zip"],
+    strip_prefix = "re2-master",
+)

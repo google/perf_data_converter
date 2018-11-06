@@ -4,8 +4,10 @@
 
 #include "perf_data_utils.h"
 
+#include "compat/proto.h"
 #include "compat/string.h"
 #include "compat/test.h"
+#include "kernel/perf_event.h"
 
 namespace quipper {
 
@@ -68,6 +70,63 @@ TEST(PerfDataUtilsTest, UnperfizeBuildID) {
   build_id_string = "";
   TrimZeroesFromBuildIDString(&build_id_string);
   EXPECT_EQ("", build_id_string);
+}
+
+TEST(PerfDataUtilsTest, GetSampleIdFromSampleEventWithoutId) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_SAMPLE);
+  event.mutable_sample_event();
+
+  uint64_t actual_id = GetSampleIdFromPerfEvent(event);
+
+  EXPECT_EQ(0, actual_id);
+}
+
+TEST(PerfDataUtilsTest, GetSampleIdFromSampleEvent) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_SAMPLE);
+
+  PerfDataProto_SampleEvent* sample = event.mutable_sample_event();
+  sample->set_id(123);
+
+  uint64_t actual_id = GetSampleIdFromPerfEvent(event);
+
+  EXPECT_EQ(123, actual_id);
+}
+
+TEST(PerfDataUtilsTest, GetSampleIdFromNonSampleEventWithoutSampleInfo) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_MMAP);
+  event.mutable_mmap_event();
+
+  uint64_t actual_id = GetSampleIdFromPerfEvent(event);
+
+  EXPECT_EQ(0, actual_id);
+}
+
+TEST(PerfDataUtilsTest, GetSampleIdFromNonSampleEventWithoutId) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_MMAP);
+
+  PerfDataProto_MMapEvent* mmap = event.mutable_mmap_event();
+  mmap->mutable_sample_info();
+
+  uint64_t actual_id = GetSampleIdFromPerfEvent(event);
+
+  EXPECT_EQ(0, actual_id);
+}
+
+TEST(PerfDataUtilsTest, GetSampleIdFromNonSampleEvent) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_MMAP);
+
+  PerfDataProto_MMapEvent* mmap = event.mutable_mmap_event();
+  PerfDataProto_SampleInfo* sample_info = mmap->mutable_sample_info();
+  sample_info->set_id(4);
+
+  uint64_t actual_id = GetSampleIdFromPerfEvent(event);
+
+  EXPECT_EQ(4, actual_id);
 }
 
 }  // namespace quipper

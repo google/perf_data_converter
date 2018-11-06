@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "binary_data_utils.h"
+
 #include "compat/test.h"
 
 namespace quipper {

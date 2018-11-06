@@ -25,6 +25,20 @@ string ReadFileToString(const string& path) {
   return ss.str();
 }
 
+perftools::ProcessProfiles StringToProfiles(const string& data,
+                                            uint32 sample_labels,
+                                            uint32 options) {
+  // Try to parse it as a PerfDataProto.
+  quipper::PerfDataProto perf_data_proto;
+  if (perf_data_proto.ParseFromArray(data.data(), data.length())) {
+    return perftools::PerfDataProtoToProfiles(&perf_data_proto, sample_labels,
+                                              options);
+  }
+  // Fallback to reading input as a perf.data file.
+  return perftools::RawPerfDataToProfiles(data.data(), data.length(), {},
+                                          sample_labels, options);
+}
+
 void CreateFile(const string& path, std::ofstream* file, bool overwriteOutput) {
   if (!overwriteOutput && FileExists(path)) {
     LOG(FATAL) << "File already exists: " << path;

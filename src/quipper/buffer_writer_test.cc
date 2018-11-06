@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "buffer_writer.h"
+
 #include <stdint.h>
 
 #include <vector>
 
-#include "buffer_writer.h"
 #include "compat/test.h"
 
 namespace quipper {

@@ -12,7 +12,6 @@
 
 #include "binary_data_utils.h"  // for Align<T>
 #include "compat/string.h"
-#include "kernel/perf_internals.h"
 
 namespace quipper {
 
@@ -83,6 +82,9 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
 // Returns the correct |sample_time_ns| field of a PerfEvent.
 uint64_t GetTimeFromPerfEvent(const PerfDataProto_PerfEvent& event);
 
+// GetSampleIdFromPerfEvent returns a valid sample id if the provided perf event
+// has a sample id. Otherwise, returns 0.
+uint64_t GetSampleIdFromPerfEvent(const PerfDataProto_PerfEvent& event);
 }  // namespace quipper
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_PERF_DATA_UTILS_H_

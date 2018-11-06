@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "perf_serializer.h"
+
 #include <inttypes.h>
 #include <sys/time.h>
 
@@ -12,6 +14,7 @@
 #include "base/logging.h"
 #include "base/macros.h"
 
+#include "compat/proto.h"
 #include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
@@ -19,7 +22,6 @@
 #include "perf_data_utils.h"
 #include "perf_protobuf_io.h"
 #include "perf_reader.h"
-#include "perf_serializer.h"
 #include "perf_test_files.h"
 #include "scoped_temp_path.h"
 #include "test_perf_data.h"
@@ -269,6 +271,46 @@ TEST_P(SerializeAllPerfDataFiles, TestRemap) {
   LOG(INFO) << "Testing " << input_perf_data;
   const string output_perf_data = output_path + test_file + ".ser.remap.out";
   SerializeAndDeserialize(input_perf_data, output_perf_data, true, true);
+}
+
+TEST_P(SerializePerfDataFiles, TestGetEventSize) {
+  const string test_file = GetParam();
+  const string input_perf_data = GetTestInputFilePath(test_file);
+
+  PerfDataProto perf_data_proto;
+  EXPECT_TRUE(SerializeFromFile(input_perf_data, &perf_data_proto));
+  ASSERT_GT(perf_data_proto.file_attrs().size(), 0U);
+
+  PerfSerializer serializer;
+  // Iterate through all attrs and create a SampleInfoReader for each of them.
+  for (const auto& stored_attr : perf_data_proto.file_attrs()) {
+    PerfFileAttr attr;
+    serializer.DeserializePerfFileAttr(stored_attr, &attr);
+    serializer.CreateSampleInfoReader(attr, /*read_cross_endian=*/false);
+  }
+
+  for (auto event : perf_data_proto.events()) {
+    EXPECT_EQ(event.header().size(), serializer.GetEventSize(event));
+  }
+}
+
+TEST_P(SerializePerfDataFiles, TestDeserializeWithZeroEventSize) {
+  const string test_file = GetParam();
+  const string input_perf_data = GetTestInputFilePath(test_file);
+
+  PerfDataProto perf_data_proto;
+  EXPECT_TRUE(SerializeFromFile(input_perf_data, &perf_data_proto));
+  ASSERT_GT(perf_data_proto.file_attrs().size(), 0U);
+
+  for (auto& event : *perf_data_proto.mutable_events()) {
+    event.mutable_header()->set_size(0);
+  }
+
+  ScopedTempDir output_dir;
+  ASSERT_FALSE(output_dir.path().empty());
+  string output_path = output_dir.path();
+  const string output_perf_data = output_path + test_file + ".ser.out";
+  EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
 }
 
 TEST_P(SerializePerfDataFiles, TestCommMd5s) {

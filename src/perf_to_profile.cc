@@ -19,12 +19,8 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const auto perf_data = ReadFileToString(input);
-  const auto raw_perf_data = static_cast<const void*>(perf_data.data());
+  const auto profiles = StringToProfiles(ReadFileToString(input));
 
-  const auto profiles = perftools::RawPerfDataToProfiles(
-      raw_perf_data, perf_data.length(), {}, perftools::kNoLabels,
-      perftools::kNoOptions);
   // With kNoOptions, all of the PID profiles should be merged into a
   // single one.
   if (profiles.size() != 1) {

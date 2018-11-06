@@ -8,7 +8,7 @@
 
 #include "base/logging.h"
 #include "compat/proto.h"
-
+#include "kernel/perf_event.h"
 namespace quipper {
 
 event_t* CallocMemoryForEvent(size_t size) {
@@ -95,6 +95,20 @@ uint64_t GetTimeFromPerfEvent(const PerfDataProto_PerfEvent& event) {
 
   const auto* sample_info = GetSampleInfoForEvent(event);
   if (sample_info) return sample_info->sample_time_ns();
+
+  return 0;
+}
+
+uint64_t GetSampleIdFromPerfEvent(const PerfDataProto_PerfEvent& event) {
+  if (event.header().type() == PERF_RECORD_SAMPLE &&
+      event.sample_event().has_id()) {
+    return event.sample_event().id();
+  }
+
+  const auto* sample_info = GetSampleInfoForEvent(event);
+  if (sample_info && sample_info->has_id()) {
+    return sample_info->id();
+  }
 
   return 0;
 }

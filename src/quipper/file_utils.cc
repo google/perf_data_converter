@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 
 #include "base/logging.h"
+
 #include "file_reader.h"
 
 namespace quipper {

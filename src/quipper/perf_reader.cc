@@ -181,6 +181,15 @@ static bool CompareEventTimes(const PerfEvent* e1, const PerfEvent* e2) {
   return e1->timestamp() < e2->timestamp();
 }
 
+// Skip events that are not yet parsed in to a PerfDataProto.
+bool IsSkippableEvent(u32 type) {
+  if (type == PERF_RECORD_ID_INDEX || type == PERF_RECORD_CPU_MAP ||
+      type == PERF_RECORD_EVENT_UPDATE) {
+    return true;
+  }
+  return false;
+}
+
 }  // namespace
 
 PerfReader::PerfReader()
@@ -214,7 +223,7 @@ bool PerfReader::Deserialize(const PerfDataProto& perf_data_proto) {
     serializer_.DeserializePerfFileAttr(stored_attr, &attr);
     serializer_.CreateSampleInfoReader(attr, false /* read_cross_endian */);
   }
-  return true;
+  return PopulateMissingEventSize();
 }
 
 bool PerfReader::ReadFile(const string& filename) {
@@ -781,6 +790,12 @@ bool PerfReader::ReadDataSection(DataReader* data) {
     }
     MaybeSwapEventFields(event.get(), data->is_cross_endian());
 
+    data_remaining_bytes -= event->header.size;
+
+    if (IsSkippableEvent(event->header.type)) {
+      continue;
+    }
+
     // We must have a valid way to read sample info before reading perf events.
     CHECK(serializer_.SampleInfoReaderAvailable());
 
@@ -792,7 +807,6 @@ bool PerfReader::ReadDataSection(DataReader* data) {
       if (!ReadAuxtraceTraceData(data, proto_event)) return false;
       data_remaining_bytes -= proto_event->auxtrace_event().size();
     }
-    data_remaining_bytes -= event->header.size;
   }
 
   DLOG(INFO) << "Number of events stored: " << proto_->events_size();
@@ -1328,6 +1342,10 @@ bool PerfReader::ReadPipedData(DataReader* data) {
         break;
       }
       MaybeSwapEventFields(event.get(), data->is_cross_endian());
+
+      if (IsSkippableEvent(event->header.type)) {
+        continue;
+      }
 
       // Serialize the event to protobuf form.
       PerfEvent* proto_event = proto_->add_events();
@@ -2170,6 +2188,18 @@ void PerfReader::AddPerfFileAttr(const PerfFileAttr& attr) {
     file_attrs_seen_.insert(attr.ids[0]);
   }
   file_attr_configs_seen_.insert(attr.attr.config);
+}
+
+bool PerfReader::PopulateMissingEventSize() {
+  for (PerfEvent& event : *proto_->mutable_events()) {
+    if (event.header().size() > 0) {
+      continue;
+    }
+    size_t size = serializer_.GetEventSize(event);
+    if (size == 0) return false;
+    event.mutable_header()->set_size(size);
+  }
+  return true;
 }
 
 }  // namespace quipper
