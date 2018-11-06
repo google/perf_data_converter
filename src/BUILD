@@ -74,7 +74,6 @@ cc_test(
     name = "perf_data_converter_test",
     size = "medium",
     srcs = ["perf_data_converter_test.cc"],
-    copts = ["-DGITHUB_BAZEL"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
         "//src/testdata:perf-overlapping-kernel-mapping.pb_proto",
@@ -112,8 +111,10 @@ cc_library(
     srcs = ["perf_to_profile_lib.cc"],
     hdrs = ["perf_to_profile_lib.h"],
     deps = [
+        ":perf_data_converter",
         "//src/quipper:base",
         "//src/compat:string_compat",
+        "//src/quipper:perf_data_cc_proto",
     ],
 )
 
@@ -130,6 +131,10 @@ cc_binary(
 cc_test(
     name = "perf_to_profile_lib_test",
     srcs = ["perf_to_profile_lib_test.cc"],
+    data = [
+        "//src/testdata:multi-event-single-process.perf.data",
+        "//src/testdata:multi-event-single-process.perf_data.pb.data",
+    ],
     deps = [
         ":perf_to_profile_lib",
         "//src/quipper:base",

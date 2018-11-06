@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "perf_parser.h"
+
 #include <stdint.h>
 #include <sys/capability.h>
 #include <sys/mount.h>
@@ -22,7 +24,6 @@
 #include "compat/thread.h"
 #include "dso_test_utils.h"
 #include "perf_data_utils.h"
-#include "perf_parser.h"
 #include "perf_reader.h"
 #include "perf_serializer.h"
 #include "perf_test_files.h"

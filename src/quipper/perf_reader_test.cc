@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "perf_reader.h"
+
 #include <byteswap.h>
 
 #include <algorithm>
@@ -15,7 +17,6 @@
 #include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
-#include "perf_reader.h"
 #include "perf_test_files.h"
 #include "scoped_temp_path.h"
 #include "test_perf_data.h"

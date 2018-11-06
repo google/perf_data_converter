@@ -40,6 +40,11 @@ class PerfSerializer {
   PerfSerializer();
   ~PerfSerializer();
 
+  // Calculates the event size ignoring event.header.size . Returns true on
+  // success. Returns false when the proto contains an unsupported perf event or
+  // sample info.
+  size_t GetEventSize(const PerfDataProto_PerfEvent& event);
+
   // The following functions convert between raw perf data structures and their
   // equivalent PerfDataProto representations.
   bool SerializePerfFileAttr(
@@ -257,7 +262,7 @@ class PerfSerializer {
   void UpdateEventIdPositions(const struct perf_event_attr& attr);
 
   // Do non-SAMPLE events have a sample_id? Reflects the value of
-  // sample_id_all in the first attr, which should be consistent accross all
+  // sample_id_all in the first attr, which should be consistent across all
   // attrs.
   bool SampleIdAll() const;
 
@@ -289,6 +294,12 @@ class PerfSerializer {
                               event_t* event) const;
   bool DeserializeUserEvent(const PerfDataProto_PerfEvent& event_proto,
                             event_t* event) const;
+
+  void GetPerfSampleInfo(const PerfDataProto_SampleInfo& sample,
+                         perf_sample* sample_info) const;
+
+  void GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
+                         perf_sample* sample_info) const;
 
   // For SAMPLE events, the position of the sample id,
   // Or EventIdPosition::NotPresent if neither PERF_SAMPLE_ID(ENTIFIER) are set.

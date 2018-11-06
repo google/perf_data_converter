@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "perf_recorder.h"
+
 #include <string>
 #include <vector>
 
@@ -9,7 +11,6 @@
 #include "compat/test.h"
 #include "perf_protobuf_io.h"
 #include "perf_reader.h"
-#include "perf_recorder.h"
 #include "perf_serializer.h"
 #include "run_command.h"
 #include "test_utils.h"

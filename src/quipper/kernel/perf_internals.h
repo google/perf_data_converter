@@ -7,7 +7,7 @@
 #include <stddef.h>  // For NULL
 #include <sys/types.h>  // For pid_t
 
-#include "perf_event.h"  
+#include "kernel/perf_event.h"
 
 namespace quipper {
 // The first 64 bits of the perf header, used as a perf data file ID tag.
@@ -213,6 +213,11 @@ struct sample_read {
     } group;
     struct sample_read_value one;
   };
+  sample_read() : one({}) {
+    group.nr = 0;
+    group.values = nullptr;
+  }
+  ~sample_read() { delete[] group.values; }
 };
 
 struct ip_callchain {
@@ -266,14 +271,32 @@ struct perf_sample {
   struct sample_read read;
   u64 physical_addr;
 
-  perf_sample() : raw_data(NULL), callchain(NULL), branch_stack(NULL) {
-    read.group.values = NULL;
-  }
+  perf_sample()
+      : ip(0),
+        pid(0),
+        tid(0),
+        time(0),
+        addr(0),
+        id(0),
+        stream_id(0),
+        period(0),
+        weight(0),
+        transaction(0),
+        cpu(0),
+        raw_size(0),
+        data_src(0),
+        flags(0),
+        insn_len(0),
+        raw_data(nullptr),
+        callchain(nullptr),
+        branch_stack(nullptr),
+        user_stack({}),
+        read({}),
+        physical_addr(0) {}
   ~perf_sample() {
     delete[] callchain;
     delete[] branch_stack;
     delete[] reinterpret_cast<char *>(raw_data);
-    delete[] read.group.values;
   }
 };
 

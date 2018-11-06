@@ -23,9 +23,79 @@
 
 namespace quipper {
 
+namespace {
+
+// IsKernelEvent returns true if the given |event| type is a kernel event type.
+bool IsKernelEvent(const PerfDataProto_PerfEvent& event) {
+  if (event.header().type() >= PERF_RECORD_MMAP &&
+      event.header().type() <= PERF_RECORD_MAX) {
+    return true;
+  }
+  return false;
+}
+
+}  // namespace
+
 PerfSerializer::PerfSerializer() {}
 
 PerfSerializer::~PerfSerializer() {}
+
+size_t PerfSerializer::GetEventSize(const PerfDataProto_PerfEvent& event) {
+  if (IsKernelEvent(event)) {
+    perf_sample sample_info = {};
+    if (event.header().type() == PERF_RECORD_SAMPLE) {
+      GetPerfSampleInfo(event.sample_event(), &sample_info);
+    } else if (SampleIdAll()) {
+      const PerfDataProto_SampleInfo* sample_info_proto =
+          GetSampleInfoForEvent(event);
+      if (sample_info_proto == nullptr) {
+        LOG(ERROR) << "Sample info not available for the event: "
+                   << event.header().type();
+        return 0;
+      }
+      GetPerfSampleInfo(*sample_info_proto, &sample_info);
+    }
+
+    const SampleInfoReader* reader = GetSampleInfoReaderForId(sample_info.id);
+    CHECK(reader) << " failed for event: " << event.header().type()
+                  << ", sample id: " << sample_info.id
+                  << ", from proto: " << GetSampleIdFromPerfEvent(event);
+
+    return SampleInfoReader::GetPerfSampleDataOffset(event) +
+           reader->GetPerfSampleDataSize(sample_info, event.header().type());
+  }
+
+  switch (event.header().type()) {
+    case PERF_RECORD_FINISHED_ROUND:
+      // PERF_RECORD_FINISHED_ROUND event has only header.
+      return sizeof(struct perf_event_header);
+    case PERF_RECORD_AUXTRACE_INFO:
+      return offsetof(struct auxtrace_info_event, priv) +
+             (event.auxtrace_info_event()
+                  .unparsed_binary_blob_priv_data_size() *
+              sizeof(u64));
+    case PERF_RECORD_AUXTRACE:
+      return sizeof(struct auxtrace_event);
+    case PERF_RECORD_AUXTRACE_ERROR:
+      return offsetof(struct auxtrace_error_event, msg) +
+             GetUint64AlignedStringLength(event.auxtrace_error_event().msg());
+    case PERF_RECORD_THREAD_MAP:
+      return offsetof(struct thread_map_event, entries) +
+             (event.thread_map_event().entries_size() *
+              sizeof(struct thread_map_event_entry));
+    case PERF_RECORD_STAT_CONFIG:
+      return offsetof(struct stat_config_event, data) +
+             (event.stat_config_event().data_size() *
+              sizeof(struct stat_config_event_entry));
+    case PERF_RECORD_STAT_ROUND:
+      return sizeof(struct stat_round_event);
+    case PERF_RECORD_TIME_CONV:
+      return sizeof(struct time_conv_event);
+    default:
+      LOG(ERROR) << "Unknown perf event: " << event.header().type();
+      return 0UL;
+  }
+}
 
 bool PerfSerializer::SerializePerfFileAttr(
     const PerfFileAttr& perf_file_attr,
@@ -487,85 +557,13 @@ bool PerfSerializer::SerializeSampleEvent(
 
 bool PerfSerializer::DeserializeSampleEvent(
     const PerfDataProto_SampleEvent& sample, event_t* event) const {
-  perf_sample sample_info;
-  if (sample.has_ip()) sample_info.ip = sample.ip();
-  if (sample.has_pid()) {
-    CHECK(sample.has_tid()) << "Cannot have PID without TID.";
-    sample_info.pid = sample.pid();
-    sample_info.tid = sample.tid();
-  }
-  if (sample.has_sample_time_ns()) sample_info.time = sample.sample_time_ns();
-  if (sample.has_addr()) sample_info.addr = sample.addr();
-  if (sample.has_id()) sample_info.id = sample.id();
-  if (sample.has_stream_id()) sample_info.stream_id = sample.stream_id();
-  if (sample.has_cpu()) sample_info.cpu = sample.cpu();
-  if (sample.has_period()) sample_info.period = sample.period();
-  if (sample.has_read_info()) {
-    const SampleInfoReader* reader = GetSampleInfoReaderForEvent(*event);
-    if (reader) {
-      const PerfDataProto_ReadInfo& read_info = sample.read_info();
-      if (reader->event_attr().read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
-        sample_info.read.time_enabled = read_info.time_enabled();
-      if (reader->event_attr().read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
-        sample_info.read.time_running = read_info.time_running();
-      if (reader->event_attr().read_format & PERF_FORMAT_GROUP) {
-        sample_info.read.group.nr = read_info.read_value_size();
-        sample_info.read.group.values =
-            new sample_read_value[read_info.read_value_size()];
-        for (size_t i = 0; i < sample_info.read.group.nr; i++) {
-          sample_info.read.group.values[i].value =
-              read_info.read_value(i).value();
-          sample_info.read.group.values[i].id = read_info.read_value(i).id();
-        }
-      } else if (read_info.read_value_size() == 1) {
-        sample_info.read.one.value = read_info.read_value(0).value();
-        sample_info.read.one.id = read_info.read_value(0).id();
-      } else {
-        LOG(ERROR) << "Expected read_value array size of 1 but got "
-                   << read_info.read_value_size();
-      }
-    }
-  }
-  if (sample.callchain_size() > 0) {
-    uint64_t callchain_size = sample.callchain_size();
-    sample_info.callchain = reinterpret_cast<struct ip_callchain*>(
-        new uint64_t[callchain_size + 1]);
-    sample_info.callchain->nr = callchain_size;
-    for (size_t i = 0; i < callchain_size; ++i)
-      sample_info.callchain->ips[i] = sample.callchain(i);
-  }
-  if (sample.raw_size() > 0) {
-    sample_info.raw_size = sample.raw_size();
-    sample_info.raw_data = new uint8_t[sample.raw_size()];
-    memset(sample_info.raw_data, 0, sample.raw_size());
-  }
-  if (sample.branch_stack_size() > 0) {
-    uint64_t branch_stack_size = sample.branch_stack_size();
-    sample_info.branch_stack = reinterpret_cast<struct branch_stack*>(
-        new uint8_t[sizeof(uint64_t) +
-                    branch_stack_size * sizeof(struct branch_entry)]);
-    sample_info.branch_stack->nr = branch_stack_size;
-    for (size_t i = 0; i < branch_stack_size; ++i) {
-      struct branch_entry& entry = sample_info.branch_stack->entries[i];
-      memset(&entry, 0, sizeof(entry));
-      entry.from = sample.branch_stack(i).from_ip();
-      entry.to = sample.branch_stack(i).to_ip();
-      entry.flags.mispred = sample.branch_stack(i).mispredicted();
-      entry.flags.predicted = sample.branch_stack(i).predicted();
-      entry.flags.in_tx = sample.branch_stack(i).in_transaction();
-      entry.flags.abort = sample.branch_stack(i).abort();
-      entry.flags.cycles = sample.branch_stack(i).cycles();
-    }
-  }
+  perf_sample sample_info = {};
+  GetPerfSampleInfo(sample, &sample_info);
 
-  if (sample.has_weight()) sample_info.weight = sample.weight();
-  if (sample.has_data_src()) sample_info.data_src = sample.data_src();
-  if (sample.has_transaction()) sample_info.transaction = sample.transaction();
-  if (sample.has_physical_addr())
-    sample_info.physical_addr = sample.physical_addr();
+  const SampleInfoReader* writer = GetSampleInfoReaderForId(sample_info.id);
+  CHECK(writer) << " failed for event: " << event->header.type
+                << ", sample id: " << sample_info.id;
 
-  const SampleInfoReader* writer = GetSampleInfoReaderForId(sample.id());
-  CHECK(writer);
   return writer->WritePerfSampleInfo(sample_info, event);
 }
 
@@ -892,18 +890,13 @@ bool PerfSerializer::DeserializeSampleInfo(
     const PerfDataProto_SampleInfo& sample, event_t* event) const {
   if (!SampleIdAll()) return true;
 
-  perf_sample sample_info;
-  if (sample.has_tid()) {
-    sample_info.pid = sample.pid();
-    sample_info.tid = sample.tid();
-  }
-  if (sample.has_sample_time_ns()) sample_info.time = sample.sample_time_ns();
-  if (sample.has_id()) sample_info.id = sample.id();
-  if (sample.has_cpu()) sample_info.cpu = sample.cpu();
-  if (sample.has_stream_id()) sample_info.stream_id = sample.stream_id();
+  perf_sample sample_info = {};
+  GetPerfSampleInfo(sample, &sample_info);
 
-  const SampleInfoReader* writer = GetSampleInfoReaderForId(sample.id());
-  CHECK(writer);
+  const SampleInfoReader* writer = GetSampleInfoReaderForId(sample_info.id);
+  CHECK(writer) << " failed for event: " << event->header.type
+                << ", sample id: " << sample_info.id;
+
   return writer->WritePerfSampleInfo(sample_info, event);
 }
 
@@ -1477,6 +1470,98 @@ bool PerfSerializer::ReadPerfSampleInfoAndType(const event_t& event,
   if (!reader->ReadPerfSampleInfo(event, sample_info)) return false;
   *sample_type = reader->event_attr().sample_type;
   return true;
+}
+
+void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleInfo& sample,
+                                       perf_sample* sample_info) const {
+  if (sample.has_pid()) {
+    CHECK(sample.has_tid()) << "Cannot have PID without TID.";
+    sample_info->pid = sample.pid();
+    sample_info->tid = sample.tid();
+  }
+  if (sample.has_sample_time_ns()) sample_info->time = sample.sample_time_ns();
+  if (sample.has_id()) sample_info->id = sample.id();
+  if (sample.has_cpu()) sample_info->cpu = sample.cpu();
+  if (sample.has_stream_id()) sample_info->stream_id = sample.stream_id();
+}
+
+void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
+                                       perf_sample* sample_info) const {
+  if (sample.has_ip()) sample_info->ip = sample.ip();
+  if (sample.has_pid()) {
+    CHECK(sample.has_tid()) << "Cannot have PID without TID.";
+    sample_info->pid = sample.pid();
+    sample_info->tid = sample.tid();
+  }
+  if (sample.has_sample_time_ns()) sample_info->time = sample.sample_time_ns();
+  if (sample.has_addr()) sample_info->addr = sample.addr();
+  if (sample.has_id()) sample_info->id = sample.id();
+  if (sample.has_stream_id()) sample_info->stream_id = sample.stream_id();
+  if (sample.has_cpu()) sample_info->cpu = sample.cpu();
+  if (sample.has_period()) sample_info->period = sample.period();
+  if (sample.has_read_info()) {
+    const SampleInfoReader* reader = GetSampleInfoReaderForId(sample_info->id);
+    if (reader) {
+      const PerfDataProto_ReadInfo& read_info = sample.read_info();
+      if (reader->event_attr().read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
+        sample_info->read.time_enabled = read_info.time_enabled();
+      if (reader->event_attr().read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
+        sample_info->read.time_running = read_info.time_running();
+      if (reader->event_attr().read_format & PERF_FORMAT_GROUP) {
+        sample_info->read.group.nr = read_info.read_value_size();
+        sample_info->read.group.values =
+            new sample_read_value[read_info.read_value_size()];
+        for (size_t i = 0; i < sample_info->read.group.nr; i++) {
+          sample_info->read.group.values[i].value =
+              read_info.read_value(i).value();
+          sample_info->read.group.values[i].id = read_info.read_value(i).id();
+        }
+      } else if (read_info.read_value_size() == 1) {
+        sample_info->read.one.value = read_info.read_value(0).value();
+        sample_info->read.one.id = read_info.read_value(0).id();
+      } else {
+        LOG(ERROR) << "Expected read_value array size of 1 but got "
+                   << read_info.read_value_size();
+      }
+    }
+  }
+  if (sample.callchain_size() > 0) {
+    uint64_t callchain_size = sample.callchain_size();
+    sample_info->callchain = reinterpret_cast<struct ip_callchain*>(
+        new uint64_t[callchain_size + 1]);
+    sample_info->callchain->nr = callchain_size;
+    for (size_t i = 0; i < callchain_size; ++i)
+      sample_info->callchain->ips[i] = sample.callchain(i);
+  }
+  if (sample.raw_size() > 0) {
+    sample_info->raw_size = sample.raw_size();
+    sample_info->raw_data = new uint8_t[sample.raw_size()];
+    memset(sample_info->raw_data, 0, sample.raw_size());
+  }
+  if (sample.branch_stack_size() > 0) {
+    uint64_t branch_stack_size = sample.branch_stack_size();
+    sample_info->branch_stack = reinterpret_cast<struct branch_stack*>(
+        new uint8_t[sizeof(uint64_t) +
+                    branch_stack_size * sizeof(struct branch_entry)]);
+    sample_info->branch_stack->nr = branch_stack_size;
+    for (size_t i = 0; i < branch_stack_size; ++i) {
+      struct branch_entry& entry = sample_info->branch_stack->entries[i];
+      memset(&entry, 0, sizeof(entry));
+      entry.from = sample.branch_stack(i).from_ip();
+      entry.to = sample.branch_stack(i).to_ip();
+      entry.flags.mispred = sample.branch_stack(i).mispredicted();
+      entry.flags.predicted = sample.branch_stack(i).predicted();
+      entry.flags.in_tx = sample.branch_stack(i).in_transaction();
+      entry.flags.abort = sample.branch_stack(i).abort();
+      entry.flags.cycles = sample.branch_stack(i).cycles();
+    }
+  }
+
+  if (sample.has_weight()) sample_info->weight = sample.weight();
+  if (sample.has_data_src()) sample_info->data_src = sample.data_src();
+  if (sample.has_transaction()) sample_info->transaction = sample.transaction();
+  if (sample.has_physical_addr())
+    sample_info->physical_addr = sample.physical_addr();
 }
 
 }  // namespace quipper

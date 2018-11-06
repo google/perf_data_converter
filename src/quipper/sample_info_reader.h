@@ -5,8 +5,10 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_SAMPLE_INFO_READER_H_
 #define CHROMIUMOS_WIDE_PROFILING_SAMPLE_INFO_READER_H_
 
+#include <stddef.h>  // for size_t
 #include <stdint.h>
 
+#include "compat/proto.h"
 #include "kernel/perf_event.h"
 
 namespace quipper {
@@ -24,7 +26,6 @@ class SampleInfoReader {
   bool ReadPerfSampleInfo(const event_t& event,
                           struct perf_sample* sample) const;
   bool WritePerfSampleInfo(const perf_sample& sample, event_t* event) const;
-
   // Given a general perf sample format |sample_type|, return the fields of that
   // format that are present in a sample for an event of type |event_type|.
   //
@@ -40,6 +41,14 @@ class SampleInfoReader {
   // Returns the offset in bytes within a perf event structure at which the raw
   // perf sample data is located.
   static uint64_t GetPerfSampleDataOffset(const event_t& event);
+
+  // Returns the offset in bytes at the perf sample data could be located in a
+  // perf event structure for the given perf event.
+  static uint64_t GetPerfSampleDataOffset(const PerfDataProto_PerfEvent& event);
+
+  // Returns the size of the perf sample data.
+  size_t GetPerfSampleDataSize(const perf_sample& sample,
+                               uint32_t event_type) const;
 
   const perf_event_attr& event_attr() const { return event_attr_; }
 

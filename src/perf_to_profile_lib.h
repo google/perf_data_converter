@@ -13,6 +13,8 @@
 
 #include "src/quipper/base/logging.h"
 #include "src/compat/string_compat.h"
+#include "src/perf_data_converter.h"
+#include "src/quipper/perf_data.pb.h"
 
 // Checks and returns whether or not the file at the given |path| already
 // exists.
@@ -20,6 +22,12 @@ bool FileExists(const string& path);
 
 // Reads a file at the given |path| as a string and returns it.
 string ReadFileToString(const string& path);
+
+// Generates profiles from either a raw perf.data string or perf data proto
+// string. Returns a vector of process profiles, empty if any error occurs.
+perftools::ProcessProfiles StringToProfiles(
+    const string& data, uint32 sample_labels = perftools::kNoLabels,
+    uint32 options = perftools::kNoOptions);
 
 // Creates a file at the given |path|. If |overwriteOutput| is set to true,
 // overwrites the file at the given path.

@@ -9,6 +9,7 @@ exports_files(
         "single-event-single-process.perf.data",
         "single-event-multi-process.perf.data",
         "multi-event-single-process.perf.data",
+        "multi-event-single-process.perf_data.pb.data",
         "with-callchain.perf.data",
     ],
 )

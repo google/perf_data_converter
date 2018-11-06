@@ -27,6 +27,7 @@
         'dso.cc',
         'file_reader.cc',
         'file_utils.cc',
+        'heap_profile_parser.cc',
         'huge_page_deducer.cc',
         'perf_data_utils.cc',
         'perf_option_parser.cc',
@@ -36,6 +37,7 @@
         'perf_recorder.cc',
         'perf_serializer.cc',
         'perf_stat_parser.cc',
+        'process_heap_profile.cc',
         'run_command.cc',
         'sample_info_reader.cc',
         'scoped_temp_path.cc',
@@ -50,7 +52,11 @@
         'perf_stat_proto',
       ],
       'link_settings': {
-        'libraries': ['-lelf'],
+        'libraries': [
+          '-lelf',
+          '-lgflags',
+          '-lre2',
+        ],
       },
     },
     {

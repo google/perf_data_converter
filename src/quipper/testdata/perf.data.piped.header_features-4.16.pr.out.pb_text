@@ -704,14 +704,6 @@ events {
 }
 events {
   header {
-    type: 78
-    misc: 0
-    size: 40
-  }
-  timestamp: 0
-}
-events {
-  header {
     type: 73
     misc: 0
     size: 40
@@ -724,14 +716,6 @@ events {
       comm_md5_prefix: 15284527576400310788
     }
   }
-}
-events {
-  header {
-    type: 74
-    misc: 0
-    size: 20
-  }
-  timestamp: 0
 }
 events {
   header {

@@ -280,6 +280,11 @@ class PerfReader {
     proto_->set_metadata_mask(0, metadata_mask() | (1 << bit));
   }
 
+  // Calculates and sets the correct event size in each event that has
+  // event.header.size == 0. Returns true on success. Returns false when the
+  // proto contains an unsupported perf event.
+  bool PopulateMissingEventSize();
+
   // The file header is either a normal header or a piped header.
   union {
     struct perf_file_header header_;

@@ -5,8 +5,10 @@
 #include "sample_info_reader.h"
 
 #include <string.h>
+#include <cstdint>
 
 #include "base/logging.h"
+
 #include "buffer_reader.h"
 #include "buffer_writer.h"
 #include "kernel/perf_internals.h"
@@ -116,8 +118,8 @@ void ReadRawData(DataReader* reader, struct perf_sample* sample) {
   reader->SeekSet(reader_offset);
 }
 
-// Read call chain info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_CALLCHAIN.
+// Read branch stack info from perf data.  Corresponds to sample format type
+// PERF_SAMPLE_BRANCH_STACK.
 void ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
   // Make sure there is no existing allocated memory in
   // |sample->branch_stack|.
@@ -319,26 +321,80 @@ size_t ReadPerfSampleFromData(const event_t& event,
   return reader.Tell();
 }
 
-// Writes sample info data data from |sample| into |event|.
-// |attr| is the event attribute struct, which contains info such as which
-// sample info fields are present.
-// |event| is the destination event. Its header should already be filled out.
-// Returns the number of bytes written or skipped.
-size_t WritePerfSampleToData(const struct perf_sample& sample,
-                             const struct perf_event_attr& attr,
-                             event_t* event) {
-  const uint64_t* initial_array_ptr = reinterpret_cast<const uint64_t*>(event);
+class PerfSampleDataWriter {
+ public:
+  // PerfSampleDataWriter writes perf sample data to the given array if skip
+  // write is not set. The caller maintains the ownership of the array.
+  PerfSampleDataWriter(uint64_t* array, bool skip_write) {
+    initial_array_ptr_ = array;
+    array_ = array;
+    skip_write_ = skip_write;
+    size_ = 0;
+    if (!skip_write_) CHECK(array);
+  }
 
-  uint64_t offset = SampleInfoReader::GetPerfSampleDataOffset(*event);
-  uint64_t* array =
-      reinterpret_cast<uint64_t*>(event) + offset / sizeof(uint64_t);
+  // Writes perf sample data from |sample| into the event pointed by the
+  // underlying array if skip_write_ is not set. |attr| is the event attribute
+  // struct, which contains info such as which sample info fields are present.
+  // Returns the number of bytes written or skipped.
+  size_t Write(const struct perf_sample& sample,
+               const struct perf_event_attr& attr, uint32_t event_type);
 
-  if (!(event->header.type == PERF_RECORD_SAMPLE || attr.sample_id_all)) {
-    return offset;
+ private:
+  void WriteData(uint64_t data) {
+    if (!skip_write_) *array_++ = data;
+    size_ += sizeof(uint64_t);
+  }
+
+  void WriteSizeAndData(uint32_t size, void* data) {
+    // Update the data read pointer after aligning to the next 64 bytes.
+    int num_bytes = Align<uint64_t>(sizeof(size) + size);
+
+    if (!skip_write_) {
+      uint32_t* ptr = reinterpret_cast<uint32_t*>(array_);
+      *ptr++ = size;
+      memcpy(ptr, data, size);
+      array_ += num_bytes / sizeof(uint64_t);
+    }
+
+    size_ += num_bytes;
+  }
+
+  void WriteData(uint32_t size, void* data) {
+    // Update the data read pointer after aligning to the next 64 bytes.
+    int num_bytes = Align<uint64_t>(size);
+
+    if (!skip_write_) {
+      memcpy(array_, data, size);
+      array_ += num_bytes / sizeof(uint64_t);
+    }
+
+    size_ += num_bytes;
+  }
+
+  size_t GetWrittenSize() {
+    if (!skip_write_) {
+      CHECK((array_ - initial_array_ptr_) * sizeof(uint64_t) == size_);
+    }
+    return size_;
+  }
+
+  uint64_t* initial_array_ptr_;
+  uint64_t* array_;
+  bool skip_write_;
+  size_t size_;
+};
+
+size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
+                                   const struct perf_event_attr& attr,
+                                   uint32_t event_type) {
+  array_ = initial_array_ptr_;
+  if (!(event_type == PERF_RECORD_SAMPLE || attr.sample_id_all)) {
+    return 0;
   }
 
   uint64_t sample_fields = SampleInfoReader::GetSampleFieldsForEventType(
-      event->header.type, attr.sample_type);
+      event_type, attr.sample_type);
 
   union {
     uint32_t val32[sizeof(uint64_t) / sizeof(uint32_t)];
@@ -351,43 +407,43 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
 
   // PERF_SAMPLE_IDENTIFIER is in a different location depending on
   // if this is a SAMPLE event or the sample_id of another event.
-  if (event->header.type == PERF_RECORD_SAMPLE) {
+  if (event_type == PERF_RECORD_SAMPLE) {
     // { u64                   id;       } && PERF_SAMPLE_IDENTIFIER
     if (sample_fields & PERF_SAMPLE_IDENTIFIER) {
-      *array++ = sample.id;
+      WriteData(sample.id);
     }
   }
 
   // { u64                   ip;       } && PERF_SAMPLE_IP
   if (sample_fields & PERF_SAMPLE_IP) {
-    *array++ = sample.ip;
+    WriteData(sample.ip);
   }
 
   // { u32                   pid, tid; } && PERF_SAMPLE_TID
   if (sample_fields & PERF_SAMPLE_TID) {
     val32[0] = sample.pid;
     val32[1] = sample.tid;
-    *array++ = val64;
+    WriteData(val64);
   }
 
   // { u64                   time;     } && PERF_SAMPLE_TIME
   if (sample_fields & PERF_SAMPLE_TIME) {
-    *array++ = sample.time;
+    WriteData(sample.time);
   }
 
   // { u64                   addr;     } && PERF_SAMPLE_ADDR
   if (sample_fields & PERF_SAMPLE_ADDR) {
-    *array++ = sample.addr;
+    WriteData(sample.addr);
   }
 
   // { u64                   id;       } && PERF_SAMPLE_ID
   if (sample_fields & PERF_SAMPLE_ID) {
-    *array++ = sample.id;
+    WriteData(sample.id);
   }
 
   // { u64                   stream_id;} && PERF_SAMPLE_STREAM_ID
   if (sample_fields & PERF_SAMPLE_STREAM_ID) {
-    *array++ = sample.stream_id;
+    WriteData(sample.stream_id);
   }
 
   // { u32                   cpu, res; } && PERF_SAMPLE_CPU
@@ -395,14 +451,14 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
     val32[0] = sample.cpu;
     // val32[1] = sample.res;  // reserved
     val32[1] = 0;
-    *array++ = val64;
+    WriteData(val64);
   }
 
   // This is the location of PERF_SAMPLE_IDENTIFIER in struct sample_id.
-  if (event->header.type != PERF_RECORD_SAMPLE) {
+  if (event_type != PERF_RECORD_SAMPLE) {
     // { u64                   id;       } && PERF_SAMPLE_IDENTIFIER
     if (sample_fields & PERF_SAMPLE_IDENTIFIER) {
-      *array++ = sample.id;
+      WriteData(sample.id);
     }
   }
 
@@ -412,28 +468,28 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
 
   // { u64                   period;   } && PERF_SAMPLE_PERIOD
   if (sample_fields & PERF_SAMPLE_PERIOD) {
-    *array++ = sample.period;
+    WriteData(sample.period);
   }
 
   // { struct read_format    values;   } && PERF_SAMPLE_READ
   if (sample_fields & PERF_SAMPLE_READ) {
     if (attr.read_format & PERF_FORMAT_GROUP) {
-      *array++ = sample.read.group.nr;
+      WriteData(sample.read.group.nr);
       if (attr.read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
-        *array++ = sample.read.time_enabled;
+        WriteData(sample.read.time_enabled);
       if (attr.read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
-        *array++ = sample.read.time_running;
+        WriteData(sample.read.time_running);
       for (size_t i = 0; i < sample.read.group.nr; i++) {
-        *array++ = sample.read.group.values[i].value;
-        if (attr.read_format & PERF_FORMAT_ID) *array++ = sample.read.one.id;
+        WriteData(sample.read.group.values[i].value);
+        if (attr.read_format & PERF_FORMAT_ID) WriteData(sample.read.one.id);
       }
     } else {
-      *array++ = sample.read.one.value;
+      WriteData(sample.read.one.value);
       if (attr.read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
-        *array++ = sample.read.time_enabled;
+        WriteData(sample.read.time_enabled);
       if (attr.read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
-        *array++ = sample.read.time_running;
-      if (attr.read_format & PERF_FORMAT_ID) *array++ = sample.read.one.id;
+        WriteData(sample.read.time_running);
+      if (attr.read_format & PERF_FORMAT_ID) WriteData(sample.read.one.id);
     }
   }
 
@@ -443,22 +499,16 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
     if (!sample.callchain) {
       LOG(ERROR) << "Expecting callchain data, but none was found.";
     } else {
-      *array++ = sample.callchain->nr;
+      WriteData(sample.callchain->nr);
       for (size_t i = 0; i < sample.callchain->nr; ++i)
-        *array++ = sample.callchain->ips[i];
+        WriteData(sample.callchain->ips[i]);
     }
   }
 
   // { u32                   size;
   //   char                  data[size];}&& PERF_SAMPLE_RAW
   if (sample_fields & PERF_SAMPLE_RAW) {
-    uint32_t* ptr = reinterpret_cast<uint32_t*>(array);
-    *ptr++ = sample.raw_size;
-    memcpy(ptr, sample.raw_data, sample.raw_size);
-
-    // Update the data read pointer after aligning to the next 64 bytes.
-    int num_bytes = Align<uint64_t>(sizeof(sample.raw_size) + sample.raw_size);
-    array += num_bytes / sizeof(uint64_t);
+    WriteSizeAndData(sample.raw_size, sample.raw_data);
   }
 
   // { u64                   nr;
@@ -466,15 +516,14 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
   if (sample_fields & PERF_SAMPLE_BRANCH_STACK) {
     if (!sample.branch_stack) {
       // When no branch stack is available, write the branch stack size as 0.
-      *array++ = 0;
+      WriteData(0);
       LOG(ERROR) << "Expecting branch stack data, but none was found.";
     } else {
-      *array++ = sample.branch_stack->nr;
+      WriteData(sample.branch_stack->nr);
       for (size_t i = 0; i < sample.branch_stack->nr; ++i) {
-        *array++ = sample.branch_stack->entries[i].from;
-        *array++ = sample.branch_stack->entries[i].to;
-        memcpy(array++, &sample.branch_stack->entries[i].flags,
-               sizeof(uint64_t));
+        WriteData(sample.branch_stack->entries[i].from);
+        WriteData(sample.branch_stack->entries[i].to);
+        WriteData(sizeof(uint64_t), &sample.branch_stack->entries[i].flags);
       }
     }
   }
@@ -483,7 +532,7 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
   //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_USER
   if (sample_fields & PERF_SAMPLE_REGS_USER) {
     LOG(ERROR) << "PERF_SAMPLE_REGS_USER is not yet supported.";
-    return (array - initial_array_ptr) * sizeof(uint64_t);
+    return GetWrittenSize();
   }
 
   // { u64                   size;
@@ -491,37 +540,37 @@ size_t WritePerfSampleToData(const struct perf_sample& sample,
   //   u64                   dyn_size; } && PERF_SAMPLE_STACK_USER
   if (sample_fields & PERF_SAMPLE_STACK_USER) {
     LOG(ERROR) << "PERF_SAMPLE_STACK_USER is not yet supported.";
-    return (array - initial_array_ptr) * sizeof(uint64_t);
+    return GetWrittenSize();
   }
 
   // { u64                   weight;   } && PERF_SAMPLE_WEIGHT
   if (sample_fields & PERF_SAMPLE_WEIGHT) {
-    *array++ = sample.weight;
+    WriteData(sample.weight);
   }
 
   // { u64                   data_src; } && PERF_SAMPLE_DATA_SRC
   if (sample_fields & PERF_SAMPLE_DATA_SRC) {
-    *array++ = sample.data_src;
+    WriteData(sample.data_src);
   }
 
   // { u64                   transaction; } && PERF_SAMPLE_TRANSACTION
   if (sample_fields & PERF_SAMPLE_TRANSACTION) {
-    *array++ = sample.transaction;
+    WriteData(sample.transaction);
   }
 
   // { u64                   abi; # enum perf_sample_regs_abi
   //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_INTR
   if (sample_fields & PERF_SAMPLE_REGS_INTR) {
     LOG(ERROR) << "PERF_SAMPLE_REGS_INTR is not yet supported.";
-    return (array - initial_array_ptr) * sizeof(uint64_t);
+    return GetWrittenSize();
   }
 
   // { u64                   phys_addr; } && PERF_SAMPLE_PHYS_ADDR
   if (sample_fields & PERF_SAMPLE_PHYS_ADDR) {
-    *array++ = sample.physical_addr;
+    WriteData(sample.physical_addr);
   }
 
-  return (array - initial_array_ptr) * sizeof(uint64_t);
+  return GetWrittenSize();
 }
 
 }  // namespace
@@ -555,14 +604,28 @@ bool SampleInfoReader::WritePerfSampleInfo(const perf_sample& sample,
     return false;
   }
 
+  uint64_t offset = GetPerfSampleDataOffset(*event);
+
+  PerfSampleDataWriter writer(
+      /*array=*/reinterpret_cast<uint64_t*>(event) + offset / sizeof(uint64_t),
+      /*skip_write=*/false);
+
   size_t size_written_or_skipped =
-      WritePerfSampleToData(sample, event_attr_, event);
+      offset + writer.Write(sample, event_attr_, event->header.type);
+
   if (size_written_or_skipped != event->header.size) {
     LOG(ERROR) << "Wrote/skipped " << size_written_or_skipped
                << " bytes, expected " << event->header.size << " bytes.";
   }
 
   return (size_written_or_skipped == event->header.size);
+}
+
+size_t SampleInfoReader::GetPerfSampleDataSize(const perf_sample& sample,
+                                               uint32_t event_type) const {
+  PerfSampleDataWriter writer(/*array=*/nullptr, /*skip_write=*/true);
+
+  return writer.Write(sample, event_attr_, event_type);
 }
 
 // static
@@ -599,62 +662,101 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
 
 // static
 uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
-  uint64_t offset = UINT64_MAX;
-  switch (event.header.type) {
-    case PERF_RECORD_SAMPLE:
-      offset = offsetof(event_t, sample.array);
-      break;
-    case PERF_RECORD_MMAP:
-      offset = sizeof(event.mmap) - sizeof(event.mmap.filename) +
+  uint64_t offset = [&] {
+    switch (event.header.type) {
+      case PERF_RECORD_SAMPLE:
+        return offsetof(event_t, sample.array);
+      case PERF_RECORD_MMAP:
+        return sizeof(event.mmap) - sizeof(event.mmap.filename) +
                GetUint64AlignedStringLength(event.mmap.filename);
-      break;
-    case PERF_RECORD_FORK:
-    case PERF_RECORD_EXIT:
-      offset = sizeof(event.fork);
-      break;
-    case PERF_RECORD_COMM:
-      offset = sizeof(event.comm) - sizeof(event.comm.comm) +
+      case PERF_RECORD_FORK:
+      case PERF_RECORD_EXIT:
+        return sizeof(event.fork);
+      case PERF_RECORD_COMM:
+        return sizeof(event.comm) - sizeof(event.comm.comm) +
                GetUint64AlignedStringLength(event.comm.comm);
-      break;
-    case PERF_RECORD_LOST:
-      offset = sizeof(event.lost);
-      break;
-    case PERF_RECORD_THROTTLE:
-    case PERF_RECORD_UNTHROTTLE:
-      offset = sizeof(event.throttle);
-      break;
-    case PERF_RECORD_READ:
-      offset = sizeof(event.read);
-      break;
-    case PERF_RECORD_MMAP2:
-      offset = sizeof(event.mmap2) - sizeof(event.mmap2.filename) +
+      case PERF_RECORD_LOST:
+        return sizeof(event.lost);
+      case PERF_RECORD_THROTTLE:
+      case PERF_RECORD_UNTHROTTLE:
+        return sizeof(event.throttle);
+      case PERF_RECORD_READ:
+        return sizeof(event.read);
+      case PERF_RECORD_MMAP2:
+        return sizeof(event.mmap2) - sizeof(event.mmap2.filename) +
                GetUint64AlignedStringLength(event.mmap2.filename);
-      break;
-    case PERF_RECORD_AUX:
-      offset = sizeof(event.aux);
-      break;
-    case PERF_RECORD_ITRACE_START:
-      offset = sizeof(event.itrace_start);
-      break;
-    case PERF_RECORD_LOST_SAMPLES:
-      offset = sizeof(event.lost_samples);
-      break;
-    case PERF_RECORD_SWITCH:
-      offset = sizeof(event.context_switch) -
+      case PERF_RECORD_AUX:
+        return sizeof(event.aux);
+      case PERF_RECORD_ITRACE_START:
+        return sizeof(event.itrace_start);
+      case PERF_RECORD_LOST_SAMPLES:
+        return sizeof(event.lost_samples);
+      case PERF_RECORD_SWITCH:
+        return sizeof(event.context_switch) -
                sizeof(event.context_switch.next_prev_pid) -
                sizeof(event.context_switch.next_prev_tid);
-      break;
-    case PERF_RECORD_SWITCH_CPU_WIDE:
-      offset = sizeof(event.context_switch);
-      break;
-    case PERF_RECORD_NAMESPACES:
-      offset = sizeof(event.namespaces) +
+      case PERF_RECORD_SWITCH_CPU_WIDE:
+        return sizeof(event.context_switch);
+      case PERF_RECORD_NAMESPACES:
+        return sizeof(event.namespaces) +
                event.namespaces.nr_namespaces * sizeof(perf_ns_link_info);
-      break;
-    default:
-      LOG(FATAL) << "Unknown event type " << event.header.type;
-      break;
-  }
+      default:
+        LOG(FATAL) << "Unknown event type " << event.header.type;
+        return UINT64_MAX;
+    }
+  }();
+  // Make sure the offset was valid
+  CHECK_NE(offset, UINT64_MAX);
+  CHECK_EQ(offset % sizeof(uint64_t), 0U);
+  return offset;
+}
+
+// static
+uint64_t SampleInfoReader::GetPerfSampleDataOffset(
+    const PerfDataProto_PerfEvent& event) {
+  uint64_t offset = [&] {
+    switch (event.header().type()) {
+      case PERF_RECORD_SAMPLE:
+        return offsetof(struct sample_event, array);
+      case PERF_RECORD_MMAP:
+        return offsetof(struct mmap_event, filename) +
+               GetUint64AlignedStringLength(event.mmap_event().filename());
+      case PERF_RECORD_MMAP2:
+        return offsetof(struct mmap2_event, filename) +
+               GetUint64AlignedStringLength(event.mmap_event().filename());
+      case PERF_RECORD_COMM:
+        return offsetof(struct comm_event, comm) +
+               GetUint64AlignedStringLength(event.comm_event().comm());
+      case PERF_RECORD_EXIT:
+      case PERF_RECORD_FORK:
+        return sizeof(struct fork_event);
+      case PERF_RECORD_LOST:
+        return sizeof(struct lost_event);
+      case PERF_RECORD_THROTTLE:
+      case PERF_RECORD_UNTHROTTLE:
+        return sizeof(struct throttle_event);
+      case PERF_RECORD_READ:
+        return sizeof(struct read_event);
+      case PERF_RECORD_AUX:
+        return sizeof(struct aux_event);
+      case PERF_RECORD_ITRACE_START:
+        return sizeof(struct itrace_start_event);
+      case PERF_RECORD_LOST_SAMPLES:
+        return sizeof(struct lost_samples_event);
+      case PERF_RECORD_SWITCH:
+        // PERF_RECORD_SWITCH event has only header.
+        return sizeof(struct perf_event_header);
+      case PERF_RECORD_SWITCH_CPU_WIDE:
+        return sizeof(struct context_switch_event);
+      case PERF_RECORD_NAMESPACES:
+        return offsetof(struct namespaces_event, link_info) +
+               (event.namespaces_event().link_info_size() *
+                sizeof(struct perf_ns_link_info));
+      default:
+        LOG(FATAL) << "Unknown event type " << event.header().type();
+        return UINT64_MAX;
+    }
+  }();
   // Make sure the offset was valid
   CHECK_NE(offset, UINT64_MAX);
   CHECK_EQ(offset % sizeof(uint64_t), 0U);

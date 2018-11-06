@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "base/logging.h"
+
 #include "buffer_reader.h"
 #include "compat/string.h"
 #include "compat/test.h"
