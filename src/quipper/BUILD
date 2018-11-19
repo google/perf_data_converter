@@ -492,6 +492,23 @@ cc_test(
     ],
 )
 
+cc_library(
+    name = "quipper_lib",
+    srcs = ["quipper_lib.cc"],
+    hdrs = ["quipper_lib.h"],
+    deps = [":perf_option_parser"],
+)
+
+cc_test(
+    name = "quipper_lib_test",
+    srcs = ["quipper_lib_test.cc"],
+    deps = [
+        ":compat_gunit",
+        ":quipper_lib",
+        ":test_runner",
+    ],
+)
+
 cc_binary(
     name = "quipper",
     srcs = ["quipper.cc"],
@@ -499,9 +516,11 @@ cc_binary(
     deps = [
         ":compat",
         ":file_utils",
+        ":perf_option_parser",
         ":perf_protobuf_io",
         ":perf_recorder",
         ":process_heap_profile",
+        ":quipper_lib",
         ":base",
         "@com_github_gflags_gflags//:gflags",
     ],
