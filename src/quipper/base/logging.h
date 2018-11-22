@@ -135,5 +135,10 @@ class VLog : public LogBase {
 #define DLOG(x) LOG(x)
 #define DVLOG(x) VLOG(x)
 #define DCHECK(x) CHECK(x)
+#define DCHECK_GT(x) CHECK_GT(x)
+#define DCHECK_GE(x) CHECK_GE(x)
+#define DCHECK_LE(x) CHECK_LE(x)
+#define DCHECK_NE(x) CHECK_NE(x)
+#define DCHECK_EQ(x) CHECK_EQ(x)
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_MYBASE_BASE_LOGGING_H_
