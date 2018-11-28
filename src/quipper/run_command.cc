@@ -6,6 +6,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -52,6 +54,112 @@ void ReadFromFd(int fd, std::vector<char>* output) {
   output->resize(read_off);
 }
 
+class SigintHandler {
+ public:
+  SigintHandler() : handler_({}), child_(0) {
+    int ret = sigemptyset(&handler_.sa_mask);
+    DCHECK_EQ(ret, 0);
+
+    ret = sigemptyset(&sigint_sigset_);
+    DCHECK_EQ(ret, 0);
+    ret = sigaddset(&sigint_sigset_, SIGINT);
+    DCHECK_EQ(ret, 0);
+
+    // Block SIGINT until child process is forked.
+    ret = sigprocmask(SIG_BLOCK, &sigint_sigset_, nullptr);
+    DCHECK_EQ(ret, 0);
+  }
+
+  void OnForked(pid_t child) {
+    child_ = child;
+
+    DCHECK(!g_signal_handler);
+    g_signal_handler = this;
+
+    int ret;
+    if (child_ > 0) {
+      // For the parent process (quipper), handle SIGINT to forward it to the
+      // perf process and let quipper itself run. This is so that sending SIGINT
+      // to the quipper process can be used to terminate a perf collection
+      // session ending up with a well-formed quipper proto as output.
+      handler_.sa_handler = &HandleSignal;
+      ret = sigaction(SIGINT, &handler_, nullptr);
+      DCHECK_EQ(ret, 0);
+    } else if (child_ == 0) {
+      // For the child process (perf), put it into a new process group with
+      // the child as the group leader so that 1) the parent (quipper) can send
+      // or forward SIGINT to the whole process group; and 2) SIGINT on CTRL-C
+      // in the terminal is not delivered to this process group.
+      ret = setpgid(0 /* sets pgid of current process */,
+                    0 /* uses the current pid as pgid */);
+      // This should not fail in the child just after fork().
+      DCHECK_EQ(ret, 0);
+
+      // Terminate the child process if the parent process ever dies
+      // prematurely.
+      ret = prctl(PR_SET_PDEATHSIG, SIGTERM);
+      // It's OK to continue the child if it ever fails.
+      DCHECK_EQ(ret, 0);
+    }
+
+    // Both parent and child unblock the signal. Now it's safe to have SIGINT
+    // delivered to quipper and perf.
+    ret = sigprocmask(SIG_UNBLOCK, &sigint_sigset_, nullptr);
+    DCHECK_EQ(ret, 0);
+  }
+
+  ~SigintHandler() {
+    // Destructor is never called in child because child either calls execvp()
+    // or std::_Exit() on execution failure. Either way the destructor is not
+    // called.
+    DCHECK_GT(child_, 0);
+
+    // Ignore SIGINT until the process exits so quipper can finish data
+    // conversion if SIGINT arrives after the perf duration elapsed.
+    // sigaction() is the first action in the destructor so that we won't run
+    // the signal handler with this object partially destroyed.
+    handler_.sa_handler = SIG_IGN;
+    int ret = sigaction(SIGINT, &handler_, nullptr);
+    DCHECK_EQ(ret, 0);
+    g_signal_handler = nullptr;
+  }
+
+  // Returns 0 if exit_status indicates that the process terminates on SIGINT,
+  // or -(termination signal) if the process terminates because of other
+  // unexpected signals.
+  static int GetSignaledExitStatus(int exit_status) {
+    int term_signal = WTERMSIG(exit_status);
+    // Treat SIGINT or SIGTERM as normal termination. If perf forks, it will
+    // send SIGTERM to the child process, wait until it dies and then send
+    // out the child exit signal as its exit status.
+    if (term_signal == SIGTERM || term_signal == SIGINT) {
+      return 0;
+    } else {
+      return -term_signal;
+    }
+  }
+
+ private:
+  static void HandleSignal(int signo) {
+    // We should only receive SIGINT.
+    DCHECK_EQ(signo, SIGINT);
+    DCHECK(!!g_signal_handler);
+
+    // Forward the signal to the child process group. It's OK that the child
+    // process group may be not existent (errno == ESRCH) if SIGINT is sent
+    // after perf exits.
+    (void)killpg(g_signal_handler->child_, signo);
+  }
+
+  static SigintHandler* g_signal_handler;
+
+  struct sigaction handler_;
+  sigset_t sigint_sigset_;
+  pid_t child_;
+};
+
+SigintHandler* SigintHandler::g_signal_handler;
+
 }  // namespace
 
 int RunCommand(const std::vector<string>& command, std::vector<char>* output) {
@@ -81,7 +189,14 @@ int RunCommand(const std::vector<string>& command, std::vector<char>* output) {
   }
   if (!CloseFdOnExec(errno_pipefd[1])) return -1;
 
+  // Initialize the parent and child process *atomically* to signal delivery:
+  // fork(), sigaction() and setpgid() are all done with SIGINT blocked so that
+  // SIGINT will be delivered either before or after these action are done, not
+  // between these actions.
+  SigintHandler signal_handler;
   const pid_t child = fork();
+  signal_handler.OnForked(child);
+
   if (child == 0) {
     close(errno_pipefd[0]);
 
@@ -165,7 +280,12 @@ int RunCommand(const std::vector<string>& command, std::vector<char>* output) {
   while (waitpid(child, &exit_status, 0) < 0 && errno == EINTR) {
   }
   errno = 0;
-  if (WIFEXITED(exit_status)) return WEXITSTATUS(exit_status);
+
+  if (WIFEXITED(exit_status)) {
+    return WEXITSTATUS(exit_status);
+  } else if (WIFSIGNALED(exit_status)) {
+    return signal_handler.GetSignaledExitStatus(exit_status);
+  }
   return -1;
 }
 
