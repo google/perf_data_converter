@@ -4,8 +4,7 @@
 
 #include "file_reader.h"
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <vector>
 
 #include "compat/test.h"
@@ -56,6 +55,18 @@ TEST(FileReaderTest, ReadZeroBytes) {
 
   // Make sure the read pointer hasn't moved.
   EXPECT_EQ(5, reader.Tell());
+}
+
+// Make sure that the reader can handle integer overflow.
+TEST(FileReaderTest, ReadDataBeyondMaxSize) {
+  std::vector<uint8_t> input_data(10);
+
+  ScopedTempFile input_file;
+  ASSERT_TRUE(BufferToFile(input_file.path(), input_data));
+
+  FileReader reader(input_file.path());
+  reader.SeekSet(5);
+  EXPECT_FALSE(reader.ReadData(SIZE_MAX, nullptr));
 }
 
 // Read in all data from the input file at once.
@@ -231,6 +242,20 @@ TEST(FileReaderTest, ReadString) {
   EXPECT_EQ(input_string_with_padding.size(), padding_reader.Tell());
   // However, the output string itself should not have padding.
   EXPECT_EQ(input_string, padding_reader_output);
+}
+
+// Make sure that the reader can handle integer overflow.
+TEST(FileReaderTest, ReadStringBeyondMaxSize) {
+  // Construct an input string.
+  string input_string("The quick brown fox jumps over the lazy dog.");
+
+  ScopedTempFile input_file;
+  ASSERT_TRUE(BufferToFile(input_file.path(), input_string));
+
+  FileReader reader(input_file.path());
+  reader.SeekSet(5);
+  string output;
+  EXPECT_FALSE(reader.ReadString(SIZE_MAX, &output));
 }
 
 // Reads data to a buffer and verifies that the buffer has not been modified

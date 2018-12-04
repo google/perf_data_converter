@@ -6,10 +6,12 @@
 
 #include <string.h>
 
+#include <cstdint>
+
 namespace quipper {
 
 bool BufferReader::ReadData(const size_t size, void* dest) {
-  if (offset_ + size > size_) return false;
+  if (offset_ > SIZE_MAX - size || offset_ + size > size_) return false;
 
   memcpy(dest, buffer_ + offset_, size);
   offset_ += size;
@@ -17,7 +19,7 @@ bool BufferReader::ReadData(const size_t size, void* dest) {
 }
 
 bool BufferReader::ReadString(size_t size, string* str) {
-  if (offset_ + size > size_) return false;
+  if (offset_ > SIZE_MAX - size || offset_ + size > size_) return false;
 
   size_t actual_length = strnlen(buffer_ + offset_, size);
   *str = string(buffer_ + offset_, actual_length);
