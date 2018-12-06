@@ -642,13 +642,24 @@ class ExampleAuxtraceErrorEvent : public StreamWriteable {
 // Produces PERF_RECORD_THREAD_MAP event.
 class ExampleThreadMapEvent : public StreamWriteable {
  public:
-  ExampleThreadMapEvent(std::vector<struct thread_map_event_entry> entries)
-      : entries_(std::move(entries)) {}
+  ExampleThreadMapEvent() {}
   size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
+  ExampleThreadMapEvent& WithEntry(u32 pid, const string& comm) {
+    entries_.push_back(entry{
+        .pid = pid,
+        .comm = comm,
+    });
+    return *this;
+  }
+
  private:
-  const std::vector<struct thread_map_event_entry> entries_;
+  struct entry {
+    u32 pid;
+    string comm;
+  };
+  std::vector<struct entry> entries_;
 };
 
 // Produces PERF_RECORD_STAT_CONFIG event.

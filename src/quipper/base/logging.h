@@ -126,6 +126,8 @@ class VLog : public LogBase {
   if (!(x > y)) LOG(FATAL) << #x << " > " << #y << "failed"
 #define CHECK_GE(x, y) \
   if (!(x >= y)) LOG(FATAL) << #x << " >= " << #y << "failed"
+#define CHECK_LT(x, y) \
+  if (!(x < y)) LOG(FATAL) << #x << " < " << #y << "failed"
 #define CHECK_LE(x, y) \
   if (!(x <= y)) LOG(FATAL) << #x << " <= " << #y << "failed"
 #define CHECK_NE(x, y) \

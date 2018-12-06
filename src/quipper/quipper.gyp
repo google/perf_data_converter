@@ -116,6 +116,7 @@
         'common',
       ],
       'sources': [
+        'quipper_lib.cc',
         'quipper.cc',
       ],
     },

@@ -14,6 +14,7 @@
 
 #include "binary_data_utils.h"
 #include "compat/string.h"
+#include "compat/test.h"
 #include "kernel/perf_internals.h"
 #include "perf_data_utils.h"
 
@@ -610,6 +611,7 @@ size_t ExampleThreadMapEvent::GetSize() const {
 }
 
 void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
+  static const int kMaxCommSize = sizeof(thread_map_event_entry{}.comm);
   const size_t event_size = GetSize();
   malloced_unique_ptr<thread_map_event> event(
       reinterpret_cast<struct thread_map_event*>(calloc(1, event_size)));
@@ -620,8 +622,11 @@ void ExampleThreadMapEvent::WriteTo(std::ostream* out) const {
 
   for (u64 i = 0; i < entries_.size(); ++i) {
     event->entries[i].pid = MaybeSwap64(entries_[i].pid);
-    snprintf(event->entries[i].comm, sizeof(entries_[i].comm), "%s",
-             entries_[i].comm);
+    CHECK_LT(entries_[i].comm.size(), kMaxCommSize)
+        << "command size should be less than " << kMaxCommSize
+        << ", got the command: " << entries_[i].comm;
+    snprintf(event->entries[i].comm, kMaxCommSize, "%s",
+             entries_[i].comm.c_str());
   }
 
   const size_t pre_thread_map_offset = out->tellp();
