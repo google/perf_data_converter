@@ -18,7 +18,11 @@ bool DataReader::ReadDataString(const size_t size, string* dest) {
     return true;
   }
   const size_t orig_size = dest->size();
-  dest->resize(std::max(size, orig_size));
+  const size_t dest_size = std::max(size, orig_size);
+  if (dest_size > dest->max_size()) {
+    return false;
+  }
+  dest->resize(dest_size);
   bool ret = ReadData(size, &(*dest)[0]);
   dest->resize(ret ? size : orig_size);
   return ret;

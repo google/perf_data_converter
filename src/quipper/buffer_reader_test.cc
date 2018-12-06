@@ -4,9 +4,8 @@
 
 #include "buffer_reader.h"
 
-#include <stdint.h>
-
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
 #include "compat/string.h"
@@ -50,6 +49,16 @@ TEST(BufferReaderTest, ReadZeroBytes) {
 
   // Make sure the read pointer hasn't moved.
   EXPECT_EQ(5, reader.Tell());
+}
+
+// Make sure that the reader can handle integer overflow.
+TEST(BufferReaderTest, ReadDataBeyondMaxSize) {
+  const std::vector<uint8_t> input(10);
+  BufferReader reader(input.data(), input.size());
+
+  // Move to some location within the buffer.
+  reader.SeekSet(5);
+  EXPECT_FALSE(reader.ReadData(SIZE_MAX, nullptr));
 }
 
 // Read in all data from the input buffer at once.
@@ -209,6 +218,18 @@ TEST(BufferReaderTest, ReadString) {
   // The reader should have read past the padding too.
   EXPECT_EQ(input_vector.size(), vector_reader.Tell());
   EXPECT_EQ(input, vector_reader_output);
+}
+
+// Make sure that the reader can handle integer overflow.
+TEST(BufferReaderTest, ReadStringBeyondMaxSize) {
+  // Construct an input string.
+  string input("The quick brown fox jumps over the lazy dog.");
+
+  BufferReader reader(input.data(), input.size());
+
+  // Move to some location within the buffer.
+  reader.SeekSet(5);
+  EXPECT_FALSE(reader.ReadString(SIZE_MAX, nullptr));
 }
 
 string MakeStringWithNullsForSpaces(string str) {

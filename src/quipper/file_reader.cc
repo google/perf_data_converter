@@ -6,6 +6,7 @@
 
 #include <string.h>
 
+#include <cstdint>
 #include <memory>
 
 namespace quipper {
@@ -31,8 +32,17 @@ FileReader::~FileReader() {
 }
 
 bool FileReader::ReadData(const size_t size, void* dest) {
-  if (Tell() + size > size_ || fread(dest, 1, size, infile_) < size)
+  long tell = ftell(infile_);  
+  if (tell < 0) {
     return false;
+  }
+  size_t offset = static_cast<size_t>(tell);
+  if (offset > SIZE_MAX - size || offset + size > size_) {
+    return false;
+  }
+  if (fread(dest, 1, size, infile_) < size) {
+    return false;
+  }
   return true;
 }
 

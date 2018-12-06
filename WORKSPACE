@@ -1,3 +1,5 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
 http_archive(
      name = "com_google_googletest",
@@ -11,9 +13,9 @@ http_archive(
 # N.B. We have a near-clone of the protobuf BUILD file overriding upstream so
 # that we can set the unexported config variable to enable zlib. Without this,
 # protobuf silently yields link errors.
-new_http_archive(
+http_archive(
     name = "com_google_protobuf",
-    build_file = "third_party/protobuf.BUILD",
+    build_file = "protobuf.BUILD",
     sha256 = "091d4263d9a55eccb6d3c8abde55c26eaaa933dea9ecabb185cdf3795f9b5ca2",
     strip_prefix = "protobuf-3.5.1.1",
     urls = ["https://github.com/google/protobuf/archive/v3.5.1.1.zip"],
