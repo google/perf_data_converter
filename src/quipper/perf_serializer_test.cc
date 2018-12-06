@@ -803,21 +803,11 @@ TEST(PerfSerializerTest, SerializesAndDeserializesThreadMapEvents) {
                                               /*sample_id_all=*/true)
       .WriteTo(&input);
 
-  std::vector<struct thread_map_event_entry> entries;
-  struct thread_map_event_entry entry1 = {
-      .pid = 1234,
-  };
-  snprintf(entry1.comm, sizeof(entry1.comm), "%s", "comm1");
-  struct thread_map_event_entry entry2 = {
-      .pid = 223344,
-  };
-  snprintf(entry2.comm, sizeof(entry2.comm) + 1, "%s", "comm2");
-
-  entries.push_back(entry1);
-  entries.push_back(entry2);
-
   // PERF_RECORD_THREAD_MAP
-  testing::ExampleThreadMapEvent(entries).WriteTo(&input);
+  testing::ExampleThreadMapEvent()
+      .WithEntry(1234, "comm1")
+      .WithEntry(223344, "comm2")
+      .WriteTo(&input);
 
   // Parse and Serialize
 
