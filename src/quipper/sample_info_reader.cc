@@ -662,7 +662,7 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
 
 // static
 uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
-  uint64_t offset = [&] {
+  uint64_t offset = [&]() -> uint64_t {
     switch (event.header.type) {
       case PERF_RECORD_SAMPLE:
         return offsetof(event_t, sample.array);
@@ -714,7 +714,7 @@ uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
 // static
 uint64_t SampleInfoReader::GetPerfSampleDataOffset(
     const PerfDataProto_PerfEvent& event) {
-  uint64_t offset = [&] {
+  uint64_t offset = [&]() -> uint64_t {
     switch (event.header().type()) {
       case PERF_RECORD_SAMPLE:
         return offsetof(struct sample_event, array);
