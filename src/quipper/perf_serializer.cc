@@ -1057,10 +1057,11 @@ bool PerfSerializer::SerializeAuxtraceErrorEvent(
         << "contains a non-zero value: " << auxtrace_error.reserved__ << ". "
         << "This record's format has changed.";
   }
-  u16 len = strnlen(auxtrace_error.msg,
-                    std::min((u64)MAX_AUXTRACE_ERROR_MSG,
-                             auxtrace_error.header.size -
-                                 offsetof(struct auxtrace_error_event, msg)));
+  size_t len =
+      strnlen(auxtrace_error.msg,
+              std::min<size_t>(MAX_AUXTRACE_ERROR_MSG,
+                               (auxtrace_error.header.size -
+                                offsetof(struct auxtrace_error_event, msg))));
   sample->set_msg(auxtrace_error.msg, len);
   sample->set_msg_md5_prefix(Md5Prefix(sample->msg()));
   return true;
