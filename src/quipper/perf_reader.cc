@@ -935,6 +935,10 @@ bool PerfReader::ReadBuildIDMetadata(DataReader* data, size_t size) {
 
 bool PerfReader::ReadBuildIDMetadataWithoutHeader(
     DataReader* data, const perf_event_header& header) {
+  if (header.size < sizeof(header)) {
+    LOG(ERROR) << "Invalid buildid metadata header size";
+    return false;
+  }
   // Allocate memory for the event.
   malloced_unique_ptr<build_id_event> event(
       CallocMemoryForBuildID(header.size));
