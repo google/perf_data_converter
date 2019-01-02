@@ -21,8 +21,8 @@ namespace quipper {
 
 namespace {
 
-constexpr char kInuseSizeEventName[] = "heapz_inuse_size";
-constexpr char kInuseCountEventName[] = "heapz_inuse_count";
+constexpr char kInuseSizeEventName[] = "heap_cpp_inuse_space";
+constexpr char kInuseCountEventName[] = "heap_cpp_inuse_objects";
 
 const u64 kInuseCountSampleID = 0;
 const u64 kInuseSizeSampleID = 1;

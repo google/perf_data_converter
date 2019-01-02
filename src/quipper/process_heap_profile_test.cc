@@ -84,8 +84,8 @@ TEST(ProcessHeapProfileTest, HasMetadataAndPerfFileAttr) {
 
   PerfDataProto_PerfEventType* event_type = expected.add_event_types();
   event_type->set_id(PERF_COUNT_SW_DUMMY);
-  event_type->set_name("heapz_inuse_count");
-  event_type->set_name_md5_prefix(Md5Prefix("heapz_inuse_count"));
+  event_type->set_name("heap_cpp_inuse_objects");
+  event_type->set_name_md5_prefix(Md5Prefix("heap_cpp_inuse_objects"));
 
   file_attr = expected.add_file_attrs();
   event_attr = file_attr->mutable_attr();
@@ -101,8 +101,8 @@ TEST(ProcessHeapProfileTest, HasMetadataAndPerfFileAttr) {
 
   event_type = expected.add_event_types();
   event_type->set_id(PERF_COUNT_SW_DUMMY);
-  event_type->set_name("heapz_inuse_size");
-  event_type->set_name_md5_prefix(Md5Prefix("heapz_inuse_size"));
+  event_type->set_name("heap_cpp_inuse_space");
+  event_type->set_name_md5_prefix(Md5Prefix("heap_cpp_inuse_space"));
 
   ASSERT_TRUE(ProcessHeapProfile(heap_profile, 3456, &actual));
 
