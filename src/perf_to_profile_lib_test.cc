@@ -17,65 +17,65 @@ TEST(PerfToProfileTest, ParseArguments) {
   struct Test {
     string desc;
     std::vector<const char*> argv;
-    string expectedInput;
-    string expectedOutput;
-    bool expectedOverwriteOutput;
-    bool wantError;
+    string expected_input;
+    string expected_output;
+    bool expected_overwrite_output;
+    bool want_error;
   };
 
   std::vector<Test> tests;
   tests.push_back(Test{
       .desc = "With input, output and overwrite flags",
       .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile", "-f"},
-      .expectedInput = "input_perf_file",
-      .expectedOutput = "output_profile",
-      .expectedOverwriteOutput = true,
-      .wantError = false,
+      .expected_input = "input_perf_file",
+      .expected_output = "output_profile",
+      .expected_overwrite_output = true,
+      .want_error = false,
   });
   tests.push_back(Test{
       .desc = "With input and output flags",
       .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile"},
-      .expectedInput = "input_perf_file",
-      .expectedOutput = "output_profile",
-      .expectedOverwriteOutput = false,
-      .wantError = false,
+      .expected_input = "input_perf_file",
+      .expected_output = "output_profile",
+      .expected_overwrite_output = false,
+      .want_error = false,
   });
   tests.push_back(Test{
       .desc = "With only overwrite flag",
       .argv = {"<exec>", "-f"},
-      .expectedInput = "",
-      .expectedOutput = "",
-      .expectedOverwriteOutput = false,
-      .wantError = true,
+      .expected_input = "",
+      .expected_output = "",
+      .expected_overwrite_output = false,
+      .want_error = true,
   });
   tests.push_back(Test{
       .desc = "With input, output, and invalid flags",
       .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile", "-F"},
-      .expectedInput = "",
-      .expectedOutput = "",
-      .expectedOverwriteOutput = false,
-      .wantError = true,
+      .expected_input = "",
+      .expected_output = "",
+      .expected_overwrite_output = false,
+      .want_error = true,
   });
   tests.push_back(Test{
       .desc = "With an invalid flag",
       .argv = {"<exec>", "-F"},
-      .expectedInput = "",
-      .expectedOutput = "",
-      .expectedOverwriteOutput = false,
-      .wantError = true,
+      .expected_input = "",
+      .expected_output = "",
+      .expected_overwrite_output = false,
+      .want_error = true,
   });
   for (auto test : tests) {
     string input;
     string output;
-    bool overwriteOutput;
+    bool overwrite_output;
     LOG(INFO) << "Testing: " << test.desc;
     EXPECT_THAT(ParseArguments(test.argv.size(), test.argv.data(), &input,
-                               &output, &overwriteOutput),
-                Eq(!test.wantError));
-    if (!test.wantError) {
-      EXPECT_THAT(input, Eq(test.expectedInput));
-      EXPECT_THAT(output, Eq(test.expectedOutput));
-      EXPECT_THAT(overwriteOutput, Eq(test.expectedOverwriteOutput));
+                               &output, &overwrite_output),
+                Eq(!test.want_error));
+    if (!test.want_error) {
+      EXPECT_THAT(input, Eq(test.expected_input));
+      EXPECT_THAT(output, Eq(test.expected_output));
+      EXPECT_THAT(overwrite_output, Eq(test.expected_overwrite_output));
     }
     optind = 1;
   }
