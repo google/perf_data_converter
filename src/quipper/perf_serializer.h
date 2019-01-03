@@ -40,6 +40,16 @@ class PerfSerializer {
   PerfSerializer();
   ~PerfSerializer();
 
+  // Returns true if the given event type is a kernel event and supported by
+  // the PerfSerializer.
+  static bool IsSupportedKernelEventType(uint32_t type);
+  // Returns true if the given event type is an user event and supported by
+  // the PerfSerializer.
+  static bool IsSupportedUserEventType(uint32_t type);
+  // Returns true if the given event type is a header event and supported by
+  // the PerfSerializer.
+  static bool IsSupportedHeaderEventType(uint32_t type);
+
   // Calculates the event size ignoring event.header.size . Returns true on
   // success. Returns false when the proto contains an unsupported perf event or
   // sample info.

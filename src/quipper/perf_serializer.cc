@@ -23,25 +23,63 @@
 
 namespace quipper {
 
-namespace {
-
-// IsKernelEvent returns true if the given |event| type is a kernel event type.
-bool IsKernelEvent(const PerfDataProto_PerfEvent& event) {
-  if (event.header().type() >= PERF_RECORD_MMAP &&
-      event.header().type() <= PERF_RECORD_MAX) {
-    return true;
-  }
-  return false;
-}
-
-}  // namespace
-
 PerfSerializer::PerfSerializer() {}
 
 PerfSerializer::~PerfSerializer() {}
 
+bool PerfSerializer::IsSupportedKernelEventType(uint32_t type) {
+  switch (type) {
+    case PERF_RECORD_MMAP:
+    case PERF_RECORD_LOST:
+    case PERF_RECORD_COMM:
+    case PERF_RECORD_EXIT:
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+    case PERF_RECORD_FORK:
+    case PERF_RECORD_READ:
+    case PERF_RECORD_SAMPLE:
+    case PERF_RECORD_MMAP2:
+    case PERF_RECORD_AUX:
+    case PERF_RECORD_ITRACE_START:
+    case PERF_RECORD_LOST_SAMPLES:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+    case PERF_RECORD_NAMESPACES:
+      return true;
+  }
+  return false;
+}
+
+bool PerfSerializer::IsSupportedUserEventType(uint32_t type) {
+  switch (type) {
+    case PERF_RECORD_FINISHED_ROUND:
+    case PERF_RECORD_AUXTRACE_INFO:
+    case PERF_RECORD_AUXTRACE:
+    case PERF_RECORD_AUXTRACE_ERROR:
+    case PERF_RECORD_THREAD_MAP:
+    case PERF_RECORD_STAT_CONFIG:
+    case PERF_RECORD_STAT:
+    case PERF_RECORD_STAT_ROUND:
+    case PERF_RECORD_TIME_CONV:
+      return true;
+  }
+  return false;
+}
+
+bool PerfSerializer::IsSupportedHeaderEventType(uint32_t type) {
+  switch (type) {
+    case PERF_RECORD_HEADER_ATTR:
+    case PERF_RECORD_HEADER_EVENT_TYPE:
+    case PERF_RECORD_HEADER_TRACING_DATA:
+    case PERF_RECORD_HEADER_BUILD_ID:
+    case PERF_RECORD_HEADER_FEATURE:
+      return true;
+  }
+  return false;
+}
+
 size_t PerfSerializer::GetEventSize(const PerfDataProto_PerfEvent& event) {
-  if (IsKernelEvent(event)) {
+  if (PerfSerializer::IsSupportedKernelEventType(event.header().type())) {
     perf_sample sample_info = {};
     if (event.header().type() == PERF_RECORD_SAMPLE) {
       GetPerfSampleInfo(event.sample_event(), &sample_info);
