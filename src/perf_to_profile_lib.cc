@@ -39,8 +39,9 @@ perftools::ProcessProfiles StringToProfiles(const string& data,
                                           sample_labels, options);
 }
 
-void CreateFile(const string& path, std::ofstream* file, bool overwriteOutput) {
-  if (!overwriteOutput && FileExists(path)) {
+void CreateFile(const string& path, std::ofstream* file,
+                bool overwrite_output) {
+  if (!overwrite_output && FileExists(path)) {
     LOG(FATAL) << "File already exists: " << path;
   }
   file->open(path, std::ios_base::trunc);
@@ -57,10 +58,10 @@ void PrintUsage() {
 }
 
 bool ParseArguments(int argc, const char* argv[], string* input, string* output,
-                    bool* overwriteOutput) {
+                    bool* overwrite_output) {
   *input = "";
   *output = "";
-  *overwriteOutput = false;
+  *overwrite_output = false;
   int opt;
   while ((opt = getopt(argc, const_cast<char* const*>(argv), ":fi:o:")) != -1) {
     switch (opt) {
@@ -71,7 +72,7 @@ bool ParseArguments(int argc, const char* argv[], string* input, string* output,
         *output = optarg;
         break;
       case 'f':
-        *overwriteOutput = true;
+        *overwrite_output = true;
         break;
       case ':':
         LOG(ERROR) << "Must provide arguments for flags -i and -o";
