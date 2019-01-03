@@ -1938,4 +1938,46 @@ TEST(PerfReaderTest, MetadataMaskInitialized) {
   EXPECT_EQ(0U, reader.metadata_mask());
 }
 
+TEST(PerfReaderTest, UnsupportedPerfEvent) {
+  std::stringstream input;
+  // Do this before header to compute the total data size.
+  struct perf_event_header event = {
+      .type = PERF_RECORD_MAX,
+      .misc = 0,
+      .size = sizeof(struct perf_event_header),
+  };
+
+  const size_t data_size = sizeof(event);
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  input.write(reinterpret_cast<const char*>(&event), data_size);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_TRUE(pr.ReadFromString(input.str()));
+
+  // Make sure the attr was recorded properly.
+  EXPECT_EQ(1, pr.attrs().size());
+  EXPECT_TRUE(pr.attrs().Get(0).attr().sample_id_all());
+
+  // Verify perf events.
+  ASSERT_EQ(0, pr.events().size());
+}
+
 }  // namespace quipper

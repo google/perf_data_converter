@@ -181,15 +181,6 @@ static bool CompareEventTimes(const PerfEvent* e1, const PerfEvent* e2) {
   return e1->timestamp() < e2->timestamp();
 }
 
-// Skip events that are not yet parsed in to a PerfDataProto.
-bool IsSkippableEvent(u32 type) {
-  if (type == PERF_RECORD_ID_INDEX || type == PERF_RECORD_CPU_MAP ||
-      type == PERF_RECORD_EVENT_UPDATE) {
-    return true;
-  }
-  return false;
-}
-
 }  // namespace
 
 PerfReader::PerfReader()
@@ -792,7 +783,9 @@ bool PerfReader::ReadDataSection(DataReader* data) {
 
     data_remaining_bytes -= event->header.size;
 
-    if (IsSkippableEvent(event->header.type)) {
+    if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
+        !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
+      LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
       continue;
     }
 
@@ -1319,75 +1312,64 @@ bool PerfReader::ReadPipedData(DataReader* data) {
     // Compute the size of the post-header part of the event data.
     size_t size_without_header = header.size - sizeof(header);
 
-    bool isHeaderEventType = [&] {
-      switch (header.type) {
-        case PERF_RECORD_HEADER_ATTR:
-        case PERF_RECORD_HEADER_EVENT_TYPE:
-        case PERF_RECORD_HEADER_TRACING_DATA:
-        case PERF_RECORD_HEADER_BUILD_ID:
-        case PERF_RECORD_HEADER_FEATURE:
-          return true;
-        default:
-          return false;
-      }
-    }();
-
-    if (!isHeaderEventType) {
-      // Allocate space for an event struct based on the size in the header.
-      // Don't blindly allocate the entire event_t because it is a
-      // variable-sized type that may include data beyond what's nominally
-      // declared in its definition.
-      malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
-      event->header = header;
-
-      // Read the rest of the event data.
-      if (!data->ReadDataValue(size_without_header, "rest of piped event",
-                               &event->header + 1)) {
-        break;
-      }
-      MaybeSwapEventFields(event.get(), data->is_cross_endian());
-
-      if (IsSkippableEvent(event->header.type)) {
-        continue;
-      }
-
-      // Serialize the event to protobuf form.
-      PerfEvent* proto_event = proto_->add_events();
-      if (!serializer_.SerializeEvent(event, proto_event)) return false;
-
-      if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
-        if (!ReadAuxtraceTraceData(data, proto_event)) return false;
-      }
+    if (PerfSerializer::IsSupportedHeaderEventType(header.type)) {
+      result = [&] {
+        switch (header.type) {
+          case PERF_RECORD_HEADER_ATTR:
+            return ReadAttrEventBlock(data, size_without_header);
+          case PERF_RECORD_HEADER_EVENT_TYPE:
+            return ReadEventType(data, num_event_types++, header.size);
+          case PERF_RECORD_HEADER_TRACING_DATA:
+            set_metadata_mask_bit(HEADER_TRACING_DATA);
+            {
+              // TRACING_DATA's header.size is a lie. It is the size of only the
+              // event struct. The size of the data is in the event struct, and
+              // followed immediately by the tracing header data.
+              decltype(tracing_data_event::size) size = 0;
+              if (!data->ReadUint32(&size)) {
+                LOG(ERROR) << "Error reading tracing data size.";
+                return false;
+              }
+              return ReadTracingMetadata(data, size);
+            }
+          case PERF_RECORD_HEADER_BUILD_ID:
+            set_metadata_mask_bit(HEADER_BUILD_ID);
+            return ReadBuildIDMetadataWithoutHeader(data, header);
+          case PERF_RECORD_HEADER_FEATURE:
+            return ReadHeaderFeature(data, header);
+        }
+        return false;
+      }();
       continue;
     }
 
-    result = [&] {
-      switch (header.type) {
-        case PERF_RECORD_HEADER_ATTR:
-          return ReadAttrEventBlock(data, size_without_header);
-        case PERF_RECORD_HEADER_EVENT_TYPE:
-          return ReadEventType(data, num_event_types++, header.size);
-        case PERF_RECORD_HEADER_TRACING_DATA:
-          set_metadata_mask_bit(HEADER_TRACING_DATA);
-          {
-            // TRACING_DATA's header.size is a lie. It is the size of only the
-            // event struct. The size of the data is in the event struct, and
-            // followed immediately by the tracing header data.
-            decltype(tracing_data_event::size) size = 0;
-            if (!data->ReadUint32(&size)) {
-              LOG(ERROR) << "Error reading tracing data size.";
-              return false;
-            }
-            return ReadTracingMetadata(data, size);
-          }
-        case PERF_RECORD_HEADER_BUILD_ID:
-          set_metadata_mask_bit(HEADER_BUILD_ID);
-          return ReadBuildIDMetadataWithoutHeader(data, header);
-        case PERF_RECORD_HEADER_FEATURE:
-          return ReadHeaderFeature(data, header);
-      }
-      return false;
-    }();
+    // Allocate space for an event struct based on the size in the header.
+    // Don't blindly allocate the entire event_t because it is a
+    // variable-sized type that may include data beyond what's nominally
+    // declared in its definition.
+    malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
+    event->header = header;
+
+    // Read the rest of the event data.
+    if (!data->ReadDataValue(size_without_header, "rest of piped event",
+                             &event->header + 1)) {
+      break;
+    }
+    MaybeSwapEventFields(event.get(), data->is_cross_endian());
+
+    if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
+        !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
+      LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
+      continue;
+    }
+
+    // Serialize the event to protobuf form.
+    PerfEvent* proto_event = proto_->add_events();
+    if (!serializer_.SerializeEvent(event, proto_event)) return false;
+
+    if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
+      if (!ReadAuxtraceTraceData(data, proto_event)) return false;
+    }
   }
 
   if (!result) return false;
