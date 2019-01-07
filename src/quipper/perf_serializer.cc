@@ -78,7 +78,8 @@ bool PerfSerializer::IsSupportedHeaderEventType(uint32_t type) {
   return false;
 }
 
-size_t PerfSerializer::GetEventSize(const PerfDataProto_PerfEvent& event) {
+size_t PerfSerializer::GetEventSize(
+    const PerfDataProto_PerfEvent& event) const {
   if (PerfSerializer::IsSupportedKernelEventType(event.header().type())) {
     perf_sample sample_info = {};
     if (event.header().type() == PERF_RECORD_SAMPLE) {
@@ -428,6 +429,13 @@ bool PerfSerializer::DeserializeKernelEvent(
     case PERF_RECORD_MMAP2:
       return DeserializeMMap2Event(event_proto.mmap_event(), event);
     case PERF_RECORD_COMM:
+      // Sometimes the command string will be modified.  e.g. if the original
+      // comm string is not recoverable from the Md5sum prefix, then use the
+      // latter as a replacement comm string.  However, if the original was
+      // < 8 bytes (fit into |sizeof(uint64_t)|), then the size is no longer
+      // correct. This section checks for the size difference and updates the
+      // size in the header.
+      event->header.size = GetEventSize(event_proto);
       return DeserializeCommEvent(event_proto.comm_event(), event);
     case PERF_RECORD_EXIT:
       return (event_proto.has_exit_event() &&
@@ -688,19 +696,6 @@ bool PerfSerializer::DeserializeCommEvent(const PerfDataProto_CommEvent& sample,
   comm.pid = sample.pid();
   comm.tid = sample.tid();
   snprintf(comm.comm, sizeof(comm.comm), "%s", sample.comm().c_str());
-
-  // Sometimes the command string will be modified.  e.g. if the original comm
-  // string is not recoverable from the Md5sum prefix, then use the latter as a
-  // replacement comm string.  However, if the original was < 8 bytes (fit into
-  // |sizeof(uint64_t)|), then the size is no longer correct.  This section
-  // checks for the size difference and updates the size in the header.
-  const SampleInfoReader* reader =
-      GetSampleInfoReaderForId(sample.sample_info().id());
-  CHECK(reader);
-  uint64_t sample_fields = SampleInfoReader::GetSampleFieldsForEventType(
-      comm.header.type, reader->event_attr().sample_type);
-  comm.header.size = SampleInfoReader::GetPerfSampleDataOffset(*event) +
-                     GetNumBits(sample_fields) * sizeof(uint64_t);
 
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
