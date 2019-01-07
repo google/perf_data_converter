@@ -28,7 +28,7 @@ using PerfEvent = PerfDataProto_PerfEvent;
 using SampleEvent = PerfDataProto_SampleEvent;
 using SampleInfo = PerfDataProto_SampleInfo;
 
-TEST(PerfReaderTest, PipedData_IncompleteEventHeader) {
+TEST(PerfReaderTest, PipedData_FailIncompleteEventHeader) {
   std::stringstream input;
 
   // pipe header
@@ -65,20 +65,10 @@ TEST(PerfReaderTest, PipedData_IncompleteEventHeader) {
   //
 
   PerfReader pr;
-  ASSERT_TRUE(pr.ReadFromString(input.str()));
-
-  // Make sure the attr was recorded properly.
-  ASSERT_EQ(1, pr.attrs().size());
-  EXPECT_EQ(123, pr.attrs().Get(0).attr().config());
-  ASSERT_EQ(1, pr.event_types().size());
-  EXPECT_EQ("cycles", pr.event_types().Get(0).name());
-
-  // Make sure metadata mask was set to indicate EVENT_TYPE was upgraded
-  // to EVENT_DESC.
-  EXPECT_EQ((1 << HEADER_EVENT_DESC), pr.metadata_mask());
+  ASSERT_FALSE(pr.ReadFromString(input.str()));
 }
 
-TEST(PerfReaderTest, PipedData_IncompleteEventData) {
+TEST(PerfReaderTest, PipedData_FailIncompleteEventData) {
   std::stringstream input;
 
   // pipe header
@@ -124,17 +114,7 @@ TEST(PerfReaderTest, PipedData_IncompleteEventData) {
   //
 
   PerfReader pr;
-  ASSERT_TRUE(pr.ReadFromString(input.str()));
-
-  // Make sure the attr was recorded properly.
-  ASSERT_EQ(1, pr.attrs().size());
-  EXPECT_EQ(456, pr.attrs().Get(0).attr().config());
-  ASSERT_EQ(1, pr.event_types().size());
-  EXPECT_EQ("instructions", pr.event_types().Get(0).name());
-
-  // Make sure metadata mask was set to indicate EVENT_TYPE was upgraded
-  // to EVENT_DESC.
-  EXPECT_EQ((1 << HEADER_EVENT_DESC), pr.metadata_mask());
+  ASSERT_FALSE(pr.ReadFromString(input.str()));
 }
 
 TEST(PerfReaderTest, PerfEventAttrEvent) {
