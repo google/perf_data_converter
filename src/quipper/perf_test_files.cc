@@ -150,10 +150,6 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
        */
       "perf.data.piped.hw_and_sw-3.4",
 
-      // Piped data with extra data at end.
-      "perf.data.piped.extrabyte-3.4",
-      "perf.data.piped.extradata-3.4",
-
       // Perf data that contains intel pt events collected in piped mode from
       // perf-4.14
       // Command:

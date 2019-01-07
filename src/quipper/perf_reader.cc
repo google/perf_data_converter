@@ -772,37 +772,55 @@ bool PerfReader::ReadDataSection(DataReader* data) {
       return false;
     }
 
-    // Read the rest of the event data.
-    malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
-    event->header = header;
-    if (!data->ReadDataValue(event->header.size - sizeof(event->header),
-                             "rest of event", &event->header + 1)) {
+    size_t read_size = 0;
+    if (!ReadNonHeaderEventDataWithoutHeader(data, header, &read_size)) {
+      LOG(ERROR) << "Couldn't read event of type: " << header.type;
       return false;
     }
-    MaybeSwapEventFields(event.get(), data->is_cross_endian());
 
-    data_remaining_bytes -= event->header.size;
-
-    if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
-        !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
-      LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
-      continue;
-    }
-
-    // We must have a valid way to read sample info before reading perf events.
-    CHECK(serializer_.SampleInfoReaderAvailable());
-
-    // Serialize the event to protobuf form.
-    PerfEvent* proto_event = proto_->add_events();
-    if (!serializer_.SerializeEvent(event, proto_event)) return false;
-
-    if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
-      if (!ReadAuxtraceTraceData(data, proto_event)) return false;
-      data_remaining_bytes -= proto_event->auxtrace_event().size();
-    }
+    data_remaining_bytes -= sizeof(header) + read_size;
   }
 
   DLOG(INFO) << "Number of events stored: " << proto_->events_size();
+  return true;
+}
+
+bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
+    DataReader* data, const perf_event_header& header, size_t* read_size) {
+  // Allocate space for an event struct based on the size in the header.
+  // Don't blindly allocate the entire event_t because it is a
+  // variable-sized type that may include data beyond what's nominally
+  // declared in its definition.
+  malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
+  event->header = header;
+
+  size_t event_data_size = event->header.size - sizeof(event->header);
+  // Read the rest of the event data.
+  if (!data->ReadDataValue(event_data_size, "rest of event",
+                           &event->header + 1)) {
+    return false;
+  }
+  MaybeSwapEventFields(event.get(), data->is_cross_endian());
+
+  if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
+      !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
+    LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
+    *read_size = event_data_size;
+    return true;
+  }
+
+  // We must have a valid way to read sample info before reading perf events.
+  CHECK(serializer_.SampleInfoReaderAvailable());
+
+  // Serialize the event to protobuf form.
+  PerfEvent* proto_event = proto_->add_events();
+  if (!serializer_.SerializeEvent(event, proto_event)) return false;
+
+  if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
+    if (!ReadAuxtraceTraceData(data, proto_event)) return false;
+    event_data_size += proto_event->auxtrace_event().size();
+  }
+  *read_size = event_data_size;
   return true;
 }
 
@@ -1300,7 +1318,7 @@ bool PerfReader::ReadPipedData(DataReader* data) {
     perf_event_header header;
     if (!ReadPerfEventHeader(data, &header)) {
       LOG(ERROR) << "Error reading event header.";
-      break;
+      return false;
     }
 
     if (header.size == 0) {
@@ -1343,32 +1361,10 @@ bool PerfReader::ReadPipedData(DataReader* data) {
       continue;
     }
 
-    // Allocate space for an event struct based on the size in the header.
-    // Don't blindly allocate the entire event_t because it is a
-    // variable-sized type that may include data beyond what's nominally
-    // declared in its definition.
-    malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
-    event->header = header;
-
-    // Read the rest of the event data.
-    if (!data->ReadDataValue(size_without_header, "rest of piped event",
-                             &event->header + 1)) {
-      break;
-    }
-    MaybeSwapEventFields(event.get(), data->is_cross_endian());
-
-    if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
-        !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
-      LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
-      continue;
-    }
-
-    // Serialize the event to protobuf form.
-    PerfEvent* proto_event = proto_->add_events();
-    if (!serializer_.SerializeEvent(event, proto_event)) return false;
-
-    if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
-      if (!ReadAuxtraceTraceData(data, proto_event)) return false;
+    size_t read_size = 0;
+    if (!ReadNonHeaderEventDataWithoutHeader(data, header, &read_size)) {
+      LOG(ERROR) << "Couldn't read event of type: " << header.type;
+      return false;
     }
   }
 

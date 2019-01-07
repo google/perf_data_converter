@@ -145,6 +145,15 @@ class PerfReader {
 
   bool ReadDataSection(DataReader* data);
 
+  // Reads the event data of non-header events from both file and pipe mode
+  // perf outputs. Returns true on success. Otherwise, returns false. On
+  // success, updates the |read_size| with the size of the read non-header event
+  // data including any data following the actual event not including the size
+  // of the header.
+  bool ReadNonHeaderEventDataWithoutHeader(DataReader* data,
+                                           const perf_event_header& header,
+                                           size_t* read_size);
+
   // Reads metadata in normal mode.
   bool ReadMetadata(DataReader* data);
 
