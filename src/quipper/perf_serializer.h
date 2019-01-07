@@ -53,7 +53,7 @@ class PerfSerializer {
   // Calculates the event size ignoring event.header.size . Returns true on
   // success. Returns false when the proto contains an unsupported perf event or
   // sample info.
-  size_t GetEventSize(const PerfDataProto_PerfEvent& event);
+  size_t GetEventSize(const PerfDataProto_PerfEvent& event) const;
 
   // The following functions convert between raw perf data structures and their
   // equivalent PerfDataProto representations.
