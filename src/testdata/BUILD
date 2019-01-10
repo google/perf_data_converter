@@ -6,6 +6,7 @@ exports_files(
     [
         "LICENSE",
         "perf-overlapping-kernel-mapping.pb_proto",
+        "perf-cros-kernel-3_18-mapping.pb_proto",
         "single-event-single-process.perf.data",
         "single-event-multi-process.perf.data",
         "multi-event-single-process.perf.data",
