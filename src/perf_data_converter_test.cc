@@ -300,6 +300,31 @@ TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
   EXPECT_EQ(kernel_mapping_id, profile.location(2).mapping_id());
 }
 
+TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
+  string path = GetResource(
+      "testdata"
+      "/perf-cros-kernel-3_18-mapping.pb_proto");
+  string asciiPb;
+  GetContents(path, &asciiPb);
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+  EXPECT_EQ(3, profile.sample_size());
+
+  EXPECT_EQ(2, profile.mapping_size());
+  EXPECT_EQ(1000, profile.mapping(0).memory_start());  // user
+  int64 user_mapping_id = profile.mapping(0).id();
+  EXPECT_EQ(0xffffffff8bc001c8, profile.mapping(1).memory_start());  // kernel
+  int64 kernel_mapping_id = profile.mapping(1).id();
+
+  EXPECT_EQ(3, profile.location_size());
+  EXPECT_EQ(kernel_mapping_id, profile.location(0).mapping_id());
+  EXPECT_EQ(user_mapping_id, profile.location(1).mapping_id());
+  EXPECT_EQ(0, profile.location(2).mapping_id());
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"

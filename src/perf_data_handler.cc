@@ -414,15 +414,18 @@ void Normalizer::UpdateMapsWithMMapEvent(
       &mmap->filename(), build_id, mmap->start(), mmap->start() + mmap->len(),
       mmap->pgoff(), mmap->filename_md5_prefix());
   owned_mappings_.emplace_back(mapping);
-  if (mapping->file_offset > (static_cast<uint64>(1) << 63) &&
+  if (mapping->start <= (static_cast<uint64>(1) << 63) &&
+      mapping->file_offset > (static_cast<uint64>(1) << 63) &&
       mapping->limit > (static_cast<uint64>(1) << 63)) {
-    // kernel is funky and basically swaps start and offset.  Arrange
-    // them such that we can reasonably symbolize them later.
-    uint64 old_start = mapping->start;
-    // file_offset here actually refers to the address of the _stext
-    // kernel symbol, so we need to align it.
+    // Prior to the fix (https://lore.kernel.org/patchwork/patch/473712/), perf
+    // synthesizes the kernel start using the address of the first symbol, found
+    // in the `/proc/kallsyms` file, that doesn't contain the `[` character.
+    // This address is usually 0. This causes the kernel mapping to subsume the
+    // entire user space mapping. Copy the offset value to start.
+
+    // file_offset here actually refers to the address of the text or _stext
+    // kernel symbol and might have to be page aligned.
     mapping->start = mapping->file_offset - mapping->file_offset % 4096;
-    mapping->file_offset = old_start;
   }
 
   interval_map->Set(mapping->start, mapping->limit, mapping);
