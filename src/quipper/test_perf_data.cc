@@ -237,8 +237,11 @@ size_t ExampleMmapEvent::GetSize() const {
 }
 
 void ExampleMmapEvent::WriteTo(std::ostream* out) const {
-  const size_t event_size = GetSize();
+  WriteToWithEventSize(out, GetSize());
+}
 
+void ExampleMmapEvent::WriteToWithEventSize(std::ostream* out,
+                                            u16 event_size) const {
   struct mmap_event event = {
       .header =
           {
@@ -263,7 +266,9 @@ void ExampleMmapEvent::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_mmap_offset;
-  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+
+  // GetSize() returns the actual event size.
+  CHECK_EQ(GetSize(), static_cast<u64>(written_event_size));
 }
 
 void ExampleMmap2Event::WriteTo(std::ostream* out) const {

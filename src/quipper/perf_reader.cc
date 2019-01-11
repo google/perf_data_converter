@@ -158,6 +158,11 @@ bool ReadPerfEventHeader(DataReader* data, struct perf_event_header* header) {
     ByteSwap(&header->size);
     ByteSwap(&header->misc);
   }
+  if (header->size < sizeof(header)) {
+    LOG(ERROR) << "Event size is less than the header size. Type: "
+               << header->type;
+    return false;
+  }
   return true;
 }
 
@@ -809,6 +814,28 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
     return true;
   }
 
+  size_t expected_size_without_sample_info =
+      PerfSerializer::GetEventSizeWithoutSampleInfo(*event);
+  if (expected_size_without_sample_info == 0) {
+    LOG(ERROR) << "Couldn't get event size for the event type: " << header.type;
+    return false;
+  }
+  if (event->header.size < expected_size_without_sample_info) {
+    LOG(ERROR) << "Expected the event header size of at least "
+               << expected_size_without_sample_info << ", got "
+               << event->header.size
+               << ". For the event type: " << event->header.type;
+    return false;
+  }
+  if (!SampleInfoReader::IsSupportedEventType(event->header.type) &&
+      event->header.size != expected_size_without_sample_info) {
+    LOG(ERROR) << "Expected the exact event header size "
+               << expected_size_without_sample_info << ", got "
+               << event->header.size
+               << ". For the event type: " << event->header.type;
+    return false;
+  }
+
   // We must have a valid way to read sample info before reading perf events.
   CHECK(serializer_.SampleInfoReaderAvailable());
 
@@ -1318,12 +1345,6 @@ bool PerfReader::ReadPipedData(DataReader* data) {
     perf_event_header header;
     if (!ReadPerfEventHeader(data, &header)) {
       LOG(ERROR) << "Error reading event header.";
-      return false;
-    }
-
-    if (header.size == 0) {
-      // Avoid an infinite loop.
-      LOG(ERROR) << "Event size is zero. Type: " << header.type;
       return false;
     }
 

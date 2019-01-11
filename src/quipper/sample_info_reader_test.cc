@@ -427,7 +427,9 @@ TEST(SampleInfoReaderTest, WriteSampleEventWithZeroBranchStack) {
 
   ASSERT_TRUE(reader.WritePerfSampleInfo(sample, event));
 
-  uint64_t offset = SampleInfoReader::GetPerfSampleDataOffset(*event);
+  size_t offset = SampleInfoReader::GetPerfSampleDataOffset(*event);
+  EXPECT_NE(0, offset);
+
   uint64_t* array =
       reinterpret_cast<uint64_t*>(event) + offset / sizeof(uint64_t);
 
@@ -437,6 +439,17 @@ TEST(SampleInfoReaderTest, WriteSampleEventWithZeroBranchStack) {
   EXPECT_EQ(sample.cpu, *array++);
   EXPECT_EQ(sample.period, *array++);
   EXPECT_EQ(0, *array++);  // BRANCH_STACK.nr
+}
+
+TEST(SampleInfoReaderTest, GetPerfSampleDataOffsetForUnsupportedEvent) {
+  size_t event_size = sizeof(struct perf_event_header);
+  malloced_unique_ptr<event_t> event_ptr(CallocMemoryForEvent(event_size));
+  event_t* event = event_ptr.get();
+  event->header.type = PERF_RECORD_MAX;
+  event->header.misc = 0;
+  event->header.size = event_size;
+
+  EXPECT_EQ(0, SampleInfoReader::GetPerfSampleDataOffset(*event));
 }
 
 }  // namespace quipper

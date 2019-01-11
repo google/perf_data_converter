@@ -18,33 +18,6 @@ namespace quipper {
 
 namespace {
 
-bool IsSupportedEventType(uint32_t type) {
-  switch (type) {
-    case PERF_RECORD_SAMPLE:
-    case PERF_RECORD_MMAP:
-    case PERF_RECORD_MMAP2:
-    case PERF_RECORD_FORK:
-    case PERF_RECORD_EXIT:
-    case PERF_RECORD_COMM:
-    case PERF_RECORD_LOST:
-    case PERF_RECORD_THROTTLE:
-    case PERF_RECORD_UNTHROTTLE:
-    case PERF_RECORD_AUX:
-    case PERF_RECORD_ITRACE_START:
-    case PERF_RECORD_LOST_SAMPLES:
-    case PERF_RECORD_SWITCH:
-    case PERF_RECORD_SWITCH_CPU_WIDE:
-    case PERF_RECORD_NAMESPACES:
-      return true;
-    case PERF_RECORD_READ:
-    case PERF_RECORD_MAX:
-      return false;
-    default:
-      LOG(FATAL) << "Unknown event type " << type;
-      return false;
-  }
-}
-
 // Read read info from perf data.  Corresponds to sample format type
 // PERF_SAMPLE_READ in the !PERF_FORMAT_GROUP case.
 void ReadReadInfo(DataReader* reader, uint64_t read_format,
@@ -158,7 +131,12 @@ size_t ReadPerfSampleFromData(const event_t& event,
                               struct perf_sample* sample) {
   BufferReader reader(&event, event.header.size);
   reader.set_is_cross_endian(is_cross_endian);
-  reader.SeekSet(SampleInfoReader::GetPerfSampleDataOffset(event));
+  size_t seek = SampleInfoReader::GetPerfSampleDataOffset(event);
+  if (seek == 0) {
+    LOG(ERROR) << "Couldn't find the sample data offset";
+    return reader.Tell();
+  }
+  reader.SeekSet(seek);
 
   if (!(event.header.type == PERF_RECORD_SAMPLE || attr.sample_id_all)) {
     return reader.Tell();
@@ -575,11 +553,34 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
 
 }  // namespace
 
+bool SampleInfoReader::IsSupportedEventType(uint32_t type) {
+  switch (type) {
+    case PERF_RECORD_SAMPLE:
+    case PERF_RECORD_MMAP:
+    case PERF_RECORD_MMAP2:
+    case PERF_RECORD_READ:
+    case PERF_RECORD_FORK:
+    case PERF_RECORD_EXIT:
+    case PERF_RECORD_COMM:
+    case PERF_RECORD_LOST:
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+    case PERF_RECORD_AUX:
+    case PERF_RECORD_ITRACE_START:
+    case PERF_RECORD_LOST_SAMPLES:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+    case PERF_RECORD_NAMESPACES:
+      return true;
+  }
+  return false;
+}
+
 bool SampleInfoReader::ReadPerfSampleInfo(const event_t& event,
                                           struct perf_sample* sample) const {
   CHECK(sample);
 
-  if (!IsSupportedEventType(event.header.type)) {
+  if (!SampleInfoReader::IsSupportedEventType(event.header.type)) {
     LOG(ERROR) << "Unsupported event type " << event.header.type;
     return false;
   }
@@ -599,12 +600,16 @@ bool SampleInfoReader::WritePerfSampleInfo(const perf_sample& sample,
                                            event_t* event) const {
   CHECK(event);
 
-  if (!IsSupportedEventType(event->header.type)) {
+  if (!SampleInfoReader::IsSupportedEventType(event->header.type)) {
     LOG(ERROR) << "Unsupported event type " << event->header.type;
     return false;
   }
 
-  uint64_t offset = GetPerfSampleDataOffset(*event);
+  size_t offset = SampleInfoReader::GetPerfSampleDataOffset(*event);
+  if (offset == 0) {
+    LOG(ERROR) << "Couldn't find the sample data offset";
+    return false;
+  }
 
   PerfSampleDataWriter writer(
       /*array=*/reinterpret_cast<uint64_t*>(event) + offset / sizeof(uint64_t),
@@ -661,105 +666,165 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
 }
 
 // static
-uint64_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
-  uint64_t offset = [&]() -> uint64_t {
-    switch (event.header.type) {
-      case PERF_RECORD_SAMPLE:
-        return offsetof(event_t, sample.array);
-      case PERF_RECORD_MMAP:
-        return sizeof(event.mmap) - sizeof(event.mmap.filename) +
-               GetUint64AlignedStringLength(event.mmap.filename);
-      case PERF_RECORD_FORK:
-      case PERF_RECORD_EXIT:
-        return sizeof(event.fork);
-      case PERF_RECORD_COMM:
-        return sizeof(event.comm) - sizeof(event.comm.comm) +
-               GetUint64AlignedStringLength(event.comm.comm);
-      case PERF_RECORD_LOST:
-        return sizeof(event.lost);
-      case PERF_RECORD_THROTTLE:
-      case PERF_RECORD_UNTHROTTLE:
-        return sizeof(event.throttle);
-      case PERF_RECORD_READ:
-        return sizeof(event.read);
-      case PERF_RECORD_MMAP2:
-        return sizeof(event.mmap2) - sizeof(event.mmap2.filename) +
-               GetUint64AlignedStringLength(event.mmap2.filename);
-      case PERF_RECORD_AUX:
-        return sizeof(event.aux);
-      case PERF_RECORD_ITRACE_START:
-        return sizeof(event.itrace_start);
-      case PERF_RECORD_LOST_SAMPLES:
-        return sizeof(event.lost_samples);
-      case PERF_RECORD_SWITCH:
-        return sizeof(event.context_switch) -
+size_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
+  size_t offset = 0;
+  switch (event.header.type) {
+    case PERF_RECORD_SAMPLE:
+      offset = offsetof(event_t, sample.array);
+      break;
+    case PERF_RECORD_MMAP: {
+      size_t fixed_size = offsetof(struct mmap_event, filename);
+      // mmap.filename is a char array so it should contain at least a '\0'
+      // char. Thus check for fixed_size + 1.
+      if (event.header.size < fixed_size + 1) {
+        LOG(ERROR) << "Invalid mmap event size. Expected at least "
+                   << fixed_size + 1 << ", got " << event.header.size;
+        return 0L;
+      }
+      offset = fixed_size + GetUint64AlignedStringLength(event.mmap.filename);
+      break;
+    }
+    case PERF_RECORD_FORK:
+    case PERF_RECORD_EXIT:
+      offset = sizeof(event.fork);
+      break;
+    case PERF_RECORD_COMM: {
+      size_t fixed_size = offsetof(struct comm_event, comm);
+      // comm.comm is a char array so it should contain at least a '\0'
+      // char. Thus check for fixed_size + 1.
+      if (event.header.size < fixed_size + 1) {
+        LOG(ERROR) << "Invalid comm event size. Expected at least "
+                   << fixed_size + 1 << ", got " << event.header.size;
+        return 0L;
+      }
+      offset = fixed_size + GetUint64AlignedStringLength(event.comm.comm);
+      break;
+    }
+    case PERF_RECORD_LOST:
+      offset = sizeof(event.lost);
+      break;
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+      offset = sizeof(event.throttle);
+      break;
+    case PERF_RECORD_READ:
+      offset = sizeof(event.read);
+      break;
+    case PERF_RECORD_MMAP2: {
+      size_t fixed_size = offsetof(struct mmap2_event, filename);
+      // mmap2.filename is a char array so it should contain at least a '\0'
+      // char. Thus check for fixed_size + 1.
+      if (event.header.size < fixed_size + 1) {
+        LOG(ERROR) << "Invalid mmap2 event size. Expected at least "
+                   << fixed_size + 1 << ", got " << event.header.size;
+        return 0L;
+      }
+      offset = fixed_size + GetUint64AlignedStringLength(event.mmap2.filename);
+      break;
+    }
+    case PERF_RECORD_AUX:
+      offset = sizeof(event.aux);
+      break;
+    case PERF_RECORD_ITRACE_START:
+      offset = sizeof(event.itrace_start);
+      break;
+    case PERF_RECORD_LOST_SAMPLES:
+      offset = sizeof(event.lost_samples);
+      break;
+    case PERF_RECORD_SWITCH:
+      offset = sizeof(event.context_switch) -
                sizeof(event.context_switch.next_prev_pid) -
                sizeof(event.context_switch.next_prev_tid);
-      case PERF_RECORD_SWITCH_CPU_WIDE:
-        return sizeof(event.context_switch);
-      case PERF_RECORD_NAMESPACES:
-        return sizeof(event.namespaces) +
-               event.namespaces.nr_namespaces * sizeof(perf_ns_link_info);
-      default:
-        LOG(FATAL) << "Unknown event type " << event.header.type;
-        return UINT64_MAX;
+      break;
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      offset = sizeof(event.context_switch);
+      break;
+    case PERF_RECORD_NAMESPACES: {
+      size_t fixed_size = sizeof(event.namespaces);
+      if (event.header.size < fixed_size) {
+        LOG(ERROR) << "Invalid namespaces event size. Expected at least "
+                   << fixed_size << ", got " << event.header.size;
+        return 0L;
+      }
+      offset = fixed_size +
+               (event.namespaces.nr_namespaces * sizeof(perf_ns_link_info));
+      break;
     }
-  }();
-  // Make sure the offset was valid
-  CHECK_NE(offset, UINT64_MAX);
-  CHECK_EQ(offset % sizeof(uint64_t), 0U);
+    default:
+      LOG(ERROR) << "Unknown event type " << event.header.type;
+      return 0L;
+  }
+
+  if (offset > event.header.size || offset % sizeof(uint64_t) != 0U) {
+    return 0L;
+  }
   return offset;
 }
 
 // static
-uint64_t SampleInfoReader::GetPerfSampleDataOffset(
+size_t SampleInfoReader::GetPerfSampleDataOffset(
     const PerfDataProto_PerfEvent& event) {
-  uint64_t offset = [&]() -> uint64_t {
-    switch (event.header().type()) {
-      case PERF_RECORD_SAMPLE:
-        return offsetof(struct sample_event, array);
-      case PERF_RECORD_MMAP:
-        return offsetof(struct mmap_event, filename) +
+  size_t offset = 0;
+  switch (event.header().type()) {
+    case PERF_RECORD_SAMPLE:
+      offset = offsetof(struct sample_event, array);
+      break;
+    case PERF_RECORD_MMAP:
+      offset = offsetof(struct mmap_event, filename) +
                GetUint64AlignedStringLength(event.mmap_event().filename());
-      case PERF_RECORD_MMAP2:
-        return offsetof(struct mmap2_event, filename) +
+      break;
+    case PERF_RECORD_MMAP2:
+      offset = offsetof(struct mmap2_event, filename) +
                GetUint64AlignedStringLength(event.mmap_event().filename());
-      case PERF_RECORD_COMM:
-        return offsetof(struct comm_event, comm) +
+      break;
+    case PERF_RECORD_COMM:
+      offset = offsetof(struct comm_event, comm) +
                GetUint64AlignedStringLength(event.comm_event().comm());
-      case PERF_RECORD_EXIT:
-      case PERF_RECORD_FORK:
-        return sizeof(struct fork_event);
-      case PERF_RECORD_LOST:
-        return sizeof(struct lost_event);
-      case PERF_RECORD_THROTTLE:
-      case PERF_RECORD_UNTHROTTLE:
-        return sizeof(struct throttle_event);
-      case PERF_RECORD_READ:
-        return sizeof(struct read_event);
-      case PERF_RECORD_AUX:
-        return sizeof(struct aux_event);
-      case PERF_RECORD_ITRACE_START:
-        return sizeof(struct itrace_start_event);
-      case PERF_RECORD_LOST_SAMPLES:
-        return sizeof(struct lost_samples_event);
-      case PERF_RECORD_SWITCH:
-        // PERF_RECORD_SWITCH event has only header.
-        return sizeof(struct perf_event_header);
-      case PERF_RECORD_SWITCH_CPU_WIDE:
-        return sizeof(struct context_switch_event);
-      case PERF_RECORD_NAMESPACES:
-        return offsetof(struct namespaces_event, link_info) +
+      break;
+    case PERF_RECORD_EXIT:
+    case PERF_RECORD_FORK:
+      offset = sizeof(struct fork_event);
+      break;
+    case PERF_RECORD_LOST:
+      offset = sizeof(struct lost_event);
+      break;
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+      offset = sizeof(struct throttle_event);
+      break;
+    case PERF_RECORD_READ:
+      offset = sizeof(struct read_event);
+      break;
+    case PERF_RECORD_AUX:
+      offset = sizeof(struct aux_event);
+      break;
+    case PERF_RECORD_ITRACE_START:
+      offset = sizeof(struct itrace_start_event);
+      break;
+    case PERF_RECORD_LOST_SAMPLES:
+      offset = sizeof(struct lost_samples_event);
+      break;
+    case PERF_RECORD_SWITCH:
+      // PERF_RECORD_SWITCH event has only header.
+      offset = sizeof(struct perf_event_header);
+      break;
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      offset = sizeof(struct context_switch_event);
+      break;
+    case PERF_RECORD_NAMESPACES:
+      offset = offsetof(struct namespaces_event, link_info) +
                (event.namespaces_event().link_info_size() *
                 sizeof(struct perf_ns_link_info));
-      default:
-        LOG(FATAL) << "Unknown event type " << event.header().type();
-        return UINT64_MAX;
-    }
-  }();
-  // Make sure the offset was valid
-  CHECK_NE(offset, UINT64_MAX);
-  CHECK_EQ(offset % sizeof(uint64_t), 0U);
+      break;
+    default:
+      LOG(ERROR) << "Unknown event type " << event.header().type();
+      return 0L;
+  }
+  // Make sure the offset was valid. Don't validate the offset against the
+  // header.size as the header.size might not be populated in some cases.
+  if (offset % sizeof(uint64_t) != 0U) {
+    return 0L;
+  }
   return offset;
 }
 

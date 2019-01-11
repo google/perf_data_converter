@@ -80,7 +80,7 @@ bool PerfSerializer::IsSupportedHeaderEventType(uint32_t type) {
 
 size_t PerfSerializer::GetEventSize(
     const PerfDataProto_PerfEvent& event) const {
-  if (PerfSerializer::IsSupportedKernelEventType(event.header().type())) {
+  if (SampleInfoReader::IsSupportedEventType(event.header().type())) {
     perf_sample sample_info = {};
     if (event.header().type() == PERF_RECORD_SAMPLE) {
       GetPerfSampleInfo(event.sample_event(), &sample_info);
@@ -90,7 +90,7 @@ size_t PerfSerializer::GetEventSize(
       if (sample_info_proto == nullptr) {
         LOG(ERROR) << "Sample info not available for the event: "
                    << event.header().type();
-        return 0;
+        return 0L;
       }
       GetPerfSampleInfo(*sample_info_proto, &sample_info);
     }
@@ -100,7 +100,12 @@ size_t PerfSerializer::GetEventSize(
                   << ", sample id: " << sample_info.id
                   << ", from proto: " << GetSampleIdFromPerfEvent(event);
 
-    return SampleInfoReader::GetPerfSampleDataOffset(event) +
+    size_t size_without_sample_info =
+        SampleInfoReader::GetPerfSampleDataOffset(event);
+    if (size_without_sample_info == 0) {
+      return 0L;
+    }
+    return size_without_sample_info +
            reader->GetPerfSampleDataSize(sample_info, event.header().type());
   }
 
@@ -126,14 +131,98 @@ size_t PerfSerializer::GetEventSize(
       return offsetof(struct stat_config_event, data) +
              (event.stat_config_event().data_size() *
               sizeof(struct stat_config_event_entry));
+    case PERF_RECORD_STAT:
+      return sizeof(struct stat_event);
     case PERF_RECORD_STAT_ROUND:
       return sizeof(struct stat_round_event);
     case PERF_RECORD_TIME_CONV:
       return sizeof(struct time_conv_event);
     default:
       LOG(ERROR) << "Unknown perf event: " << event.header().type();
-      return 0UL;
+      return 0L;
   }
+}
+
+size_t PerfSerializer::GetEventSizeWithoutSampleInfo(const event_t& event) {
+  u32 type = event.header.type;
+  if (SampleInfoReader::IsSupportedEventType(type)) {
+    return SampleInfoReader::GetPerfSampleDataOffset(event);
+  }
+
+  uint64_t event_size = 0;
+  switch (type) {
+    case PERF_RECORD_FINISHED_ROUND:
+      // PERF_RECORD_FINISHED_ROUND event has only header.
+      event_size = sizeof(struct perf_event_header);
+      break;
+    case PERF_RECORD_AUXTRACE_INFO: {
+      uint64_t fixed_size = offsetof(struct auxtrace_info_event, priv);
+      if (event.header.size < fixed_size ||
+          (event.header.size - fixed_size) % sizeof(u64) != 0) {
+        LOG(ERROR) << "Invalid auxtrace info event size. Got "
+                   << event.header.size;
+        return 0L;
+      }
+      event_size = event.header.size;
+      break;
+    }
+    case PERF_RECORD_AUXTRACE:
+      event_size = sizeof(struct auxtrace_event);
+      break;
+    case PERF_RECORD_AUXTRACE_ERROR: {
+      uint64_t fixed_size = offsetof(struct auxtrace_error_event, msg);
+      // auxtrace_error.msg is a char array so it should contain at least a
+      // '\0' char. Thus check for fixed_size + 1.
+      if (event.header.size < fixed_size + 1) {
+        LOG(ERROR) << "Invalid auxtrace event size. Expected at least "
+                   << fixed_size + 1 << ", got " << event.header.size;
+        return 0L;
+      }
+      event_size =
+          fixed_size + GetUint64AlignedStringLength(event.auxtrace_error.msg);
+      break;
+    }
+    case PERF_RECORD_THREAD_MAP: {
+      uint64_t fixed_size = offsetof(struct thread_map_event, entries);
+      if (event.header.size < fixed_size) {
+        LOG(ERROR) << "Invalid thread map event size. Expected at least "
+                   << fixed_size << ", got " << event.header.size;
+        return 0L;
+      }
+      event_size = fixed_size + (event.thread_map.nr *
+                                 sizeof(struct thread_map_event_entry));
+      break;
+    }
+    case PERF_RECORD_STAT_CONFIG: {
+      uint64_t fixed_size = offsetof(struct stat_config_event, data);
+      if (event.header.size < fixed_size) {
+        LOG(ERROR) << "Invalid stat config event size. Expected at least "
+                   << fixed_size << ", got " << event.header.size;
+        return 0L;
+      }
+      event_size = fixed_size + (event.stat_config.nr *
+                                 sizeof(struct stat_config_event_entry));
+      break;
+    }
+    case PERF_RECORD_STAT:
+      event_size = sizeof(struct stat_event);
+      break;
+    case PERF_RECORD_STAT_ROUND:
+      event_size = sizeof(struct stat_round_event);
+      break;
+    case PERF_RECORD_TIME_CONV:
+      event_size = sizeof(struct time_conv_event);
+      break;
+    default:
+      LOG(ERROR) << "Unknown perf event: " << type;
+      return 0L;
+  }
+
+  if (event_size % sizeof(uint64_t) != 0 || event_size > SIZE_MAX) {
+    return 0L;
+  }
+
+  return event_size;
 }
 
 bool PerfSerializer::SerializePerfFileAttr(
