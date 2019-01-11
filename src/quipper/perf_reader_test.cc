@@ -1960,4 +1960,128 @@ TEST(PerfReaderTest, UnsupportedPerfEvent) {
   ASSERT_EQ(0, pr.events().size());
 }
 
+TEST(PerfReaderTest, MMapEventWithZeroEventSize) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent mmap_event(1001, 0x1c1000, 0x1000, 0,
+                                       "/usr/lib/foo.so",
+                                       testing::SampleInfo().Tid(1001));
+
+  const size_t data_size = mmap_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  mmap_event.WriteToWithEventSize(&input, 0);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
+TEST(PerfReaderTest, PipedMMapEventWithZeroEventSize) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent(1001, 0x1c1000, 0x1000, 0, "/usr/lib/foo.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteToWithEventSize(&input, 0);
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
+TEST(PerfReaderTest, MMapEventWithZeroEventDataSize) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent mmap_event(1001, 0x1c1000, 0x1000, 0,
+                                       "/usr/lib/foo.so",
+                                       testing::SampleInfo().Tid(1001));
+
+  const size_t data_size = mmap_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  mmap_event.WriteToWithEventSize(&input, sizeof(struct perf_event_header));
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
+TEST(PerfReaderTest, PipedMMapEventWithZeroEventDataSize) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent(1001, 0x1c1000, 0x1000, 0, "/usr/lib/foo.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteToWithEventSize(&input, sizeof(struct perf_event_header));
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
 }  // namespace quipper

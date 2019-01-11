@@ -306,6 +306,9 @@ class ExampleMmapEvent : public StreamWriteable {
         sample_id_(sample_id) {}
   size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
+  // Use WriteToWithEventSize to write the event with an invalid size for
+  // testing negative test cases.
+  void WriteToWithEventSize(std::ostream* out, u16 size) const;
 
  private:
   const u32 pid_;
