@@ -195,28 +195,5 @@
         },
       ],
     }],
-    # Fuzzer target.
-    ['USE_fuzzer == 1', {
-      'targets': [
-        {
-          'target_name': 'quipper_perf_reader_fuzzer',
-          'type': 'executable',
-          'includes': [
-            '../common-mk/common_fuzzer.gypi',
-          ],
-          'dependencies': [
-            'common',
-          ],
-          'variables': {
-            'deps': [
-              'libchrome-test-<(libbase_ver)',
-            ],
-          },
-          'sources': [
-            'perf_reader_fuzzer.cc',
-          ],
-        },
-      ],
-    }],
   ],
 }

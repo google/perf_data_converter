@@ -14,6 +14,14 @@ binary_data_utils_test_data = [
     "testdata/hello_world.txt.gz",
 ]
 
+# Continuous software fuzzing is performed on this project in its upstream
+# repo. The following filegroup contains reproducers for issues found by the
+# fuzzer.
+filegroup(
+    name = "fuzzer_generated_files",
+    srcs = glob(["corpus/*"]),
+)
+
 proto_library(
     name = "perf_data_proto",
     srcs = ["perf_data.proto"],
