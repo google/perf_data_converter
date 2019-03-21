@@ -194,7 +194,7 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
         sample_type_(sample_type),
         sample_id_all_(sample_id_all),
         config_(0),
-        ids_section_({.offset = MaybeSwap64(104), .size = MaybeSwap64(0)}),
+        ids_section_({.offset = 104, .size = 0}),
         use_clockid_(false),
         context_switch_(false),
         write_backward_(false),
@@ -329,7 +329,8 @@ class ExampleMmap2Event : public StreamWriteable {
       : ExampleMmap2Event(pid, pid, start, len, pgoff, filename, sample_id) {}
   ExampleMmap2Event(u32 pid, u32 tid, u64 start, u64 len, u64 pgoff,
                     string filename, const SampleInfo& sample_id)
-      : pid_(pid),
+      : misc_(0),
+        pid_(pid),
         tid_(tid),
         start_(start),
         len_(len),
@@ -339,7 +340,11 @@ class ExampleMmap2Event : public StreamWriteable {
         ino_(8),
         filename_(filename),
         sample_id_(sample_id) {}
-
+  size_t GetSize() const;
+  SelfT& WithMisc(u16 misc) {
+    misc_ = misc;
+    return *this;
+  }
   SelfT& WithDeviceInfo(u32 maj, u32 min, u64 ino) {
     maj_ = maj;
     min_ = min;
@@ -350,6 +355,7 @@ class ExampleMmap2Event : public StreamWriteable {
   void WriteTo(std::ostream* out) const override;
 
  private:
+  u16 misc_;
   const u32 pid_;
   const u32 tid_;
   const u64 start_;

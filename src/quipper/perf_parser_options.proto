@@ -1,0 +1,19 @@
+// Copyright (c) 2019 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+syntax = "proto2";
+
+package quipper;
+
+// A proto mapping of PerfParserOptions, defined in perf_parser.h.  See that
+// definition for detail.
+message PerfParserOptionsProto {
+  optional bool do_remap = 1 [default = false];
+  optional bool discard_unused_events = 2 [default = false];
+  optional float sample_mapping_percentage_threshold = 3 [default = 95.0];
+  optional bool sort_events_by_time = 4 [default = false];
+  optional bool read_missing_buildids = 5 [default = false];
+  optional bool deduce_huge_page_mappings = 6 [default = true];
+  optional bool combine_mappings = 7 [default = true];
+}

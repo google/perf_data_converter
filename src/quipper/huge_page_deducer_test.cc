@@ -415,15 +415,15 @@ TEST_P(HugepageTextStyleDependent, NonMmapAfterLastMmap) {
 }
 
 INSTANTIATE_TEST_CASE_P(NoHugepageText, HugepageTextStyleDependent,
-                        ::testing::Values(kNoHugepageText));
+                         ::testing::Values(kNoHugepageText));
 INSTANTIATE_TEST_CASE_P(SlashSlashAnon, HugepageTextStyleDependent,
-                        ::testing::Values(kSlashSlashAnon));
+                         ::testing::Values(kSlashSlashAnon));
 INSTANTIATE_TEST_CASE_P(AnonHugepage, HugepageTextStyleDependent,
-                        ::testing::Values(kAnonHugepage));
+                         ::testing::Values(kAnonHugepage));
 INSTANTIATE_TEST_CASE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
-                        ::testing::Values(kAnonHugepageDeleted));
+                         ::testing::Values(kAnonHugepageDeleted));
 INSTANTIATE_TEST_CASE_P(MemFdHugepageText, HugepageTextStyleDependent,
-                        ::testing::Values(kMemFdHugePageText));
+                         ::testing::Values(kMemFdHugePageText));
 
 TEST(HugePageDeducer, DoesNotChangeVirtuallyContiguousPgoffNonContiguous) {
   // We've seen programs with strange memory layouts having virtually contiguous

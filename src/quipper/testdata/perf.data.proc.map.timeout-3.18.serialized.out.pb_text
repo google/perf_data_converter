@@ -1,0 +1,682 @@
+file_attrs {
+  attr {
+    type: 0
+    size: 96
+    config: 0
+    sample_period: 4000000
+    sample_type: 7
+    read_format: 0
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+}
+events {
+  header {
+    type: 79
+    misc: 0
+    size: 32
+  }
+  timestamp: 0
+  time_conv_event {
+    time_shift: 32
+    time_mult: 3579139413
+    time_zero: 18446744040916302333
+  }
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 80
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072440775112
+    len: 198921784
+    pgoff: 18446744072440775112
+    filename: "[kernel.kallsyms]_stext"
+    filename_md5_prefix: 11896564614450778392
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 40
+  }
+  comm_event {
+    pid: 9463
+    tid: 9463
+    comm: "chrome"
+    comm_md5_prefix: 6145223986912084844
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9464
+    comm: "TaskSchedulerSe"
+    comm_md5_prefix: 14830127137060472938
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9466
+    comm: "TaskSchedulerFo"
+    comm_md5_prefix: 15192312905181353058
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9467
+    comm: "Chrome_ChildIOT"
+    comm_md5_prefix: 7792778599403762125
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9468
+    comm: "GpuMemoryThread"
+    comm_md5_prefix: 20555375538731846
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9469
+    comm: "Font_Proxy_Thre"
+    comm_md5_prefix: 3322615641685405120
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9470
+    comm: "Compositor"
+    comm_md5_prefix: 10908841357896748192
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9471
+    comm: "CompositorTileW"
+    comm_md5_prefix: 6599276397158550781
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9472
+    comm: "CompositorTileW"
+    comm_md5_prefix: 6599276397158550781
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 9473
+    comm: "CompositorTileW"
+    comm_md5_prefix: 6599276397158550781
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 11697
+    comm: "TaskSchedulerFo"
+    comm_md5_prefix: 15192312905181353058
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 9463
+    tid: 11791
+    comm: "TaskSchedulerFo"
+    comm_md5_prefix: 15192312905181353058
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 9463
+    tid: 11791
+    start: 101600454565888
+    len: 159219712
+    pgoff: 0
+    filename: "/opt/google/chrome/chrome"
+    filename_md5_prefix: 15441617445353299075
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+    maj: 253
+    min: 0
+    ino: 88614
+    ino_generation: 3616733759617904184
+    prot: 5
+    flags: 2
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 9463
+    tid: 11791
+    start: 136653573967872
+    len: 94208
+    pgoff: 0
+    filename: "/lib64/libpthread-2.23.so"
+    filename_md5_prefix: 5142068807737746811
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+    maj: 253
+    min: 0
+    ino: 56032
+    ino_generation: 3616733759617904184
+    prot: 5
+    flags: 2
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 40
+  }
+  comm_event {
+    pid: 11796
+    tid: 11796
+    comm: "perf"
+    comm_md5_prefix: 4182440778745474060
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600455110397
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719735789766266
+  }
+  timestamp: 719735789766266
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 32
+  }
+  sample_event {
+    ip: 18446744072440905659
+    pid: 9463
+    tid: 9463
+    sample_time_ns: 719735863522186
+  }
+  timestamp: 719735863522186
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600512338591
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719735880794778
+  }
+  timestamp: 719735880794778
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 136653574007476
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719735989409099
+  }
+  timestamp: 719735989409099
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600521960079
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719736039942189
+  }
+  timestamp: 719736039942189
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600502498962
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719736206456166
+  }
+  timestamp: 719736206456166
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 136653574015348
+    pid: 9463
+    tid: 9463
+    sample_time_ns: 719736343137164
+  }
+  timestamp: 719736343137164
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600455233449
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719736356294141
+  }
+  timestamp: 719736356294141
+}
+timestamp_sec: 0
+stats {
+  num_sample_events: 8
+  num_mmap_events: 3
+  num_fork_events: 0
+  num_exit_events: 0
+  num_sample_events_mapped: 8
+  did_remap: false
+}
+metadata_mask: 81916
+build_ids {
+  misc: 1
+  pid: 4294967295
+  build_id_hash: "J\271\372\364\231Is\006j]\341\204b\241\370`a\036\300\315"
+  filename: "[kernel.kallsyms]"
+  filename_md5_prefix: 280564236321828871
+}
+build_ids {
+  misc: 2
+  pid: 4294967295
+  build_id_hash: "\2569\231\337\022\006\177\2528\225l\356vX\004\273(c\367\223"
+  filename: "/opt/google/chrome/chrome"
+  filename_md5_prefix: 15441617445353299075
+}
+build_ids {
+  misc: 2
+  pid: 4294967295
+  build_id_hash: "r\271w\214\266\345\251\236S9\00338X_\236|\266\370\345"
+  filename: "/lib64/libpthread-2.23.so"
+  filename_md5_prefix: 5142068807737746811
+}
+build_ids {
+  misc: 2
+  pid: 4294967295
+  build_id_hash: "\253\211w\256\2673(\314s\017Q\370\032\225[n\314\254\036f"
+  filename: "[vdso]"
+  filename_md5_prefix: 2667416218816914640
+}
+uint32_metadata {
+  type: 7
+  data: 4
+  data: 4
+}
+uint64_metadata {
+  type: 10
+  data: 16306356
+}
+event_types {
+  id: 0
+  name: "cycles"
+  name_md5_prefix: 12436270580932095263
+}
+cpu_topology {
+  core_siblings: "0-3"
+  core_siblings_md5_prefix: 6955206273986717419
+  thread_siblings: "0-1"
+  thread_siblings: "2-3"
+  thread_siblings_md5_prefix: 14045363986529205085
+  thread_siblings_md5_prefix: 13991663921307637384
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
+}
+string_metadata {
+  hostname {
+    value: "localhost"
+    value_md5_prefix: 4763305433620259622
+  }
+  kernel_version {
+    value: "3.18.0-18126-g0d4ac83af53d"
+    value_md5_prefix: 14061981491980614715
+  }
+  perf_version {
+    value: ""
+    value_md5_prefix: 15284527576400310788
+  }
+  architecture {
+    value: "x86_64"
+    value_md5_prefix: 11246003006864564
+  }
+  cpu_description {
+    value: "Intel(R) Core(TM) m7-6Y75 CPU @ 1.20GHz"
+    value_md5_prefix: 9538301509962256736
+  }
+  cpu_id {
+    value: "GenuineIntel,6,78,3"
+    value_md5_prefix: 4188185387426374524
+  }
+  perf_command_line_token {
+    value: "/usr/bin/perf"
+    value_md5_prefix: 17155547145735550491
+  }
+  perf_command_line_token {
+    value: "record"
+    value_md5_prefix: 16003524724320237622
+  }
+  perf_command_line_token {
+    value: "-e"
+    value_md5_prefix: 5793861197931060347
+  }
+  perf_command_line_token {
+    value: "cycles"
+    value_md5_prefix: 12436270580932095263
+  }
+  perf_command_line_token {
+    value: "-c"
+    value_md5_prefix: 2437668070592140105
+  }
+  perf_command_line_token {
+    value: "4000000"
+    value_md5_prefix: 11145152080445285565
+  }
+  perf_command_line_token {
+    value: "-p"
+    value_md5_prefix: 12936180529221291253
+  }
+  perf_command_line_token {
+    value: "9463"
+    value_md5_prefix: 14475505227326621278
+  }
+  perf_command_line_token {
+    value: "-o"
+    value_md5_prefix: 12893035396610391846
+  }
+  perf_command_line_token {
+    value: "/tmp/perf.data"
+    value_md5_prefix: 12516237368185577725
+  }
+  perf_command_line_token {
+    value: "--proc-map-timeout=2"
+    value_md5_prefix: 10121860142416771465
+  }
+  perf_command_line_token {
+    value: "--"
+    value_md5_prefix: 14964084598567107715
+  }
+  perf_command_line_token {
+    value: "sleep"
+    value_md5_prefix: 14554142227159335212
+  }
+  perf_command_line_token {
+    value: "1"
+    value_md5_prefix: 14180219187711517570
+  }
+  perf_command_line_whole {
+    value: "/usr/bin/perf record -e cycles -c 4000000 -p 9463 -o /tmp/perf.data --proc-map-timeout=2 -- sleep 1"
+    value_md5_prefix: 9407847335034932874
+  }
+}
+pmu_mappings {
+  type: 4
+  name: "cpu"
+  name_md5_prefix: 15669287738006486457
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 6
+  name: "power"
+  name_md5_prefix: 7119389851461848805
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
+}

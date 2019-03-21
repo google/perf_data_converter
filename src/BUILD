@@ -79,6 +79,7 @@ cc_test(
         "//src/testdata:perf-cros-kernel-3_18-mapping.pb_proto",
         "//src/testdata:perf-overlapping-kernel-mapping.pb_proto",
         "//src/testdata:single-event-multi-process.perf.data",
+        "//src/testdata:single-event-multi-process-single-ip.pb_proto",
         "//src/testdata:single-event-single-process.perf.data",
         "//src/testdata:with-callchain.perf.data",
     ],

@@ -784,7 +784,8 @@ message PerfDataProto {
     optional bytes tracing_data = 1;
 
     // Trace event metedata Md5sum prefix.
-    optional uint64 tracing_data_md5_prefix = 2;
+    // Deprecated as md5prefix of blob data is not useful.
+    optional uint64 tracing_data_md5_prefix = 2 [deprecated = true];
   }
 
   // Next tag: 6

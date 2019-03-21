@@ -22,6 +22,12 @@ bool SerializeFromStringWithOptions(const string& contents,
                                     const PerfParserOptions& options,
                                     PerfDataProto* proto);
 
+// Same as SerializeFromStringWithOptions, but accepting options in a
+// PerfParserOptionsProto protobuf.
+bool SerializeFromStringWithOptions(const string& contents,
+                                    const PerfParserOptionsProto& options,
+                                    PerfDataProto* proto);
+
 // Convert a raw perf data file to a PerfDataProto protobuf. Uses PerfParser to
 // to process the data before writing it to the protobuf.
 bool SerializeFromFile(const string& filename, PerfDataProto* proto);

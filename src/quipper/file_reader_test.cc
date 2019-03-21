@@ -27,19 +27,16 @@ TEST(FileReaderTest, MoveOffset) {
   EXPECT_EQ(0, reader.Tell());
 
   // Move the read cursor around.
-  reader.SeekSet(100);
+  EXPECT_TRUE(reader.SeekSet(100));
   EXPECT_EQ(100, reader.Tell());
-  reader.SeekSet(900);
+  EXPECT_TRUE(reader.SeekSet(900));
   EXPECT_EQ(900, reader.Tell());
-  reader.SeekSet(500);
+  EXPECT_TRUE(reader.SeekSet(500));
   EXPECT_EQ(500, reader.Tell());
 
-  // The cursor can be set to past the end of the file, but can't perform any
-  // read operations there.
-  reader.SeekSet(1200);
-  EXPECT_EQ(1200, reader.Tell());
-  int dummy;
-  EXPECT_FALSE(reader.ReadData(sizeof(dummy), &dummy));
+  // The cursor can't be set to past the end of the file.
+  EXPECT_FALSE(reader.SeekSet(1200));
+  EXPECT_EQ(500, reader.Tell());
 }
 
 // Make sure that the reader can handle a read size of zero.
@@ -50,7 +47,7 @@ TEST(FileReaderTest, ReadZeroBytes) {
   ASSERT_TRUE(BufferToFile(input_file.path(), input_data));
 
   FileReader reader(input_file.path());
-  reader.SeekSet(5);
+  EXPECT_TRUE(reader.SeekSet(5));
   EXPECT_TRUE(reader.ReadData(0, NULL));
 
   // Make sure the read pointer hasn't moved.
@@ -65,7 +62,7 @@ TEST(FileReaderTest, ReadDataBeyondMaxSize) {
   ASSERT_TRUE(BufferToFile(input_file.path(), input_data));
 
   FileReader reader(input_file.path());
-  reader.SeekSet(5);
+  EXPECT_TRUE(reader.SeekSet(5));
   EXPECT_FALSE(reader.ReadData(SIZE_MAX, nullptr));
 }
 
@@ -142,17 +139,17 @@ TEST(FileReaderTest, ReadWithJumps) {
   // offset must still match the source offset.
   std::vector<uint8_t> output(10);
 
-  reader.SeekSet(10);
+  EXPECT_TRUE(reader.SeekSet(10));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(20, reader.Tell());
   EXPECT_EQ("1:hijklmn;", string(output.begin(), output.end()));
 
-  reader.SeekSet(30);
+  EXPECT_TRUE(reader.SeekSet(30));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(40, reader.Tell());
   EXPECT_EQ("3:vwxyzABC", string(output.begin(), output.end()));
 
-  reader.SeekSet(0);
+  EXPECT_TRUE(reader.SeekSet(0));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(10, reader.Tell());
   EXPECT_EQ("0:abcdefg;", string(output.begin(), output.end()));
@@ -169,7 +166,7 @@ TEST(FileReaderTest, ReadPastEndOfData) {
 
   // Must not be able to read past the end of the file.
   std::vector<uint8_t> output(kInputData.size());
-  reader.SeekSet(0);
+  EXPECT_TRUE(reader.SeekSet(0));
   EXPECT_FALSE(reader.ReadData(30, output.data()));
   // The read pointer should not have moved.
   EXPECT_EQ(0, reader.Tell());
@@ -253,7 +250,7 @@ TEST(FileReaderTest, ReadStringBeyondMaxSize) {
   ASSERT_TRUE(BufferToFile(input_file.path(), input_string));
 
   FileReader reader(input_file.path());
-  reader.SeekSet(5);
+  EXPECT_TRUE(reader.SeekSet(5));
   string output;
   EXPECT_FALSE(reader.ReadString(SIZE_MAX, &output));
 }

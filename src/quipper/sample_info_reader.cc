@@ -19,81 +19,156 @@ namespace quipper {
 namespace {
 
 // Read read info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_READ in the !PERF_FORMAT_GROUP case.
-void ReadReadInfo(DataReader* reader, uint64_t read_format,
+// PERF_SAMPLE_READ in the !PERF_FORMAT_GROUP case. Returns true when read info
+// data is read completely. Otherwise, returns false.
+bool ReadReadInfo(DataReader* reader, uint64_t read_format,
                   struct perf_sample* sample) {
-  reader->ReadUint64(&sample->read.one.value);
-  if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
-    reader->ReadUint64(&sample->read.time_enabled);
-  if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
-    reader->ReadUint64(&sample->read.time_running);
-  if (read_format & PERF_FORMAT_ID) reader->ReadUint64(&sample->read.one.id);
+  if (!reader->ReadUint64(&sample->read.one.value)) {
+    return false;
+  }
+  if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED &&
+      !reader->ReadUint64(&sample->read.time_enabled)) {
+    return false;
+  }
+  if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING &&
+      !reader->ReadUint64(&sample->read.time_running)) {
+    return false;
+  }
+  if (read_format & PERF_FORMAT_ID &&
+      !reader->ReadUint64(&sample->read.one.id)) {
+    return false;
+  }
+  return true;
 }
 
 // Read read info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_READ in the PERF_FORMAT_GROUP case.
-void ReadGroupReadInfo(DataReader* reader, uint64_t read_format,
+// PERF_SAMPLE_READ in the PERF_FORMAT_GROUP case. Returns true when group read
+// info data is read completely. Otherwise, returns false.
+bool ReadGroupReadInfo(DataReader* reader, uint64_t read_format,
                        struct perf_sample* sample) {
   uint64_t num = 0;
-  reader->ReadUint64(&num);
-  if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
-    reader->ReadUint64(&sample->read.time_enabled);
-  if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
-    reader->ReadUint64(&sample->read.time_running);
+  if (!reader->ReadUint64(&num)) {
+    return false;
+  }
+  if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED &&
+      !reader->ReadUint64(&sample->read.time_enabled)) {
+    return false;
+  }
+
+  if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING &&
+      !reader->ReadUint64(&sample->read.time_running)) {
+    return false;
+  }
 
   // Make sure there is no existing allocated memory in
   // |sample->read.group.values|.
   CHECK_EQ(static_cast<void*>(NULL), sample->read.group.values);
+  size_t entry_size = 0;
+  if (read_format & PERF_FORMAT_ID) {
+    // values { u64 value; u64 id };
+    entry_size = sizeof(u64) * 2;
+  } else {
+    // values { u64 value; };
+    entry_size = sizeof(u64);
+  }
+  // Calculate the maximum possible number of values assuming the rest of the
+  // event as an array of the value struct.
+  size_t max_num_values = (reader->size() - reader->Tell()) / entry_size;
+  if (num > max_num_values) {
+    LOG(ERROR) << "Number of group read info values " << num
+               << " cannot exceed the maximum possible number of values "
+               << max_num_values;
+    return false;
+  }
+
   sample_read_value* values = new sample_read_value[num];
   for (uint64_t i = 0; i < num; i++) {
-    reader->ReadUint64(&values[i].value);
-    if (read_format & PERF_FORMAT_ID) reader->ReadUint64(&values[i].id);
+    if (!reader->ReadUint64(&values[i].value)) {
+      return false;
+    }
+    if (read_format & PERF_FORMAT_ID && !reader->ReadUint64(&values[i].id)) {
+      return false;
+    }
   }
   sample->read.group.nr = num;
   sample->read.group.values = values;
+  return true;
 }
 
 // Read call chain info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_CALLCHAIN.
-void ReadCallchain(DataReader* reader, struct perf_sample* sample) {
+// PERF_SAMPLE_CALLCHAIN. Returns true when callchain data is read completely.
+// Otherwise, returns false.
+bool ReadCallchain(DataReader* reader, struct perf_sample* sample) {
   // Make sure there is no existing allocated memory in |sample->callchain|.
   CHECK_EQ(static_cast<void*>(NULL), sample->callchain);
 
   // The callgraph data consists of a uint64_t value |nr| followed by |nr|
   // addresses.
   uint64_t callchain_size = 0;
-  reader->ReadUint64(&callchain_size);
+  if (!reader->ReadUint64(&callchain_size)) {
+    return false;
+  }
 
-  struct ip_callchain* callchain =
+  // Calculate the maximum possible number of callstack stack entries assuming
+  // the rest of the event as an array of u64 entries.
+  size_t max_callchain_entries =
+      (reader->size() - reader->Tell()) / sizeof(u64);
+  if (callchain_size > max_callchain_entries) {
+    LOG(ERROR)
+        << "Number of callchain entries " << callchain_size
+        << " cannot exceed the maximum possible number of callchain entries "
+        << max_callchain_entries;
+    return false;
+  }
+
+  sample->callchain =
       reinterpret_cast<struct ip_callchain*>(new uint64_t[callchain_size + 1]);
-  callchain->nr = callchain_size;
+  sample->callchain->nr = callchain_size;
 
-  for (size_t i = 0; i < callchain_size; ++i)
-    reader->ReadUint64(&callchain->ips[i]);
+  for (size_t i = 0; i < callchain_size; ++i) {
+    if (!reader->ReadUint64(&sample->callchain->ips[i])) {
+      LOG(ERROR) << "Failed to read the callchain entry: " << i;
+      return false;
+    }
+  }
 
-  sample->callchain = callchain;
+  return true;
 }
 
 // Read raw info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_RAW.
-void ReadRawData(DataReader* reader, struct perf_sample* sample) {
+// PERF_SAMPLE_RAW. Returns true when raw data is read completely. Otherwise,
+// return false.
+bool ReadRawData(DataReader* reader, struct perf_sample* sample) {
   // Save the original read offset.
   size_t reader_offset = reader->Tell();
 
-  reader->ReadUint32(&sample->raw_size);
+  if (!reader->ReadUint32(&sample->raw_size)) {
+    return false;
+  }
 
+  size_t remaining_size = reader->size() - reader->Tell();
+  if (sample->raw_size > remaining_size) {
+    LOG(ERROR) << "Raw data size " << sample->raw_size
+               << " cannot exceed the remaining event size " << remaining_size;
+    return false;
+  }
   // Allocate space for and read the raw data bytes.
   sample->raw_data = new uint8_t[sample->raw_size];
-  reader->ReadData(sample->raw_size, sample->raw_data);
+  if (!reader->ReadData(sample->raw_size, sample->raw_data)) {
+    return false;
+  }
 
   // Determine the bytes that were read, and align to the next 64 bits.
   reader_offset += Align<uint64_t>(sizeof(sample->raw_size) + sample->raw_size);
-  reader->SeekSet(reader_offset);
+  if (!reader->SeekSet(reader_offset)) return false;
+
+  return true;
 }
 
 // Read branch stack info from perf data.  Corresponds to sample format type
-// PERF_SAMPLE_BRANCH_STACK.
-void ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
+// PERF_SAMPLE_BRANCH_STACK. Returns true when branch stack data is read
+// completely. Otherwise, returns false.
+bool ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
   // Make sure there is no existing allocated memory in
   // |sample->branch_stack|.
   CHECK_EQ(static_cast<void*>(NULL), sample->branch_stack);
@@ -101,22 +176,41 @@ void ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
   // The branch stack data consists of a uint64_t value |nr| followed by |nr|
   // branch_entry structs.
   uint64_t branch_stack_size = 0;
-  reader->ReadUint64(&branch_stack_size);
+  if (!reader->ReadUint64(&branch_stack_size)) {
+    return false;
+  }
+
+  // Calculate the maximum possible number of branch stack entries assuming the
+  // rest of the event as an array of the struct branch_entry.
+  const u64 max_branch_stack_entries =
+      (reader->size() - reader->Tell()) / sizeof(struct branch_entry);
+  if (branch_stack_size > max_branch_stack_entries) {
+    LOG(ERROR) << "Number of branch stack entries " << branch_stack_size
+               << " cannot exceed the maximum possible number of branch stack"
+               << " entries " << max_branch_stack_entries;
+    return false;
+  }
 
   struct branch_stack* branch_stack = reinterpret_cast<struct branch_stack*>(
       new uint8_t[sizeof(uint64_t) +
                   branch_stack_size * sizeof(struct branch_entry)]);
   branch_stack->nr = branch_stack_size;
+  sample->branch_stack = branch_stack;
   for (size_t i = 0; i < branch_stack_size; ++i) {
-    reader->ReadUint64(&branch_stack->entries[i].from);
-    reader->ReadUint64(&branch_stack->entries[i].to);
-    reader->ReadData(sizeof(branch_stack->entries[i].flags),
-                     &branch_stack->entries[i].flags);
+    if (!reader->ReadUint64(&branch_stack->entries[i].from) ||
+        !reader->ReadUint64(&branch_stack->entries[i].to) ||
+        !reader->ReadData(sizeof(branch_stack->entries[i].flags),
+                          &branch_stack->entries[i].flags)) {
+      LOG(ERROR) << "Failed to read the branch stack entry: " << i;
+      return false;
+    }
+
     if (reader->is_cross_endian()) {
       LOG(ERROR) << "Byte swapping of branch stack flags is not yet supported.";
+      return false;
     }
   }
-  sample->branch_stack = branch_stack;
+  return true;
 }
 
 // Reads perf sample info data from |event| into |sample|.
@@ -124,22 +218,26 @@ void ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
 // sample info fields are present.
 // |is_cross_endian| indicates that the data is cross-endian and that the byte
 // order should be reversed for each field according to its size.
-// Returns number of bytes of data read or skipped.
-size_t ReadPerfSampleFromData(const event_t& event,
-                              const struct perf_event_attr& attr,
-                              bool is_cross_endian,
-                              struct perf_sample* sample) {
+// Returns true when sample info data is read completely and updates the
+// |read_size| with the size of read or skipped perf sample info data. On
+// failure, returns false.
+bool ReadPerfSampleFromData(const event_t& event,
+                            const struct perf_event_attr& attr,
+                            bool is_cross_endian, struct perf_sample* sample,
+                            size_t* read_size) {
   BufferReader reader(&event, event.header.size);
   reader.set_is_cross_endian(is_cross_endian);
-  size_t seek = SampleInfoReader::GetPerfSampleDataOffset(event);
+  size_t seek = GetEventDataSize(event);
   if (seek == 0) {
-    LOG(ERROR) << "Couldn't find the sample data offset";
-    return reader.Tell();
+    LOG(ERROR) << "Couldn't get event data size for event "
+               << GetEventName(event.header.type);
+    return false;
   }
-  reader.SeekSet(seek);
+  if (!reader.SeekSet(seek)) return false;
 
   if (!(event.header.type == PERF_RECORD_SAMPLE || attr.sample_id_all)) {
-    return reader.Tell();
+    *read_size = reader.Tell();
+    return true;
   }
 
   uint64_t sample_fields = SampleInfoReader::GetSampleFieldsForEventType(
@@ -157,45 +255,58 @@ size_t ReadPerfSampleFromData(const event_t& event,
   // if this is a SAMPLE event or the sample_id of another event.
   if (event.header.type == PERF_RECORD_SAMPLE) {
     // { u64                   id;       } && PERF_SAMPLE_IDENTIFIER
-    if (sample_fields & PERF_SAMPLE_IDENTIFIER) {
-      reader.ReadUint64(&sample->id);
+    if (sample_fields & PERF_SAMPLE_IDENTIFIER &&
+        !reader.ReadUint64(&sample->id)) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_IDENTIFIER";
+      return false;
     }
   }
 
   // { u64                   ip;       } && PERF_SAMPLE_IP
-  if (sample_fields & PERF_SAMPLE_IP) {
-    reader.ReadUint64(&sample->ip);
+  if (sample_fields & PERF_SAMPLE_IP && !reader.ReadUint64(&sample->ip)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_IP";
+    return false;
   }
 
   // { u32                   pid, tid; } && PERF_SAMPLE_TID
   if (sample_fields & PERF_SAMPLE_TID) {
-    reader.ReadUint32(&sample->pid);
-    reader.ReadUint32(&sample->tid);
+    if (!reader.ReadUint32(&sample->pid) || !reader.ReadUint32(&sample->tid)) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_TID";
+      return false;
+    }
   }
 
   // { u64                   time;     } && PERF_SAMPLE_TIME
-  if (sample_fields & PERF_SAMPLE_TIME) {
-    reader.ReadUint64(&sample->time);
+  if (sample_fields & PERF_SAMPLE_TIME && !reader.ReadUint64(&sample->time)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_TIME";
+    return false;
   }
 
   // { u64                   addr;     } && PERF_SAMPLE_ADDR
-  if (sample_fields & PERF_SAMPLE_ADDR) {
-    reader.ReadUint64(&sample->addr);
+  if (sample_fields & PERF_SAMPLE_ADDR && !reader.ReadUint64(&sample->addr)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_ADDR";
+    return false;
   }
 
   // { u64                   id;       } && PERF_SAMPLE_ID
-  if (sample_fields & PERF_SAMPLE_ID) {
-    reader.ReadUint64(&sample->id);
+  if (sample_fields & PERF_SAMPLE_ID && !reader.ReadUint64(&sample->id)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_ID";
+    return false;
   }
 
   // { u64                   stream_id;} && PERF_SAMPLE_STREAM_ID
-  if (sample_fields & PERF_SAMPLE_STREAM_ID) {
-    reader.ReadUint64(&sample->stream_id);
+  if (sample_fields & PERF_SAMPLE_STREAM_ID &&
+      !reader.ReadUint64(&sample->stream_id)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_STREAM_ID";
+    return false;
   }
 
   // { u32                   cpu, res; } && PERF_SAMPLE_CPU
   if (sample_fields & PERF_SAMPLE_CPU) {
-    reader.ReadUint32(&sample->cpu);
+    if (!reader.ReadUint32(&sample->cpu)) {
+      LOG(ERROR) << "Couldn't read the CPU field of PERF_SAMPLE_CPU";
+      return false;
+    }
 
     // The PERF_SAMPLE_CPU format bit specifies 64-bits of data, but the actual
     // CPU number is really only 32 bits. There is an extra 32-bit word of
@@ -203,14 +314,19 @@ size_t ReadPerfSampleFromData(const event_t& event,
 
     // reader.ReadUint32(&sample->res);  // reserved
     u32 reserved;
-    reader.ReadUint32(&reserved);
+    if (!reader.ReadUint32(&reserved)) {
+      LOG(ERROR) << "Couldn't read the reserved bits of PERF_SAMPLE_CPU";
+      return false;
+    }
   }
 
   // This is the location of PERF_SAMPLE_IDENTIFIER in struct sample_id.
   if (event.header.type != PERF_RECORD_SAMPLE) {
     // { u64                   id;       } && PERF_SAMPLE_IDENTIFIER
-    if (sample_fields & PERF_SAMPLE_IDENTIFIER) {
-      reader.ReadUint64(&sample->id);
+    if (sample_fields & PERF_SAMPLE_IDENTIFIER &&
+        !reader.ReadUint64(&sample->id)) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_IDENTIFIER";
+      return false;
     }
   }
 
@@ -219,41 +335,55 @@ size_t ReadPerfSampleFromData(const event_t& event,
   //
 
   // { u64                   period;   } && PERF_SAMPLE_PERIOD
-  if (sample_fields & PERF_SAMPLE_PERIOD) {
-    reader.ReadUint64(&sample->period);
+  if (sample_fields & PERF_SAMPLE_PERIOD &&
+      !reader.ReadUint64(&sample->period)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_PERIOD";
+    return false;
   }
 
   // { struct read_format    values;   } && PERF_SAMPLE_READ
   if (sample_fields & PERF_SAMPLE_READ) {
-    if (attr.read_format & PERF_FORMAT_GROUP)
-      ReadGroupReadInfo(&reader, attr.read_format, sample);
-    else
-      ReadReadInfo(&reader, attr.read_format, sample);
+    if (attr.read_format & PERF_FORMAT_GROUP) {
+      if (!ReadGroupReadInfo(&reader, attr.read_format, sample)) {
+        LOG(ERROR) << "Couldn't read group read info of PERF_SAMPLE_READ";
+        return false;
+      }
+    } else {
+      if (!ReadReadInfo(&reader, attr.read_format, sample)) {
+        LOG(ERROR) << "Couldn't read read info of PERF_SAMPLE_READ";
+        return false;
+      }
+    }
   }
 
   // { u64                   nr,
   //   u64                   ips[nr];  } && PERF_SAMPLE_CALLCHAIN
-  if (sample_fields & PERF_SAMPLE_CALLCHAIN) {
-    ReadCallchain(&reader, sample);
+  if (sample_fields & PERF_SAMPLE_CALLCHAIN &&
+      !ReadCallchain(&reader, sample)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_CALLCHAIN";
+    return false;
   }
 
   // { u32                   size;
   //   char                  data[size];}&& PERF_SAMPLE_RAW
-  if (sample_fields & PERF_SAMPLE_RAW) {
-    ReadRawData(&reader, sample);
+  if (sample_fields & PERF_SAMPLE_RAW && !ReadRawData(&reader, sample)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_RAW";
+    return false;
   }
 
   // { u64                   nr;
   //   { u64 from, to, flags } lbr[nr];} && PERF_SAMPLE_BRANCH_STACK
-  if (sample_fields & PERF_SAMPLE_BRANCH_STACK) {
-    ReadBranchStack(&reader, sample);
+  if (sample_fields & PERF_SAMPLE_BRANCH_STACK &&
+      !ReadBranchStack(&reader, sample)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_BRANCH_STACK";
+    return false;
   }
 
   // { u64                   abi; # enum perf_sample_regs_abi
   //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_USER
   if (sample_fields & PERF_SAMPLE_REGS_USER) {
     LOG(ERROR) << "PERF_SAMPLE_REGS_USER is not yet supported.";
-    return reader.Tell();
+    return false;
   }
 
   // { u64                   size;
@@ -261,42 +391,52 @@ size_t ReadPerfSampleFromData(const event_t& event,
   //   u64                   dyn_size; } && PERF_SAMPLE_STACK_USER
   if (sample_fields & PERF_SAMPLE_STACK_USER) {
     LOG(ERROR) << "PERF_SAMPLE_STACK_USER is not yet supported.";
-    return reader.Tell();
+    return false;
   }
 
   // { u64                   weight;   } && PERF_SAMPLE_WEIGHT
-  if (sample_fields & PERF_SAMPLE_WEIGHT) {
-    reader.ReadUint64(&sample->weight);
+  if (sample_fields & PERF_SAMPLE_WEIGHT &&
+      !reader.ReadUint64(&sample->weight)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_WEIGHT";
+    return false;
   }
 
   // { u64                   data_src; } && PERF_SAMPLE_DATA_SRC
-  if (sample_fields & PERF_SAMPLE_DATA_SRC) {
-    reader.ReadUint64(&sample->data_src);
+  if (sample_fields & PERF_SAMPLE_DATA_SRC &&
+      !reader.ReadUint64(&sample->data_src)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_DATA_SRC";
+    return false;
   }
 
   // { u64                   transaction; } && PERF_SAMPLE_TRANSACTION
-  if (sample_fields & PERF_SAMPLE_TRANSACTION) {
-    reader.ReadUint64(&sample->transaction);
+  if (sample_fields & PERF_SAMPLE_TRANSACTION &&
+      !reader.ReadUint64(&sample->transaction)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_TRANSACTION";
+    return false;
   }
 
   // { u64                   abi; # enum perf_sample_regs_abi
   //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_INTR
   if (sample_fields & PERF_SAMPLE_REGS_INTR) {
     LOG(ERROR) << "PERF_SAMPLE_REGS_INTR is not yet supported.";
-    return reader.Tell();
+    return false;
   }
 
   // { u64                   phys_addr; } && PERF_SAMPLE_PHYS_ADDR
-  if (sample_fields & PERF_SAMPLE_PHYS_ADDR) {
-    reader.ReadUint64(&sample->physical_addr);
+  if (sample_fields & PERF_SAMPLE_PHYS_ADDR &&
+      !reader.ReadUint64(&sample->physical_addr)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_PHYS_ADDR";
+    return false;
   }
 
   if (sample_fields & ~(PERF_SAMPLE_MAX - 1)) {
     LOG(WARNING) << "Unrecognized sample fields 0x" << std::hex
                  << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
+    return false;
   }
 
-  return reader.Tell();
+  *read_size = reader.Tell();
+  return true;
 }
 
 class PerfSampleDataWriter {
@@ -581,12 +721,15 @@ bool SampleInfoReader::ReadPerfSampleInfo(const event_t& event,
   CHECK(sample);
 
   if (!SampleInfoReader::IsSupportedEventType(event.header.type)) {
-    LOG(ERROR) << "Unsupported event type " << event.header.type;
+    LOG(ERROR) << "Unsupported event " << GetEventName(event.header.type);
     return false;
   }
 
-  size_t size_read_or_skipped =
-      ReadPerfSampleFromData(event, event_attr_, read_cross_endian_, sample);
+  size_t size_read_or_skipped = 0;
+  if (!ReadPerfSampleFromData(event, event_attr_, read_cross_endian_, sample,
+                              &size_read_or_skipped)) {
+    return false;
+  }
 
   if (size_read_or_skipped != event.header.size) {
     LOG(ERROR) << "Read/skipped " << size_read_or_skipped << " bytes, expected "
@@ -601,13 +744,14 @@ bool SampleInfoReader::WritePerfSampleInfo(const perf_sample& sample,
   CHECK(event);
 
   if (!SampleInfoReader::IsSupportedEventType(event->header.type)) {
-    LOG(ERROR) << "Unsupported event type " << event->header.type;
+    LOG(ERROR) << "Unsupported event " << GetEventName(event->header.type);
     return false;
   }
 
-  size_t offset = SampleInfoReader::GetPerfSampleDataOffset(*event);
+  size_t offset = GetEventDataSize(*event);
   if (offset == 0) {
-    LOG(ERROR) << "Couldn't find the sample data offset";
+    LOG(ERROR) << "Couldn't get event data size for event "
+               << GetEventName(event->header.type);
     return false;
   }
 
@@ -660,172 +804,9 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
     case PERF_RECORD_SAMPLE:
       break;
     default:
-      LOG(FATAL) << "Unknown event type " << event_type;
+      LOG(FATAL) << "Unknown event " << GetEventName(event_type);
   }
   return sample_type & mask;
-}
-
-// static
-size_t SampleInfoReader::GetPerfSampleDataOffset(const event_t& event) {
-  size_t offset = 0;
-  switch (event.header.type) {
-    case PERF_RECORD_SAMPLE:
-      offset = offsetof(event_t, sample.array);
-      break;
-    case PERF_RECORD_MMAP: {
-      size_t fixed_size = offsetof(struct mmap_event, filename);
-      // mmap.filename is a char array so it should contain at least a '\0'
-      // char. Thus check for fixed_size + 1.
-      if (event.header.size < fixed_size + 1) {
-        LOG(ERROR) << "Invalid mmap event size. Expected at least "
-                   << fixed_size + 1 << ", got " << event.header.size;
-        return 0L;
-      }
-      offset = fixed_size + GetUint64AlignedStringLength(event.mmap.filename);
-      break;
-    }
-    case PERF_RECORD_FORK:
-    case PERF_RECORD_EXIT:
-      offset = sizeof(event.fork);
-      break;
-    case PERF_RECORD_COMM: {
-      size_t fixed_size = offsetof(struct comm_event, comm);
-      // comm.comm is a char array so it should contain at least a '\0'
-      // char. Thus check for fixed_size + 1.
-      if (event.header.size < fixed_size + 1) {
-        LOG(ERROR) << "Invalid comm event size. Expected at least "
-                   << fixed_size + 1 << ", got " << event.header.size;
-        return 0L;
-      }
-      offset = fixed_size + GetUint64AlignedStringLength(event.comm.comm);
-      break;
-    }
-    case PERF_RECORD_LOST:
-      offset = sizeof(event.lost);
-      break;
-    case PERF_RECORD_THROTTLE:
-    case PERF_RECORD_UNTHROTTLE:
-      offset = sizeof(event.throttle);
-      break;
-    case PERF_RECORD_READ:
-      offset = sizeof(event.read);
-      break;
-    case PERF_RECORD_MMAP2: {
-      size_t fixed_size = offsetof(struct mmap2_event, filename);
-      // mmap2.filename is a char array so it should contain at least a '\0'
-      // char. Thus check for fixed_size + 1.
-      if (event.header.size < fixed_size + 1) {
-        LOG(ERROR) << "Invalid mmap2 event size. Expected at least "
-                   << fixed_size + 1 << ", got " << event.header.size;
-        return 0L;
-      }
-      offset = fixed_size + GetUint64AlignedStringLength(event.mmap2.filename);
-      break;
-    }
-    case PERF_RECORD_AUX:
-      offset = sizeof(event.aux);
-      break;
-    case PERF_RECORD_ITRACE_START:
-      offset = sizeof(event.itrace_start);
-      break;
-    case PERF_RECORD_LOST_SAMPLES:
-      offset = sizeof(event.lost_samples);
-      break;
-    case PERF_RECORD_SWITCH:
-      offset = sizeof(event.context_switch) -
-               sizeof(event.context_switch.next_prev_pid) -
-               sizeof(event.context_switch.next_prev_tid);
-      break;
-    case PERF_RECORD_SWITCH_CPU_WIDE:
-      offset = sizeof(event.context_switch);
-      break;
-    case PERF_RECORD_NAMESPACES: {
-      size_t fixed_size = sizeof(event.namespaces);
-      if (event.header.size < fixed_size) {
-        LOG(ERROR) << "Invalid namespaces event size. Expected at least "
-                   << fixed_size << ", got " << event.header.size;
-        return 0L;
-      }
-      offset = fixed_size +
-               (event.namespaces.nr_namespaces * sizeof(perf_ns_link_info));
-      break;
-    }
-    default:
-      LOG(ERROR) << "Unknown event type " << event.header.type;
-      return 0L;
-  }
-
-  if (offset > event.header.size || offset % sizeof(uint64_t) != 0U) {
-    return 0L;
-  }
-  return offset;
-}
-
-// static
-size_t SampleInfoReader::GetPerfSampleDataOffset(
-    const PerfDataProto_PerfEvent& event) {
-  size_t offset = 0;
-  switch (event.header().type()) {
-    case PERF_RECORD_SAMPLE:
-      offset = offsetof(struct sample_event, array);
-      break;
-    case PERF_RECORD_MMAP:
-      offset = offsetof(struct mmap_event, filename) +
-               GetUint64AlignedStringLength(event.mmap_event().filename());
-      break;
-    case PERF_RECORD_MMAP2:
-      offset = offsetof(struct mmap2_event, filename) +
-               GetUint64AlignedStringLength(event.mmap_event().filename());
-      break;
-    case PERF_RECORD_COMM:
-      offset = offsetof(struct comm_event, comm) +
-               GetUint64AlignedStringLength(event.comm_event().comm());
-      break;
-    case PERF_RECORD_EXIT:
-    case PERF_RECORD_FORK:
-      offset = sizeof(struct fork_event);
-      break;
-    case PERF_RECORD_LOST:
-      offset = sizeof(struct lost_event);
-      break;
-    case PERF_RECORD_THROTTLE:
-    case PERF_RECORD_UNTHROTTLE:
-      offset = sizeof(struct throttle_event);
-      break;
-    case PERF_RECORD_READ:
-      offset = sizeof(struct read_event);
-      break;
-    case PERF_RECORD_AUX:
-      offset = sizeof(struct aux_event);
-      break;
-    case PERF_RECORD_ITRACE_START:
-      offset = sizeof(struct itrace_start_event);
-      break;
-    case PERF_RECORD_LOST_SAMPLES:
-      offset = sizeof(struct lost_samples_event);
-      break;
-    case PERF_RECORD_SWITCH:
-      // PERF_RECORD_SWITCH event has only header.
-      offset = sizeof(struct perf_event_header);
-      break;
-    case PERF_RECORD_SWITCH_CPU_WIDE:
-      offset = sizeof(struct context_switch_event);
-      break;
-    case PERF_RECORD_NAMESPACES:
-      offset = offsetof(struct namespaces_event, link_info) +
-               (event.namespaces_event().link_info_size() *
-                sizeof(struct perf_ns_link_info));
-      break;
-    default:
-      LOG(ERROR) << "Unknown event type " << event.header().type();
-      return 0L;
-  }
-  // Make sure the offset was valid. Don't validate the offset against the
-  // header.size as the header.size might not be populated in some cases.
-  if (offset % sizeof(uint64_t) != 0U) {
-    return 0L;
-  }
-  return offset;
 }
 
 }  // namespace quipper

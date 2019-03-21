@@ -46,6 +46,20 @@ cc_proto_library(
     deps = [":perf_stat_proto"],
 )
 
+proto_library(
+    name = "perf_parser_options_proto",
+    srcs = ["perf_parser_options.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+    ],
+)
+
+cc_proto_library(
+    name = "perf_parser_options_cc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":perf_parser_options_proto"],
+)
+
 cc_library(
     name = "kernel",
     hdrs = [
@@ -67,6 +81,7 @@ cc_library(
     ],
     deps = [
         ":perf_data_cc_proto",
+        ":perf_parser_options_cc_proto",
         ":perf_stat_cc_proto",
         ":base",
         "@com_google_protobuf//:protobuf",

@@ -10,6 +10,15 @@
 
 namespace quipper {
 
+bool BufferReader::SeekSet(size_t offset) {
+  if (offset > size_) {
+    LOG(ERROR) << "Illegal offset " << offset << " in file of size " << size_;
+    return false;
+  }
+  offset_ = offset;
+  return true;
+}
+
 bool BufferReader::ReadData(const size_t size, void* dest) {
   if (offset_ > SIZE_MAX - size || offset_ + size > size_) return false;
 

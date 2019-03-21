@@ -31,6 +31,19 @@ FileReader::~FileReader() {
   }
 }
 
+bool FileReader::SeekSet(size_t offset) {
+  if (offset > size_) {
+    LOG(ERROR) << "Illegal offset " << offset << " in file of size " << size_;
+    return false;
+  }
+  if (fseek(infile_, offset, SEEK_SET) != 0) {
+    PLOG(ERROR) << "fseek failure for offset " << offset << " in file of size "
+                << size_;
+    return false;
+  }
+  return true;
+}
+
 bool FileReader::ReadData(const size_t size, void* dest) {
   long tell = ftell(infile_);  
   if (tell < 0) {

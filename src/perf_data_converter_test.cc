@@ -259,6 +259,57 @@ TEST_F(PerfDataConverterTest, ConvertsGroupPid) {
   EXPECT_EQ(19989, total_samples);
 }
 
+TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
+  string path(
+      GetResource("testdata"
+                  "/single-event-multi-process-single-ip.pb_proto"));
+
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  std::map<uint32, string> thread_types;
+  thread_types[1084] = "MAIN_THREAD";
+  thread_types[1289] = "MAIN_THREAD";
+  thread_types[1305] = "COMPOSITOR_THREAD";
+  thread_types[5529] = "IO_THREAD";
+
+  const ProcessProfiles pps = PerfDataProtoToProfiles(
+      &perf_data_proto, kThreadTypeLabel, kNoOptions, thread_types);
+
+  uint64 total_samples = 0;
+  std::unordered_map<string, uint64> counts_by_thread_type;
+  for (const auto& pp : pps) {
+    const auto& profile = pp->data;
+    for (const auto& sample : profile.sample()) {
+      // Count only samples, which are the even indices. Total event counts
+      // are the odds.
+      for (int x = 0; x < sample.value_size(); x += 2) {
+        total_samples += sample.value(x);
+      }
+      for (const auto& label : sample.label()) {
+        if (profile.string_table(label.key()) == ThreadTypeLabelKey) {
+          ++counts_by_thread_type[profile.string_table(label.str())];
+        }
+      }
+    }
+  }
+  EXPECT_EQ(8, total_samples);
+
+  std::unordered_map<string, uint64> expected_counts = {
+      {"MAIN_THREAD", 2}, {"IO_THREAD", 1}, {"COMPOSITOR_THREAD", 1}};
+  EXPECT_EQ(expected_counts.size(), counts_by_thread_type.size());
+
+  for (const auto& expected_count : expected_counts) {
+    EXPECT_EQ(expected_count.second,
+              counts_by_thread_type[expected_count.first])
+        << "Different counts for thread type: " << expected_count.first
+        << "(Expected: " << expected_count.second
+        << "Actual: " << counts_by_thread_type[expected_count.first] << ")";
+  }
+}
+
 TEST_F(PerfDataConverterTest, Injects) {
   string path = GetResource("testdata"
                             "/with-callchain.perf.data");

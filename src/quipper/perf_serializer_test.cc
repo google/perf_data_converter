@@ -286,7 +286,8 @@ TEST_P(SerializePerfDataFiles, TestGetEventSize) {
   for (const auto& stored_attr : perf_data_proto.file_attrs()) {
     PerfFileAttr attr;
     serializer.DeserializePerfFileAttr(stored_attr, &attr);
-    serializer.CreateSampleInfoReader(attr, /*read_cross_endian=*/false);
+    EXPECT_TRUE(
+        serializer.CreateSampleInfoReader(attr, /*read_cross_endian=*/false));
   }
 
   for (auto event : perf_data_proto.events()) {
@@ -335,7 +336,8 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
   PerfFileAttr attr;
   const auto& proto_attr = perf_data_proto.file_attrs(0);
   ASSERT_TRUE(serializer.DeserializePerfFileAttr(proto_attr, &attr));
-  serializer.CreateSampleInfoReader(attr, false /* read_cross_endian */);
+  ASSERT_TRUE(
+      serializer.CreateSampleInfoReader(attr, /*read_cross_endian=*/false));
 
   for (int j = 0; j < perf_data_proto.events_size(); ++j) {
     PerfDataProto_PerfEvent& event = *perf_data_proto.mutable_events(j);
@@ -349,8 +351,8 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
     if (comm_md5_string.size() > arraysize(dummy.comm) - 1)
       comm_md5_string.resize(arraysize(dummy.comm) - 1);
     int64_t string_len_diff =
-        GetUint64AlignedStringLength(comm_md5_string) -
-        GetUint64AlignedStringLength(event.comm_event().comm());
+        GetUint64AlignedStringLength(comm_md5_string.size()) -
+        GetUint64AlignedStringLength(event.comm_event().comm().size());
     event.mutable_comm_event()->set_comm(comm_md5_string);
 
     // Update with the new size.
@@ -386,7 +388,8 @@ TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
   PerfFileAttr attr;
   const auto& proto_attr = perf_data_proto.file_attrs(0);
   ASSERT_TRUE(serializer.DeserializePerfFileAttr(proto_attr, &attr));
-  serializer.CreateSampleInfoReader(attr, false /* read_cross_endian */);
+  ASSERT_TRUE(
+      serializer.CreateSampleInfoReader(attr, /*read_cross_endian=*/false));
 
   for (int j = 0; j < perf_data_proto.events_size(); ++j) {
     PerfDataProto_PerfEvent& event = *perf_data_proto.mutable_events(j);
@@ -402,8 +405,8 @@ TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
       filename_md5_string.resize(arraysize(dummy.filename) - 1);
 
     int64_t string_len_diff =
-        GetUint64AlignedStringLength(filename_md5_string) -
-        GetUint64AlignedStringLength(event.mmap_event().filename());
+        GetUint64AlignedStringLength(filename_md5_string.size()) -
+        GetUint64AlignedStringLength(event.mmap_event().filename().size());
     event.mutable_mmap_event()->set_filename(filename_md5_string);
 
     // Update with the new size.
@@ -485,8 +488,6 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTraceMetadata) {
   const string& tracing_metadata_str = tracing_metadata.data().value();
   const auto& tracing_data = perf_data_proto.tracing_data();
   EXPECT_EQ(tracing_metadata_str, tracing_data.tracing_data());
-  EXPECT_EQ(Md5Prefix(tracing_metadata_str),
-            tracing_data.tracing_data_md5_prefix());
 
   // Deserialize
 
@@ -742,10 +743,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
 
   // string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
   string auxtrace_error_msg =
-      "0000011111222223333344444555556666677777888889999900000111112222233333";
-
-  string expected_auxtrace_error_msg =
-      "0000011111222223333344444555556666677777888889999900000111112222";
+      "000001111122222333334444455555666667777788888999990000011111222";
 
   // PERF_RECORD_AUXTRACE_ERROR
   testing::ExampleAuxtraceErrorEvent(1, 9876, 10, 4365, 4365, 86758,
@@ -774,8 +772,8 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
     EXPECT_EQ(4365, auxtrace_error_event.pid());
     EXPECT_EQ(4365, auxtrace_error_event.tid());
     EXPECT_EQ(86758, auxtrace_error_event.ip());
-    EXPECT_EQ(expected_auxtrace_error_msg, auxtrace_error_event.msg());
-    EXPECT_EQ(Md5Prefix(expected_auxtrace_error_msg),
+    EXPECT_EQ(auxtrace_error_msg, auxtrace_error_event.msg());
+    EXPECT_EQ(Md5Prefix(auxtrace_error_msg),
               auxtrace_error_event.msg_md5_prefix());
   }
 
@@ -1498,7 +1496,7 @@ INSTANTIATE_TEST_CASE_P(
     PerfSerializerTest, SerializePerfDataFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfDataFiles()));
 INSTANTIATE_TEST_CASE_P(PerfSerializerTest, SerializeAllPerfDataFiles,
-                        ::testing::ValuesIn(AllPerfData()));
+                         ::testing::ValuesIn(AllPerfData()));
 INSTANTIATE_TEST_CASE_P(
     PerfSerializerTest, SerializePerfDataProtoFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfDataProtoFiles()));
