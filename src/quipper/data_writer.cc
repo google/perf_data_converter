@@ -21,7 +21,7 @@ bool DataWriter::WriteDataValue(const void* src, const size_t size,
 }
 
 bool DataWriter::WriteStringWithSizeToData(const string& src) {
-  uint32_t len = GetUint64AlignedStringLength(src);
+  uint32_t len = GetUint64AlignedStringLength(src.size());
   if (!CanWriteSize(len + sizeof(len))) {
     LOG(ERROR) << "Not enough space to write string.";
     return false;

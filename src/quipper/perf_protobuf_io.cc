@@ -34,6 +34,21 @@ bool SerializeFromStringWithOptions(const string& contents,
   return true;
 }
 
+bool SerializeFromStringWithOptions(const string& contents,
+                                    const PerfParserOptionsProto& options,
+                                    PerfDataProto* proto) {
+  PerfParserOptions opts;
+  opts.do_remap = options.do_remap();
+  opts.discard_unused_events = options.discard_unused_events();
+  opts.sample_mapping_percentage_threshold =
+      options.sample_mapping_percentage_threshold();
+  opts.sort_events_by_time = options.sort_events_by_time();
+  opts.read_missing_buildids = options.read_missing_buildids();
+  opts.deduce_huge_page_mappings = options.deduce_huge_page_mappings();
+  opts.combine_mappings = options.combine_mappings();
+  return SerializeFromStringWithOptions(contents, opts, proto);
+}
+
 bool SerializeFromFile(const string& filename, PerfDataProto* perf_data_proto) {
   return SerializeFromFileWithOptions(filename, PerfParserOptions(),
                                       perf_data_proto);

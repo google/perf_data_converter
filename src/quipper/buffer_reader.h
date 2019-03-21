@@ -18,7 +18,7 @@ class BufferReader : public DataReader {
     size_ = size;
   }
 
-  void SeekSet(size_t offset) override { offset_ = offset; }
+  bool SeekSet(size_t offset) override;
 
   size_t Tell() const override { return offset_; }
 

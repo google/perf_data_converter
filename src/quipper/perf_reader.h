@@ -253,10 +253,6 @@ class PerfReader {
   // Reads PERF_RECORD_HEADER_FEATURE within piped perf data.
   bool ReadHeaderFeature(DataReader* data, const perf_event_header& header);
 
-  // Swaps byte order for non-header fields of the data structure pointed to by
-  // |event|, if |is_cross_endian| is true. Otherwise leaves the data the same.
-  void MaybeSwapEventFields(event_t* event, bool is_cross_endian);
-
   // Returns the number of types of metadata stored and written to output data.
   size_t GetNumSupportedMetadata() const;
 
@@ -279,8 +275,11 @@ class PerfReader {
   // This method does not change |build_id_events_|.
   bool LocalizeMMapFilenames(const std::map<string, string>& filename_map);
 
-  // Stores a PerfFileAttr in |proto_| and updates |serializer_|.
-  void AddPerfFileAttr(const PerfFileAttr& attr);
+  // Stores a PerfFileAttr in |proto_|, creates a sample info reader from
+  // |attr|, and updates |serializer_|. Returns true on success. Returns false
+  // when the event ID position in the events linked to the |attr| are
+  // inconsistent with the rest of the events.
+  bool AddPerfFileAttr(const PerfFileAttr& attr);
 
   bool get_metadata_mask_bit(uint32_t bit) const {
     return metadata_mask() & (1 << bit);

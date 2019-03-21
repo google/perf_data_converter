@@ -96,6 +96,14 @@ bool HeapProfileParser::Parse() {
     return false;
   }
 
+  // Quipper does some special processing on the first seen mmap in a perf input
+  // under the assumption that this mmap is a kernel mmap. However, there is no
+  // kernel mmap in heap profile. Workaround this special processing by adding a
+  // dummy kernel mmap as the first mmap in the generated perf_data.proto.
+  AddMmapEvent(
+      /*start=*/0xfffffffffff00000, /*len=*/1, /*pgoff=*/0,
+      /*filename=*/"dummy_kernel");
+
   while (!profile_.empty()) {
     if (!ParseMemoryMapping()) {
       return false;

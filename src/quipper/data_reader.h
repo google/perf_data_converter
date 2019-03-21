@@ -19,8 +19,8 @@ class DataReader {
   virtual ~DataReader() {}
 
   // Moves the data read pointer to |offset| bytes from the beginning of the
-  // data.
-  virtual void SeekSet(size_t offset) = 0;
+  // data. Returns true on success. Otherwise, returns false.
+  virtual bool SeekSet(size_t offset) = 0;
 
   // Returns the position of the data read pointer, in bytes from the beginning
   // of the data.

@@ -136,11 +136,11 @@ bool PerfParser::ProcessUserEvents(PerfEvent& event) {
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
     case PERF_RECORD_TIME_CONV:
-      VLOG(1) << "Parsed event type: " << event.header().type()
+      VLOG(1) << "Parsed event: " << GetEventName(event.header().type())
               << ". Doing nothing.";
       break;
     default:
-      VLOG(1) << "Unsupported event type: " << event.header().type();
+      VLOG(1) << "Unsupported event: " << GetEventName(event.header().type());
       break;
   }
   return true;
@@ -253,11 +253,12 @@ bool PerfParser::ProcessEvents() {
       case PERF_RECORD_SWITCH:
       case PERF_RECORD_SWITCH_CPU_WIDE:
       case PERF_RECORD_NAMESPACES:
-        VLOG(1) << "Parsed event type: " << event.header().type()
+        VLOG(1) << "Parsed event type: " << GetEventName(event.header().type())
                 << ". Doing nothing.";
         break;
       default:
-        LOG(ERROR) << "Unknown event type: " << event.header().type();
+        LOG(ERROR) << "Unknown event type: "
+                   << GetEventName(event.header().type());
         return false;
     }
   }

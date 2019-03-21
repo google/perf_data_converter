@@ -19,7 +19,7 @@ class FileReader : public DataReader {
 
   bool IsOpen() const { return infile_; }
 
-  void SeekSet(size_t offset) override { fseek(infile_, offset, SEEK_SET); }
+  bool SeekSet(size_t offset) override;
 
   size_t Tell() const override { return ftell(infile_); }
 

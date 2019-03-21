@@ -508,6 +508,11 @@ const u16 PERF_RECORD_MISC_GUEST_KERNEL = 4 << 0;
 const u16 PERF_RECORD_MISC_GUEST_USER = 5 << 0;
 
 /*
+ * Indicates that /proc/PID/maps parsing are truncated by time out.
+ */
+const u16 PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT = 1 << 12;
+
+/*
  * PERF_RECORD_MISC_MMAP_DATA and PERF_RECORD_MISC_COMM_EXEC are used on
  * different events so can reuse the same bit position.
  * Ditto PERF_RECORD_MISC_SWITCH_OUT.

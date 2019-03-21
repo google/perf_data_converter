@@ -31,7 +31,8 @@ class Thread : public quipper::compat::ThreadInterface,
 class Notification : public quipper::compat::NotificationInterface {
  public:
   Notification()
-      : event_(true /* manual_reset */, false /* initially_signaled */) {}
+      : event_(base::WaitableEvent::ResetPolicy::MANUAL,
+               base::WaitableEvent::InitialState::NOT_SIGNALED) {}
 
   void Wait() override { event_.Wait(); }
 

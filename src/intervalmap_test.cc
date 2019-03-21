@@ -277,8 +277,8 @@ TEST_P(IntervalMapTest, GenericTest) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(AllIntervalMapTests, IntervalMapTest,
-                        ::testing::ValuesIn(tests));
+INSTANTIATE_TEST_SUITE_P(AllIntervalMapTests, IntervalMapTest,
+                         ::testing::ValuesIn(tests));
 
 }  // namespace
 }  // namespace perftools

@@ -50,14 +50,13 @@ class PerfSerializer {
   // the PerfSerializer.
   static bool IsSupportedHeaderEventType(uint32_t type);
 
+  // Returns true if the given event type contains sample info data.
+  bool ContainsSampleInfo(uint32_t type) const;
+
   // Calculates the event size ignoring event.header.size . Returns a non-zero
   // event size on success. Returns zero when the proto contains an unsupported
   //  perf event or sample info.
   size_t GetEventSize(const PerfDataProto_PerfEvent& event) const;
-
-  // On success, returns a non-zero event size not including the sample info
-  // size. Otherwise, returns zero.
-  static size_t GetEventSizeWithoutSampleInfo(const event_t& event);
 
   // The following functions convert between raw perf data structures and their
   // equivalent PerfDataProto representations.
@@ -160,7 +159,7 @@ class PerfSerializer {
   bool DeserializeSampleInfo(const PerfDataProto_SampleInfo& info,
                              event_t* event) const;
 
-  bool SerializeTracingMetadata(const std::vector<char>& from,
+  bool SerializeTracingMetadata(const char* from, size_t size,
                                 PerfDataProto* to) const;
   bool DeserializeTracingMetadata(const PerfDataProto& from,
                                   std::vector<char>* to) const;
@@ -176,7 +175,7 @@ class PerfSerializer {
       const PerfDataProto_AuxtraceInfoEvent& sample, event_t* event) const;
   bool SerializeAuxtraceEvent(const event_t& event,
                               PerfDataProto_AuxtraceEvent* sample) const;
-  bool SerializeAuxtraceEventTraceData(const std::vector<char>& from,
+  bool SerializeAuxtraceEventTraceData(const char* from, size_t size,
                                        PerfDataProto_AuxtraceEvent* to) const;
   bool DeserializeAuxtraceEvent(const PerfDataProto_AuxtraceEvent& sample,
                                 event_t* event) const;
@@ -256,7 +255,7 @@ class PerfSerializer {
 
   // Instantiate a new PerfSampleReader with the given attr type. If an old one
   // exists for that attr type, it is discarded.
-  void CreateSampleInfoReader(const PerfFileAttr& event_attr,
+  bool CreateSampleInfoReader(const PerfFileAttr& event_attr,
                               bool read_cross_endian);
 
   bool SampleInfoReaderAvailable() const {
@@ -271,14 +270,11 @@ class PerfSerializer {
   };
 
   // Given a perf_event_attr, determines the offset of the ID field within an
-  // event, relative to the start of sample info within an event. All attrs must
-  // have the same ID field offset.
-  void UpdateEventIdPositions(const struct perf_event_attr& attr);
-
-  // Do non-SAMPLE events have a sample_id? Reflects the value of
-  // sample_id_all in the first attr, which should be consistent across all
-  // attrs.
-  bool SampleIdAll() const;
+  // event, relative to the start of sample info within an event. Returns true
+  // when all attrs have the same ID field offset. When the ID field offset from
+  // |attr| is inconsistent with the ID field offsets from other attrs, doesn't
+  // update the event id position and returns false.
+  bool UpdateEventIdPositions(const struct perf_event_attr& attr);
 
   // Find the event id in the event, and returns the corresponding
   // SampleInfoReader. Returns nullptr if a SampleInfoReader could not be found.

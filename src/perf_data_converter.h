@@ -40,6 +40,10 @@ enum SampleLabels {
   // Adds a label with key CommLabelKey and string value set to the sample's
   // process's command. If no command is known, no label is added.
   kCommLabel = 16,
+  // Adds a label with key ThreadTypeLabelKey and string value set to the thread
+  // type of the sample's thread ID. If the sample doesn't have a thread ID or
+  // the sample's thread ID doesn't have a thread type, no label is added.
+  kThreadTypeLabel = 32,
 };
 
 // Sample label key names.
@@ -48,6 +52,7 @@ const char TidLabelKey[] = "tid";
 const char TimestampNsLabelKey[] = "timestamp_ns";
 const char ExecutionModeLabelKey[] = "execution_mode";
 const char CommLabelKey[] = "comm";
+const char ThreadTypeLabelKey[] = "thread_type";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";
@@ -94,12 +99,14 @@ using ProcessProfiles = std::vector<std::unique_ptr<ProcessProfile>>;
 // Returns a vector of process profiles, empty if any error occurs.
 extern ProcessProfiles RawPerfDataToProfiles(
     const void* raw, int raw_size, const std::map<string, string>& build_ids,
-    uint32 sample_labels = kNoLabels, uint32 options = kGroupByPids);
+    uint32 sample_labels = kNoLabels, uint32 options = kGroupByPids,
+    const std::map<uint32, string>& thread_types = {});
 
 // Converts a PerfDataProto to a vector of process profiles.
 extern ProcessProfiles PerfDataProtoToProfiles(
     const quipper::PerfDataProto* perf_data, uint32 sample_labels = kNoLabels,
-    uint32 options = kGroupByPids);
+    uint32 options = kGroupByPids,
+    const std::map<uint32, string>& thread_types = {});
 
 }  // namespace perftools
 

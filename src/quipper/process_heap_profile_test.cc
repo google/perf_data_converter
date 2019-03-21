@@ -118,7 +118,7 @@ TEST(ProcessHeapProfileTest, HasMetadataAndPerfFileAttr) {
   EXPECT_TRUE(matches) << difference;
 }
 
-TEST(HeapProfileParserTest, HasSampleEvent) {
+TEST(ProcessHeapProfileTest, HasSampleEvent) {
   std::string heap_profile(
       "heap profile: 2: 1024 [ 2: 1024 ] @ heap_v2/111222\n"
       "  2:     1024 [     2:     1024] @ 0x617aae951c31 0x617aae95062e\n"
@@ -140,14 +140,14 @@ TEST(HeapProfileParserTest, HasSampleEvent) {
   double scale = 1 / (1 - exp(-(1024.00 / 2.00) / 111222.00));
 
   PerfDataProto_SampleEvent* sample = event->mutable_sample_event();
-  sample->set_ip(119811121);
+  sample->set_ip(119815217);
   sample->set_pid(3456);
   sample->set_tid(3456);
   sample->set_id(0);
   sample->set_period(2 * scale);
   sample->add_callchain(PERF_CONTEXT_USER);
-  sample->add_callchain(119811121);
-  sample->add_callchain(119805486);
+  sample->add_callchain(119815217);
+  sample->add_callchain(119809582);
 
   event = expected.add_events();
   header = event->mutable_header();
@@ -156,16 +156,17 @@ TEST(HeapProfileParserTest, HasSampleEvent) {
   header->set_size(72);
 
   sample = event->mutable_sample_event();
-  sample->set_ip(119811121);
+  sample->set_ip(119815217);
   sample->set_pid(3456);
   sample->set_tid(3456);
   sample->set_id(1);
   sample->set_period(1024 * scale);
   sample->add_callchain(PERF_CONTEXT_USER);
-  sample->add_callchain(119811121);
-  sample->add_callchain(119805486);
+  sample->add_callchain(119815217);
+  sample->add_callchain(119809582);
 
   ASSERT_TRUE(ProcessHeapProfile(heap_profile, 3456, &actual));
+  ASSERT_EQ(actual.events_size(), 3);
 
   string difference;
   bool matches =
@@ -177,7 +178,7 @@ TEST(HeapProfileParserTest, HasSampleEvent) {
   EXPECT_TRUE(matches) << difference;
 }
 
-TEST(HeapProfileParserTest, HasMMapEvent) {
+TEST(ProcessHeapProfileTest, HasMMapEvent) {
   std::string heap_profile(
       "heap profile: 2: 1024 [ 2: 1024 ] @ heap_v2/111222\n"
       "  2:     1024 [     2:     1024] @ 0x617aae951c31 0x617aae95062e\n"
@@ -200,9 +201,9 @@ TEST(HeapProfileParserTest, HasMMapEvent) {
   PerfDataProto_MMapEvent* mmap = event->mutable_mmap_event();
   mmap->set_pid(3456);
   mmap->set_tid(3456);
-  mmap->set_start(0);
+  mmap->set_start(0x1000);
   mmap->set_len(0x617ab0689000 - 0x617aa770f000);
-  mmap->set_pgoff(0);
+  mmap->set_pgoff(0x10);
   mmap->set_filename(filename);
   mmap->set_filename_md5_prefix(Md5Prefix(filename));
 
@@ -212,6 +213,7 @@ TEST(HeapProfileParserTest, HasMMapEvent) {
   sample_info->set_id(0);
 
   ASSERT_TRUE(ProcessHeapProfile(heap_profile, 3456, &actual));
+  ASSERT_GE(actual.events_size(), 1);
 
   string difference;
   bool matches =

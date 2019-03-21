@@ -360,6 +360,39 @@ TEST(PerfReaderTest, ReadsAndWritesAuxTraceEvents) {
   }
 }
 
+TEST(PerfReaderTest, FailsToReadAuxTraceEventWithInvalidTraceSize) {
+  std::stringstream input;
+
+  // PERF_RECORD_AUXTRACE
+  // Auxtrace trace data size > remaining perf.data size and < total perf.data
+  // size.
+  testing::ExampleAuxtraceEvent auxtrace_event(11, 0x2000, 7, 3, 0x68d, 4, 0,
+                                               "/dev/zero");
+  const size_t data_size =
+      auxtrace_event.GetSize() + auxtrace_event.GetTraceSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header((0));
+  file_header.WithAttrCount(1).WithDataSize(data_size);
+  file_header.WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_IP, false /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  auxtrace_event.WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr1;
+  ASSERT_FALSE(pr1.ReadFromString(input.str()));
+}
+
 TEST(PerfReaderTest, ReadsAndWritesTraceMetadata) {
   std::stringstream input;
 
@@ -448,6 +481,40 @@ TEST(PerfReaderTest, ReadsTracingMetadataEvent) {
   EXPECT_TRUE(pr.WriteToVector(&output_perf_data));
   EXPECT_TRUE(pr.ReadFromVector(output_perf_data));
   EXPECT_EQ(trace_metadata, pr.tracing_data());
+}
+
+TEST(PerfReaderTest, FailsToReadTracingMetadataEventWithInvalidTraceSize) {
+  std::stringstream input;
+
+  // pipe header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  const char raw_data[] = "\x17\x08\x44tracing0.5BLAHBLAHBLAH....";
+  const string trace_metadata(raw_data, sizeof(raw_data) - 1);
+
+  const tracing_data_event trace_event = {
+      .header =
+          {
+              .type = PERF_RECORD_HEADER_TRACING_DATA,
+              .misc = 0,
+              .size = sizeof(tracing_data_event),
+          },
+      // Trace metadata size > remaining perf.data size and < total perf.data
+      // size.
+      .size = static_cast<u32>(trace_metadata.size() + 2),
+  };
+
+  input.write(reinterpret_cast<const char*>(&trace_event), sizeof(trace_event));
+  input.write(trace_metadata.data(), trace_metadata.size());
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  ASSERT_FALSE(pr.ReadFromString(input.str()));
 }
 
 // Regression test for http://crbug.com/484393
@@ -1186,7 +1253,13 @@ TEST(PerfReaderTest, ReadsAllAvailableMetadataTypes) {
 
   // header
   testing::ExamplePerfDataFileHeader file_header(features);
+  file_header.WithAttrCount(1);
   file_header.WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(0, false /*sample_id_all*/)
+      .WriteTo(&input);
 
   // metadata
 
@@ -1406,7 +1479,7 @@ TEST(PerfReaderTest, NoSampleIdField) {
 }
 
 // When sample_id_all == false, non-sample events should not look for sample_id.
-TEST(PerfReaderTest, SampleIdFalseMeansDontReadASampleId) {
+TEST(PerfReaderTest, MMapEventWithInvalidSampleInfoData) {
   std::stringstream input;
 
   // PERF_RECORD_SAMPLE
@@ -1457,28 +1530,9 @@ TEST(PerfReaderTest, SampleIdFalseMeansDontReadASampleId) {
   //
 
   PerfReader pr;
-  EXPECT_TRUE(pr.ReadFromString(input.str()));
-
-  // Verify events were read properly.
-  ASSERT_EQ(2, pr.events().size());
-  {
-    const PerfEvent& event = pr.events().Get(0);
-    EXPECT_EQ(PERF_RECORD_SAMPLE, event.header().type());
-
-    EXPECT_EQ(0x00000000002c100a, event.sample_event().ip());
-    EXPECT_EQ(1002, event.sample_event().tid());
-    EXPECT_EQ(48, event.sample_event().id());
-  }
-
-  {
-    const PerfEvent& event = pr.events().Get(1);
-    EXPECT_EQ(PERF_RECORD_MMAP, event.header().type());
-
-    // This event is malformed: it has junk at the end. Therefore, sample_info
-    // should not have TID or ID fields.
-    EXPECT_FALSE(event.mmap_event().sample_info().has_tid());
-    EXPECT_FALSE(event.mmap_event().sample_info().has_id());
-  }
+  // PerfReader should error as the PERF_RECORD_MMAP event has invalid size
+  // because the event includes sample info data when sample_id.all is false.
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
 }
 
 // Regression test for http://crbug.com/496441
@@ -2082,6 +2136,45 @@ TEST(PerfReaderTest, PipedMMapEventWithZeroEventDataSize) {
 
   PerfReader pr;
   EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
+TEST(PerfReaderTest, ReadFailsWithIncompleteMMapEvent) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // PERF_RECORD_MMAP2
+  testing::ExampleMmap2Event mmap2_event(1002, 0x2c1000, 0x2000, 0x3000,
+                                         "/usr/lib/bar.so",
+                                         testing::SampleInfo().Tid(1002));
+  mmap2_event.WithMisc(PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT);
+
+  const size_t data_size = mmap2_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  mmap2_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_TRUE(pr.ReadFromString(input.str()));
+
+  // Verify the mmap event got skipped.
+  ASSERT_EQ(0, pr.events().size());
 }
 
 }  // namespace quipper

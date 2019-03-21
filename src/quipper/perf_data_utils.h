@@ -59,10 +59,15 @@ feature_event* CallocMemoryForFeature(size_t size);
 //    "0123456789abcde"     -> 16 bytes -> packed into 16 bytes
 //    "0123456789abcdef"    -> 17 bytes -> packed into 24 bytes
 //
-// Returns the size of the 8-byte-aligned memory for storing |string|.
-inline size_t GetUint64AlignedStringLength(const string& str) {
-  return Align<uint64_t>(str.size() + 1);
+// Returns the size of the 8-byte-aligned memory for storing a string of the
+// |size|.
+inline size_t GetUint64AlignedStringLength(size_t size) {
+  return Align<uint64_t>(size + 1);
 }
+
+// Gets the given |str| length using strnlen. Returns true when the |str| is
+// null-terminated before the max_size. Otherwise, returns false.
+bool GetStringLength(const char* str, size_t max_size, size_t* size);
 
 // Makes |build_id| fit the perf format, by either truncating it or adding
 // zeroes to the end so that it has length kBuildIDStringLength.
@@ -85,6 +90,35 @@ uint64_t GetTimeFromPerfEvent(const PerfDataProto_PerfEvent& event);
 // GetSampleIdFromPerfEvent returns a valid sample id if the provided perf event
 // has a sample id. Otherwise, returns 0.
 uint64_t GetSampleIdFromPerfEvent(const PerfDataProto_PerfEvent& event);
+
+// Returns the metadata name for the given type.
+string GetMetadataName(uint32_t type);
+
+// Returns the event name for the given type.
+string GetEventName(uint32_t type);
+
+// For supported event |type|, updates |size| with the event data's fixed
+// payload size and returns true. Returns false for unsupported event type.
+bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size);
+
+// For supported event |type|, calculates the event data's variable payload
+// size, validates it with the |remaining_event_size|, and updates |size| with
+// variable payload size. Returns false when the validation with the remaining
+// event size fails, when the variable payload size is not uint64 aligned or for
+// unsupported event type.
+bool GetEventDataVariablePayloadSize(const event_t& event,
+                                     size_t remaining_event_size, size_t* size);
+// For supported event |type|, calculates the event data's variable payload
+// size, and updates |size| with variable payload size. Returns false for
+// unsupported event type.
+bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
+                                     size_t* size);
+
+// Returns the event data size not including the sample info data size.
+// On error, returns 0.
+size_t GetEventDataSize(const event_t& event);
+size_t GetEventDataSize(const PerfDataProto_PerfEvent& event);
+
 }  // namespace quipper
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_PERF_DATA_UTILS_H_

@@ -21,6 +21,7 @@
 #include "compat/string.h"
 #include "file_reader.h"
 #include "file_utils.h"
+#include "kernel/perf_internals.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "sample_info_reader.h"
@@ -124,7 +125,7 @@ void CheckNoBuildIDEventPadding() {
 malloced_unique_ptr<build_id_event> CreateBuildIDEvent(const string& build_id,
                                                        const string& filename,
                                                        uint16_t misc) {
-  size_t filename_len = GetUint64AlignedStringLength(filename);
+  size_t filename_len = GetUint64AlignedStringLength(filename.size());
   size_t size = sizeof(struct build_id_event) + filename_len;
   malloced_unique_ptr<build_id_event> event(CallocMemoryForBuildID(size));
   event->header.type = HEADER_BUILD_ID;
@@ -143,7 +144,7 @@ malloced_unique_ptr<build_id_event> CreateBuildIDEvent(const string& build_id,
 // data, including a preceding length field and extra padding to align the
 // string + null terminator to a multiple of uint64s.
 size_t ExpectedStorageSizeOf(const string& str) {
-  return sizeof(string_size_type) + GetUint64AlignedStringLength(str);
+  return sizeof(string_size_type) + GetUint64AlignedStringLength(str.size());
 }
 
 // Reads a perf_event_header from |data| and performs byte swapping if
@@ -159,8 +160,17 @@ bool ReadPerfEventHeader(DataReader* data, struct perf_event_header* header) {
     ByteSwap(&header->misc);
   }
   if (header->size < sizeof(header)) {
-    LOG(ERROR) << "Event size is less than the header size. Type: "
-               << header->type;
+    LOG(ERROR) << "Event size " << header->size << " of event "
+               << GetEventName(header->type) << " is less than header size "
+               << sizeof(header);
+    return false;
+  }
+  size_t remaining_size = data->size() - data->Tell();
+  if (header->size - sizeof(header) > remaining_size) {
+    LOG(ERROR) << "Remaining event size " << header->size - sizeof(header)
+               << " of event " << GetEventName(header->type)
+               << " cannot be greater than remaining perf data input size "
+               << remaining_size;
     return false;
   }
   return true;
@@ -177,6 +187,18 @@ bool ReadPerfFileSection(DataReader* data, struct perf_file_section* section) {
     ByteSwap(&section->offset);
     ByteSwap(&section->size);
   }
+  if (section->offset > data->size()) {
+    LOG(ERROR) << "Illegal perf_file_section.offset " << section->offset
+               << " in perf data input of size " << data->size();
+    return false;
+  }
+  size_t remaining_size = data->size() - section->offset;
+  if (section->size > remaining_size) {
+    LOG(ERROR) << "perf_file_section.size " << section->size
+               << " cannot exceed remaining perf data input size "
+               << remaining_size << " at offset " << section->offset;
+    return false;
+  }
   return true;
 }
 
@@ -184,6 +206,213 @@ bool ReadPerfFileSection(DataReader* data, struct perf_file_section* section) {
 // array of events.
 static bool CompareEventTimes(const PerfEvent* e1, const PerfEvent* e2) {
   return e1->timestamp() < e2->timestamp();
+}
+
+// Returns true if the mmap was generated when parsing the /proc/PID/maps timed
+// out.
+bool IsProcMapTimeoutMmap(const struct perf_event_header& header) {
+  if (header.type == PERF_RECORD_MMAP || header.type == PERF_RECORD_MMAP2) {
+    if (header.misc & PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Swaps byte order for header event's fixed payload fields.
+bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
+  uint32_t type = event->header.type;
+  switch (type) {
+    case PERF_RECORD_MMAP:
+      ByteSwap(&event->mmap.pid);
+      ByteSwap(&event->mmap.tid);
+      ByteSwap(&event->mmap.start);
+      ByteSwap(&event->mmap.len);
+      ByteSwap(&event->mmap.pgoff);
+      return true;
+    case PERF_RECORD_MMAP2:
+      ByteSwap(&event->mmap2.pid);
+      ByteSwap(&event->mmap2.tid);
+      ByteSwap(&event->mmap2.start);
+      ByteSwap(&event->mmap2.len);
+      ByteSwap(&event->mmap2.pgoff);
+      ByteSwap(&event->mmap2.maj);
+      ByteSwap(&event->mmap2.min);
+      ByteSwap(&event->mmap2.ino);
+      ByteSwap(&event->mmap2.ino_generation);
+      ByteSwap(&event->mmap2.prot);
+      ByteSwap(&event->mmap2.flags);
+      return true;
+    case PERF_RECORD_FORK:
+    case PERF_RECORD_EXIT:
+      ByteSwap(&event->fork.pid);
+      ByteSwap(&event->fork.tid);
+      ByteSwap(&event->fork.ppid);
+      ByteSwap(&event->fork.ptid);
+      ByteSwap(&event->fork.time);
+      return true;
+    case PERF_RECORD_COMM:
+      ByteSwap(&event->comm.pid);
+      ByteSwap(&event->comm.tid);
+      return true;
+    case PERF_RECORD_LOST:
+      ByteSwap(&event->lost.id);
+      ByteSwap(&event->lost.lost);
+      return true;
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+      ByteSwap(&event->throttle.time);
+      ByteSwap(&event->throttle.id);
+      ByteSwap(&event->throttle.stream_id);
+      return true;
+    case PERF_RECORD_READ:
+      ByteSwap(&event->read.pid);
+      ByteSwap(&event->read.tid);
+      ByteSwap(&event->read.value);
+      ByteSwap(&event->read.time_enabled);
+      ByteSwap(&event->read.time_running);
+      ByteSwap(&event->read.id);
+      return true;
+    case PERF_RECORD_AUX:
+      ByteSwap(&event->aux.aux_offset);
+      ByteSwap(&event->aux.aux_size);
+      ByteSwap(&event->aux.flags);
+      return true;
+    case PERF_RECORD_ITRACE_START:
+      ByteSwap(&event->itrace_start.pid);
+      ByteSwap(&event->itrace_start.tid);
+      return true;
+    case PERF_RECORD_LOST_SAMPLES:
+      ByteSwap(&event->lost_samples.lost);
+      return true;
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+      ByteSwap(&event->context_switch.next_prev_pid);
+      ByteSwap(&event->context_switch.next_prev_tid);
+      return true;
+    case PERF_RECORD_NAMESPACES:
+      ByteSwap(&event->namespaces.pid);
+      ByteSwap(&event->namespaces.tid);
+      ByteSwap(&event->namespaces.nr_namespaces);
+      return true;
+    case PERF_RECORD_AUXTRACE_INFO:
+      ByteSwap(&event->auxtrace_info.type);
+      return true;
+    case PERF_RECORD_AUXTRACE:
+      ByteSwap(&event->auxtrace.size);
+      ByteSwap(&event->auxtrace.offset);
+      ByteSwap(&event->auxtrace.reference);
+      ByteSwap(&event->auxtrace.idx);
+      ByteSwap(&event->auxtrace.tid);
+      ByteSwap(&event->auxtrace.cpu);
+      return true;
+    case PERF_RECORD_THREAD_MAP:
+      ByteSwap(&event->thread_map.nr);
+      return true;
+    case PERF_RECORD_STAT_CONFIG:
+      ByteSwap(&event->stat_config.nr);
+      return true;
+    case PERF_RECORD_STAT:
+      ByteSwap(&event->stat.id);
+      ByteSwap(&event->stat.cpu);
+      ByteSwap(&event->stat.thread);
+      ByteSwap(&event->stat.val);
+      ByteSwap(&event->stat.ena);
+      ByteSwap(&event->stat.run);
+      return true;
+    case PERF_RECORD_STAT_ROUND:
+      ByteSwap(&event->stat_round.type);
+      ByteSwap(&event->stat_round.time);
+      return true;
+    case PERF_RECORD_AUXTRACE_ERROR:
+      ByteSwap(&event->auxtrace_error.type);
+      ByteSwap(&event->auxtrace_error.code);
+      ByteSwap(&event->auxtrace_error.cpu);
+      ByteSwap(&event->auxtrace_error.pid);
+      ByteSwap(&event->auxtrace_error.tid);
+      ByteSwap(&event->auxtrace_error.ip);
+      return true;
+    case PERF_RECORD_TIME_CONV:
+      ByteSwap(&event->time_conv.time_shift);
+      ByteSwap(&event->time_conv.time_mult);
+      ByteSwap(&event->time_conv.time_zero);
+      return true;
+    case PERF_RECORD_SAMPLE:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_FINISHED_ROUND:
+      return true;
+  }
+
+  // Do not swap the sample info fields that are not explicitly listed in the
+  // struct definition of each event type. Leave that up to SampleInfoReader
+  // within |serializer_|.
+  LOG(ERROR) << "Byte swapping fixed payload fields is unsupported for event "
+             << GetEventName(event->header.type);
+  return false;
+}
+
+// Swaps byte order for header event's variable payload fields.
+bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
+  uint32_t type = event->header.type;
+  switch (type) {
+    case PERF_RECORD_NAMESPACES:
+      for (u64 i = 0; i < event->namespaces.nr_namespaces; ++i) {
+        ByteSwap(&event->namespaces.link_info[i].dev);
+        ByteSwap(&event->namespaces.link_info[i].ino);
+      }
+      return true;
+    case PERF_RECORD_AUXTRACE_INFO: {
+      u64 priv_size =
+          (event->header.size - offsetof(struct auxtrace_info_event, priv)) /
+          sizeof(u64);
+      for (u64 i = 0; i < priv_size; ++i) {
+        ByteSwap(&event->auxtrace_info.priv[i]);
+      }
+      return true;
+    }
+    case PERF_RECORD_THREAD_MAP:
+      for (u64 i = 0; i < event->thread_map.nr; ++i) {
+        ByteSwap(&event->thread_map.entries[i].pid);
+      }
+      return true;
+    case PERF_RECORD_STAT_CONFIG:
+      for (u64 i = 0; i < event->stat_config.nr; ++i) {
+        ByteSwap(&event->stat_config.data[i].tag);
+        ByteSwap(&event->stat_config.data[i].val);
+      }
+      return true;
+    // The below supported perf events either have no variable payload fields or
+    // don't require byteswapping of the variable payload fields.
+    case PERF_RECORD_MMAP:
+    case PERF_RECORD_MMAP2:
+    case PERF_RECORD_FORK:
+    case PERF_RECORD_EXIT:
+    case PERF_RECORD_COMM:
+    case PERF_RECORD_LOST:
+    case PERF_RECORD_THROTTLE:
+    case PERF_RECORD_UNTHROTTLE:
+    case PERF_RECORD_READ:
+    case PERF_RECORD_SAMPLE:
+    case PERF_RECORD_AUX:
+    case PERF_RECORD_ITRACE_START:
+    case PERF_RECORD_LOST_SAMPLES:
+    case PERF_RECORD_SWITCH:
+    case PERF_RECORD_SWITCH_CPU_WIDE:
+    case PERF_RECORD_FINISHED_ROUND:
+    case PERF_RECORD_AUXTRACE:
+    case PERF_RECORD_STAT:
+    case PERF_RECORD_STAT_ROUND:
+    case PERF_RECORD_AUXTRACE_ERROR:
+    case PERF_RECORD_TIME_CONV:
+      return true;
+  }
+
+  // Do not swap the sample info fields that are not explicitly listed in the
+  // struct definition of each event type. Leave that up to SampleInfoReader
+  // within |serializer_|.
+  LOG(ERROR)
+      << "Byte swapping variable payload fields is unsupported for event "
+      << GetEventName(event->header.type);
+  return false;
 }
 
 }  // namespace
@@ -217,7 +446,10 @@ bool PerfReader::Deserialize(const PerfDataProto& perf_data_proto) {
   for (const auto& stored_attr : proto_->file_attrs()) {
     PerfFileAttr attr;
     serializer_.DeserializePerfFileAttr(stored_attr, &attr);
-    serializer_.CreateSampleInfoReader(attr, false /* read_cross_endian */);
+    if (!serializer_.CreateSampleInfoReader(attr,
+                                            /*read_cross_endian=*/false)) {
+      return false;
+    }
   }
   return PopulateMissingEventSize();
 }
@@ -610,12 +842,16 @@ bool PerfReader::ReadHeader(DataReader* data) {
 }
 
 bool PerfReader::ReadAttrsSection(DataReader* data) {
+  if (header_.attr_size == 0) {
+    LOG(ERROR) << "Expected a non-zero size for perf_file_header.attr_size";
+    return false;
+  }
   size_t num_attrs = header_.attrs.size / header_.attr_size;
   if (header_.attrs.size % header_.attr_size != 0) {
     LOG(ERROR) << "Total size of attrs " << header_.attrs.size
                << " is not a multiple of attr size " << header_.attr_size;
   }
-  data->SeekSet(header_.attrs.offset);
+  if (!data->SeekSet(header_.attrs.offset)) return false;
   for (size_t i = 0; i < num_attrs; i++) {
     if (!ReadAttr(data)) return false;
   }
@@ -632,14 +868,12 @@ bool PerfReader::ReadAttr(DataReader* data) {
   // The ID may be stored at a different location in the file than where we're
   // currently reading.
   size_t saved_offset = data->Tell();
-  data->SeekSet(ids.offset);
+  if (!data->SeekSet(ids.offset)) return false;
 
   size_t num_ids = ids.size / sizeof(decltype(attr.ids)::value_type);
   if (!ReadUniqueIDs(data, num_ids, &attr.ids)) return false;
-  data->SeekSet(saved_offset);
-  AddPerfFileAttr(attr);
-
-  return true;
+  if (!data->SeekSet(saved_offset)) return false;
+  return AddPerfFileAttr(attr);
 }
 
 bool PerfReader::ReadEventAttr(DataReader* data, perf_event_attr* attr) {
@@ -663,7 +897,9 @@ bool PerfReader::ReadEventAttr(DataReader* data, perf_event_attr* attr) {
                            reinterpret_cast<char*>(attr) + attr_offset)) {
     return false;
   }
-  data->SeekSet(data->Tell() + attr->size - attr_readable_size);
+  if (!data->SeekSet(data->Tell() + attr->size - attr_readable_size)) {
+    return false;
+  }
 
   if (data->is_cross_endian()) {
     // Depending on attr->size, some of these might not have actually been
@@ -717,10 +953,21 @@ bool PerfReader::ReadEventTypesSection(DataReader* data) {
     // Not available.
     return true;
   }
-  CHECK_EQ(proto_->file_attrs().size(), num_event_types);
-  CHECK_EQ(sizeof(perf_trace_event_type) * num_event_types,
-           header_.event_types.size);
-  data->SeekSet(header_.event_types.offset);
+  if (proto_->file_attrs().size() != num_event_types) {
+    LOG(ERROR) << "Number of event types " << num_event_types
+               << " doesn't match the number of file attributes "
+               << proto_->file_attrs().size();
+    return false;
+  }
+  size_t calc_size = sizeof(perf_trace_event_type) * num_event_types;
+  if (calc_size != header_.event_types.size) {
+    LOG(ERROR) << "Tracepoint event type size " << calc_size
+               << " calculated from the number of event types "
+               << num_event_types << " is not the same as the read size "
+               << header_.event_types.size;
+    return false;
+  }
+  if (!data->SeekSet(header_.event_types.offset)) return false;
   for (int i = 0; i < num_event_types; ++i) {
     if (!ReadEventType(data, i, 0)) return false;
   }
@@ -768,7 +1015,7 @@ bool PerfReader::ReadEventType(DataReader* data, int attr_idx,
 
 bool PerfReader::ReadDataSection(DataReader* data) {
   u64 data_remaining_bytes = header_.data.size;
-  data->SeekSet(header_.data.offset);
+  if (!data->SeekSet(header_.data.offset)) return false;
   while (data_remaining_bytes != 0) {
     // Read the header to determine the size of the event.
     perf_event_header header;
@@ -779,7 +1026,7 @@ bool PerfReader::ReadDataSection(DataReader* data) {
 
     size_t read_size = 0;
     if (!ReadNonHeaderEventDataWithoutHeader(data, header, &read_size)) {
-      LOG(ERROR) << "Couldn't read event of type: " << header.type;
+      LOG(ERROR) << "Couldn't read event " << GetEventName(header.type);
       return false;
     }
 
@@ -792,6 +1039,41 @@ bool PerfReader::ReadDataSection(DataReader* data) {
 
 bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
     DataReader* data, const perf_event_header& header, size_t* read_size) {
+  size_t skip_or_read_size = header.size - sizeof(header);
+  if (!PerfSerializer::IsSupportedKernelEventType(header.type) &&
+      !PerfSerializer::IsSupportedUserEventType(header.type)) {
+    LOG(WARNING) << "Skipping unsupported event " << GetEventName(header.type);
+    if (!data->SeekSet(data->Tell() + skip_or_read_size)) return false;
+    *read_size = skip_or_read_size;
+    return true;
+  }
+  // We must have a valid way to read sample info before reading perf events.
+  if (!serializer_.SampleInfoReaderAvailable()) {
+    LOG(ERROR) << "No sample info reader available to read perf events";
+    return false;
+  }
+
+  size_t fixed_payload_size = 0;
+  if (!GetEventDataFixedPayloadSize(header.type, &fixed_payload_size)) {
+    LOG(ERROR) << "Couldn't get fixed payload size for event "
+               << GetEventName(header.type);
+    return false;
+  }
+  if (header.size < fixed_payload_size) {
+    LOG(ERROR) << "Event size " << header.size << " of the event "
+               << GetEventName(header.type)
+               << " should be at least the fixed payload size "
+               << fixed_payload_size;
+    return false;
+  }
+  if (IsProcMapTimeoutMmap(header)) {
+    LOG(WARNING) << "Skipping truncated mmap from event "
+                 << GetEventName(header.type);
+    if (!data->SeekSet(data->Tell() + skip_or_read_size)) return false;
+    *read_size = skip_or_read_size;
+    return true;
+  }
+
   // Allocate space for an event struct based on the size in the header.
   // Don't blindly allocate the entire event_t because it is a
   // variable-sized type that may include data beyond what's nominally
@@ -799,61 +1081,56 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
   malloced_unique_ptr<event_t> event(CallocMemoryForEvent(header.size));
   event->header = header;
 
-  size_t event_data_size = event->header.size - sizeof(event->header);
   // Read the rest of the event data.
-  if (!data->ReadDataValue(event_data_size, "rest of event",
+  if (!data->ReadDataValue(skip_or_read_size, "rest of event",
                            &event->header + 1)) {
     return false;
   }
-  MaybeSwapEventFields(event.get(), data->is_cross_endian());
 
-  if (!PerfSerializer::IsSupportedKernelEventType(event->header.type) &&
-      !PerfSerializer::IsSupportedUserEventType(event->header.type)) {
-    LOG(WARNING) << "Skipping unsupported event type: " << event->header.type;
-    *read_size = event_data_size;
-    return true;
-  }
-
-  size_t expected_size_without_sample_info =
-      PerfSerializer::GetEventSizeWithoutSampleInfo(*event);
-  if (expected_size_without_sample_info == 0) {
-    LOG(ERROR) << "Couldn't get event size for the event type: " << header.type;
-    return false;
-  }
-  if (event->header.size < expected_size_without_sample_info) {
-    LOG(ERROR) << "Expected the event header size of at least "
-               << expected_size_without_sample_info << ", got "
-               << event->header.size
-               << ". For the event type: " << event->header.type;
-    return false;
-  }
-  if (!SampleInfoReader::IsSupportedEventType(event->header.type) &&
-      event->header.size != expected_size_without_sample_info) {
-    LOG(ERROR) << "Expected the exact event header size "
-               << expected_size_without_sample_info << ", got "
-               << event->header.size
-               << ". For the event type: " << event->header.type;
+  if (data->is_cross_endian() &&
+      !ByteSwapEventDataFixedPayloadFields(event.get())) {
     return false;
   }
 
-  // We must have a valid way to read sample info before reading perf events.
-  CHECK(serializer_.SampleInfoReaderAvailable());
+  size_t variable_payload_size = 0;
+  if (!GetEventDataVariablePayloadSize(*event,
+                                       event->header.size - fixed_payload_size,
+                                       &variable_payload_size)) {
+    LOG(ERROR) << "Couldn't get variable payload size for event "
+               << GetEventName(event->header.type);
+    return false;
+  }
+  if (data->is_cross_endian() &&
+      !ByteSwapEventDataVariablePayloadFields(event.get())) {
+    return false;
+  }
+
+  size_t expected_event_data_size = fixed_payload_size + variable_payload_size;
+  if (!serializer_.ContainsSampleInfo(event->header.type) &&
+      event->header.size != expected_event_data_size) {
+    LOG(ERROR) << "Expected exact event size " << expected_event_data_size
+               << " for event " << GetEventName(event->header.type) << ", got "
+               << event->header.size;
+    return false;
+  }
 
   // Serialize the event to protobuf form.
   PerfEvent* proto_event = proto_->add_events();
   if (!serializer_.SerializeEvent(event, proto_event)) return false;
 
+  *read_size = skip_or_read_size;
+
   if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
     if (!ReadAuxtraceTraceData(data, proto_event)) return false;
-    event_data_size += proto_event->auxtrace_event().size();
+    *read_size += proto_event->auxtrace_event().size();
   }
-  *read_size = event_data_size;
+
   return true;
 }
 
 bool PerfReader::ReadMetadata(DataReader* data) {
   // Metadata comes after the event data.
-  data->SeekSet(header_.data.offset + header_.data.size);
+  if (!data->SeekSet(header_.data.offset + header_.data.size)) return false;
 
   // Read the (offset, size) pairs of all the metadata elements. Note that this
   // takes into account all present metadata types, not just the ones included
@@ -870,7 +1147,7 @@ bool PerfReader::ReadMetadata(DataReader* data) {
   auto section_iter = sections.begin();
   for (u32 type = HEADER_FIRST_FEATURE; type != HEADER_LAST_FEATURE; ++type) {
     if (!get_metadata_mask_bit(type)) continue;
-    data->SeekSet(section_iter->offset);
+    if (!data->SeekSet(section_iter->offset)) return false;
     u64 size = section_iter->size;
     if (!ReadMetadataWithoutHeader(data, type, size)) return false;
     ++section_iter;
@@ -881,9 +1158,15 @@ bool PerfReader::ReadMetadata(DataReader* data) {
 
 bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
                                            size_t size) {
+  size_t remaining_size = data->size() - data->Tell();
+  if (size > remaining_size) {
+    LOG(ERROR) << "Size " << size << " of the metadata type " << type
+               << " without header can be at most the remaining size "
+               << remaining_size << " of the perf.data input";
+    return false;
+  }
   size_t begin_offset = data->Tell();
-  uint64_t metadata_mask_bit = metadata_mask();
-  set_metadata_mask_bit(type);
+  bool is_supported_metadata = true;
 
   bool isRead = [&] {
     switch (type) {
@@ -936,19 +1219,20 @@ bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
       case HEADER_GROUP_DESC:
         return ReadGroupDescMetadata(data);
       default:
-        // Set the metadata mask bit to the previous value if the header feature
-        // is not supported.
-        proto_->set_metadata_mask(0, metadata_mask_bit);
-        LOG(INFO) << "Unsupported metadata type, skipping: " << type;
+        is_supported_metadata = false;
+        LOG(INFO) << "Unsupported metadata type, skipping: "
+                  << GetMetadataName(type);
         return true;
     }
   }();
 
+  if (is_supported_metadata) set_metadata_mask_bit(type);
+
   if (isRead && size != data->Tell() - begin_offset) {
     int64_t skip_size = size - (data->Tell() - begin_offset);
-    data->SeekSet(data->Tell() + skip_size);
+    if (!data->SeekSet(data->Tell() + skip_size)) return false;
     LOG(WARNING) << "Skipping " << skip_size
-                 << " bytes of metadata type: " << type;
+                 << " bytes of metadata: " << GetMetadataName(type);
   }
 
   return isRead;
@@ -964,6 +1248,12 @@ bool PerfReader::ReadBuildIDMetadata(DataReader* data, size_t size) {
       return false;
     }
 
+    if (build_id_header.size > size) {
+      LOG(ERROR) << "Build id header size " << build_id_header.size
+                 << " should be less than or equal to the remaining total"
+                 << " build_id metadata size " << size;
+      return false;
+    }
     if (!ReadBuildIDMetadataWithoutHeader(data, build_id_header)) return false;
     size -= build_id_header.size;
   }
@@ -973,8 +1263,10 @@ bool PerfReader::ReadBuildIDMetadata(DataReader* data, size_t size) {
 
 bool PerfReader::ReadBuildIDMetadataWithoutHeader(
     DataReader* data, const perf_event_header& header) {
-  if (header.size < sizeof(header)) {
-    LOG(ERROR) << "Invalid buildid metadata header size";
+  size_t fixed_data_size = offsetof(struct build_id_event, filename);
+  if (header.size < fixed_data_size) {
+    LOG(ERROR) << "Expected build_id header size of at least "
+               << fixed_data_size << " got " << header.size;
     return false;
   }
   // Allocate memory for the event.
@@ -991,8 +1283,26 @@ bool PerfReader::ReadBuildIDMetadataWithoutHeader(
   if (data->is_cross_endian()) ByteSwap(&event->pid);
 
   // Perf tends to use more space than necessary, so fix the size.
-  event->header.size =
-      sizeof(*event) + GetUint64AlignedStringLength(event->filename);
+  size_t filename_size = 0;
+  // Using PATH_MAX as the max length because filenames are at most PATH_MAX
+  // including '\0' character.
+  size_t max_filename_size =
+      std::min<size_t>(event->header.size - fixed_data_size, PATH_MAX);
+  if (!GetStringLength(event->filename, max_filename_size, &filename_size)) {
+    LOG(ERROR) << "Couldn't get filename string length";
+    return 0L;
+  }
+  size_t aligned_size =
+      sizeof(*event) + GetUint64AlignedStringLength(filename_size);
+  if (aligned_size > event->header.size) {
+    LOG(ERROR) << "Event size " << aligned_size << " after uint64 alignment"
+               << " of the filename length is greater than event size "
+               << event->header.size
+               << " reported by perf for the buildid event of type "
+               << event->header.type;
+    return false;
+  }
+  event->header.size = aligned_size;
 
   if (!serializer_.SerializeBuildIDEvent(event, proto_->add_build_ids())) {
     LOG(ERROR) << "Could not serialize build ID event with ID "
@@ -1053,12 +1363,18 @@ bool PerfReader::ReadUint32Metadata(DataReader* data, u32 type, size_t size) {
   while (size > 0) {
     uint32_t item;
     if (!data->ReadUint32(&item)) {
-      LOG(ERROR) << "Error reading uint32 metadata";
+      LOG(ERROR) << "Error reading uint32 metadata for "
+                 << GetMetadataName(type);
       return false;
     }
 
     uint32_data.data.push_back(item);
     size -= sizeof(item);
+  }
+
+  if (uint32_data.data.empty()) {
+    LOG(ERROR) << "No uint32 metadata available for " << GetMetadataName(type);
+    return false;
   }
 
   serializer_.SerializeSingleUint32Metadata(uint32_data,
@@ -1073,12 +1389,18 @@ bool PerfReader::ReadUint64Metadata(DataReader* data, u32 type, size_t size) {
   while (size > 0) {
     uint64_t item;
     if (!data->ReadUint64(&item)) {
-      LOG(ERROR) << "Error reading uint64 metadata";
+      LOG(ERROR) << "Error reading uint64 metadata for "
+                 << GetMetadataName(type);
       return false;
     }
 
     uint64_data.data.push_back(item);
     size -= sizeof(item);
+  }
+
+  if (uint64_data.data.empty()) {
+    LOG(ERROR) << "No uint64 metadata available for " << GetMetadataName(type);
+    return false;
   }
 
   serializer_.SerializeSingleUint64Metadata(uint64_data,
@@ -1131,7 +1453,9 @@ bool PerfReader::ReadEventDescMetadata(DataReader* data) {
         return false;
       }
     }
-    AddPerfFileAttr(attr);
+    if (!AddPerfFileAttr(attr)) {
+      return false;
+    }
     // The EVENT_DESC metadata is the newer replacement for the older event type
     // fields. In the protobuf, both types of data are stored in the
     // |event_types| field.
@@ -1175,7 +1499,8 @@ bool PerfReader::ReadCPUTopologyMetadata(DataReader* data, size_t size) {
     uint32_t nrcpus = 0;
     for (const PerfDataProto_PerfUint32Metadata& proto_uint32_metadata :
          proto_->uint32_metadata()) {
-      if (proto_uint32_metadata.type() == HEADER_NRCPUS) {
+      if (proto_uint32_metadata.type() == HEADER_NRCPUS &&
+          proto_uint32_metadata.data_size() > 0) {
         nrcpus = proto_uint32_metadata.data()[0];
       }
     }
@@ -1282,12 +1607,18 @@ bool PerfReader::ReadGroupDescMetadata(DataReader* data) {
   return true;
 }
 bool PerfReader::ReadTracingMetadata(DataReader* data, size_t size) {
-  std::vector<char> tracing_data(size);
-  if (!data->ReadDataValue(tracing_data.size(), "tracing_data",
-                           tracing_data.data())) {
+  malloced_unique_ptr<char> tracing_data(
+      reinterpret_cast<char*>(calloc(1, size)));
+  if (tracing_data == nullptr) {
+    LOG(ERROR)
+        << "Couldn't allocate enough memory to read tracing metadata of size "
+        << size;
     return false;
   }
-  serializer_.SerializeTracingMetadata(tracing_data, proto_);
+  if (!data->ReadDataValue(size, "tracing_data", tracing_data.get())) {
+    return false;
+  }
+  serializer_.SerializeTracingMetadata(tracing_data.get(), size, proto_);
   return true;
 }
 
@@ -1384,7 +1715,7 @@ bool PerfReader::ReadPipedData(DataReader* data) {
 
     size_t read_size = 0;
     if (!ReadNonHeaderEventDataWithoutHeader(data, header, &read_size)) {
-      LOG(ERROR) << "Couldn't read event of type: " << header.type;
+      LOG(ERROR) << "Couldn't read event " << GetEventName(header.type);
       return false;
     }
   }
@@ -1405,17 +1736,31 @@ bool PerfReader::ReadPipedData(DataReader* data) {
 
 bool PerfReader::ReadAuxtraceTraceData(DataReader* data,
                                        PerfEvent* proto_event) {
-  std::vector<char> trace_data(proto_event->auxtrace_event().size());
-  if (!data->ReadDataValue(trace_data.size(),
-                           "trace date from PERF_RECORD_AUXTRACE event",
-                           trace_data.data())) {
+  size_t size = proto_event->auxtrace_event().size();
+  size_t remaining_size = data->size() - data->Tell();
+  if (size > remaining_size) {
+    LOG(ERROR)
+        << "Size " << size
+        << " of the PERF_RECORD_AUXTRACE trace data should be at most the "
+        << " remaining size " << remaining_size << " of the perf.data input";
+    return false;
+  }
+  malloced_unique_ptr<char> trace_data(
+      reinterpret_cast<char*>(calloc(1, size)));
+  if (trace_data == nullptr) {
+    LOG(ERROR) << "Couldn't allocate enough memory to read auxtrace trace data"
+               << " of size " << size;
+    return false;
+  }
+  if (!data->ReadDataValue(size, "trace date from PERF_RECORD_AUXTRACE event",
+                           trace_data.get())) {
     return false;
   }
   if (data->is_cross_endian()) {
     LOG(ERROR) << "Cannot byteswap trace data from PERF_RECORD_AUXTRACE";
   }
   if (!serializer_.SerializeAuxtraceEventTraceData(
-          trace_data, proto_event->mutable_auxtrace_event())) {
+          trace_data.get(), size, proto_event->mutable_auxtrace_event())) {
     return false;
   }
   return true;
@@ -1466,6 +1811,18 @@ bool PerfReader::WriteData(const struct perf_file_header& header,
   CHECK(serializer_.SampleInfoReaderAvailable());
   CHECK_EQ(header.data.offset, data->Tell());
   for (const PerfEvent& proto_event : proto_->events()) {
+    size_t expected_size = serializer_.GetEventSize(proto_event);
+    if (expected_size == 0) {
+      LOG(ERROR) << "Couldn't get event size for event "
+                 << GetEventName(proto_event.header().type());
+      return false;
+    }
+    if (proto_event.header().size() != expected_size) {
+      LOG(ERROR) << "Expected exact event header size " << expected_size
+                 << " for event " << GetEventName(proto_event.header().type())
+                 << ", got " << proto_event.header().size();
+      return false;
+    }
     malloced_unique_ptr<event_t> event;
     // The nominal size given by |proto_event| may not be correct, as the
     // contents may have changed since the PerfEvent was created. Use the size
@@ -1580,7 +1937,7 @@ bool PerfReader::WriteMetadata(const struct perf_file_header& header,
         if (!WriteGroupDescMetadata(data)) return false;
         break;
       default:
-        LOG(ERROR) << "Unsupported metadata type: " << type;
+        LOG(ERROR) << "Unsupported metadata: " << GetMetadataName(type);
         return false;
     }
 
@@ -1653,7 +2010,8 @@ bool PerfReader::WriteUint32Metadata(u32 type, DataWriter* data) const {
                                 raw_data.size() * sizeof(uint32_t),
                                 "uint32_t metadata");
   }
-  LOG(ERROR) << "Uint32 metadata of type " << type << " not present";
+  LOG(ERROR) << "Uint32 metadata of type " << GetMetadataName(type)
+             << " not present";
   return false;
 }
 
@@ -1667,7 +2025,8 @@ bool PerfReader::WriteUint64Metadata(u32 type, DataWriter* data) const {
                                 raw_data.size() * sizeof(uint64_t),
                                 "uint32_t metadata");
   }
-  LOG(ERROR) << "Uint64 metadata of type " << type << " not present";
+  LOG(ERROR) << "Uint64 metadata of type " << GetMetadataName(type)
+             << " not present";
   return false;
 }
 
@@ -1851,12 +2210,18 @@ bool PerfReader::ReadAttrEventBlock(DataReader* data, size_t size) {
     return true;
   }
 
-  AddPerfFileAttr(attr);
-  return true;
+  return AddPerfFileAttr(attr);
 }
 
 bool PerfReader::ReadHeaderFeature(DataReader* data,
                                    const perf_event_header& header) {
+  size_t fixed_data_size = offsetof(struct feature_event, data);
+  if (header.size < fixed_data_size) {
+    LOG(ERROR) << "Header feature event size " << header.size
+               << " must be at least the size " << fixed_data_size
+               << " of the struct feature_event's fixed payload";
+    return false;
+  }
   // Allocate memory for the event.
   malloced_unique_ptr<feature_event> event(CallocMemoryForFeature(header.size));
   event->header = header;
@@ -1869,7 +2234,7 @@ bool PerfReader::ReadHeaderFeature(DataReader* data,
   }
   if (data->is_cross_endian()) ByteSwap(&event->feat_id);
 
-  size_t data_size = header.size - sizeof(header) - sizeof(event->feat_id);
+  size_t variable_data_size = header.size - fixed_data_size;
   switch (event->feat_id) {
     case HEADER_TRACING_DATA:
     case HEADER_BUILD_ID:
@@ -1881,157 +2246,9 @@ bool PerfReader::ReadHeaderFeature(DataReader* data,
           << " in own event type.";
       return false;
   }
-  bool ret = ReadMetadataWithoutHeader(data, event->feat_id, data_size);
+  bool ret =
+      ReadMetadataWithoutHeader(data, event->feat_id, variable_data_size);
   return ret;
-}
-
-void PerfReader::MaybeSwapEventFields(event_t* event, bool is_cross_endian) {
-  if (!is_cross_endian) return;
-  uint32_t type = event->header.type;
-  switch (type) {
-    case PERF_RECORD_SAMPLE:
-      break;
-    case PERF_RECORD_MMAP:
-      ByteSwap(&event->mmap.pid);
-      ByteSwap(&event->mmap.tid);
-      ByteSwap(&event->mmap.start);
-      ByteSwap(&event->mmap.len);
-      ByteSwap(&event->mmap.pgoff);
-      break;
-    case PERF_RECORD_MMAP2:
-      ByteSwap(&event->mmap2.pid);
-      ByteSwap(&event->mmap2.tid);
-      ByteSwap(&event->mmap2.start);
-      ByteSwap(&event->mmap2.len);
-      ByteSwap(&event->mmap2.pgoff);
-      ByteSwap(&event->mmap2.maj);
-      ByteSwap(&event->mmap2.min);
-      ByteSwap(&event->mmap2.ino);
-      ByteSwap(&event->mmap2.ino_generation);
-      ByteSwap(&event->mmap2.prot);
-      ByteSwap(&event->mmap2.flags);
-      break;
-    case PERF_RECORD_FORK:
-    case PERF_RECORD_EXIT:
-      ByteSwap(&event->fork.pid);
-      ByteSwap(&event->fork.tid);
-      ByteSwap(&event->fork.ppid);
-      ByteSwap(&event->fork.ptid);
-      ByteSwap(&event->fork.time);
-      break;
-    case PERF_RECORD_COMM:
-      ByteSwap(&event->comm.pid);
-      ByteSwap(&event->comm.tid);
-      break;
-    case PERF_RECORD_LOST:
-      ByteSwap(&event->lost.id);
-      ByteSwap(&event->lost.lost);
-      break;
-    case PERF_RECORD_THROTTLE:
-    case PERF_RECORD_UNTHROTTLE:
-      ByteSwap(&event->throttle.time);
-      ByteSwap(&event->throttle.id);
-      ByteSwap(&event->throttle.stream_id);
-      break;
-    case PERF_RECORD_READ:
-      ByteSwap(&event->read.pid);
-      ByteSwap(&event->read.tid);
-      ByteSwap(&event->read.value);
-      ByteSwap(&event->read.time_enabled);
-      ByteSwap(&event->read.time_running);
-      ByteSwap(&event->read.id);
-      break;
-    case PERF_RECORD_AUX:
-      ByteSwap(&event->aux.aux_offset);
-      ByteSwap(&event->aux.aux_size);
-      ByteSwap(&event->aux.flags);
-      break;
-    case PERF_RECORD_ITRACE_START:
-      ByteSwap(&event->itrace_start.pid);
-      ByteSwap(&event->itrace_start.tid);
-      break;
-    case PERF_RECORD_LOST_SAMPLES:
-      ByteSwap(&event->lost_samples.lost);
-      break;
-    case PERF_RECORD_SWITCH_CPU_WIDE:
-      ByteSwap(&event->context_switch.next_prev_pid);
-      ByteSwap(&event->context_switch.next_prev_tid);
-      break;
-    case PERF_RECORD_NAMESPACES:
-      ByteSwap(&event->namespaces.pid);
-      ByteSwap(&event->namespaces.tid);
-      ByteSwap(&event->namespaces.nr_namespaces);
-      for (u64 i = 0; i < event->namespaces.nr_namespaces; ++i) {
-        ByteSwap(&event->namespaces.link_info[i].dev);
-        ByteSwap(&event->namespaces.link_info[i].ino);
-      }
-      break;
-    case PERF_RECORD_AUXTRACE_INFO: {
-      ByteSwap(&event->auxtrace_info.type);
-      u64 priv_size =
-          (event->header.size -
-           (sizeof(event->header) + sizeof(event->auxtrace_info.type) +
-            sizeof(u32)  // size of auxtrace_info_event.reserved__
-            )) /
-          sizeof(u64);
-      for (u64 i = 0; i < priv_size; ++i) {
-        ByteSwap(&event->auxtrace_info.priv[i]);
-      }
-      break;
-    }
-    case PERF_RECORD_AUXTRACE:
-      ByteSwap(&event->auxtrace.size);
-      ByteSwap(&event->auxtrace.offset);
-      ByteSwap(&event->auxtrace.reference);
-      ByteSwap(&event->auxtrace.idx);
-      ByteSwap(&event->auxtrace.tid);
-      ByteSwap(&event->auxtrace.cpu);
-      break;
-    case PERF_RECORD_THREAD_MAP:
-      ByteSwap(&event->thread_map.nr);
-      for (u64 i = 0; i < event->thread_map.nr; ++i) {
-        ByteSwap(&event->thread_map.entries[i].pid);
-      }
-      break;
-    case PERF_RECORD_STAT_CONFIG:
-      ByteSwap(&event->stat_config.nr);
-      for (u64 i = 0; i < event->stat_config.nr; ++i) {
-        ByteSwap(&event->stat_config.data[i].tag);
-        ByteSwap(&event->stat_config.data[i].val);
-      }
-      break;
-    case PERF_RECORD_STAT:
-      ByteSwap(&event->stat.id);
-      ByteSwap(&event->stat.cpu);
-      ByteSwap(&event->stat.thread);
-      ByteSwap(&event->stat.val);
-      ByteSwap(&event->stat.ena);
-      ByteSwap(&event->stat.run);
-      break;
-    case PERF_RECORD_STAT_ROUND:
-      ByteSwap(&event->stat_round.type);
-      ByteSwap(&event->stat_round.time);
-      break;
-    case PERF_RECORD_AUXTRACE_ERROR:
-      ByteSwap(&event->auxtrace_error.type);
-      ByteSwap(&event->auxtrace_error.code);
-      ByteSwap(&event->auxtrace_error.cpu);
-      ByteSwap(&event->auxtrace_error.pid);
-      ByteSwap(&event->auxtrace_error.tid);
-      ByteSwap(&event->auxtrace_error.ip);
-      break;
-    case PERF_RECORD_TIME_CONV:
-      ByteSwap(&event->time_conv.time_shift);
-      ByteSwap(&event->time_conv.time_mult);
-      ByteSwap(&event->time_conv.time_zero);
-      break;
-    default:
-      LOG(FATAL) << "Unknown event type: " << type;
-  }
-
-  // Do not swap the sample info fields that are not explicitly listed in the
-  // struct definition of each event type. Leave that up to SampleInfoReader
-  // within |serializer_|.
 }
 
 size_t PerfReader::GetNumSupportedMetadata() const {
@@ -2063,7 +2280,7 @@ size_t PerfReader::GetBuildIDMetadataSize() const {
   size_t size = 0;
   for (const auto& build_id : proto_->build_ids()) {
     size += sizeof(build_id_event) +
-            GetUint64AlignedStringLength(build_id.filename());
+            GetUint64AlignedStringLength(build_id.filename().size());
   }
   return size;
 }
@@ -2171,8 +2388,8 @@ bool PerfReader::LocalizeMMapFilenames(
       continue;
 
     const string& new_filename = it->second;
-    size_t old_len = GetUint64AlignedStringLength(filename);
-    size_t new_len = GetUint64AlignedStringLength(new_filename);
+    size_t old_len = GetUint64AlignedStringLength(filename.size());
+    size_t new_len = GetUint64AlignedStringLength(new_filename.size());
     size_t new_size = event.header().size() - old_len + new_len;
 
     event.mutable_mmap_event()->set_filename(new_filename);
@@ -2182,15 +2399,18 @@ bool PerfReader::LocalizeMMapFilenames(
   return true;
 }
 
-void PerfReader::AddPerfFileAttr(const PerfFileAttr& attr) {
+bool PerfReader::AddPerfFileAttr(const PerfFileAttr& attr) {
   serializer_.SerializePerfFileAttr(attr, proto_->add_file_attrs());
 
   // Generate a new SampleInfoReader with the new attr.
-  serializer_.CreateSampleInfoReader(attr, is_cross_endian_);
+  if (!serializer_.CreateSampleInfoReader(attr, is_cross_endian_)) {
+    return false;
+  }
   if (!attr.ids.empty()) {
     file_attrs_seen_.insert(attr.ids[0]);
   }
   file_attr_configs_seen_.insert(attr.attr.config);
+  return true;
 }
 
 bool PerfReader::PopulateMissingEventSize() {

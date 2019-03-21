@@ -207,8 +207,10 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   if (sizeof(attr) < attr_size_)
     WriteExtraBytes(attr_size_ - sizeof(attr), out);
 
-  out->write(reinterpret_cast<const char*>(&ids_section_),
-             sizeof(ids_section_));
+  perf_file_section ids_section;
+  ids_section.offset = MaybeSwap64(ids_section_.offset);
+  ids_section.size = MaybeSwap64(ids_section_.size);
+  out->write(reinterpret_cast<const char*>(&ids_section), sizeof(ids_section));
 }
 
 void ExamplePerfFileAttr_Tracepoint::WriteTo(std::ostream* out) const {
@@ -232,7 +234,7 @@ void ExamplePerfFileAttr_Tracepoint::WriteTo(std::ostream* out) const {
 
 size_t ExampleMmapEvent::GetSize() const {
   return offsetof(struct mmap_event, filename) +
-         GetUint64AlignedStringLength(filename_) +
+         GetUint64AlignedStringLength(filename_.size()) +
          sample_id_.size();  // sample_id_all
 }
 
@@ -261,7 +263,7 @@ void ExampleMmapEvent::WriteToWithEventSize(std::ostream* out,
   out->write(reinterpret_cast<const char*>(&event),
              offsetof(struct mmap_event, filename));
   const size_t filename_aligned_length =
-      GetUint64AlignedStringLength(filename_);
+      GetUint64AlignedStringLength(filename_.size());
   *out << filename_ << string(filename_aligned_length - filename_.size(), '\0');
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
@@ -271,18 +273,22 @@ void ExampleMmapEvent::WriteToWithEventSize(std::ostream* out,
   CHECK_EQ(GetSize(), static_cast<u64>(written_event_size));
 }
 
+size_t ExampleMmap2Event::GetSize() const {
+  return offsetof(struct mmap2_event, filename) +
+         GetUint64AlignedStringLength(filename_.size()) +
+         sample_id_.size();  // sample_id_all
+}
+
 void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   const size_t filename_aligned_length =
-      GetUint64AlignedStringLength(filename_);
-  const size_t event_size = offsetof(struct mmap2_event, filename) +
-                            filename_aligned_length +
-                            sample_id_.size();  // sample_id_all
+      GetUint64AlignedStringLength(filename_.size());
+  const size_t event_size = GetSize();
 
   struct mmap2_event event = {
       .header =
           {
               .type = PERF_RECORD_MMAP2,
-              .misc = 0,
+              .misc = misc_,
               .size = static_cast<u16>(event_size),
           },
       .pid = pid_,
@@ -578,12 +584,12 @@ void ExampleAuxtraceInfoEvent::WriteTo(std::ostream* out) const {
 
 size_t ExampleAuxtraceErrorEvent::GetSize() const {
   return offsetof(struct auxtrace_error_event, msg) +
-         GetUint64AlignedStringLength(msg_);
+         GetUint64AlignedStringLength(msg_.size());
 }
 
 void ExampleAuxtraceErrorEvent::WriteTo(std::ostream* out) const {
   const size_t event_size = GetSize();
-  const size_t msg_aligned_length = GetUint64AlignedStringLength(msg_);
+  const size_t msg_aligned_length = GetUint64AlignedStringLength(msg_.size());
   struct auxtrace_error_event event = {
       .header =
           {

@@ -83,8 +83,9 @@ void SetMmapFilename(PerfEvent* event, const string& new_filename,
                      uint64_t new_filename_md5_prefix) {
   CHECK(event->has_mmap_event());
   event->mutable_header()->set_size(
-      event->header().size() + GetUint64AlignedStringLength(new_filename) -
-      GetUint64AlignedStringLength(event->mmap_event().filename()));
+      event->header().size() +
+      GetUint64AlignedStringLength(new_filename.size()) -
+      GetUint64AlignedStringLength(event->mmap_event().filename().size()));
 
   event->mutable_mmap_event()->set_filename(new_filename);
   event->mutable_mmap_event()->set_filename_md5_prefix(new_filename_md5_prefix);

@@ -11,6 +11,7 @@
 #include <deque>
 #include <map>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #include "src/builder.h"
@@ -28,6 +29,7 @@ typedef perftools::profiles::Profile Profile;
 typedef perftools::profiles::Builder ProfileBuilder;
 
 typedef uint32 Pid;
+typedef uint32 Tid;
 
 enum ExecutionMode {
   Unknown,
@@ -109,11 +111,13 @@ typedef std::vector<uint64> LocationIdVector;
 // If any of these values are not used as labels, they should be set to 0.
 struct SampleKey {
   Pid pid = 0;
-  Pid tid = 0;
+  Tid tid = 0;
   uint64 time_ns = 0;
   ExecutionMode exec_mode = Unknown;
   // The index of the sample's command in the profile's string table.
   uint64 comm = 0;
+  // The index of the sample's thread type in the profile's string table.
+  uint64 thread_type = 0;
   LocationIdVector stack;
 };
 
@@ -121,7 +125,7 @@ struct SampleKeyEqualityTester {
   bool operator()(const SampleKey a, const SampleKey b) const {
     return ((a.pid == b.pid) && (a.tid == b.tid) && (a.time_ns == b.time_ns) &&
             (a.exec_mode == b.exec_mode) && (a.comm == b.comm) &&
-            (a.stack == b.stack));
+            (a.thread_type == b.thread_type) && (a.stack == b.stack));
   }
 };
 
@@ -133,6 +137,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64>()(k.time_ns);
     hash ^= std::hash<int>()(k.exec_mode);
     hash ^= std::hash<uint64>()(k.comm);
+    hash ^= std::hash<uint64>()(k.thread_type);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64>()(id);
     }
@@ -196,10 +201,15 @@ class PerfDataConverter : public PerfDataHandler {
  public:
   explicit PerfDataConverter(const quipper::PerfDataProto& perf_data,
                              uint32 sample_labels = kNoLabels,
-                             uint32 options = kGroupByPids)
+                             uint32 options = kGroupByPids,
+                             const std::map<Tid, string>& thread_types = {})
       : perf_data_(perf_data),
         sample_labels_(sample_labels),
-        options_(options) {}
+        options_(options) {
+    for (auto& it : thread_types) {
+      thread_types_.insert(std::make_pair(it.first, it.second));
+    }
+  }
   PerfDataConverter(const PerfDataConverter&) = delete;
   PerfDataConverter& operator=(const PerfDataConverter&) = delete;
   virtual ~PerfDataConverter() {}
@@ -252,6 +262,12 @@ class PerfDataConverter : public PerfDataHandler {
   // profile.proto's Sample.Label field.
   bool IncludeCommLabels() const { return (sample_labels_ & kCommLabel); }
 
+  // Returns whether thread type labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeThreadTypeLabels() const {
+    return (sample_labels_ & kThreadTypeLabel) && !thread_types_.empty();
+  }
+
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
 
@@ -268,7 +284,7 @@ class PerfDataConverter : public PerfDataHandler {
     ProcessMeta* process_meta = nullptr;
     LocationMap location_map;
     MappingMap mapping_map;
-    std::unordered_map<Pid, string> tid_to_comm_map;
+    std::unordered_map<Tid, string> tid_to_comm_map;
     SampleMap sample_map;
     void clear() {
       builder = nullptr;
@@ -283,6 +299,7 @@ class PerfDataConverter : public PerfDataHandler {
 
   const uint32 sample_labels_;
   const uint32 options_;
+  std::unordered_map<Tid, string> thread_types_;
 };
 
 SampleKey PerfDataConverter::MakeSampleKey(
@@ -301,10 +318,17 @@ SampleKey PerfDataConverter::MakeSampleKey(
   if (IncludeCommLabels() && sample.sample.has_pid() &&
       sample.sample.has_tid()) {
     Pid pid = sample.sample.pid();
-    Pid tid = sample.sample.tid();
+    Tid tid = sample.sample.tid();
     const string& comm = per_pid_[pid].tid_to_comm_map[tid];
     if (!comm.empty()) {
       sample_key.comm = UTF8StringId(comm, builder);
+    }
+  }
+  if (IncludeThreadTypeLabels() && sample.sample.has_tid()) {
+    Tid tid = sample.sample.tid();
+    auto it = thread_types_.find(tid);
+    if (it != thread_types_.end()) {
+      sample_key.thread_type = UTF8StringId(it->second, builder);
     }
   }
   return sample_key;
@@ -472,6 +496,11 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(ExecutionModeLabelKey));
       label->set_str(builder->StringId(ExecModeString(sample_key.exec_mode)));
     }
+    if (IncludeThreadTypeLabels() && sample_key.thread_type != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(ThreadTypeLabelKey));
+      label->set_str(sample_key.thread_type);
+    }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
     for (int event_id = 0; event_id < perf_data_.file_attrs_size();
@@ -529,7 +558,7 @@ uint64 PerfDataConverter::AddOrGetLocation(
 
 void PerfDataConverter::Comm(const CommContext& comm) {
   Pid pid = comm.comm->pid();
-  Pid tid = comm.comm->tid();
+  Tid tid = comm.comm->tid();
   if (pid == tid) {
     // pid==tid means an exec() happened, so clear everything from the
     // existing pid.
@@ -642,18 +671,18 @@ ProcessProfiles PerfDataConverter::Profiles() {
 
 }  // namespace
 
-ProcessProfiles PerfDataProtoToProfiles(const quipper::PerfDataProto* perf_data,
-                                        const uint32 sample_labels,
-                                        const uint32 options) {
-  PerfDataConverter converter(*perf_data, sample_labels, options);
+ProcessProfiles PerfDataProtoToProfiles(
+    const quipper::PerfDataProto* perf_data, const uint32 sample_labels,
+    const uint32 options, const std::map<Tid, string>& thread_types) {
+  PerfDataConverter converter(*perf_data, sample_labels, options, thread_types);
   PerfDataHandler::Process(*perf_data, &converter);
   return converter.Profiles();
 }
 
-ProcessProfiles RawPerfDataToProfiles(const void* raw, const int raw_size,
-                                      const std::map<string, string>& build_ids,
-                                      const uint32 sample_labels,
-                                      const uint32 options) {
+ProcessProfiles RawPerfDataToProfiles(
+    const void* raw, const int raw_size,
+    const std::map<string, string>& build_ids, const uint32 sample_labels,
+    const uint32 options, const std::map<Tid, string>& thread_types) {
   quipper::PerfReader reader;
   if (!reader.ReadFromPointer(reinterpret_cast<const char*>(raw), raw_size)) {
     LOG(ERROR) << "Could not read input perf.data";
@@ -684,7 +713,8 @@ ProcessProfiles RawPerfDataToProfiles(const void* raw, const int raw_size,
     return ProcessProfiles();
   }
 
-  return PerfDataProtoToProfiles(&reader.proto(), sample_labels, options);
+  return PerfDataProtoToProfiles(&reader.proto(), sample_labels, options,
+                                 thread_types);
 }
 
 }  // namespace perftools

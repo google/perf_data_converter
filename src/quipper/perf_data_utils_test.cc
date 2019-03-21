@@ -12,12 +12,25 @@
 namespace quipper {
 
 TEST(PerfDataUtilsTest, GetUint64AlignedStringLength) {
-  EXPECT_EQ(8, GetUint64AlignedStringLength("012345"));
-  EXPECT_EQ(8, GetUint64AlignedStringLength("0123456"));
-  EXPECT_EQ(16, GetUint64AlignedStringLength("01234567"));  // Room for '\0'
-  EXPECT_EQ(16, GetUint64AlignedStringLength("012345678"));
-  EXPECT_EQ(16, GetUint64AlignedStringLength("0123456789abcde"));
-  EXPECT_EQ(24, GetUint64AlignedStringLength("0123456789abcdef"));
+  EXPECT_EQ(8, GetUint64AlignedStringLength(6));
+  EXPECT_EQ(8, GetUint64AlignedStringLength(7));
+  EXPECT_EQ(16, GetUint64AlignedStringLength(8));  // Room for '\0'
+  EXPECT_EQ(16, GetUint64AlignedStringLength(9));
+  EXPECT_EQ(16, GetUint64AlignedStringLength(15));
+  EXPECT_EQ(24, GetUint64AlignedStringLength(16));
+}
+
+TEST(PerfDataUtilsTest, GetStringLengthForValidString) {
+  char str[] = "abcd";
+  size_t len = 0;
+  EXPECT_TRUE(GetStringLength(str, 10, &len));
+  EXPECT_EQ(4, len);
+}
+
+TEST(PerfDataUtilsTest, GetStringLengthForInvalidString) {
+  char str[] = "abcdefgh12345";
+  size_t len = 0;
+  EXPECT_FALSE(GetStringLength(str, 10, &len));
 }
 
 TEST(PerfDataUtilsTest, PerfizeBuildID) {
@@ -127,6 +140,62 @@ TEST(PerfDataUtilsTest, GetSampleIdFromNonSampleEvent) {
   uint64_t actual_id = GetSampleIdFromPerfEvent(event);
 
   EXPECT_EQ(4, actual_id);
+}
+
+TEST(PerfDataUtilsTest, GetEventDataSize) {
+  string filename = "/usr/lib/foo.so";
+  size_t event_size = offsetof(struct mmap_event, filename) +
+                      GetUint64AlignedStringLength(filename.size());
+  malloced_unique_ptr<event_t> event_ptr(CallocMemoryForEvent(event_size));
+  event_t* event = event_ptr.get();
+  event->header.type = PERF_RECORD_MMAP;
+  event->header.misc = 0;
+  event->header.size = event_size;
+  memcpy(&event->mmap.filename, filename.data(), filename.size());
+
+  EXPECT_EQ(event_size, GetEventDataSize(*event));
+}
+
+TEST(PerfDataUtilsTest, GetEventDataSizeWithSmallerHeaderSize) {
+  size_t event_size = sizeof(struct perf_event_header);
+  malloced_unique_ptr<event_t> event_ptr(CallocMemoryForEvent(event_size));
+  event_t* event = event_ptr.get();
+  event->header.type = PERF_RECORD_MMAP;
+  event->header.misc = 0;
+  event->header.size = event_size;
+
+  EXPECT_EQ(0, GetEventDataSize(*event));
+}
+
+TEST(PerfDataUtilsTest, GetEventDataSizeForUnsupportedEvent) {
+  size_t event_size = sizeof(struct perf_event_header);
+  malloced_unique_ptr<event_t> event_ptr(CallocMemoryForEvent(event_size));
+  event_t* event = event_ptr.get();
+  event->header.type = PERF_RECORD_MAX;
+  event->header.misc = 0;
+  event->header.size = event_size;
+
+  EXPECT_EQ(0, GetEventDataSize(*event));
+}
+
+TEST(PerfDataUtilsTest, GetEventDataSizeWithProto) {
+  string filename = "/usr/lib/foo.so";
+  size_t event_size = offsetof(struct mmap_event, filename) +
+                      GetUint64AlignedStringLength(filename.size());
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_MMAP);
+  event.mutable_header()->set_size(event_size);
+  event.mutable_mmap_event()->set_filename(filename);
+
+  EXPECT_EQ(event_size, GetEventDataSize(event));
+}
+
+TEST(PerfDataUtilsTest, GetEventDataSizeWithProtoForUnsupportedEvent) {
+  PerfDataProto_PerfEvent event;
+  event.mutable_header()->set_type(PERF_RECORD_MAX);
+  event.mutable_header()->set_size(sizeof(struct perf_event_header));
+
+  EXPECT_EQ(0, GetEventDataSize(event));
 }
 
 }  // namespace quipper

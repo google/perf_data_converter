@@ -16,6 +16,9 @@ const std::vector<const char*>& GetPerfDataFiles() {
       // - cache-misses
       // - branches
       // - branch-misses
+      //
+      // Note: The test perf.data files were collected such that at least 95% of
+      // the samples are mapped.
 
       // Obtained with "perf record -- echo > /dev/null"
       "perf.data.singleprocess-3.4",
@@ -132,6 +135,13 @@ const std::vector<const char*>& GetPerfDataFiles() {
       // perf record --switch-events --namespace -e cycles -o
       // /tmp/perf.data.ctx_switch_namespaces-4.14 -- sleep 0.001
       "perf.data.ctx_switch_namespaces-4.14",
+
+      // Perf data file with mmaps events containing the
+      // PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT misc bit.
+      // Command:
+      // perf record -e cycles -c 4000000 -p 9463 -o /tmp/perf.data \
+      // --proc-map-timeout=2 -- sleep 1
+      "perf.data.proc.map.timeout-3.18",
   };
   return *files;
 }

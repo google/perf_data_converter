@@ -238,13 +238,15 @@ TEST(HeapProfileParserTest, HasSampleEvent) {
   ASSERT_TRUE(parser.Parse());
   parser.GetProto(&actual);
 
+  ASSERT_EQ(actual.events_size(), 4);
+
   string difference;
   bool matches =
-      PartiallyEqualsProto(actual.events(1), expected.events(0), &difference);
+      PartiallyEqualsProto(actual.events(2), expected.events(0), &difference);
   EXPECT_TRUE(matches) << difference;
 
   matches =
-      PartiallyEqualsProto(actual.events(2), expected.events(1), &difference);
+      PartiallyEqualsProto(actual.events(3), expected.events(1), &difference);
   EXPECT_TRUE(matches) << difference;
 }
 
@@ -264,7 +266,7 @@ TEST(HeapProfileParserTest, HasMMapEvent) {
 
   PerfDataProto_PerfEvent* event = expected.add_events();
   PerfDataProto_EventHeader* header = event->mutable_header();
-  std::string filename = "/opt/google/chrome/chrome";
+  std::string filename = "dummy_kernel";
   header->set_type(PERF_RECORD_MMAP);
   header->set_misc(0);
   header->set_size(0);
@@ -272,9 +274,9 @@ TEST(HeapProfileParserTest, HasMMapEvent) {
   PerfDataProto_MMapEvent* mmap = event->mutable_mmap_event();
   mmap->set_pid(3456);
   mmap->set_tid(3456);
-  mmap->set_start(0x617aa770f000);
-  mmap->set_len(0x617ab0689000 - 0x617aa770f000);
-  mmap->set_pgoff(16);
+  mmap->set_start(0xfffffffffff00000);
+  mmap->set_len(0x1);
+  mmap->set_pgoff(0x0);
   mmap->set_filename(filename);
   mmap->set_filename_md5_prefix(Md5Prefix(filename));
 
@@ -283,12 +285,38 @@ TEST(HeapProfileParserTest, HasMMapEvent) {
   sample_info->set_tid(3456);
   sample_info->set_id(0);
 
+  event = expected.add_events();
+  header = event->mutable_header();
+  filename = "/opt/google/chrome/chrome";
+  header->set_type(PERF_RECORD_MMAP);
+  header->set_misc(0);
+  header->set_size(0);
+
+  mmap = event->mutable_mmap_event();
+  mmap->set_pid(3456);
+  mmap->set_tid(3456);
+  mmap->set_start(0x617aa770f000);
+  mmap->set_len(0x617ab0689000 - 0x617aa770f000);
+  mmap->set_pgoff(0x10);
+  mmap->set_filename(filename);
+  mmap->set_filename_md5_prefix(Md5Prefix(filename));
+
+  sample_info = mmap->mutable_sample_info();
+  sample_info->set_pid(3456);
+  sample_info->set_tid(3456);
+  sample_info->set_id(0);
+
   ASSERT_TRUE(parser.Parse());
   parser.GetProto(&actual);
+
+  ASSERT_GE(actual.events_size(), 2);
 
   string difference;
   bool matches =
       PartiallyEqualsProto(actual.events(0), expected.events(0), &difference);
+  EXPECT_TRUE(matches) << difference;
+  matches =
+      PartiallyEqualsProto(actual.events(1), expected.events(1), &difference);
   EXPECT_TRUE(matches) << difference;
 }
 

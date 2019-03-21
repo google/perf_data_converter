@@ -111,10 +111,12 @@ struct mmap2_event {
   char filename[PATH_MAX];
 };
 
+const u16 kMaxCommSize = 16;
+
 struct comm_event {
   struct perf_event_header header;
   u32 pid, tid;
-  char comm[16];
+  char comm[kMaxCommSize];
 };
 
 struct namespaces_event {
@@ -423,7 +425,7 @@ struct context_switch_event {
 
 struct thread_map_event_entry {
   u64 pid;
-  char comm[16];
+  char comm[kMaxCommSize];
 };
 
 struct thread_map_event {
