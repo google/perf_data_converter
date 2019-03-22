@@ -159,15 +159,15 @@ bool ReadPerfEventHeader(DataReader* data, struct perf_event_header* header) {
     ByteSwap(&header->size);
     ByteSwap(&header->misc);
   }
-  if (header->size < sizeof(header)) {
+  if (header->size < sizeof(*header)) {
     LOG(ERROR) << "Event size " << header->size << " of event "
                << GetEventName(header->type) << " is less than header size "
-               << sizeof(header);
+               << sizeof(*header);
     return false;
   }
   size_t remaining_size = data->size() - data->Tell();
-  if (header->size - sizeof(header) > remaining_size) {
-    LOG(ERROR) << "Remaining event size " << header->size - sizeof(header)
+  if (header->size - sizeof(*header) > remaining_size) {
+    LOG(ERROR) << "Payload size " << header->size - sizeof(*header)
                << " of event " << GetEventName(header->type)
                << " cannot be greater than remaining perf data input size "
                << remaining_size;
