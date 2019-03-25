@@ -115,6 +115,7 @@ class MMapRange {
 
   int FirstIndex() const { return first_; }
   int LastIndex() const { return last_; }
+
   bool IsValid() const { return first_ <= last_; }
 
   const MMapEvent& FirstMmap(const RepeatedPtrField<PerfEvent>& events) const {
