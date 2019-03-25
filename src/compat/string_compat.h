@@ -27,6 +27,7 @@
 
 #ifndef PERFTOOLS_COMPAT_STRING_COMPAT_H_
 #define PERFTOOLS_COMPAT_STRING_COMPAT_H_
+
 #include <string>
 
 using std::string;

@@ -1407,6 +1407,7 @@ bool PerfReader::ReadUint64Metadata(DataReader* data, u32 type, size_t size) {
                                             proto_->add_uint64_metadata());
   return true;
 }
+
 bool PerfReader::ReadEventDescMetadata(DataReader* data) {
   // Structure:
   // u32 nr_events
@@ -1606,6 +1607,7 @@ bool PerfReader::ReadGroupDescMetadata(DataReader* data) {
   }
   return true;
 }
+
 bool PerfReader::ReadTracingMetadata(DataReader* data, size_t size) {
   malloced_unique_ptr<char> tracing_data(
       reinterpret_cast<char*>(calloc(1, size)));

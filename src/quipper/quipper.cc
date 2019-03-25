@@ -129,11 +129,13 @@ bool ConvertHeapProfile(const string& heap_profile, int pid,
 int main(int argc, char* argv[]) {
   std::vector<string> perf_args;
   int perf_duration = 0;
+
   if (ParseOldPerfArguments(argc, const_cast<const char**>(argv),
                             &perf_duration, &perf_args)) {
     return RecordPerf(perf_duration, perf_args, "/dev/stdout") ? EXIT_SUCCESS
                                                                : EXIT_FAILURE;
   }
+
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   string heap_profile, output_file;

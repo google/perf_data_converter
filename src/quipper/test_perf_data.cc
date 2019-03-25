@@ -28,6 +28,7 @@ void WriteExtraBytes(size_t size, std::ostream* out) {
   std::vector<char> padding(size);
   out->write(padding.data(), size);
 }
+
 u8 ReverseByte(u8 x) {
   x = (x & 0xf0) >> 4 | (x & 0x0f) << 4;  // exchange nibbles
   x = (x & 0xcc) >> 2 | (x & 0x33) << 2;  // exchange pairs

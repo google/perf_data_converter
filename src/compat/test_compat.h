@@ -27,6 +27,7 @@
 
 #ifndef PERFTOOLS_COMPAT_TEST_COMPAT_H_
 #define PERFTOOLS_COMPAT_TEST_COMPAT_H_
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

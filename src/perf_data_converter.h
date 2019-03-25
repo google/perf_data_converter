@@ -21,7 +21,6 @@ class PerfDataProto;
 
 namespace perftools {
 
-
 // Sample label options.
 enum SampleLabels {
   kNoLabels = 0,

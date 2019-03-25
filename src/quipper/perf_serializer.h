@@ -85,6 +85,7 @@ class PerfSerializer {
                       PerfDataProto_PerfEvent* event_proto) const;
   bool DeserializeEvent(const PerfDataProto_PerfEvent& event_proto,
                         malloced_unique_ptr<event_t>* event_ptr) const;
+
   bool SerializeEventHeader(const perf_event_header& header,
                             PerfDataProto_EventHeader* header_proto) const;
   bool DeserializeEventHeader(const PerfDataProto_EventHeader& header_proto,
