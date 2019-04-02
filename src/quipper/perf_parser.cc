@@ -280,9 +280,9 @@ bool PerfParser::ProcessEvents() {
       stats_.num_sample_events * 100.;
   float threshold = options_.sample_mapping_percentage_threshold;
   if (sample_mapping_percentage < threshold) {
-    LOG(ERROR) << "Mapped " << static_cast<int>(sample_mapping_percentage)
-               << "% of samples, expected at least "
-               << static_cast<int>(threshold) << "%";
+    LOG(ERROR) << "Only " << static_cast<int>(sample_mapping_percentage)
+               << "% of samples had all locations mapped to a module, expected "
+               << "at least " << static_cast<int>(threshold) << "%";
     return false;
   }
   stats_.did_remap = options_.do_remap;
