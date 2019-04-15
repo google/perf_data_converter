@@ -24,9 +24,10 @@ http_archive(
 http_archive(
     name = "boringssl",  # Must match upstream workspace name.
     # Gitiles creates gzip files with an embedded timestamp, so we cannot use
-    # sha256 to validate the archives.  We must rely on the commit hash and https.
-    # Commits must come from the master-with-bazel branch.
-    url = "https://boringssl.googlesource.com/boringssl/+archive/d3fbe0858f8004dfd867b5f8ec2b3f659540d908.tar.gz",
+    # sha256 to validate the archives.  We must rely on the commit hash and
+    # https. Commits must come from the master-with-bazel branch.
+    urls = ["https://github.com/google/boringssl/archive/master-with-bazel.zip"],
+    strip_prefix = "boringssl-master-with-bazel",
 )
 
 http_archive(
