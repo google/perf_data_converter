@@ -40,9 +40,15 @@ class DataReader {
                              void* dest);
 
   // Read integers with endian swapping.
-  bool ReadUint16(uint16_t* value) { return ReadIntValue(value); }
-  bool ReadUint32(uint32_t* value) { return ReadIntValue(value); }
-  bool ReadUint64(uint64_t* value) { return ReadIntValue(value); }
+  bool ReadUint16(uint16_t* value) {
+    return ReadIntValue(value);
+  }
+  bool ReadUint32(uint32_t* value) {
+    return ReadIntValue(value);
+  }
+  bool ReadUint64(uint64_t* value) {
+    return ReadIntValue(value);
+  }
 
   // Read a string. Returns true if it managed to read |size| bytes (excluding
   // null terminator). The actual string may be shorter than the number of bytes
