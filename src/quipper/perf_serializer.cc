@@ -36,7 +36,6 @@ bool PerfSerializer::IsSupportedKernelEventType(uint32_t type) {
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
     case PERF_RECORD_FORK:
-    case PERF_RECORD_READ:
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_MMAP2:
     case PERF_RECORD_AUX:
@@ -336,8 +335,6 @@ bool PerfSerializer::SerializeKernelEvent(
     case PERF_RECORD_UNTHROTTLE:
       return SerializeThrottleEvent(event,
                                     event_proto->mutable_throttle_event());
-    case PERF_RECORD_READ:
-      return SerializeReadEvent(event, event_proto->mutable_read_event());
     case PERF_RECORD_AUX:
       return SerializeAuxEvent(event, event_proto->mutable_aux_event());
     case PERF_RECORD_ITRACE_START:
@@ -458,8 +455,6 @@ bool PerfSerializer::DeserializeKernelEvent(
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
       return DeserializeThrottleEvent(event_proto.throttle_event(), event);
-    case PERF_RECORD_READ:
-      return DeserializeReadEvent(event_proto.read_event(), event);
     case PERF_RECORD_AUX:
       return DeserializeAuxEvent(event_proto.aux_event(), event);
     case PERF_RECORD_ITRACE_START:
@@ -767,32 +762,6 @@ bool PerfSerializer::DeserializeThrottleEvent(
   throttle.stream_id = sample.stream_id();
 
   return DeserializeSampleInfo(sample.sample_info(), event);
-}
-
-bool PerfSerializer::SerializeReadEvent(const event_t& event,
-                                        PerfDataProto_ReadEvent* sample) const {
-  const struct read_event& read = event.read;
-  sample->set_pid(read.pid);
-  sample->set_tid(read.tid);
-  sample->set_value(read.value);
-  sample->set_time_enabled(read.time_enabled);
-  sample->set_time_running(read.time_running);
-  sample->set_id(read.id);
-
-  return true;
-}
-
-bool PerfSerializer::DeserializeReadEvent(const PerfDataProto_ReadEvent& sample,
-                                          event_t* event) const {
-  struct read_event& read = event->read;
-  read.pid = sample.pid();
-  read.tid = sample.tid();
-  read.value = sample.value();
-  read.time_enabled = sample.time_enabled();
-  read.time_running = sample.time_running();
-  read.id = sample.id();
-
-  return true;
 }
 
 bool PerfSerializer::SerializeAuxEvent(const event_t& event,

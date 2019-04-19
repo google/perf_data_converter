@@ -71,8 +71,6 @@ const uint64_t GetSampleTimestampFromEventProto(
     return event.lost_event().sample_info().sample_time_ns();
   } else if (event.has_throttle_event()) {
     return event.throttle_event().sample_info().sample_time_ns();
-  } else if (event.has_read_event()) {
-    return event.read_event().sample_info().sample_time_ns();
   } else if (event.has_aux_event()) {
     return event.aux_event().sample_info().sample_time_ns();
   } else if (event.has_itrace_start_event()) {

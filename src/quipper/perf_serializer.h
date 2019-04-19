@@ -128,11 +128,6 @@ class PerfSerializer {
   bool DeserializeThrottleEvent(const PerfDataProto_ThrottleEvent& sample,
                                 event_t* event) const;
 
-  bool SerializeReadEvent(const event_t& event,
-                          PerfDataProto_ReadEvent* sample) const;
-  bool DeserializeReadEvent(const PerfDataProto_ReadEvent& sample,
-                            event_t* event) const;
-
   bool SerializeAuxEvent(const event_t& event,
                          PerfDataProto_AuxEvent* sample) const;
   bool DeserializeAuxEvent(const PerfDataProto_AuxEvent& sample,

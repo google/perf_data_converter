@@ -246,7 +246,6 @@ bool PerfParser::ProcessEvents() {
       case PERF_RECORD_LOST:
       case PERF_RECORD_THROTTLE:
       case PERF_RECORD_UNTHROTTLE:
-      case PERF_RECORD_READ:
       case PERF_RECORD_AUX:
       case PERF_RECORD_ITRACE_START:
       case PERF_RECORD_LOST_SAMPLES:
