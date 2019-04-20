@@ -113,8 +113,6 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
       return &event.throttle_event().sample_info();
-    case PERF_RECORD_READ:
-      return &event.read_event().sample_info();
     case PERF_RECORD_AUX:
       return &event.aux_event().sample_info();
     case PERF_RECORD_ITRACE_START:
@@ -288,9 +286,6 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
     case PERF_RECORD_UNTHROTTLE:
       *size = sizeof(struct throttle_event);
       return true;
-    case PERF_RECORD_READ:
-      *size = sizeof(struct read_event);
-      return true;
     case PERF_RECORD_SAMPLE:
       *size = offsetof(struct sample_event, array);
       return true;
@@ -401,7 +396,6 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
     case PERF_RECORD_FORK:
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
-    case PERF_RECORD_READ:
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_AUX:
     case PERF_RECORD_ITRACE_START:
@@ -552,7 +546,6 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     case PERF_RECORD_FORK:
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
-    case PERF_RECORD_READ:
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_AUX:
     case PERF_RECORD_ITRACE_START:

@@ -265,14 +265,6 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->throttle.id);
       ByteSwap(&event->throttle.stream_id);
       return true;
-    case PERF_RECORD_READ:
-      ByteSwap(&event->read.pid);
-      ByteSwap(&event->read.tid);
-      ByteSwap(&event->read.value);
-      ByteSwap(&event->read.time_enabled);
-      ByteSwap(&event->read.time_running);
-      ByteSwap(&event->read.id);
-      return true;
     case PERF_RECORD_AUX:
       ByteSwap(&event->aux.aux_offset);
       ByteSwap(&event->aux.aux_size);
@@ -390,7 +382,6 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_LOST:
     case PERF_RECORD_THROTTLE:
     case PERF_RECORD_UNTHROTTLE:
-    case PERF_RECORD_READ:
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_AUX:
     case PERF_RECORD_ITRACE_START:
