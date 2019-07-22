@@ -3047,4 +3047,73 @@ TEST(PerfParserTest, DiscontiguousMappings) {
       << difference;
   EXPECT_EQ(3, parser.parsed_events().size());
 }
+
+TEST(PerfParserTest, BranchStackEntries) {
+  std::stringstream input;
+
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+  testing::ExamplePerfEventAttrEvent_Hardware(
+      PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_BRANCH_STACK,
+      true /*sample_id_all*/)
+      .WriteTo(&input);
+  uint64_t base_addr = 0x1c1000;
+  testing::ExampleMmapEvent(1001, base_addr, 0x1000, 0, "/usr/lib/foo.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 0
+  testing::ExampleMmapEvent(1001, 0x1c3000, 0x2000, 0x2000, "/usr/lib/bar.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  uint16_t expected_cycles1 = 0xa001;
+  uint16_t expected_cycles2 = 0x0002;
+  uint64_t flags1 = 1 << 1                    // target predicted
+                    | expected_cycles1 << 4;  // cycles
+  uint64_t flags2 = 1                         // target mispredicted
+                    | expected_cycles2 << 4;  // cycles
+
+  uint64_t expected_offset1_from = 0x0;
+  uint64_t expected_offset1_to = 0x8;
+  uint64_t expected_offset2_from = 0x2;
+  uint64_t expected_offset2_to = 0x12;
+
+  testing::ExamplePerfSampleEvent(
+      quipper::testing::SampleInfo()
+          .Ip(0x1212)
+          .Tid(1001)
+          .BranchStack_nr(2)
+          .BranchStack_lbr(base_addr + expected_offset1_from,
+                           base_addr + expected_offset1_to, flags1)
+          .BranchStack_lbr(base_addr + expected_offset2_from,
+                           base_addr + expected_offset2_to, flags2))
+      .WriteTo(&input);
+
+  PerfReader reader;
+  EXPECT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+  ASSERT_EQ(3, parser.parsed_events().size());
+  ASSERT_EQ(2, parser.parsed_events()[2].branch_stack.size());
+
+  auto branch1 = parser.parsed_events()[2].branch_stack[0];
+  EXPECT_EQ(expected_offset1_from, branch1.from.offset());
+  EXPECT_EQ("/usr/lib/foo.so", branch1.from.dso_name());
+  EXPECT_EQ(expected_offset1_to, branch1.to.offset());
+  EXPECT_EQ("/usr/lib/foo.so", branch1.to.dso_name());
+  EXPECT_FALSE(branch1.mispredicted);
+  EXPECT_TRUE(branch1.predicted);
+  EXPECT_EQ(expected_cycles1, branch1.cycles);
+
+  auto branch2 = parser.parsed_events()[2].branch_stack[1];
+  EXPECT_EQ(expected_offset2_from, branch2.from.offset());
+  EXPECT_EQ("/usr/lib/foo.so", branch2.from.dso_name());
+  EXPECT_EQ(expected_offset2_to, branch2.to.offset());
+  EXPECT_EQ("/usr/lib/foo.so", branch2.to.dso_name());
+  EXPECT_TRUE(branch2.mispredicted);
+  EXPECT_FALSE(branch2.predicted);
+  EXPECT_EQ(expected_cycles2, branch2.cycles);
+}
 }  // namespace quipper

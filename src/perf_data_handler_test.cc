@@ -17,6 +17,8 @@
 #include "src/quipper/kernel/perf_event.h"
 #include "src/quipper/perf_data_utils.h"
 
+using BranchStackEntry = quipper::PerfDataProto::BranchStackEntry;
+
 namespace perftools {
 
 TEST(PathMatching, DeletedSharedObjectMatching) {
@@ -70,18 +72,25 @@ class PerfDataHandlerTest : public ::testing::Test {
   PerfDataHandlerTest() {}
 };
 
-class MMapTestHandler : public perftools::PerfDataHandler {
+class TestPerfDataHandler : public PerfDataHandler {
  public:
-  MMapTestHandler(
+  TestPerfDataHandler(
+      std::vector<BranchStackEntry> expected_branch_stack,
       std::unordered_map<string, string> expected_filename_to_build_id)
-      : _expected_filename_to_build_id(
+      : _expected_branch_stack(std::move(expected_branch_stack)),
+        _expected_filename_to_build_id(
             std::move(expected_filename_to_build_id)) {}
-  MMapTestHandler(const MMapTestHandler&) = delete;
-  MMapTestHandler& operator=(const MMapTestHandler&) = delete;
-  ~MMapTestHandler() override {}
+  TestPerfDataHandler(const TestPerfDataHandler&) = delete;
+  TestPerfDataHandler& operator=(const TestPerfDataHandler&) = delete;
+  ~TestPerfDataHandler() override {}
 
   // Callbacks for PerfDataHandler
-  void Sample(const PerfDataHandler::SampleContext& sample) override {}
+  void Sample(const SampleContext& sample) override {
+    EXPECT_EQ(_expected_branch_stack.size(), sample.branch_stack.size());
+    for (int i = 0; i < sample.branch_stack.size(); i++) {
+      CheckBranchEquality(_expected_branch_stack[i], sample.branch_stack[i]);
+    }
+  }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
     const string* actual_build_id = mmap.mapping->build_id;
@@ -112,6 +121,19 @@ class MMapTestHandler : public perftools::PerfDataHandler {
   }
 
  private:
+  // Ensure necessary information contained in the BranchStackEntry is also
+  // present in the resulting profile.
+  inline void CheckBranchEquality(BranchStackEntry expected,
+                                  BranchStackPair actual) {
+    EXPECT_EQ(expected.from_ip(), actual.from.ip);
+    EXPECT_EQ(expected.to_ip(), actual.to.ip);
+    EXPECT_EQ(expected.mispredicted(), actual.mispredicted);
+    EXPECT_EQ(expected.predicted(), actual.predicted);
+    EXPECT_EQ(expected.in_transaction(), actual.in_transaction);
+    EXPECT_EQ(expected.abort(), actual.abort);
+    EXPECT_EQ(expected.cycles(), actual.cycles);
+  }
+  std::vector<BranchStackEntry> _expected_branch_stack;
   std::unordered_map<string, string> _expected_filename_to_build_id;
   std::unordered_set<string> _seen_filenames;
 };
@@ -195,9 +217,53 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   expected_filename_to_build_id["[kernel.kallsyms]"] = "17937e648e";
   expected_filename_to_build_id["chrome"] = "cac4b36db4d0";
 
-  MMapTestHandler handler(expected_filename_to_build_id);
-  perftools::PerfDataHandler::Process(proto, &handler);
+  TestPerfDataHandler handler(std::vector<BranchStackEntry>(),
+                              expected_filename_to_build_id);
+  PerfDataHandler::Process(proto, &handler);
   handler.CheckSeenFilenames();
+}
+
+TEST(PerfDataHandlerTest, SampleBranchStackMatches) {
+  quipper::PerfDataProto proto;
+
+  // File attrs are required for sample event processing.
+  uint64 file_attr_id = 0;
+  auto* file_attr = proto.add_file_attrs();
+  file_attr->add_ids(file_attr_id);
+
+  auto* sample_event = proto.add_events()->mutable_sample_event();
+  sample_event->set_ip(123);
+  sample_event->set_pid(5805);
+  sample_event->set_tid(5805);
+  sample_event->set_sample_time_ns(456);
+  sample_event->set_period(1);
+  sample_event->set_id(file_attr_id);
+  auto* entry = sample_event->add_branch_stack();
+  std::vector<BranchStackEntry> branch_stack;
+
+  // Create 2 branch stack entries.
+  entry->set_from_ip(101);
+  entry->set_to_ip(102);
+  entry->set_mispredicted(false);
+  entry->set_predicted(true);
+  entry->set_in_transaction(false);
+  entry->set_abort(false);
+  entry->set_cycles(4);
+  branch_stack.push_back(*entry);
+
+  entry = sample_event->add_branch_stack();
+  entry->set_from_ip(103);
+  entry->set_to_ip(104);
+  entry->set_mispredicted(false);
+  entry->set_predicted(true);
+  entry->set_in_transaction(false);
+  entry->set_abort(false);
+  entry->set_cycles(5);
+  branch_stack.push_back(*entry);
+
+  TestPerfDataHandler handler(branch_stack,
+                              std::unordered_map<string, string>());
+  PerfDataHandler::Process(proto, &handler);
 }
 
 }  // namespace perftools

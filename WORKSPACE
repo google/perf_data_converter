@@ -9,16 +9,19 @@ http_archive(
 
 # proto_library, cc_proto_library, and java_proto_library rules implicitly
 # depend on @com_google_protobuf for protoc and proto runtimes.
-#
-# N.B. We have a near-clone of the protobuf BUILD file overriding upstream so
-# that we can set the unexported config variable to enable zlib. Without this,
-# protobuf silently yields link errors.
 http_archive(
     name = "com_google_protobuf",
-    build_file = "protobuf.BUILD",
-    sha256 = "9510dd2afc29e7245e9e884336f848c8a6600a14ae726adb6befdb4f786f0be2",
-    strip_prefix = "protobuf-3.6.1.3",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.6.1.3.zip"],
+    sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip"],
+    strip_prefix = "protobuf-3.9.0",
+)
+
+# bazel_skylib is a dependency of protobuf.
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
+    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
 )
 
 http_archive(
@@ -30,15 +33,15 @@ http_archive(
     strip_prefix = "boringssl-master-with-bazel",
 )
 
+# zlib is a dependency of protobuf.
 http_archive(
-    name = "io_bazel",
-    urls = ["https://github.com/bazelbuild/bazel/archive/master.zip"],
-    strip_prefix = "bazel-master",
-)
-
-bind(
-    name = "zlib",  # required by @com_google_protobuf
-    actual = "@io_bazel//third_party/zlib:zlib",
+    name = "zlib",
+    sha256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1",
+    # This is the zlib BUILD file used in kythe:
+    # https://github.com/kythe/kythe/blob/v0.0.30/third_party/zlib.BUILD
+    build_file = "zlib.BUILD",
+    urls = ["https://www.zlib.net/zlib-1.2.11.tar.gz"],
+    strip_prefix = "zlib-1.2.11",
 )
 
 http_archive(
