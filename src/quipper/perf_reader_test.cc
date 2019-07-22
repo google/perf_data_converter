@@ -2138,7 +2138,7 @@ TEST(PerfReaderTest, PipedMMapEventWithZeroEventDataSize) {
   EXPECT_FALSE(pr.ReadFromString(input.str()));
 }
 
-TEST(PerfReaderTest, ReadFailsWithIncompleteMMapEvent) {
+TEST(PerfReaderTest, ReadSkipsIncompleteMMapEvent) {
   // Do this before header to compute the total data size.
   std::stringstream input;
 
@@ -2162,6 +2162,45 @@ TEST(PerfReaderTest, ReadFailsWithIncompleteMMapEvent) {
   // data
   ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
   mmap2_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_TRUE(pr.ReadFromString(input.str()));
+
+  // Verify the mmap event got skipped.
+  ASSERT_EQ(0, pr.events().size());
+}
+
+TEST(PerfReaderTest, ReadSkipsInvalidKernelMMapEventFromUserspaceProfile) {
+  // Do this before header to compute the total data size.
+  std::stringstream input;
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent mmap_event(
+      0, 0x0, 0x0, 0x0, "[kernel.kallsyms]_text", testing::SampleInfo().Tid(0));
+  mmap_event.WithMisc(PERF_RECORD_MISC_KERNEL);
+
+  const size_t data_size = mmap_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WithExcludeKernel(true)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  mmap_event.WriteTo(&input);
   ASSERT_EQ(file_header.header().data.offset + data_size,
             static_cast<u64>(input.tellp()));
   // no metadata

@@ -160,9 +160,9 @@ cc_library(
     hdrs = ["builder.h"],
     deps = [
         ":profile_cc_proto",
-        "//external:zlib",
         "//src/quipper:base",
         "@com_google_protobuf//:protobuf",
+        "@zlib//:zlib",
     ],
 )
 

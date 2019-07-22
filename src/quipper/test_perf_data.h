@@ -195,6 +195,7 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
         sample_id_all_(sample_id_all),
         config_(0),
         ids_section_({.offset = 104, .size = 0}),
+        exclude_kernel_(false),
         use_clockid_(false),
         context_switch_(false),
         write_backward_(false),
@@ -209,6 +210,10 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
   }
   SelfT& WithIds(const perf_file_section& section) {
     ids_section_ = section;
+    return *this;
+  }
+  SelfT& WithExcludeKernel(bool exclude_kernel) {
+    exclude_kernel_ = exclude_kernel;
     return *this;
   }
   SelfT& WithUseClockid(bool use_clockid) {
@@ -235,6 +240,7 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
   const bool sample_id_all_;
   u64 config_;
   perf_file_section ids_section_;
+  bool exclude_kernel_;
   bool use_clockid_;
   bool context_switch_;
   bool write_backward_;
@@ -296,21 +302,28 @@ class SampleInfo {
 // Produces a PERF_RECORD_MMAP event with the given file and mapping.
 class ExampleMmapEvent : public StreamWriteable {
  public:
+  typedef ExampleMmapEvent SelfT;
   ExampleMmapEvent(u32 pid, u64 start, u64 len, u64 pgoff, string filename,
                    const SampleInfo& sample_id)
-      : pid_(pid),
+      : misc_(0),
+        pid_(pid),
         start_(start),
         len_(len),
         pgoff_(pgoff),
         filename_(filename),
         sample_id_(sample_id) {}
   size_t GetSize() const;
+  SelfT& WithMisc(u16 misc) {
+    misc_ = misc;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
   // Use WriteToWithEventSize to write the event with an invalid size for
   // testing negative test cases.
   void WriteToWithEventSize(std::ostream* out, u16 size) const;
 
  private:
+  u16 misc_;
   const u32 pid_;
   const u64 start_;
   const u64 len_;

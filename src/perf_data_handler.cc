@@ -319,21 +319,24 @@ void Normalizer::InvokeHandleSample(
   context.branch_stack.resize(sample.branch_stack_size());
   for (int i = 0; i < sample.branch_stack_size(); ++i) {
     stat_.branch_stack_ips += 2;
-    auto bse = sample.branch_stack(i);
+    auto entry = sample.branch_stack(i);
     // from
-    context.branch_stack[i].from.ip = bse.from_ip();
+    context.branch_stack[i].from.ip = entry.from_ip();
     context.branch_stack[i].from.mapping =
-        GetMappingFromPidAndIP(pid, bse.from_ip());
+        GetMappingFromPidAndIP(pid, entry.from_ip());
     stat_.missing_branch_stack_mmap +=
         context.branch_stack[i].from.mapping == nullptr;
     // to
-    context.branch_stack[i].to.ip = bse.to_ip();
+    context.branch_stack[i].to.ip = entry.to_ip();
     context.branch_stack[i].to.mapping =
-        GetMappingFromPidAndIP(pid, bse.to_ip());
+        GetMappingFromPidAndIP(pid, entry.to_ip());
     stat_.missing_branch_stack_mmap +=
         context.branch_stack[i].to.mapping == nullptr;
-    // mispredicted
-    context.branch_stack[i].mispredicted = bse.mispredicted();
+    context.branch_stack[i].mispredicted = entry.mispredicted();
+    context.branch_stack[i].predicted = entry.predicted();
+    context.branch_stack[i].in_transaction = entry.in_transaction();
+    context.branch_stack[i].abort = entry.abort();
+    context.branch_stack[i].cycles = entry.cycles();
   }
 
   handler_->Sample(context);

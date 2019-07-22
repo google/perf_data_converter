@@ -274,6 +274,11 @@ bool PerfParser::ProcessEvents() {
             << stats_.num_sample_events_mapped << " of these were mapped";
   // clang-format on
 
+  if (stats_.num_sample_events == 0) {
+    LOG(ERROR) << "Input perf.data has no sample events.";
+    return false;
+  }
+
   float sample_mapping_percentage =
       static_cast<float>(stats_.num_sample_events_mapped) /
       stats_.num_sample_events * 100.;
@@ -561,7 +566,11 @@ bool PerfParser::MapBranchStack(
     }
     entry->set_to_ip(to_mapped);
 
-    parsed_entry.predicted = !entry->mispredicted();
+    parsed_entry.mispredicted = entry->mispredicted();
+    parsed_entry.predicted = entry->predicted();
+    parsed_entry.in_transaction = entry->in_transaction();
+    parsed_entry.aborted_transaction = entry->abort();
+    parsed_entry.cycles = entry->cycles();
   }
 
   return true;

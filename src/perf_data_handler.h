@@ -61,11 +61,25 @@ class PerfDataHandler {
   };
 
   struct BranchStackPair {
-    BranchStackPair() : mispredicted(false) {}
+    BranchStackPair()
+        : mispredicted(false),
+          predicted(false),
+          in_transaction(false),
+          abort(false),
+          cycles(0) {}
 
     Location from;
     Location to;
+    // Branch target was mispredicted.
     bool mispredicted;
+    // Branch target was predicted.
+    bool predicted;
+    // Indicates running in a hardware transaction.
+    bool in_transaction;
+    // Indicates aborting a hardware transaction.
+    bool abort;
+    // The cycles from last taken branch (LBR).
+    uint32 cycles;
   };
 
   struct SampleContext {

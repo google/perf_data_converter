@@ -89,13 +89,20 @@ struct ParsedEvent {
 
   // DSO + offset info for branch stack entries.
   struct BranchEntry {
+    bool mispredicted;
     bool predicted;
+    bool in_transaction;
+    bool aborted_transaction;
+    uint16_t cycles;
     DSOAndOffset from;
     DSOAndOffset to;
 
     bool operator==(const BranchEntry& other) const {
-      return predicted == other.predicted && from == other.from &&
-             to == other.to;
+      return mispredicted == other.mispredicted &&
+             predicted == other.predicted &&
+             in_transaction == other.in_transaction &&
+             aborted_transaction == other.aborted_transaction &&
+             cycles == other.cycles && from == other.from && to == other.to;
     }
   };
   std::vector<BranchEntry> branch_stack;
