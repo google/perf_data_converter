@@ -183,6 +183,7 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   // Bit fields.
   attr.sample_id_all = sample_id_all_;
   attr.precise_ip = 2;  // For testing a bit field that is more than one bit.
+  attr.exclude_kernel = exclude_kernel_;
   attr.use_clockid = use_clockid_;
   attr.context_switch = context_switch_;
   attr.write_backward = write_backward_;
@@ -249,7 +250,7 @@ void ExampleMmapEvent::WriteToWithEventSize(std::ostream* out,
       .header =
           {
               .type = MaybeSwap32(PERF_RECORD_MMAP),
-              .misc = 0,
+              .misc = misc_,
               .size = MaybeSwap16(static_cast<u16>(event_size)),
           },
       .pid = MaybeSwap32(pid_),
