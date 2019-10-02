@@ -94,142 +94,138 @@ void SetMmapFilename(PerfEvent* event, const string& new_filename,
 
 namespace {
 
-// MMapRange represents an index into a PerfEvents sequence that contains
-// a contiguous region of mmaps that have all of the same filename and pgoff.
-class MMapRange {
+// A map from PID to ranges of mmap events associated with the PID.
+class PerPidMMapEventRange {
  public:
-  // Default constructor is an invalid range.
-  MMapRange()
-      : first_(std::numeric_limits<int>::max()),
-        last_(std::numeric_limits<int>::min()) {}
+  using event_itr_t = RepeatedPtrField<PerfEvent>::iterator;
+  using key_t = int32_t;
+  using value_t = std::pair<event_itr_t, event_itr_t>;
+  using container = std::unordered_map<key_t, value_t>;
 
-  // Construct a real range.
-  MMapRange(int first_index, int last_index)
-      : first_(first_index), last_(last_index) {}
+  // Abstracts a range of mmap events between [begin, end).
+  class MMapEventIterator {
+   public:
+    MMapEventIterator(key_t pid, event_itr_t begin, event_itr_t end)
+        : itr_(begin), end_(end), pid_(pid), has_events_(true) {}
+    MMapEventIterator() : has_events_(false) {}
 
-  uint64 Len(const RepeatedPtrField<PerfEvent>& events) const {
-    auto& first = events.Get(first_).mmap_event();
-    auto& last = events.Get(last_).mmap_event();
-    return last.start() - first.start() + last.len();
+    bool operator==(const MMapEventIterator& x) const {
+      if (!has_events_) {
+        return !x.has_events_;
+      }
+      if (!x.has_events_) {
+        return false;
+      }
+      assert(pid_ == x.pid_);
+      return itr_ == x.itr_;
+    }
+
+    bool operator!=(const MMapEventIterator& x) const { return !(*this == x); }
+
+    PerfEvent* operator*() const { return &*itr_; }
+
+    PerfEvent* operator->() const { return &*itr_; }
+
+    MMapEventIterator& operator++() {
+      for (++itr_; itr_ != end_; ++itr_) {
+        if (!itr_->has_mmap_event()) {
+          continue;
+        }
+        key_t itr_pid = -1;
+        if (itr_->mmap_event().has_pid()) {
+          itr_pid = itr_->mmap_event().pid();
+        }
+        if (itr_pid == pid_) {
+          // Found next matching mmap_event for pid.
+          return *this;
+        }
+      }
+      has_events_ = false;
+      return *this;
+    }
+
+   private:
+    // Current iterator position.
+    event_itr_t itr_;
+    // 1 beyond the last event in this range.
+    event_itr_t end_;
+    // PID of events this iterator is going through.
+    key_t pid_;
+    // Cleared when the iterator runs out of events.
+    bool has_events_;
+  };
+
+  class MMapEventsForPid {
+   public:
+    MMapEventsForPid(container::const_iterator itr) : itr_(itr) {}
+
+    MMapEventIterator begin() const {
+      return MMapEventIterator(itr_->first, itr_->second.first,
+                               itr_->second.second);
+    }
+    MMapEventIterator end() const { return MMapEventIterator(); }
+
+    const MMapEventsForPid& operator*() const { return *this; }
+
+    bool operator==(const MMapEventsForPid& x) const { return itr_ == x.itr_; }
+
+    bool operator!=(const MMapEventsForPid& x) const { return !(*this == x); }
+
+    MMapEventsForPid& operator++() {
+      ++itr_;
+      return *this;
+    }
+
+   private:
+    container::const_iterator itr_;
+  };
+
+  PerPidMMapEventRange(RepeatedPtrField<PerfEvent>* events) {
+    auto cur = events->begin();
+    auto end = events->end();
+    for (; cur != end; ++cur) {
+      if (!cur->has_mmap_event()) {
+        continue;
+      }
+      // Skip dynamic mmap() events. Hugepage deduction only works on mmaps as
+      // synthesized by perf from /proc/${pid}/maps, which have timestamp==0.
+      // Support for deducing hugepages from a sequence of mmap()/mremap() calls
+      // would require additional deduction logic.
+      if (cur->timestamp() != 0) {
+        continue;
+      }
+      key_t pid = -1;
+      if (cur->mmap_event().has_pid()) {
+        pid = cur->mmap_event().pid();
+      }
+      auto entry = map_.find(pid);
+      if (entry == map_.end()) {
+        map_[pid] = {cur, cur + 1};
+      } else {
+        entry->second.second = cur + 1;
+      }
+    }
   }
 
-  int FirstIndex() const { return first_; }
-  int LastIndex() const { return last_; }
+  MMapEventsForPid begin() const { return MMapEventsForPid(map_.begin()); }
 
-  bool IsValid() const { return first_ <= last_; }
-
-  const MMapEvent& FirstMmap(const RepeatedPtrField<PerfEvent>& events) const {
-    return events.Get(first_).mmap_event();
-  }
-
-  const MMapEvent& LastMmap(const RepeatedPtrField<PerfEvent>& events) const {
-    return events.Get(last_).mmap_event();
-  }
+  MMapEventsForPid end() const { return MMapEventsForPid(map_.end()); }
 
  private:
-  int first_;
-  int last_;
+  container map_;
 };
 
-// MMapRange version of IsVmaContiguous(MMapEvent, MMapEvent).
-bool IsVmaContiguous(const RepeatedPtrField<PerfEvent>& events,
-                     const MMapRange& a, const MMapRange& b) {
-  return IsVmaContiguous(a.LastMmap(events), b.FirstMmap(events));
-}
-
-// MMapRange version of IsIsEquivalent(MMapEvent, MMapEvent).
-bool IsEquivalentFile(const RepeatedPtrField<PerfEvent>& events,
-                      const MMapRange& a, const MMapRange& b) {
-  // Because a range has the same file for all mmaps within it, assume that
-  // checking any mmap in |a| with any in |b| is sufficient.
-  return IsEquivalentFile(a.LastMmap(events), b.FirstMmap(events));
-}
-
-// FindRange returns a maximal MMapRange such that:
-//  - all mmap events are from the same PID and filename,
-//  - all mmap events are VMA contiguous,
-//  - either:
-//     - all file offsets are contiguous,
-//     - all file offsets are 0. Note, this allows for anonymous pages to be in
-//     a maximal range but allows the filename to not be anonymous to work
-//     around an issue with perf.
-MMapRange FindRange(const RepeatedPtrField<PerfEvent>& events, int start) {
-  const MMapEvent* prev_mmap = nullptr;
-  MMapRange range;
-  bool range_pgoffs_are_all_zero = true;
-  for (int i = start; i < events.size(); i++) {
-    const PerfEvent& event = events.Get(i);
-    // Skip irrelevant events
-    if (!event.has_mmap_event()) {
-      continue;
-    }
-    // Skip dynamic mmap() events. Hugepage deduction only works on mmaps as
-    // synthesized by perf from /proc/${pid}/maps, which have timestamp==0.
-    // Support for deducing hugepages from a sequence of mmap()/mremap() calls
-    // would require additional deduction logic.
-    if (event.timestamp() != 0) {
-      continue;
-    }
-    const MMapEvent& mmap = events.Get(i).mmap_event();
-    range_pgoffs_are_all_zero =
-        range_pgoffs_are_all_zero && (mmap.pgoff() == 0);
-    if (prev_mmap == nullptr) {
-      // First entry of the range.
-      prev_mmap = &mmap;
-      range = MMapRange(i, i);
-      continue;
-    }
-    // Ranges match exactly: //anon,//anon, or file,file; If they use different
-    // names, then deduction needs to consider them independently.
-    if (prev_mmap->filename() != mmap.filename()) {
-      break;
-    }
-    // If they're not virtually contiguous they're not a single range.
-    if (!IsVmaContiguous(*prev_mmap, mmap)) {
-      break;
-    }
-    // If the file offsets aren't contiguous they're not a single range unless
-    // the pages are all possibly anonymous. Note, pgoff is 0 is tested rather
-    // than IsAnon as some versions of Google's perf will rename //anon to
-    // argv[0].
-    if (!range_pgoffs_are_all_zero && !IsFileContiguous(*prev_mmap, mmap)) {
-      break;
-    }
-    prev_mmap = &mmap;
-    range = MMapRange(range.FirstIndex(), i);
-  }
-  // Range has:
-  // - single file
-  // - virtually contiguous
-  // - either: all entries are either pgoff=0 or file contiguous
-  return range;
-}
-
-// FindNextRange will return the next range after the given |prev_range| if
-// there is one; otherwise it will return an invalid range.
-MMapRange FindNextRange(const RepeatedPtrField<PerfEvent>& events,
-                        const MMapRange& prev_range) {
-  MMapRange ret;
-  if (prev_range.IsValid() && prev_range.LastIndex() < events.size()) {
-    ret = FindRange(events, prev_range.LastIndex() + 1);
-  }
-  return ret;
-}
-
-// UpdateRangeFromNext will set the filename / pgoff of all mmaps within |range|
-// to be pgoff-contiguous with |next_range|, and match its file information.
-void UpdateRangeFromNext(const MMapRange& range, const MMapRange& next_range,
-                         RepeatedPtrField<PerfEvent>* events) {
-  CHECK(range.LastIndex() < events->size());
-  CHECK(next_range.LastIndex() < events->size());
-  const MMapEvent& src = next_range.FirstMmap(*events);
-  const uint64 start_pgoff = src.pgoff() - range.Len(*events);
+void UpdateRangeFromNext(PerPidMMapEventRange::MMapEventIterator first,
+                         PerPidMMapEventRange::MMapEventIterator last,
+                         PerPidMMapEventRange::MMapEventIterator end,
+                         const MMapEvent& next) {
+  const uint64_t range_length = last->mmap_event().start() -
+                                first->mmap_event().start() +
+                                last->mmap_event().len();
+  const uint64 start_pgoff = next.pgoff() - range_length;
   uint64 pgoff = start_pgoff;
-  for (int i = range.FirstIndex(); i <= range.LastIndex(); i++) {
-    if (!events->Get(i).has_mmap_event()) {
-      continue;
-    }
-    PerfEvent* event = events->Mutable(i);
+  for (; first != end; ++first) {
+    PerfEvent* event = *first;
     MMapEvent* mmap = event->mutable_mmap_event();
     // As perf will rename huge pages to the executable name but not update the
     // pgoff, treat any offset of 0 as a huge page.
@@ -237,75 +233,101 @@ void UpdateRangeFromNext(const MMapRange& range, const MMapRange& next_range,
     // Replace pages mapped from a huge page source with a regular name if
     // possible.
     if (is_hugepage) {
-      SetMmapFilename(event, src.filename(), src.filename_md5_prefix());
+      SetMmapFilename(event, next.filename(), next.filename_md5_prefix());
       if (mmap->pgoff() == 0) {
         // Correct anonymous page file offsets.
         mmap->set_pgoff(pgoff);
       }
       // Correct other fields where mmap is associated with a huge page text
       // source.
-      if (src.has_maj()) {
-        mmap->set_maj(src.maj());
+      if (next.has_maj()) {
+        mmap->set_maj(next.maj());
       }
-      if (src.has_min()) {
-        mmap->set_min(src.min());
+      if (next.has_min()) {
+        mmap->set_min(next.min());
       }
-      if (src.has_ino()) {
-        mmap->set_ino(src.ino());
+      if (next.has_ino()) {
+        mmap->set_ino(next.ino());
       }
-      if (src.has_ino_generation()) {
-        mmap->set_ino_generation(src.ino_generation());
+      if (next.has_ino_generation()) {
+        mmap->set_ino_generation(next.ino_generation());
       }
     }
     pgoff += mmap->len();
   }
-  CHECK_EQ(pgoff, start_pgoff + range.Len(*events));
+  CHECK_EQ(pgoff, start_pgoff + range_length);
 }
+
 }  // namespace
 
 void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
-  // |prev_range|, if IsValid(), represents the preview mmap range seen (and
-  // already processed / updated).
-  MMapRange prev_range;
-  // |range| contains the currently-being-processed mmap range, which will have
-  // its hugepages ranges deduced.
-  MMapRange range = FindRange(*events, 0);
-  // |next_range| contains the next range to process, possibily containing
-  // a huge page from which the current range can be updated.
-  MMapRange next_range = FindNextRange(*events, range);
+  PerPidMMapEventRange ranges(events);
 
-  for (; range.IsValid(); prev_range = range, range = next_range,
-                          next_range = FindNextRange(*events, range)) {
-    const bool have_next =
-        (next_range.IsValid() && IsVmaContiguous(*events, range, next_range) &&
-         IsEquivalentFile(*events, range, next_range));
+  for (auto mmap_range : ranges) {
+    // mmap_range is a set of mmap events associated with a PID. We care here
+    // just about fixing huge pages to look like regular pages from a file for a
+    // PID.
 
-    // If there's no mmap after this, then we assume that this is *not* viable
-    // a hugepage_text mapping. This is true unless we're really unlucky. If:
-    // - the binary is mapped such that the limit is hugepage aligned
-    //   (presumably 4Ki/2Mi chance == p=0.03125)
-    // - and the entire binaryis hugepage_text mapped
-    if (!have_next) {
-      continue;
-    }
-
-    const bool have_prev =
-        (prev_range.IsValid() && IsVmaContiguous(*events, prev_range, range) &&
-         IsEquivalentFile(*events, prev_range, range) &&
-         IsEquivalentFile(*events, prev_range, next_range));
-
-    uint64 start_pgoff = 0;
-    if (have_prev) {
-      const auto& prev = prev_range.LastMmap(*events);
-      start_pgoff = prev.pgoff() + prev.len();
-    }
-    const auto& next = next_range.FirstMmap(*events);
-    // prev.pgoff should be valid now, so let's double-check that
-    // if next has a non-zero pgoff, that {prev,curr,next} will have
-    // contiguous pgoff once updated.
-    if (!IsHugePage(next) && next.pgoff() >= range.Len(*events) &&
-        (next.pgoff() - range.Len(*events)) == start_pgoff) {
-      UpdateRangeFromNext(range, next_range, events);
+    using iterator = PerPidMMapEventRange::MMapEventIterator;
+    // Assigned the start of a set of huge mmapped pages.
+    iterator huge_mmap_range_first = mmap_range.end();
+    // Assigned the last of a set of huge mmapped pages.
+    iterator huge_mmap_range_last = mmap_range.end();
+    // Assigned to the last non-mmap entry.
+    iterator pre_mmap_range_last = mmap_range.end();
+    for (auto itr = mmap_range.begin(); itr != mmap_range.end(); ++itr) {
+      const auto& cur_mmap = itr->mmap_event();
+      if (IsHugePage(cur_mmap)) {
+        if (huge_mmap_range_first == mmap_range.end()) {
+          // New range.
+          huge_mmap_range_first = itr;
+          huge_mmap_range_last = itr;
+        } else {
+          const auto& mmap_range_last = huge_mmap_range_last->mmap_event();
+          if (IsVmaContiguous(mmap_range_last, cur_mmap) &&
+              mmap_range_last.filename() == cur_mmap.filename() &&
+              (IsFileContiguous(mmap_range_last, cur_mmap) ||
+               (mmap_range_last.pgoff() == 0 && cur_mmap.pgoff() == 0))) {
+            // Ranges match exactly: //anon,//anon, or file,file; If they use
+            // different names, then deduction needs to consider them
+            // independently.
+            huge_mmap_range_last = itr;
+          } else {
+            // Discontiguous range, start a new range.
+            huge_mmap_range_first = itr;
+            huge_mmap_range_last = itr;
+            pre_mmap_range_last = mmap_range.end();
+          }
+        }
+      } else {
+        if (huge_mmap_range_first != mmap_range.end()) {
+          const auto& mmap_range_first = huge_mmap_range_first->mmap_event();
+          const auto& mmap_range_last = huge_mmap_range_last->mmap_event();
+          // Not a huge page but there's a pending range to process.
+          uint64_t huge_mmap_range_length = mmap_range_last.start() -
+                                            mmap_range_first.start() +
+                                            mmap_range_last.len();
+          uint64 start_pgoff = 0;
+          if (pre_mmap_range_last != mmap_range.end()) {
+            const auto& pre_mmap = pre_mmap_range_last->mmap_event();
+            if (IsVmaContiguous(pre_mmap, mmap_range_first) &&
+                IsEquivalentFile(pre_mmap, mmap_range_first) &&
+                IsEquivalentFile(pre_mmap, cur_mmap)) {
+              start_pgoff = pre_mmap.pgoff() + pre_mmap.len();
+            }
+          }
+          if (IsVmaContiguous(mmap_range_last, cur_mmap) &&
+              IsEquivalentFile(mmap_range_last, cur_mmap) &&
+              cur_mmap.pgoff() >= huge_mmap_range_length &&
+              cur_mmap.pgoff() - huge_mmap_range_length == start_pgoff) {
+            UpdateRangeFromNext(huge_mmap_range_first, huge_mmap_range_last,
+                                itr, cur_mmap);
+          }
+          huge_mmap_range_first = mmap_range.end();
+          huge_mmap_range_last = mmap_range.end();
+        }
+        pre_mmap_range_last = itr;
+      }
     }
   }
 }
@@ -314,46 +336,42 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
   // Combine mappings
   RepeatedPtrField<PerfEvent> new_events;
   new_events.Reserve(events->size());
+  std::unordered_map<int32_t, int> pid_to_prev_map;
 
   // |prev| is the index of the last mmap_event in |new_events| (or
   // |new_events.size()| if no mmap_events have been inserted yet).
-  int prev = 0;
   for (int i = 0; i < events->size(); ++i) {
     PerfEvent* event = events->Mutable(i);
-    if (!event->has_mmap_event()) {
-      new_events.Add()->Swap(event);
-      continue;
-    }
+    bool should_merge = false;
 
-    const MMapEvent& mmap = event->mmap_event();
-    // Try to merge mmap with |new_events[prev]|.
-    while (prev < new_events.size() && !new_events.Get(prev).has_mmap_event()) {
-      prev++;
+    const MMapEvent* mmap = nullptr;
+    MMapEvent* prev_mmap = nullptr;
+    int32_t pid = -1;
+    if (event->has_mmap_event()) {
+      mmap = &event->mmap_event();
+      pid = mmap->has_pid() ? mmap->pid() : -1;
+      auto itr = pid_to_prev_map.find(pid);
+      should_merge = itr != pid_to_prev_map.end();
+      if (should_merge) {
+        prev_mmap = new_events.Mutable(itr->second)->mutable_mmap_event();
+      }
     }
-
-    if (prev >= new_events.size()) {
-      new_events.Add()->Swap(event);
-      continue;
-    }
-
-    MMapEvent* prev_mmap = new_events.Mutable(prev)->mutable_mmap_event();
 
     // Don't use IsEquivalentFile(); we don't want to combine //anon with
     // files if DeduceHugepages didn't already fix up the mappings.
-    const bool file_match = prev_mmap->filename() == mmap.filename();
-    const bool pgoff_contiguous =
-        file_match && IsFileContiguous(*prev_mmap, mmap);
-
-    const bool combine_mappings =
-        IsVmaContiguous(*prev_mmap, mmap) && pgoff_contiguous;
-    if (!combine_mappings) {
+    should_merge = should_merge && prev_mmap->filename() == mmap->filename() &&
+                   IsFileContiguous(*prev_mmap, *mmap) &&
+                   IsVmaContiguous(*prev_mmap, *mmap);
+    if (should_merge) {
+      // Combine the lengths of the two mappings.
+      prev_mmap->set_len(prev_mmap->len() + mmap->len());
+    } else {
+      // Remember the last mmap event for a PID.
+      if (mmap != nullptr) {
+        pid_to_prev_map[pid] = new_events.size();
+      }
       new_events.Add()->Swap(event);
-      prev++;
-      continue;
     }
-
-    // Combine the lengths of the two mappings.
-    prev_mmap->set_len(prev_mmap->len() + mmap.len());
   }
 
   events->Swap(&new_events);

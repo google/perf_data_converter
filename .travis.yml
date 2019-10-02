@@ -1,5 +1,5 @@
 language: cpp
-
+dist: xenial
 sudo: required
 
 addons:
@@ -12,7 +12,7 @@ addons:
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libelf-dev libssl-dev libcap-dev linux-tools-`uname -r` linux-cloud-tools-`uname -r`
+  - sudo apt-get install -y libelf-dev libssl-dev libcap-dev linux-tools-`uname -r`
   - git submodule update --init --recursive
 
 install:

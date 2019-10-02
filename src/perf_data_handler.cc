@@ -206,8 +206,8 @@ void Normalizer::UpdateMapsWithForkEvent(
   }
   const auto& it = pid_to_mmaps_.find(fork.ppid());
   if (it != pid_to_mmaps_.end()) {
-    pid_to_mmaps_[fork.pid()] = std::unique_ptr<MMapIntervalMap>(
-        new MMapIntervalMap(*it->second.get()));
+    pid_to_mmaps_[fork.pid()] =
+        std::unique_ptr<MMapIntervalMap>(new MMapIntervalMap(*it->second));
   }
   auto comm_it = pid_to_comm_event_.find(fork.ppid());
   if (comm_it != pid_to_comm_event_.end()) {
@@ -456,7 +456,7 @@ void Normalizer::UpdateMapsWithMMapEvent(
                                                       : old_mapping_it->second;
 
   if (old_mapping != nullptr && old_mapping->start == 0x400000 &&
-      (old_mapping->filename == nullptr || *old_mapping->filename == "") &&
+      (old_mapping->filename == nullptr || old_mapping->filename->empty()) &&
       mapping->start - mapping->file_offset == 0x400000) {
     // Hugepages remap the main binary, but the original mapping loses
     // its name, so we have this hack.

@@ -30,6 +30,17 @@ void AddMmap(uint32_t pid, uint64_t mmap_start, uint64_t length, uint64_t pgoff,
   ev->set_filename(file);
 }
 
+// AddMmapWithoutPid is similar to AddMmap function but ignores pid.
+void AddMmapWithoutPid(uint64_t mmap_start, uint64_t length, uint64_t pgoff,
+                       const string& file,
+                       RepeatedPtrField<PerfEvent>* events) {
+  MMapEvent* ev = events->Add()->mutable_mmap_event();
+  ev->set_start(mmap_start);
+  ev->set_len(length);
+  ev->set_pgoff(pgoff);
+  ev->set_filename(file);
+}
+
 TEST(HugePageDeducer, HugePagesMappings) {
   RepeatedPtrField<PerfEvent> events;
   {
@@ -320,6 +331,43 @@ TEST_P(HugepageTextStyleDependent, MultipleContiguousMlockSplitHugepages) {
                                  "len:0x402000 pgoff: 0 filename: 'file'}"}));
 }
 
+TEST_P(HugepageTextStyleDependent,
+       MultipleContiguousMlockSplitHugepagesTwoPids) {
+  // Think:
+  // - hugepage_text 4MiB range
+  // - mlock alternating 512-KiB chunks
+  RepeatedPtrField<PerfEvent> events;
+  AddMmap(10, 0xa003ff000, 0x001000, 0, "file", &events);
+  AddMmap(20, 0xa003ff000, 0x001000, 0, "file", &events);
+  AddHugepageTextMmap(10, 0xa00400000, 0x080000, 0x001000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00400000, 0x080000, 0x001000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00480000, 0x080000, 0x081000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00480000, 0x080000, 0x081000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00500000, 0x080000, 0x101000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00500000, 0x080000, 0x101000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00580000, 0x080000, 0x181000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00580000, 0x080000, 0x181000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00600000, 0x080000, 0x201000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00600000, 0x080000, 0x201000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00680000, 0x080000, 0x281000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00680000, 0x080000, 0x281000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00700000, 0x080000, 0x301000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00700000, 0x080000, 0x301000, "file", &events);
+  AddHugepageTextMmap(10, 0xa00780000, 0x080000, 0x381000, "file", &events);
+  AddHugepageTextMmap(20, 0xa00780000, 0x080000, 0x381000, "file", &events);
+  AddMmap(10, 0xa00800000, 0x001000, 0x401000, "file", &events);
+  AddMmap(20, 0xa00800000, 0x001000, 0x401000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(events, Pointwise(Partially(EqualsProto()),
+                                {"mmap_event: { start: 0xa003ff000 "
+                                 "len:0x402000 pgoff: 0 filename: 'file'}",
+                                 "mmap_event: { start: 0xa003ff000 "
+                                 "len:0x402000 pgoff: 0 filename: 'file'}"}));
+}
+
 TEST_P(HugepageTextStyleDependent, MultipleWithUnalignedInitialHugePage) {
   // Base on real program
   RepeatedPtrField<PerfEvent> events;
@@ -412,6 +460,22 @@ TEST_P(HugepageTextStyleDependent, NonMmapAfterLastMmap) {
 
   EXPECT_THAT(events, Pointwise(Partially(EqualsProto()),
                                 {"mmap_event: { pgoff: 0 }", ""}));
+}
+
+TEST_P(HugepageTextStyleDependent, DisjointAnonMmapBeforeHugePageText) {
+  RepeatedPtrField<PerfEvent> events;
+  AddMmap(7, 0x500000000, 0x40000000, 0, "//anon", &events);
+  AddHugepageTextMmap(7, 0x600000000, 0x400000, 0, "file", &events);
+  AddMmap(7, 0x600400000, 0x001000, 0x400000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(events, Pointwise(Partially(EqualsProto()),
+                                {"mmap_event: { start: 0x500000000 "
+                                 "len:0x40000000 pgoff: 0 filename: '//anon'}",
+                                 "mmap_event: { start: 0x600000000 "
+                                 "len:0x401000 pgoff: 0 filename: 'file'}"}));
 }
 
 INSTANTIATE_TEST_CASE_P(NoHugepageText, HugepageTextStyleDependent,
@@ -523,104 +587,42 @@ TEST(HugePageDeducer, Regression117238226) {
                 }));
 }
 
-TEST(HugePageDeducer, Regression62446346) {
+TEST(HugePageDeducer, CombineMappings) {
   RepeatedPtrField<PerfEvent> events;
+  // Interchange 2 sets of mmaps that will be combined.
+  AddMmap(10, 0x1000, 0x1000, 0, "main1", &events);
+  AddMmap(20, 0xA000, 0x2000, 0x1000, "main2", &events);
+  AddMmap(10, 0x2000, 0x3000, 0x1000, "main1", &events);
+  AddMmap(20, 0xC000, 0x1000, 0x3000, "main2", &events);
+  AddMmapWithoutPid(0xD000, 0x1000, 0x3000, "main3", &events);
+  AddMmapWithoutPid(0xE000, 0x1000, 0x3000, "main4", &events);
+  AddMmap(10, 0x7f0000000000, 0xb000, 0, "lib1.so", &events);
+  AddMmap(20, 0x7f0000000000, 0xb000, 0, "lib2.so", &events);
 
-  // Perf infers the filename is "file", but at offset 0 for
-  // hugepage-backed, anonymous mappings.
-  //
-  // vaddr start   - vaddr end     vaddr-size    elf-offset
-  // [0x55a685bfb000-55a685dfb000) (0x200000)   @ 0]:          file
-  // [0x55a685dfb000-55a687c00000) (0x1e05000)  @ 0x200000]:   file
-  // [0x55a687c00000-55a6a5200000) (0x1d600000) @ 0]:          file
-  // [0x55a6a5200000-55a6a6400000) (0x1200000)  @ 0x1f605000]: file
-  // [0x55a6a6400000-55a6a6600000) (0x200000)   @ 0]:          file
-  // [0x55a6a6600000-55a6a8800000) (0x2200000)  @ 0x20a05000]: file
-  // [0x55a6a8800000-55a6a8a00000) (0x200000)   @ 0]:          file
-  // [0x55a6a8a00000-55a6a90ca000) (0x6ca000)   @ 0x22e05000]: file
-  // [0x55a6a90ca000-55a6a90cb000) (0x1000)     @ 0x234cf000]: file
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a685bfb000);
-    ev->set_len(0x200000);
-    ev->set_pgoff(0);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a685dfb000);
-    ev->set_len(0x1e05000);
-    ev->set_pgoff(0x200000);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a687c00000);
-    ev->set_len(0x1d600000);
-    ev->set_pgoff(0);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a5200000);
-    ev->set_len(0x1200000);
-    ev->set_pgoff(0x1f605000);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a6400000);
-    ev->set_len(0x200000);
-    ev->set_pgoff(0);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a6600000);
-    ev->set_len(0x2200000);
-    ev->set_pgoff(0x20a05000);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a8800000);
-    ev->set_len(0x200000);
-    ev->set_pgoff(0);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a8a00000);
-    ev->set_len(0x6ca000);
-    ev->set_pgoff(0x22e05000);
-    ev->set_filename("file");
-  }
-  {
-    MMapEvent* ev = events.Add()->mutable_mmap_event();
-    ev->set_pid(1234);
-    ev->set_start(0x55a6a90ca000);
-    ev->set_len(0x1000);
-    ev->set_pgoff(0x234cf000);
-    ev->set_filename("file");
-  }
-
-  DeduceHugePages(&events);
   CombineMappings(&events);
 
-  ASSERT_EQ(1, events.size());
-
-  EXPECT_EQ("file", events[0].mmap_event().filename());
-  EXPECT_EQ(0x55a685bfb000, events[0].mmap_event().start());
-  EXPECT_EQ(0x55a6a90cb000 - 0x55a685bfb000, events[0].mmap_event().len());
-  EXPECT_EQ(0, events[0].mmap_event().pgoff());
+  EXPECT_THAT(events,
+              Pointwise(Partially(EqualsProto()),
+                        {
+                            "mmap_event: { "
+                            "pid: 10 start: 0x1000 "
+                            "pgoff: 0 filename: 'main1' len: 0x4000 }",
+                            "mmap_event: { "
+                            "pid: 20 start: 0xA000 "
+                            "pgoff: 0x1000 filename: 'main2' len: 0x3000 }",
+                            "mmap_event: { "
+                            "start: 0xD000 "
+                            "pgoff: 0x3000 filename: 'main3', len: 0x1000 }",
+                            "mmap_event: { "
+                            "start: 0xE000 "
+                            "pgoff: 0x3000 filename: 'main4', len: 0x1000 }",
+                            "mmap_event: { "
+                            "pid: 10 start: 0x7f0000000000 "
+                            "pgoff: 0 filename: 'lib1.so', len: 0xb000 }",
+                            "mmap_event: { "
+                            "pid: 20 start: 0x7f0000000000 "
+                            "pgoff: 0 filename: 'lib2.so', len: 0xb000 }",
+                        }));
 }
 
 }  // namespace
