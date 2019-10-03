@@ -255,7 +255,6 @@ cc_library(
     hdrs = ["buffer_reader.h"],
     deps = [
         ":data_reader",
-        ":base",
     ],
 )
 
@@ -265,7 +264,6 @@ cc_library(
     hdrs = ["buffer_writer.h"],
     deps = [
         ":data_writer",
-        ":base",
     ],
 )
 
@@ -310,7 +308,6 @@ cc_library(
     hdrs = ["file_reader.h"],
     deps = [
         ":data_reader",
-        ":base",
     ],
 )
 
@@ -354,7 +351,6 @@ cc_library(
     hdrs = ["perf_option_parser.h"],
     deps = [
         ":compat",
-        ":base",
     ],
 )
 
@@ -456,7 +452,6 @@ cc_test(
         ":compat_gunit",
         ":perf_recorder",
         ":test_utils",
-        ":base",
     ],
 )
 
@@ -539,7 +534,6 @@ cc_binary(
     deps = [
         ":compat",
         ":file_utils",
-        ":perf_option_parser",
         ":perf_protobuf_io",
         ":perf_recorder",
         ":process_heap_profile",

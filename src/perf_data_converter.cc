@@ -360,7 +360,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
           event_name = event_type.name() + "_";
         }
       }
-      if (event_name == "") {
+      if (event_name.empty()) {
         event_name = "event_" + std::to_string(unknown_event_idx++) + "_";
       }
       auto sample_type = profile->add_sample_type();
