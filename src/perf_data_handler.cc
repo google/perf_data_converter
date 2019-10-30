@@ -299,6 +299,7 @@ void Normalizer::InvokeHandleSample(
                                               build_id, 0, 1, 0, 0));
       context.main_mapping = fake.get();
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
+      // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.
       context.main_mapping = kernel_it->second;
     }
   }
