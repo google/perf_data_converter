@@ -1,0 +1,208 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//common-mk/pkg_config.gni")
+import("//common-mk/proto_library.gni")
+
+group("all") {
+  deps = [
+    ":perf_converter",
+    ":quipper",
+  ]
+  if (use.test) {
+    deps += [
+      ":integration_tests",
+      ":perf_recorder_test",
+      ":unit_tests",
+    ]
+  }
+}
+
+pkg_config("target_defaults_pkgs") {
+  pkg_deps = [
+    "libchrome-${libbase_ver}",
+    "openssl",
+    "protobuf",
+  ]
+}
+
+config("target_defaults") {
+  include_dirs = [
+    "compat/cros",
+    ".",
+  ]
+  configs = [ ":target_defaults_pkgs" ]
+}
+
+static_library("common") {
+  sources = [
+    "address_mapper.cc",
+    "binary_data_utils.cc",
+    "buffer_reader.cc",
+    "buffer_writer.cc",
+    "compat/log_level.cc",
+    "data_reader.cc",
+    "data_writer.cc",
+    "dso.cc",
+    "file_reader.cc",
+    "file_utils.cc",
+    "heap_profile_parser.cc",
+    "huge_page_deducer.cc",
+    "perf_data_utils.cc",
+    "perf_option_parser.cc",
+    "perf_parser.cc",
+    "perf_protobuf_io.cc",
+    "perf_reader.cc",
+    "perf_recorder.cc",
+    "perf_serializer.cc",
+    "perf_stat_parser.cc",
+    "process_heap_profile.cc",
+    "run_command.cc",
+    "sample_info_reader.cc",
+    "scoped_temp_path.cc",
+    "string_utils.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  libs = [
+    "elf",
+    "gflags",
+    "re2",
+  ]
+  deps = [
+    ":perf_data_proto",
+    ":perf_parser_options_proto",
+    ":perf_stat_proto",
+  ]
+}
+
+static_library("conversion_utils") {
+  sources = [
+    "conversion_utils.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":common",
+  ]
+}
+
+static_library("common_test") {
+  sources = [
+    "dso_test_utils.cc",
+    "perf_test_files.cc",
+    "test_perf_data.cc",
+    "test_utils.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":common",
+  ]
+}
+
+proto_library("perf_data_proto") {
+  proto_in_dir = "."
+  proto_out_dir = "include"
+  sources = [
+    "${proto_in_dir}/perf_data.proto",
+  ]
+}
+
+proto_library("perf_parser_options_proto") {
+  proto_in_dir = "."
+  proto_out_dir = "include"
+  sources = [
+    "${proto_in_dir}/perf_parser_options.proto",
+  ]
+}
+
+proto_library("perf_stat_proto") {
+  proto_in_dir = "."
+  proto_out_dir = "include"
+  sources = [
+    "${proto_in_dir}/perf_stat.proto",
+  ]
+}
+
+executable("quipper") {
+  sources = [
+    "quipper.cc",
+    "quipper_lib.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":common",
+  ]
+}
+
+executable("perf_converter") {
+  sources = [
+    "perf_converter.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":common",
+    ":conversion_utils",
+  ]
+}
+
+if (use.test) {
+  executable("integration_tests") {
+    sources = [
+      "conversion_utils_test.cc",
+      "test_runner.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    deps = [
+      ":common",
+      ":common_test",
+      ":conversion_utils",
+    ]
+  }
+
+  executable("perf_recorder_test") {
+    sources = [
+      "perf_recorder_test.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    deps = [
+      ":common",
+      ":common_test",
+    ]
+  }
+
+  executable("unit_tests") {
+    sources = [
+      "address_mapper_test.cc",
+      "binary_data_utils_test.cc",
+      "buffer_reader_test.cc",
+      "buffer_writer_test.cc",
+      "dso_test.cc",
+      "file_reader_test.cc",
+      "perf_data_utils_test.cc",
+      "perf_option_parser_test.cc",
+      "perf_parser_test.cc",
+      "perf_reader_test.cc",
+      "perf_serializer_test.cc",
+      "perf_stat_parser_test.cc",
+      "run_command_test.cc",
+      "sample_info_reader_test.cc",
+      "scoped_temp_path_test.cc",
+      "test_runner.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    pkg_deps = [ "libcap" ]
+    deps = [
+      ":common",
+      ":common_test",
+    ]
+  }
+}
