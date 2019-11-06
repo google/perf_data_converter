@@ -559,9 +559,9 @@ uint64 PerfDataConverter::AddOrGetLocation(
 void PerfDataConverter::Comm(const CommContext& comm) {
   Pid pid = comm.comm->pid();
   Tid tid = comm.comm->tid();
-  if (pid == tid) {
-    // pid==tid means an exec() happened, so clear everything from the
-    // existing pid.
+  if (comm.is_exec) {
+    // If is_exec set to true, it means an exec() happened, so clear everything
+    // from the existing pid.
     per_pid_[pid].clear();
   }
 

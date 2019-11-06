@@ -10,6 +10,7 @@
 #include <memory>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "src/compat/int_compat.h"
@@ -174,6 +175,9 @@ class Normalizer {
   // filename of the main executable for that pid.
   PidToMMapMap pid_to_executable_mmap_;
 
+  // |pid_had_any_mmap_| stores the pids that have their mmap events found.
+  std::unordered_set<uint32> pid_had_any_mmap_;
+
   // map filenames to build-ids.
   std::unordered_map<string, string> filename_to_build_id_;
 
@@ -223,14 +227,54 @@ void Normalizer::Normalize() {
   for (const auto& event_proto : perf_proto_.events()) {
     if (event_proto.has_mmap_event()) {
       UpdateMapsWithMMapEvent(&event_proto.mmap_event());
+      pid_had_any_mmap_.insert(event_proto.mmap_event().pid());
     } else if (event_proto.has_comm_event()) {
+      PerfDataHandler::CommContext comm_context;
       if (event_proto.comm_event().pid() == event_proto.comm_event().tid()) {
-        // pid==tid happens on exec()
-        pid_to_executable_mmap_.erase(event_proto.comm_event().pid());
+        if (!perf_proto_.file_attrs()[0].attr().comm_exec() ||
+            event_proto.header().misc() & quipper::PERF_RECORD_MISC_COMM_EXEC ||
+            pid_had_any_mmap_.find(event_proto.comm_event().pid()) ==
+                pid_had_any_mmap_.end()) {
+          // Based on the perf data collected, comm events (with pid == tid) can
+          // be generated (1) on exec() or (2) when the main thread name is set
+          // after exec (generating another COMM EVENT, e.g. using PR_SET_NAME
+          // http://man7.org/linux/man-pages/man2/prctl.2.html).
+          // We want to identify if a comm event (with pid == tid) is due to
+          // exec() (the first case) and erase the pid to executable mapping in
+          // |pid_to_executable_mmap_| if so.
+          // One way to know that comm event is due to exec() is to check if the
+          // misc bit is set to PERF_RECORD_MISC_COMM_EXEC. However, this misc
+          // bit is only set in newer kernels (>= 3.16) and for execs that
+          // happen after perf collection start. Thus, we need to have some
+          // heuristics to cover other cases and identify possible comm events
+          // that happen due to exec().
+          // Another way is to find the contrary scenario for the second case.
+          // Commonly found patterns of comm events on setting the main thread
+          // name can look like this: FORK EVENT -> COMM EVENT (on exec()) ->
+          // MMAP EVENTs -> SAMPLE EVENTs -> COMM EVENT (on setting main thread
+          // name) -> SAMPLE EVENTs ... Thus, if a mmap event is already found
+          // for a pid before a comm event, this comm event is due to setting
+          // the main thread name. Vice versa, if the mmap event is not yet
+          // found for the pid, it is very likely this comm event happens due
+          // to exec() and |pid_to_executable_mmap_| should be erased.
+          // Also note that for older kernels (< 3.16), where the comm_exec
+          // in perf file attribute is not set, we will erase the mapping in
+          // |pid_to_executable_mmap_| at the occurence of a comm event.
+          // Thus we have the following heuristics:
+          // The pid to executable mapping in |pid_to_executable_mmap_| is
+          // erased when either one of the following is true (1) comm_exec in
+          // perf file attribute is not set (kernel < 3.16) (2) comm_event's
+          // PERF_RECORD_MISC_COMM_EXEC misc bit is set in header, meaning an
+          // exec() happened, (3) no mmap event for this pid has been found,
+          // meaning this is the first comm event after an exec().
+          pid_to_executable_mmap_.erase(event_proto.comm_event().pid());
+          // is_exec is true if the comm event happenes due to exec(), this flag
+          // is passed to perf_data_converter and used to modify PerPidInfo.
+          comm_context.is_exec = true;
+        }
         pid_to_comm_event_[event_proto.comm_event().pid()] =
             &event_proto.comm_event();
       }
-      PerfDataHandler::CommContext comm_context;
       comm_context.comm = &event_proto.comm_event();
       handler_->Comm(comm_context);
     } else if (event_proto.has_fork_event()) {
