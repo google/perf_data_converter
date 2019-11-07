@@ -339,8 +339,12 @@ void Normalizer::InvokeHandleSample(
       if (kernel_it != pid_to_executable_mmap_.end()) {
         build_id = kernel_it->second->build_id;
       }
-      fake.reset(new PerfDataHandler::Mapping(&comm_it->second->comm(),
-                                              build_id, 0, 1, 0, 0));
+      // The comm_md5_prefix is used for the filename_md5_prefix field in the
+      // fake mapping. This allows recovery of the process name (execname) by
+      // resolving its md5 prefix when the comm string is nil or empty.
+      fake.reset(
+          new PerfDataHandler::Mapping(&comm_it->second->comm(), build_id, 0, 1,
+                                       0, comm_it->second->comm_md5_prefix()));
       context.main_mapping = fake.get();
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
       // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.

@@ -399,6 +399,23 @@ TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
   EXPECT_EQ(2, profile2.sample_size());
 }
 
+TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
+  string path = GetResource(
+      "testdata"
+      "/perf-include-comm-md5-prefix.pb_proto");
+  string asciiPb;
+  GetContents(path, &asciiPb);
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+  EXPECT_EQ(1, profile.sample_size());
+  EXPECT_EQ(1, profile.mapping_size());
+  EXPECT_EQ("b8c090b480e340b7",
+            profile.string_table()[profile.mapping()[0].filename()]);
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"
