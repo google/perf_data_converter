@@ -111,6 +111,8 @@ class PerfDataHandler {
   struct CommContext {
     // A comm event.
     const quipper::PerfDataProto::CommEvent* comm;
+    // Whether the comm event happens due to exec().
+    bool is_exec = false;
   };
 
   struct MMapContext {

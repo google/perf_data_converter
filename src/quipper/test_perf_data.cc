@@ -111,7 +111,8 @@ void ExamplePerfDataFileHeader::WriteTo(std::ostream* out) const {
   };
   // Copy over the features bits manually since the byte swapping is more
   // complicated.
-  for (size_t i = 0; i < sizeof(header_.adds_features) / sizeof(uint64_t);
+  // Add parentheses around sizeof(uint64_t) to quell -Wsizeof-array-div
+  for (size_t i = 0; i < sizeof(header_.adds_features) / (sizeof(uint64_t));
        ++i) {
     reinterpret_cast<uint64_t*>(local_header.adds_features)[i] = MaybeSwap64(
         reinterpret_cast<const uint64_t*>(header_.adds_features)[i]);

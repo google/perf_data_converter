@@ -376,6 +376,46 @@ TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
   EXPECT_EQ(0, profile.location(2).mapping_id());
 }
 
+TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
+  string path = GetResource(
+      "testdata"
+      "/perf-non-exec-comm-events.pb_proto");
+  string asciiPb;
+  GetContents(path, &asciiPb);
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(2, pps.size());
+  const auto& profile1 = pps[0]->data;
+  const auto& profile2 = pps[1]->data;
+
+  EXPECT_EQ(2, profile1.mapping_size());
+  EXPECT_EQ(2, profile2.mapping_size());
+  EXPECT_EQ("/usr/lib/systemd/systemd-journald",
+            profile1.string_table(profile1.mapping(0).filename()));
+  EXPECT_EQ("/usr/bin/coreutils",
+            profile2.string_table(profile2.mapping(0).filename()));
+  EXPECT_EQ(2, profile1.sample_size());
+  EXPECT_EQ(2, profile2.sample_size());
+}
+
+TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
+  string path = GetResource(
+      "testdata"
+      "/perf-include-comm-md5-prefix.pb_proto");
+  string asciiPb;
+  GetContents(path, &asciiPb);
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+  EXPECT_EQ(1, profile.sample_size());
+  EXPECT_EQ(1, profile.mapping_size());
+  EXPECT_EQ("b8c090b480e340b7",
+            profile.string_table()[profile.mapping()[0].filename()]);
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"
