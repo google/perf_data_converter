@@ -138,9 +138,10 @@ class Normalizer {
   const PerfDataHandler::Mapping* TryLookupInPid(uint32 pid, uint64 ip) const;
 
   // Find the mapping for a given ip given a pid context (in user or kernel
-  // mappings); returns nullptr if none can be found.
-  const PerfDataHandler::Mapping* GetMappingFromPidAndIP(uint32 pid,
-                                                         uint64 ip) const;
+  // mappings) and whether the ip is in user context; returns nullptr if none
+  // can be found.
+  const PerfDataHandler::Mapping* GetMappingFromPidAndIP(
+      uint32 pid, uint64 ip, bool ip_in_user_context) const;
 
   // Find the main MMAP event for this pid.  If no mapping is found,
   // nullptr is returned.
@@ -323,7 +324,7 @@ void Normalizer::InvokeHandleSample(
 
   uint32 pid = sample.pid();
 
-  context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip());
+  context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
   stat_.missing_sample_mmap += context.sample_mapping == nullptr;
 
   context.main_mapping = GetMainMMapFromPid(pid);
@@ -354,13 +355,19 @@ void Normalizer::InvokeHandleSample(
 
   stat_.missing_main_mmap += context.main_mapping == nullptr;
 
+  bool ip_in_user_context = false;
   // Normalize the callchain.
   context.callchain.resize(sample.callchain_size());
   for (int i = 0; i < sample.callchain_size(); ++i) {
     ++stat_.callchain_ips;
+    if (sample.callchain(i) == quipper::PERF_CONTEXT_USER) {
+      ip_in_user_context = true;
+    } else if (sample.callchain(i) >= quipper::PERF_CONTEXT_MAX) {
+      ip_in_user_context = false;
+    }
     context.callchain[i].ip = sample.callchain(i);
     context.callchain[i].mapping =
-        GetMappingFromPidAndIP(pid, sample.callchain(i));
+        GetMappingFromPidAndIP(pid, sample.callchain(i), ip_in_user_context);
     stat_.missing_callchain_mmap += context.callchain[i].mapping == nullptr;
   }
 
@@ -372,13 +379,13 @@ void Normalizer::InvokeHandleSample(
     // from
     context.branch_stack[i].from.ip = entry.from_ip();
     context.branch_stack[i].from.mapping =
-        GetMappingFromPidAndIP(pid, entry.from_ip());
+        GetMappingFromPidAndIP(pid, entry.from_ip(), false);
     stat_.missing_branch_stack_mmap +=
         context.branch_stack[i].from.mapping == nullptr;
     // to
     context.branch_stack[i].to.ip = entry.to_ip();
     context.branch_stack[i].to.mapping =
-        GetMappingFromPidAndIP(pid, entry.to_ip());
+        GetMappingFromPidAndIP(pid, entry.to_ip(), false);
     stat_.missing_branch_stack_mmap +=
         context.branch_stack[i].to.mapping == nullptr;
     context.branch_stack[i].mispredicted = entry.mispredicted();
@@ -552,24 +559,17 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32 pid,
 // stored in our map as pid = -1), so check there if the lookup fails
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
-    uint32 pid, uint64 ip) const {
+    uint32 pid, uint64 ip, bool ip_in_user_context) const {
   if (ip >= quipper::PERF_CONTEXT_MAX) {
     // These aren't real IPs, they're context hints.  Drop them.
     return nullptr;
   }
-  // One could try to decide if this is a kernel or user sample
-  // directly.  ahh@ thinks there's a heuristic that should work on
-  // x86 (basically without any error): all kernel samples should have
-  // 16 high bits set, all user samples should have high 16 bits
-  // cleared.  But that's not portable, and on any arch (...hopefully)
-  // the user/kernel mappings should be disjoint anyway, so just check
-  // both, starting with user.  We could also use PERF_CONTEXT_KERNEL
-  // and friends (see for instance how perf handles this:
-  // https://goto.google.com/udgor) to know whether to check user or
-  // kernel, but this seems more robust.
+  // First look up the mapping for the ip in the address space of the given pid.
+  // If no mapping is found, then try to find in the kernel space, with pid of
+  // -1. However, if the ip is guaranteed to be in user context, it will not be
+  // looked up in the kernel space.
   const PerfDataHandler::Mapping* mapping = TryLookupInPid(pid, ip);
-  if (mapping == nullptr) {
-    // Might be a kernel sample.
+  if (mapping == nullptr && !ip_in_user_context) {
     mapping = TryLookupInPid(-1, ip);
   }
   if (mapping == nullptr) {
