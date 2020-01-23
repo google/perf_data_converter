@@ -507,6 +507,21 @@ bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
             entry, pidtid, &mapped_addr,
             &parsed_event->callchain[num_entries_mapped++])) {
       mapping_failed = true;
+      // During the remapping process, callchain ips that are not mapped to the
+      // quipper space will have their original addresses passed on, based on an
+      // earlier logic. This would sometimes lead to incorrect assignment of
+      // such addresses to certain mmap regions in the quipper space by
+      // perf_data_handler. Therefore, the unmapped address needs to be
+      // explicitly marked by setting its highest bit. This operation considers
+      // potential collision with the address space when options_.do_remap is
+      // set to true or false. When options_.do_remap is true, this marked
+      // address is guaranteed to be larger than the mapped quipper space. When
+      // options_.do_remap is false, the kernel addresses of x86 and ARM have
+      // the high 16 bit set and PowerPC has a reserved space from
+      // 0x1000000000000000 to 0xBFFFFFFFFFFFFFFF. Thus, setting highest bit of
+      // the unmapped address, which starts with 0x8, should not collide with
+      // any existing addresses or mapped quipper addresses.
+      callchain->Set(i, entry | 1ULL << 63);
     } else {
       callchain->Set(i, mapped_addr);
     }

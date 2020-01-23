@@ -560,8 +560,13 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32 pid,
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
     uint32 pid, uint64 ip, bool ip_in_user_context) const {
-  if (ip >= quipper::PERF_CONTEXT_MAX) {
-    // These aren't real IPs, they're context hints.  Drop them.
+  if (ip >= quipper::PERF_CONTEXT_MAX || ip >> 60 == 0x8) {
+    // In case the ip is context hint or the highest 4 bits of ip is 1000,
+    // it has null mapping. For the latter case, we set the highest bit to mark
+    // the unmapped address. Kernel addresses in x86 and ARM have the high 16
+    // bits set, and for PowerPC the high 4 bits in range 0001 to 1011 is
+    // reserved space. So we would identify the unmapped address by checking
+    // its high four bits as 1000.
     return nullptr;
   }
   // First look up the mapping for the ip in the address space of the given pid.
