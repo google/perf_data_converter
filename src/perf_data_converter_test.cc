@@ -416,6 +416,31 @@ TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
             profile.string_table()[profile.mapping()[0].filename()]);
 }
 
+TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
+  string path = GetResource(
+      "testdata"
+      "/perf-unmapped-callchain-ip.pb_proto");
+  string asciiPb;
+  GetContents(path, &asciiPb);
+  PerfDataProto perf_data_proto;
+  for (const auto& event_proto : perf_data_proto.events()) {
+    if (event_proto.has_sample_event()) {
+      int callchain_depth = 1 + event_proto.sample_event().callchain_size();
+      EXPECT_EQ(3, callchain_depth);
+    }
+  }
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+
+  EXPECT_EQ(1, profile.mapping_size());
+  EXPECT_EQ("/usr/lib/systemd/systemd-journald",
+            profile.string_table(profile.mapping(0).filename()));
+  EXPECT_EQ(1, profile.sample_size());
+  EXPECT_EQ(2, profile.location_size());
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"
