@@ -447,35 +447,45 @@ TEST_F(PerfDataConverterTest, GroupsByComm) {
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
-  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto, kCommLabel);
+  ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCommLabel | kThreadCommLabel);
   EXPECT_EQ(2, pps.size());
 
   const int val_idx = 0;
   int total_samples = 0;
-  std::unordered_map<string, uint64> counts_by_comm;
+  std::unordered_map<string, uint64> counts_by_comm, counts_by_thread_comm;
   for (const auto& pp : pps) {
     const auto& p = pp->data;
     EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
     for (const auto& sample : p.sample()) {
       total_samples += sample.value(val_idx);
-      string comm;
+      string comm, thread_comm;
       for (const auto& label : sample.label()) {
         if (p.string_table(label.key()) == CommLabelKey) {
           comm = p.string_table(label.str());
-          break;
+        }
+        if (p.string_table(label.key()) == ThreadCommLabelKey) {
+          thread_comm = p.string_table(label.str());
         }
       }
       counts_by_comm[comm] += sample.value(val_idx);
+      counts_by_thread_comm[thread_comm] += sample.value(val_idx);
     }
   }
   EXPECT_EQ(10, total_samples);
-  std::unordered_map<string, uint64> expected_counts = {
+  std::unordered_map<string, uint64> expected_comm_counts = {
+      {"pid_2", 6},
+      {"pid_5", 4},
+  };
+  EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_comm_counts));
+  std::unordered_map<string, uint64> expected_thread_comm_counts = {
       {"pid_2", 1},
       {"tid_3", 2},
       {"tid_4", 3},
       {"pid_5", 4},
   };
-  EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_counts));
+  EXPECT_THAT(counts_by_thread_comm,
+              UnorderedPointwise(Eq(), expected_thread_comm_counts));
 }
 
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
