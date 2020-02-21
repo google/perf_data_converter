@@ -421,13 +421,13 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   for (const auto& event_proto : perf_data_proto.events()) {
     if (event_proto.has_sample_event()) {
       int callchain_depth = 1 + event_proto.sample_event().callchain_size();
       EXPECT_EQ(3, callchain_depth);
     }
   }
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
