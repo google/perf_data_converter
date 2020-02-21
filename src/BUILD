@@ -86,6 +86,7 @@ cc_test(
         "//src/testdata:single-event-single-process.perf.data",
         "//src/testdata:with-callchain.perf.data",
     ],
+    shard_count = 4,
     tags = ["client"],
     deps = [
         ":intervalmap",
