@@ -330,10 +330,10 @@ TEST_F(PerfDataConverterTest, Injects) {
 TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
   string path = GetResource("testdata"
                             "/perf-overlapping-kernel-mapping.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -355,10 +355,10 @@ TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
   string path = GetResource(
       "testdata"
       "/perf-cros-kernel-3_18-mapping.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -380,10 +380,10 @@ TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
   string path = GetResource(
       "testdata"
       "/perf-non-exec-comm-events.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(2, pps.size());
   const auto& profile1 = pps[0]->data;
@@ -403,10 +403,10 @@ TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
   string path = GetResource(
       "testdata"
       "/perf-include-comm-md5-prefix.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -420,8 +420,8 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   string path = GetResource(
       "testdata"
       "/perf-unmapped-callchain-ip.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb;
+  GetContents(path, &ascii_pb);
   PerfDataProto perf_data_proto;
   for (const auto& event_proto : perf_data_proto.events()) {
     if (event_proto.has_sample_event()) {
@@ -429,7 +429,7 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
       EXPECT_EQ(3, callchain_depth);
     }
   }
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
