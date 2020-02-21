@@ -439,6 +439,45 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   EXPECT_EQ(2, profile.location_size());
 }
 
+TEST_F(PerfDataConverterTest, GroupsByComm) {
+  string path = GetResource(
+      "testdata"
+      "/perf-comm-and-task-comm.textproto");
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto, kCommLabel);
+  EXPECT_EQ(2, pps.size());
+
+  const int val_idx = 0;
+  int total_samples = 0;
+  std::unordered_map<string, uint64> counts_by_comm;
+  for (const auto& pp : pps) {
+    const auto& p = pp->data;
+    EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
+    for (const auto& sample : p.sample()) {
+      total_samples += sample.value(val_idx);
+      string comm;
+      for (const auto& label : sample.label()) {
+        if (p.string_table(label.key()) == CommLabelKey) {
+          comm = p.string_table(label.str());
+          break;
+        }
+      }
+      counts_by_comm[comm] += sample.value(val_idx);
+    }
+  }
+  EXPECT_EQ(10, total_samples);
+  std::unordered_map<string, uint64> expected_counts = {
+      {"pid_2", 1},
+      {"tid_3", 2},
+      {"tid_4", 3},
+      {"pid_5", 4},
+  };
+  EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_counts));
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"
