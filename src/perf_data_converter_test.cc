@@ -475,14 +475,14 @@ TEST_F(PerfDataConverterTest, GroupsByComm) {
   EXPECT_EQ(10, total_samples);
   std::unordered_map<string, uint64> expected_comm_counts = {
       {"pid_2", 6},
-      {"pid_5", 4},
+      {"1234567812345678", 4},
   };
   EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_comm_counts));
   std::unordered_map<string, uint64> expected_thread_comm_counts = {
       {"pid_2", 1},
       {"tid_3", 2},
-      {"tid_4", 3},
-      {"pid_5", 4},
+      {"0", 3},
+      {"1234567812345678", 4},
   };
   EXPECT_THAT(counts_by_thread_comm,
               UnorderedPointwise(Eq(), expected_thread_comm_counts));

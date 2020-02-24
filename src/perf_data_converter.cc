@@ -84,20 +84,6 @@ int64 UTF8StringId(const string& s, ProfileBuilder* builder) {
   return builder->StringId(s.c_str());
 }
 
-// Returns the file name of the mapping as either the real file path if it's
-// present or the string representation of the file path MD5 checksum prefix
-// when the real file path was stripped from the data for privacy reasons.
-string MappingFilename(const PerfDataHandler::Mapping* m) {
-  if (m->filename != nullptr && !m->filename->empty()) {
-    return *m->filename;
-  } else if (m->filename_md5_prefix != 0) {
-    std::stringstream filename;
-    filename << std::hex << m->filename_md5_prefix;
-    return filename.str();
-  }
-  return "";
-}
-
 // List of profile location IDs, currently used to represent a call stack.
 typedef std::vector<uint64> LocationIdVector;
 
@@ -580,7 +566,8 @@ void PerfDataConverter::Comm(const CommContext& comm) {
     // from the existing pid.
     per_pid_[pid].clear();
   }
-  per_pid_[pid].tid_to_comm_map[tid] = comm.comm->comm();
+  per_pid_[pid].tid_to_comm_map[tid] = PerfDataHandler::NameOrMd5Prefix(
+      comm.comm->comm(), comm.comm->comm_md5_prefix());
 }
 
 // Invalidates the locations in location_map in the mmap event's range.

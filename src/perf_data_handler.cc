@@ -62,14 +62,8 @@ class Normalizer {
         hex << std::hex << std::setfill('0') << std::setw(2)
             << static_cast<int>(byte);
       }
-      string filename;
-      if (!build_id.filename().empty()) {
-        filename = build_id.filename();
-      } else {
-        std::stringstream filename_stream;
-        filename_stream << std::hex << build_id.filename_md5_prefix();
-        filename = filename_stream.str();
-      }
+      string filename = PerfDataHandler::NameOrMd5Prefix(
+          build_id.filename(), build_id.filename_md5_prefix());
       filename_to_build_id_[filename.c_str()] = hex.str();
 
       switch (build_id.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
@@ -417,16 +411,8 @@ void Normalizer::LogStats() {
 
 const string* Normalizer::GetBuildId(
     const quipper::PerfDataProto_MMapEvent* mmap) {
-  string filename;
-
-  if (!mmap->filename().empty()) {
-    filename = mmap->filename();
-  } else {
-    std::stringstream filename_stream;
-    filename_stream << std::hex << mmap->filename_md5_prefix();
-    filename = filename_stream.str();
-  }
-
+  string filename = PerfDataHandler::NameOrMd5Prefix(
+      mmap->filename(), mmap->filename_md5_prefix());
   const string* build_id = nullptr;
   std::unordered_map<string, string>::const_iterator build_id_it =
       filename_to_build_id_.find(filename);
@@ -653,6 +639,20 @@ void PerfDataHandler::Process(const quipper::PerfDataProto& perf_proto,
                               PerfDataHandler* handler) {
   Normalizer Normalizer(perf_proto, handler);
   return Normalizer.Normalize();
+}
+
+string PerfDataHandler::NameOrMd5Prefix(string name, uint64_t md5_prefix) {
+  if (name.empty()) {
+    std::stringstream ss;
+    ss << std::hex << md5_prefix;
+    name = ss.str();
+  }
+  return name;
+}
+
+string PerfDataHandler::MappingFilename(const Mapping* m) {
+  return NameOrMd5Prefix(m->filename != nullptr ? *m->filename : "",
+                         m->filename_md5_prefix);
 }
 
 }  // namespace perftools

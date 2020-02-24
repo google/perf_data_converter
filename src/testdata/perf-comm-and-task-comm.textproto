@@ -71,7 +71,7 @@ events: {
   comm_event: {
     pid: 2
     tid: 4
-    comm: "tid_4"
+    # Should recognize the MD5 prefix as 0.
   }
 }
 events: {
@@ -81,7 +81,7 @@ events: {
   comm_event: {
     pid: 5
     tid: 5
-    comm: "pid_5"
+    comm_md5_prefix: 0x1234567812345678
   }
 }
 # Sample events. Have a unique number of samples per PID to verify that the
