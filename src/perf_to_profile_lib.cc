@@ -10,12 +10,12 @@
 #include <sys/stat.h>
 #include <sstream>
 
-bool FileExists(const string& path) {
+bool FileExists(const std::string& path) {
   struct stat file_stat;
   return stat(path.c_str(), &file_stat) != -1;
 }
 
-string ReadFileToString(const string& path) {
+std::string ReadFileToString(const std::string& path) {
   std::ifstream perf_file(path);
   if (!perf_file.is_open()) {
     LOG(FATAL) << "Failed to open file: " << path;
@@ -25,7 +25,7 @@ string ReadFileToString(const string& path) {
   return ss.str();
 }
 
-perftools::ProcessProfiles StringToProfiles(const string& data,
+perftools::ProcessProfiles StringToProfiles(const std::string& data,
                                             uint32 sample_labels,
                                             uint32 options) {
   // Try to parse it as a PerfDataProto.
@@ -39,7 +39,7 @@ perftools::ProcessProfiles StringToProfiles(const string& data,
                                           sample_labels, options);
 }
 
-void CreateFile(const string& path, std::ofstream* file,
+void CreateFile(const std::string& path, std::ofstream* file,
                 bool overwrite_output) {
   if (!overwrite_output && FileExists(path)) {
     LOG(FATAL) << "File already exists: " << path;
@@ -57,8 +57,8 @@ void PrintUsage() {
             << "profile.";
 }
 
-bool ParseArguments(int argc, const char* argv[], string* input, string* output,
-                    bool* overwrite_output) {
+bool ParseArguments(int argc, const char* argv[], std::string* input,
+                    std::string* output, bool* overwrite_output) {
   *input = "";
   *output = "";
   *overwrite_output = false;

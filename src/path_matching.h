@@ -16,9 +16,9 @@ namespace perftools {
 
 // Checks if a file is a .so file which is being used by an executing binary
 // but has been deleted.
-bool IsDeletedSharedObject(const string& path);
+bool IsDeletedSharedObject(const std::string& path);
 // Checks if a file is a .so file with the version appended to it.
-bool IsVersionedSharedObject(const string& path);
+bool IsVersionedSharedObject(const std::string& path);
 
 }  // namespace perftools
 

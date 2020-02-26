@@ -110,15 +110,16 @@ using ProcessProfiles = std::vector<std::unique_ptr<ProcessProfile>>;
 //
 // Returns a vector of process profiles, empty if any error occurs.
 extern ProcessProfiles RawPerfDataToProfiles(
-    const void* raw, int raw_size, const std::map<string, string>& build_ids,
+    const void* raw, int raw_size,
+    const std::map<std::string, std::string>& build_ids,
     uint32 sample_labels = kNoLabels, uint32 options = kGroupByPids,
-    const std::map<uint32, string>& thread_types = {});
+    const std::map<uint32, std::string>& thread_types = {});
 
 // Converts a PerfDataProto to a vector of process profiles.
 extern ProcessProfiles PerfDataProtoToProfiles(
     const quipper::PerfDataProto* perf_data, uint32 sample_labels = kNoLabels,
     uint32 options = kGroupByPids,
-    const std::map<uint32, string>& thread_types = {});
+    const std::map<uint32, std::string>& thread_types = {});
 
 }  // namespace perftools
 

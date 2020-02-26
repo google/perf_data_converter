@@ -31,8 +31,9 @@ class PerfDataHandler {
  public:
   struct Mapping {
    public:
-    Mapping(const string* filename, const string* build_id, uint64 start,
-            uint64 limit, uint64 file_offset, uint64 filename_md5_prefix)
+    Mapping(const std::string* filename, const std::string* build_id,
+            uint64 start, uint64 limit, uint64 file_offset,
+            uint64 filename_md5_prefix)
         : filename(filename),
           build_id(build_id),
           start(start),
@@ -42,8 +43,8 @@ class PerfDataHandler {
 
     // filename and build_id are pointers into the provided
     // PerfDataProto and may be nullptr.
-    const string* filename;
-    const string* build_id;
+    const std::string* filename;
+    const std::string* build_id;
     uint64 start;
     uint64 limit;  // limit=ceiling.
     uint64 file_offset;

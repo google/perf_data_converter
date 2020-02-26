@@ -18,26 +18,27 @@
 
 // Checks and returns whether or not the file at the given |path| already
 // exists.
-bool FileExists(const string& path);
+bool FileExists(const std::string& path);
 
 // Reads a file at the given |path| as a string and returns it.
-string ReadFileToString(const string& path);
+std::string ReadFileToString(const std::string& path);
 
 // Generates profiles from either a raw perf.data string or perf data proto
 // string. Returns a vector of process profiles, empty if any error occurs.
 perftools::ProcessProfiles StringToProfiles(
-    const string& data, uint32 sample_labels = perftools::kNoLabels,
+    const std::string& data, uint32 sample_labels = perftools::kNoLabels,
     uint32 options = perftools::kNoOptions);
 
 // Creates a file at the given |path|. If |overwriteOutput| is set to true,
 // overwrites the file at the given path.
-void CreateFile(const string& path, std::ofstream* file, bool overwriteOutput);
+void CreateFile(const std::string& path, std::ofstream* file,
+                bool overwriteOutput);
 
 // Parses arguments, stores the results in |input|, |output| and
 // |overwriteOutput|, and returns true if arguments parsed successfully and
 // false otherwise.
-bool ParseArguments(int argc, const char* argv[], string* input, string* output,
-                    bool* overwriteOutput);
+bool ParseArguments(int argc, const char* argv[], std::string* input,
+                    std::string* output, bool* overwriteOutput);
 
 // Prints the usage of the tool.
 void PrintUsage();

@@ -11,7 +11,7 @@
 #include "src/perf_data_converter.h"
 
 int main(int argc, char** argv) {
-  string input, output;
+  std::string input, output;
   bool overwriteOutput = false;
   if (!ParseArguments(argc, const_cast<const char**>(argv), &input, &output,
                       &overwriteOutput)) {

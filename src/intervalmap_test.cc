@@ -22,7 +22,7 @@ namespace {
 class Command {
  public:
   virtual ~Command() {}
-  virtual void ExecuteOn(IntervalMap<string>* map) const = 0;
+  virtual void ExecuteOn(IntervalMap<std::string>* map) const = 0;
 };
 
 class SetCommand : public Command {
@@ -30,7 +30,7 @@ class SetCommand : public Command {
   SetCommand(uint64 start, uint64 limit, const char* value)
       : start_(start), limit_(limit), value_(value) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
     map->Set(start_, limit_, value_);
   }
 
@@ -44,7 +44,7 @@ class NumIntervalsCommand : public Command {
  public:
   explicit NumIntervalsCommand(uint64 expected) : expected_(expected) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
     ASSERT_EQ(expected_, map->Size());
   }
 
@@ -57,9 +57,9 @@ class LookupCommand : public Command {
   LookupCommand(uint64 from, uint64 to, const char* expected)
       : from_(from), to_(to), expected_(expected) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
     for (uint64 key = from_; key <= to_; ++key) {
-      string result;
+      std::string result;
       ASSERT_TRUE(map->Lookup(key, &result)) << "Did not find value for key: "
                                              << key;
       ASSERT_EQ(expected_, result) << "For key: " << key
@@ -79,8 +79,8 @@ class FailLookupCommand : public Command {
   explicit FailLookupCommand(std::vector<uint64> keys)
       : keys_(std::move(keys)) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
-    string result;
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
+    std::string result;
     for (auto key : keys_) {
       ASSERT_FALSE(map->Lookup(key, &result)) << "Found value for key: " << key;
     }
@@ -99,10 +99,10 @@ class FindNextCommand : public Command {
         expected_limit_(expected_limit),
         expected_value_(expected_value) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
     uint64 start;
     uint64 limit;
-    string value;
+    std::string value;
     ASSERT_TRUE(map->FindNext(key_, &start, &limit, &value))
         << "Did not find a next interval for key: " << key_;
     bool matches_expected = expected_start_ == start &&
@@ -129,10 +129,10 @@ class FailFindNextCommand : public Command {
  public:
   explicit FailFindNextCommand(uint64 key) : key_(key) {}
 
-  void ExecuteOn(IntervalMap<string>* map) const override {
+  void ExecuteOn(IntervalMap<std::string>* map) const override {
     uint64 start;
     uint64 limit;
-    string value;
+    std::string value;
     ASSERT_FALSE(map->FindNext(key_, &start, &limit, &value))
         << "Found interval for: " << key_ << ". "
         << "start: " << start << ". "
@@ -267,7 +267,7 @@ const std::vector<std::shared_ptr<Command>> tests[] = {
 };
 
 TEST_P(IntervalMapTest, GenericTest) {
-  IntervalMap<string> map;
+  IntervalMap<std::string> map;
   const auto& commands = GetParam();
   for (const auto& command : commands) {
     command->ExecuteOn(&map);
