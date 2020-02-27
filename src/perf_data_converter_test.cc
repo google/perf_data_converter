@@ -32,6 +32,8 @@ using perftools::profiles::Location;
 using perftools::profiles::Mapping;
 using quipper::PerfDataProto;
 using testing::Contains;
+using testing::Eq;
+using testing::UnorderedPointwise;
 
 namespace {
 
