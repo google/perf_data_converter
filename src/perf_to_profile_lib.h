@@ -29,16 +29,16 @@ perftools::ProcessProfiles StringToProfiles(
     const std::string& data, uint32 sample_labels = perftools::kNoLabels,
     uint32 options = perftools::kNoOptions);
 
-// Creates a file at the given |path|. If |overwriteOutput| is set to true,
+// Creates a file at the given |path|. If |overwrite_output| is set to true,
 // overwrites the file at the given path.
 void CreateFile(const std::string& path, std::ofstream* file,
-                bool overwriteOutput);
+                bool overwrite_output);
 
 // Parses arguments, stores the results in |input|, |output| and
-// |overwriteOutput|, and returns true if arguments parsed successfully and
+// |overwrite_output|, and returns true if arguments parsed successfully and
 // false otherwise.
 bool ParseArguments(int argc, const char* argv[], std::string* input,
-                    std::string* output, bool* overwriteOutput);
+                    std::string* output, bool* overwrite_output);
 
 // Prints the usage of the tool.
 void PrintUsage();
