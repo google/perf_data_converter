@@ -84,20 +84,6 @@ int64 UTF8StringId(const string& s, ProfileBuilder* builder) {
   return builder->StringId(s.c_str());
 }
 
-// Returns the file name of the mapping as either the real file path if it's
-// present or the string representation of the file path MD5 checksum prefix
-// when the real file path was stripped from the data for privacy reasons.
-string MappingFilename(const PerfDataHandler::Mapping* m) {
-  if (m->filename != nullptr && !m->filename->empty()) {
-    return *m->filename;
-  } else if (m->filename_md5_prefix != 0) {
-    std::stringstream filename;
-    filename << std::hex << m->filename_md5_prefix;
-    return filename.str();
-  }
-  return "";
-}
-
 // List of profile location IDs, currently used to represent a call stack.
 typedef std::vector<uint64> LocationIdVector;
 
@@ -118,6 +104,8 @@ struct SampleKey {
   uint64 comm = 0;
   // The index of the sample's thread type in the profile's string table.
   uint64 thread_type = 0;
+  // The index of the sample's thread command in the profile's string table.
+  uint64 thread_comm = 0;
   LocationIdVector stack;
 };
 
@@ -125,7 +113,8 @@ struct SampleKeyEqualityTester {
   bool operator()(const SampleKey a, const SampleKey b) const {
     return ((a.pid == b.pid) && (a.tid == b.tid) && (a.time_ns == b.time_ns) &&
             (a.exec_mode == b.exec_mode) && (a.comm == b.comm) &&
-            (a.thread_type == b.thread_type) && (a.stack == b.stack));
+            (a.thread_type == b.thread_type) &&
+            (a.thread_comm == b.thread_comm) && (a.stack == b.stack));
   }
 };
 
@@ -138,6 +127,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<int>()(k.exec_mode);
     hash ^= std::hash<uint64>()(k.comm);
     hash ^= std::hash<uint64>()(k.thread_type);
+    hash ^= std::hash<uint64>()(k.thread_comm);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64>()(id);
     }
@@ -261,11 +251,15 @@ class PerfDataConverter : public PerfDataHandler {
   // Returns whether comm labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
   bool IncludeCommLabels() const { return (sample_labels_ & kCommLabel); }
-
   // Returns whether thread type labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
   bool IncludeThreadTypeLabels() const {
     return (sample_labels_ & kThreadTypeLabel) && !thread_types_.empty();
+  }
+  // Returns whether thread comm labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeThreadCommLabels() const {
+    return (sample_labels_ & kThreadCommLabel);
   }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
@@ -315,14 +309,10 @@ SampleKey PerfDataConverter::MakeSampleKey(
   if (IncludeExecutionModeLabels()) {
     sample_key.exec_mode = PerfExecMode(sample);
   }
-  if (IncludeCommLabels() && sample.sample.has_pid() &&
-      sample.sample.has_tid()) {
+  if (IncludeCommLabels() && sample.sample.has_pid()) {
     Pid pid = sample.sample.pid();
-    Tid tid = sample.sample.tid();
-    const string& comm = per_pid_[pid].tid_to_comm_map[tid];
-    if (!comm.empty()) {
-      sample_key.comm = UTF8StringId(comm, builder);
-    }
+    string comm = per_pid_[pid].tid_to_comm_map[pid];
+    sample_key.comm = UTF8StringId(comm, builder);
   }
   if (IncludeThreadTypeLabels() && sample.sample.has_tid()) {
     Tid tid = sample.sample.tid();
@@ -330,6 +320,13 @@ SampleKey PerfDataConverter::MakeSampleKey(
     if (it != thread_types_.end()) {
       sample_key.thread_type = UTF8StringId(it->second, builder);
     }
+  }
+  if (IncludeThreadCommLabels() && sample.sample.has_pid() &&
+      sample.sample.has_tid()) {
+    Pid pid = sample.sample.pid();
+    Tid tid = sample.sample.tid();
+    const string& comm = per_pid_[pid].tid_to_comm_map[tid];
+    sample_key.thread_comm = UTF8StringId(comm, builder);
   }
   return sample_key;
 }
@@ -501,6 +498,11 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(ThreadTypeLabelKey));
       label->set_str(sample_key.thread_type);
     }
+    if (IncludeThreadCommLabels() && sample_key.thread_comm != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(ThreadCommLabelKey));
+      label->set_str(sample_key.thread_comm);
+    }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
     for (int event_id = 0; event_id < perf_data_.file_attrs_size();
@@ -560,12 +562,12 @@ void PerfDataConverter::Comm(const CommContext& comm) {
   Pid pid = comm.comm->pid();
   Tid tid = comm.comm->tid();
   if (comm.is_exec) {
-    // If is_exec set to true, it means an exec() happened, so clear everything
+    // The is_exec bit indicates an exec() happened, so clear everything
     // from the existing pid.
     per_pid_[pid].clear();
   }
-
-  per_pid_[pid].tid_to_comm_map[tid] = comm.comm->comm();
+  per_pid_[pid].tid_to_comm_map[tid] = PerfDataHandler::NameOrMd5Prefix(
+      comm.comm->comm(), comm.comm->comm_md5_prefix());
 }
 
 // Invalidates the locations in location_map in the mmap event's range.

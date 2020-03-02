@@ -32,6 +32,8 @@ using perftools::profiles::Location;
 using perftools::profiles::Mapping;
 using quipper::PerfDataProto;
 using testing::Contains;
+using testing::Eq;
+using testing::UnorderedPointwise;
 
 namespace {
 
@@ -119,14 +121,13 @@ std::unordered_set<string> AllComments(const ProcessProfiles& pps) {
 
 namespace perftools {
 
-// Reads the content of the file at path into a string. Aborts if it is unable
-// to.
-void GetContents(const string& path, string* content) {
-  std::ifstream file(path);
-  ASSERT_EQ((file.rdstate() & std::ifstream::failbit), 0);
-  std::stringstream contents;
-  contents << file.rdbuf();
-  *content = contents.str();
+// Reads and returns the content of the file at path, or empty string on error.
+string GetContents(const string& path) {
+  std::ifstream ifs(path, std::ifstream::binary);
+  if (!ifs) return "";
+  std::stringstream ss;
+  ss << ifs.rdbuf();
+  return ss.str();
 }
 
 // Gets the string after the last '/' or returns the entire string if there are
@@ -190,9 +191,8 @@ TEST_F(PerfDataConverterTest, Converts) {
 
   for (const auto& c : cases) {
     string casename = "case " + Basename(c.filename);
-    string raw_perf_data;
-    GetContents(c.filename, &raw_perf_data);
-
+    string raw_perf_data = GetContents(c.filename);
+    ASSERT_FALSE(raw_perf_data.empty()) << c.filename;
     // Test RawPerfData input.
     auto pps = RawPerfDataToProfiles(
         reinterpret_cast<const void*>(raw_perf_data.c_str()),
@@ -234,8 +234,8 @@ TEST_F(PerfDataConverterTest, ConvertsGroupPid) {
 
   // Fetch the stdout_injected result and emit it to a profile.proto.  Group by
   // PIDs so the inner vector will have multiple entries.
-  string raw_perf_data;
-  GetContents(multiple_profile, &raw_perf_data);
+  string raw_perf_data = GetContents(multiple_profile);
+  ASSERT_FALSE(raw_perf_data.empty()) << multiple_profile;
   // Test PerfDataProto input.
   const auto perf_data_proto = ToPerfDataProto(raw_perf_data);
   const auto pps = PerfDataProtoToProfiles(
@@ -264,8 +264,8 @@ TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
       GetResource("testdata"
                   "/single-event-multi-process-single-ip.pb_proto"));
 
-  string ascii_pb;
-  GetContents(path, &ascii_pb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
 
@@ -313,8 +313,8 @@ TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
 TEST_F(PerfDataConverterTest, Injects) {
   string path = GetResource("testdata"
                             "/with-callchain.perf.data");
-  string raw_perf_data;
-  GetContents(path, &raw_perf_data);
+  string raw_perf_data = GetContents(path);
+  ASSERT_FALSE(raw_perf_data.empty()) << path;
   const string want_build_id = "abcdabcd";
   std::map<string, string> build_ids = {
       {"[kernel.kallsyms]", want_build_id}};
@@ -330,10 +330,10 @@ TEST_F(PerfDataConverterTest, Injects) {
 TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
   string path = GetResource("testdata"
                             "/perf-overlapping-kernel-mapping.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -355,10 +355,10 @@ TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
   string path = GetResource(
       "testdata"
       "/perf-cros-kernel-3_18-mapping.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -380,10 +380,10 @@ TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
   string path = GetResource(
       "testdata"
       "/perf-non-exec-comm-events.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(2, pps.size());
   const auto& profile1 = pps[0]->data;
@@ -403,10 +403,10 @@ TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
   string path = GetResource(
       "testdata"
       "/perf-include-comm-md5-prefix.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -420,16 +420,16 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   string path = GetResource(
       "testdata"
       "/perf-unmapped-callchain-ip.pb_proto");
-  string asciiPb;
-  GetContents(path, &asciiPb);
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
   for (const auto& event_proto : perf_data_proto.events()) {
     if (event_proto.has_sample_event()) {
       int callchain_depth = 1 + event_proto.sample_event().callchain_size();
       EXPECT_EQ(3, callchain_depth);
     }
   }
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(asciiPb, &perf_data_proto));
   ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
   EXPECT_EQ(1, pps.size());
   const auto& profile = pps[0]->data;
@@ -441,12 +441,61 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   EXPECT_EQ(2, profile.location_size());
 }
 
+TEST_F(PerfDataConverterTest, GroupsByComm) {
+  string path = GetResource(
+      "testdata"
+      "/perf-comm-and-task-comm.textproto");
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCommLabel | kThreadCommLabel);
+  EXPECT_EQ(2, pps.size());
+
+  const int val_idx = 0;
+  int total_samples = 0;
+  std::unordered_map<string, uint64> counts_by_comm, counts_by_thread_comm;
+  for (const auto& pp : pps) {
+    const auto& p = pp->data;
+    EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
+    for (const auto& sample : p.sample()) {
+      total_samples += sample.value(val_idx);
+      string comm, thread_comm;
+      for (const auto& label : sample.label()) {
+        if (p.string_table(label.key()) == CommLabelKey) {
+          comm = p.string_table(label.str());
+        }
+        if (p.string_table(label.key()) == ThreadCommLabelKey) {
+          thread_comm = p.string_table(label.str());
+        }
+      }
+      counts_by_comm[comm] += sample.value(val_idx);
+      counts_by_thread_comm[thread_comm] += sample.value(val_idx);
+    }
+  }
+  EXPECT_EQ(10, total_samples);
+  std::unordered_map<string, uint64> expected_comm_counts = {
+      {"pid_2", 6},
+      {"1234567812345678", 4},
+  };
+  EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_comm_counts));
+  std::unordered_map<string, uint64> expected_thread_comm_counts = {
+      {"pid_2", 1},
+      {"tid_3", 2},
+      {"0", 3},
+      {"1234567812345678", 4},
+  };
+  EXPECT_THAT(counts_by_thread_comm,
+              UnorderedPointwise(Eq(), expected_thread_comm_counts));
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource(
       "testdata"
       "/single-event-single-process.perf.data");
-  string raw_perf_data;
-  GetContents(path, &raw_perf_data);
+  string raw_perf_data = GetContents(path);
+  ASSERT_FALSE(raw_perf_data.empty()) << path;
   const string want_version = "perf-version:3.16.7-ckt20";
   const string want_command = "perf-command:/usr/bin/perf_3.16 record ./a.out";
 

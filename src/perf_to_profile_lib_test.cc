@@ -15,10 +15,10 @@ using ::testing::Eq;
 
 TEST(PerfToProfileTest, ParseArguments) {
   struct Test {
-    string desc;
+    std::string desc;
     std::vector<const char*> argv;
-    string expected_input;
-    string expected_output;
+    std::string expected_input;
+    std::string expected_output;
     bool expected_overwrite_output;
     bool want_error;
   };
@@ -65,8 +65,8 @@ TEST(PerfToProfileTest, ParseArguments) {
       .want_error = true,
   });
   for (auto test : tests) {
-    string input;
-    string output;
+    std::string input;
+    std::string output;
     bool overwrite_output;
     LOG(INFO) << "Testing: " << test.desc;
     EXPECT_THAT(ParseArguments(test.argv.size(), test.argv.data(), &input,
@@ -82,12 +82,12 @@ TEST(PerfToProfileTest, ParseArguments) {
 }
 
 // Assumes relpath does not begin with a '/'
-string GetResource(const string& relpath) {
+std::string GetResource(const std::string& relpath) {
   return "src/" + relpath;
 }
 
 TEST(PerfToProfileTest, RawPerfDataStringToProfiles) {
-  string raw_perf_data_path(
+  std::string raw_perf_data_path(
       GetResource("testdata"
                   "/multi-event-single-process.perf.data"));
   const auto profiles = StringToProfiles(ReadFileToString(raw_perf_data_path));
@@ -95,7 +95,7 @@ TEST(PerfToProfileTest, RawPerfDataStringToProfiles) {
 }
 
 TEST(PerfToProfileTest, PerfDataProtoStringToProfiles) {
-  string perf_data_proto_path(
+  std::string perf_data_proto_path(
       GetResource("testdata"
                   "/multi-event-single-process.perf_data.pb.data"));
   const auto profiles =

@@ -76,6 +76,7 @@ cc_test(
     srcs = ["perf_data_converter_test.cc"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
+        "//src/testdata:perf-comm-and-task-comm.textproto",
         "//src/testdata:perf-cros-kernel-3_18-mapping.pb_proto",
         "//src/testdata:perf-include-comm-md5-prefix.pb_proto",
         "//src/testdata:perf-non-exec-comm-events.pb_proto",
@@ -86,6 +87,7 @@ cc_test(
         "//src/testdata:single-event-single-process.perf.data",
         "//src/testdata:with-callchain.perf.data",
     ],
+    shard_count = 4,
     tags = ["client"],
     deps = [
         ":intervalmap",
