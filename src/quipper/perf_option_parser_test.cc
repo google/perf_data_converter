@@ -143,7 +143,7 @@ TEST(PerfOptionParserTest, DontAllowOtherPerfSubcommands) {
 
 // Unsafe command lines for either perf command.
 TEST(PerfOptionParserTest, Ugly) {
-  for (const string &subcmd : {"record", "stat", "mem"}) {
+  for (const std::string &subcmd : {"record", "stat", "mem"}) {
     EXPECT_FALSE(ValidatePerfCommandLine({"perf", subcmd, "rm", "-rf", "/"}));
     EXPECT_FALSE(
         ValidatePerfCommandLine({"perf", subcmd, "--", "rm", "-rf", "/"}));

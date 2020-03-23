@@ -33,10 +33,10 @@ class DataReader {
   virtual bool ReadData(const size_t size, void* dest) = 0;
 
   // Reads raw data into a string.
-  virtual bool ReadDataString(const size_t size, string* dest);
+  virtual bool ReadDataString(const size_t size, std::string* dest);
 
   // Like ReadData(), but prints an error if it doesn't read all |size| bytes.
-  virtual bool ReadDataValue(const size_t size, const string& value_name,
+  virtual bool ReadDataValue(const size_t size, const std::string& value_name,
                              void* dest);
 
   // Read integers with endian swapping.
@@ -53,13 +53,13 @@ class DataReader {
   // Read a string. Returns true if it managed to read |size| bytes (excluding
   // null terminator). The actual string may be shorter than the number of bytes
   // requested.
-  virtual bool ReadString(const size_t size, string* str) = 0;
+  virtual bool ReadString(const size_t size, std::string* str) = 0;
 
   // Reads a string from data into |dest| at the current offset. The string in
   // data is prefixed with a 32-bit size field. The size() of |*dest| after the
   // read will be the null-terminated string length of the underlying string
   // data, and not necessarily the same as the size field in the data.
-  bool ReadStringWithSizeFromData(string* dest);
+  bool ReadStringWithSizeFromData(std::string* dest);
 
   bool is_cross_endian() const { return is_cross_endian_; }
 

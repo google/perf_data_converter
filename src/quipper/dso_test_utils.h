@@ -13,11 +13,12 @@
 namespace quipper {
 namespace testing {
 
-void WriteElfWithBuildid(string filename, string section_name, string buildid);
+void WriteElfWithBuildid(std::string filename, std::string section_name,
+                         std::string buildid);
 // Note: an ELF with multiple buildid notes is unusual, but useful for testing.
 void WriteElfWithMultipleBuildids(
-    string filename,
-    const std::vector<std::pair<string, string>> section_buildids);
+    std::string filename,
+    const std::vector<std::pair<std::string, std::string>> section_buildids);
 
 }  // namespace testing
 }  // namespace quipper

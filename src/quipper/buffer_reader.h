@@ -28,7 +28,8 @@ class BufferReader : public DataReader {
   // Trailing nulls, if any, are not added to the string, but they are skipped
   // over. If there is no null terminator within these |size| bytes, then the
   // string is automatically terminated after |size| bytes.
-  bool ReadString(const size_t size, string* str) override;
+  bool ReadString(const size_t size,
+                                       std::string* str) override;
 
  private:
   // The data buffer from which to read.

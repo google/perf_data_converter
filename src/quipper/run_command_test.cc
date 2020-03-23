@@ -29,14 +29,14 @@ class RunCommandTest : public ::testing::Test {
 TEST_F(RunCommandTest, StoresStdout) {
   std::vector<char> output;
   EXPECT_EQ(0, RunCommand({"/bin/sh", "-c", "echo 'Hello, world!'"}, &output));
-  string output_str(output.begin(), output.end());
+  std::string output_str(output.begin(), output.end());
   EXPECT_EQ("Hello, world!\n", output_str);
 }
 
 TEST_F(RunCommandTest, RunsFromPath) {
   std::vector<char> output;
   EXPECT_EQ(0, RunCommand({"sh", "-c", "echo 'Hello, world!'"}, &output));
-  string output_str(output.begin(), output.end());
+  std::string output_str(output.begin(), output.end());
   EXPECT_EQ("Hello, world!\n", output_str);
 }
 

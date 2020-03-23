@@ -21,8 +21,8 @@ using PidTid = std::pair<u32, u32>;
 // A struct containing all relevant info for a mapped DSO, independent of any
 // samples.
 struct DSOInfo {
-  string name;
-  string build_id;
+  std::string name;
+  std::string build_id;
   u32 maj = 0;
   u32 min = 0;
   u64 ino = 0;
@@ -37,18 +37,18 @@ bool SameInode(const DSOInfo& dso, const struct stat* s);
 // Must be called at least once before using libelf.
 void InitializeLibelf();
 // Read buildid from an ELF file using libelf.
-bool ReadElfBuildId(const string& filename, string* buildid);
-bool ReadElfBuildId(int fd, string* buildid);
+bool ReadElfBuildId(const std::string& filename, std::string* buildid);
+bool ReadElfBuildId(int fd, std::string* buildid);
 
 // Read buildid from /sys/module/<module_name>/notes/.note.gnu.build-id
 // (Does not use libelf.)
-bool ReadModuleBuildId(const string& module_name, string* buildid);
+bool ReadModuleBuildId(const std::string& module_name, std::string* buildid);
 // Read builid from Elf note data section.
-bool ReadBuildIdNote(DataReader* data, string* buildid);
+bool ReadBuildIdNote(DataReader* data, std::string* buildid);
 
 // Is |name| match one of the things reported by the kernel that is known
 // not to be a kernel module?
-bool IsKernelNonModuleName(string name);
+bool IsKernelNonModuleName(std::string name);
 
 }  // namespace quipper
 

@@ -45,15 +45,15 @@ class PerfReader {
   // Read in contents from a protobuf. Returns true on success.
   bool Deserialize(const PerfDataProto& perf_data_proto);
 
-  bool ReadFile(const string& filename);
+  bool ReadFile(const std::string& filename);
   bool ReadFromVector(const std::vector<char>& data);
-  bool ReadFromString(const string& str);
+  bool ReadFromString(const std::string& str);
   bool ReadFromPointer(const char* data, size_t size);
   bool ReadFromData(DataReader* data);
 
-  bool WriteFile(const string& filename);
+  bool WriteFile(const std::string& filename);
   bool WriteToVector(std::vector<char>* data);
-  bool WriteToString(string* str);
+  bool WriteToString(std::string* str);
   bool WriteToPointer(char* buffer, size_t size);
 
   // Stores the mapping from filenames to build ids in build_id_events_.
@@ -62,27 +62,30 @@ class PerfReader {
   // which there is already a build_id_event in build_id_events_, a duplicate
   // build_id_event will be created, and the old build_id_event will NOT be
   // deleted.
-  bool InjectBuildIDs(const std::map<string, string>& filenames_to_build_ids);
+  bool InjectBuildIDs(
+      const std::map<std::string, std::string>& filenames_to_build_ids);
 
   // Replaces existing filenames with filenames from |build_ids_to_filenames|
   // by joining on build ids.  If a build id in |build_ids_to_filenames| is not
   // present in this parser, it is ignored.
-  bool Localize(const std::map<string, string>& build_ids_to_filenames);
+  bool Localize(
+      const std::map<std::string, std::string>& build_ids_to_filenames);
 
   // Same as Localize, but joins on filenames instead of build ids.
-  bool LocalizeUsingFilenames(const std::map<string, string>& filename_map);
+  bool LocalizeUsingFilenames(
+      const std::map<std::string, std::string>& filename_map);
 
   // Stores a list of unique filenames found in MMAP/MMAP2 events into
   // |filenames|.  Any existing data in |filenames| will be lost.
-  void GetFilenames(std::vector<string>* filenames) const;
-  void GetFilenamesAsSet(std::set<string>* filenames) const;
+  void GetFilenames(std::vector<std::string>* filenames) const;
+  void GetFilenamesAsSet(std::set<std::string>* filenames) const;
 
   // Uses build id events to populate |filenames_to_build_ids|.
   // Any existing data in |filenames_to_build_ids| will be lost.
   // Note:  A filename returned by GetFilenames need not be present in this map,
   // since there may be no build id event corresponding to the MMAP/MMAP2.
   void GetFilenamesToBuildIDs(
-      std::map<string, string>* filenames_to_build_ids) const;
+      std::map<std::string, std::string>* filenames_to_build_ids) const;
 
   // Sort all events in |proto_| by timestamps if they are available. Otherwise
   // event order is unchanged.
@@ -122,7 +125,7 @@ class PerfReader {
     return proto_->mutable_build_ids();
   }
 
-  const string& tracing_data() const {
+  const std::string& tracing_data() const {
     return proto_->tracing_data().tracing_data();
   }
 
@@ -273,7 +276,8 @@ class PerfReader {
 
   // Replaces existing filenames in MMAP/MMAP2 events based on |filename_map|.
   // This method does not change |build_id_events_|.
-  bool LocalizeMMapFilenames(const std::map<string, string>& filename_map);
+  bool LocalizeMMapFilenames(
+      const std::map<std::string, std::string>& filename_map);
 
   // Stores a PerfFileAttr in |proto_|, creates a sample info reader from
   // |attr|, and updates |serializer_|. Returns true on success. Returns false

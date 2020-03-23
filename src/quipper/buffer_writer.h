@@ -24,7 +24,7 @@ class BufferWriter : public DataWriter {
 
   bool WriteData(const void* src, const size_t size) override;
 
-  bool WriteString(const string& str, const size_t size) override;
+  bool WriteString(const std::string& str, const size_t size) override;
 
  private:
   bool CanWriteSize(size_t data_size) override;

@@ -14,7 +14,7 @@ namespace quipper {
 // Read from an input file. Must be a normal file. Does not support pipe inputs.
 class FileReader : public DataReader {
  public:
-  explicit FileReader(const string& filename);
+  explicit FileReader(const std::string& filename);
   virtual ~FileReader();
 
   bool IsOpen() const { return infile_; }
@@ -27,7 +27,8 @@ class FileReader : public DataReader {
 
   // If there is a failure reading the data from file, |*str| will not be
   // modified.
-  bool ReadString(const size_t size, string* str) override;
+  bool ReadString(const size_t size,
+                                       std::string* str) override;
 
  private:
   // File input handle.

@@ -29,11 +29,11 @@ TEST(DsoTest, ReadsBuildId) {
   InitializeLibelf();
   ScopedTempFile elf("/tmp/tempelf.");
 
-  const string expected_buildid = "\xde\xad\xf0\x0d";
+  const std::string expected_buildid = "\xde\xad\xf0\x0d";
   testing::WriteElfWithBuildid(elf.path(), ".note.gnu.build-id",
                                expected_buildid);
 
-  string buildid;
+  std::string buildid;
   EXPECT_TRUE(ReadElfBuildId(elf.path(), &buildid));
   EXPECT_EQ(expected_buildid, buildid);
 
@@ -54,7 +54,7 @@ TEST(DsoTest, ReadsBuildId_MissingBuildid) {
 
   testing::WriteElfWithMultipleBuildids(elf.path(), {/*empty*/});
 
-  string buildid;
+  std::string buildid;
   EXPECT_FALSE(ReadElfBuildId(elf.path(), &buildid));
 }
 
@@ -64,7 +64,7 @@ TEST(DsoTest, ReadsBuildId_WrongSection) {
 
   testing::WriteElfWithBuildid(elf.path(), ".unexpected-section", "blah");
 
-  string buildid;
+  std::string buildid;
   EXPECT_FALSE(ReadElfBuildId(elf.path(), &buildid));
 }
 
@@ -72,18 +72,18 @@ TEST(DsoTest, ReadsBuildId_PrefersGnuBuildid) {
   InitializeLibelf();
   ScopedTempFile elf("/tmp/tempelf.");
 
-  const string buildid_gnu = "\xde\xad\xf0\x0d";
-  const string buildid_notes = "\xc0\xde\xf0\x0d";
-  const string buildid_note = "\xfe\xed\xba\xad";
+  const std::string buildid_gnu = "\xde\xad\xf0\x0d";
+  const std::string buildid_notes = "\xc0\xde\xf0\x0d";
+  const std::string buildid_note = "\xfe\xed\xba\xad";
 
-  std::vector<std::pair<string, string>> section_buildids{
+  std::vector<std::pair<std::string, std::string>> section_buildids{
       std::make_pair(".notes", buildid_notes),
       std::make_pair(".note", buildid_note),
       std::make_pair(".note.gnu.build-id", buildid_gnu),
   };
   testing::WriteElfWithMultipleBuildids(elf.path(), section_buildids);
 
-  string buildid;
+  std::string buildid;
   EXPECT_TRUE(ReadElfBuildId(elf.path(), &buildid));
   EXPECT_EQ(buildid_gnu, buildid);
 
@@ -116,7 +116,7 @@ TEST(DsoTest, ReadsSysfsModuleBuildidNote) {
       '\x20', '\x18', '\x03', '\x5b', '\xb6', '\x4f',
   };
 
-  string data;
+  std::string data;
   data.append(reinterpret_cast<const char*>(&note_header), sizeof(note_header));
   data.append(note_name, sizeof(note_name));
   data.append(note_desc, sizeof(note_desc));
@@ -124,9 +124,9 @@ TEST(DsoTest, ReadsSysfsModuleBuildidNote) {
   ASSERT_EQ(0x24, data.size()) << "Sanity";
 
   BufferReader data_reader(data.data(), data.size());
-  string buildid;
+  std::string buildid;
   EXPECT_TRUE(ReadBuildIdNote(&data_reader, &buildid));
-  EXPECT_EQ(string(note_desc, sizeof(note_desc)), buildid);
+  EXPECT_EQ(std::string(note_desc, sizeof(note_desc)), buildid);
 }
 
 }  // namespace quipper

@@ -20,11 +20,11 @@ extern const char kProtoTextFormat[];
 // Structure to hold the format and file of an input or output.
 struct FormatAndFile {
   // The name of the file.
-  string filename;
+  std::string filename;
 
   // The format of the file. Options are "perf" for perf data files, "text" for
   // proto text files and "proto" for proto binary files.
-  string format;
+  std::string format;
 };
 
 // Convert a perf file from one format to another.

@@ -13,14 +13,14 @@
 namespace quipper {
 
 bool DataWriter::WriteDataValue(const void* src, const size_t size,
-                                const string& value_name) {
+                                const std::string& value_name) {
   if (WriteData(src, size)) return true;
   LOG(ERROR) << "Unable to write " << value_name << ". Requested " << size
              << " bytes, " << size_ - Tell() << " bytes remaining.";
   return false;
 }
 
-bool DataWriter::WriteStringWithSizeToData(const string& src) {
+bool DataWriter::WriteStringWithSizeToData(const std::string& src) {
   uint32_t len = GetUint64AlignedStringLength(src.size());
   if (!CanWriteSize(len + sizeof(len))) {
     LOG(ERROR) << "Not enough space to write string.";

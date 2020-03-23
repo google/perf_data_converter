@@ -48,7 +48,7 @@ TEST(BufferWriterTest, WriteZeroBytes) {
 
 // Write a chunk of data to the output buffer.
 TEST(BufferWriterTest, WriteSingleChunk) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   std::vector<uint8_t> output(kInputData.size());
   BufferWriter writer(output.data(), output.size());
 
@@ -57,12 +57,12 @@ TEST(BufferWriterTest, WriteSingleChunk) {
 
   // Compare input and output data, converting the latter to a string for
   // clarity of error messages.
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test the WriteDataValue() function, which is a wrapper around WriteData().
 TEST(BufferWriterTest, WriteDataValue) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   std::vector<uint8_t> output(kInputData.size());
   BufferWriter writer(output.data(), output.size());
 
@@ -70,13 +70,13 @@ TEST(BufferWriterTest, WriteDataValue) {
       writer.WriteDataValue(kInputData.data(), kInputData.size(), "data"));
   EXPECT_EQ(output.size(), writer.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Write in all data from the input buffer in multiple chunks, in order.
 TEST(BufferWriterTest, WriteMultipleChunks) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
 
   std::vector<uint8_t> output(kInputData.size());
   BufferWriter writer(output.data(), output.size());
@@ -91,13 +91,13 @@ TEST(BufferWriterTest, WriteMultipleChunks) {
   EXPECT_TRUE(writer.WriteData(kInputData.data() + writer.Tell(), 6));
   EXPECT_EQ(26, writer.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Write all data from the input buffer in multiple chunks, but not in order.
 TEST(BufferWriterTest, WriteWithJumps) {
   // This string contains four parts, each 10 characters long.
-  const string kInputData =
+  const std::string kInputData =
       "0:abcdefg;"
       "1:hijklmn;"
       "2:opqrstu;"
@@ -109,28 +109,31 @@ TEST(BufferWriterTest, WriteWithJumps) {
   writer.SeekSet(20);
   EXPECT_TRUE(writer.WriteData(kInputData.data() + 20, 10));
   EXPECT_EQ(30, writer.Tell());
-  EXPECT_EQ("2:opqrstu;", string(output.begin() + 20, output.begin() + 30));
+  EXPECT_EQ("2:opqrstu;",
+            std::string(output.begin() + 20, output.begin() + 30));
 
   writer.SeekSet(10);
   EXPECT_TRUE(writer.WriteData(kInputData.data() + 10, 10));
   EXPECT_EQ(20, writer.Tell());
-  EXPECT_EQ("1:hijklmn;", string(output.begin() + 10, output.begin() + 20));
+  EXPECT_EQ("1:hijklmn;",
+            std::string(output.begin() + 10, output.begin() + 20));
 
   writer.SeekSet(30);
   EXPECT_TRUE(writer.WriteData(kInputData.data() + 30, 10));
   EXPECT_EQ(40, writer.Tell());
-  EXPECT_EQ("3:vwxyzABC", string(output.begin() + 30, output.begin() + 40));
+  EXPECT_EQ("3:vwxyzABC",
+            std::string(output.begin() + 30, output.begin() + 40));
 
   writer.SeekSet(0);
   EXPECT_TRUE(writer.WriteData(kInputData.data(), 10));
   EXPECT_EQ(10, writer.Tell());
-  EXPECT_EQ("0:abcdefg;", string(output.begin(), output.begin() + 10));
+  EXPECT_EQ("0:abcdefg;", std::string(output.begin(), output.begin() + 10));
 }
 
 // Test writing past the end of the buffer.
 TEST(BufferWriterTest, WritePastEndOfData) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   std::vector<uint8_t> output(kInputData.size());
   BufferWriter writer(output.data(), output.size());
 
@@ -155,13 +158,13 @@ TEST(BufferWriterTest, WritePastEndOfData) {
   EXPECT_TRUE(writer.WriteData(kInputData.data() + writer.Tell(), 13));
   EXPECT_EQ(26, writer.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test string writes.
 TEST(BufferWriterTest, WriteString) {
   // Construct an input string.
-  string input("The quick brown fox jumps over the lazy dog.");
+  std::string input("The quick brown fox jumps over the lazy dog.");
 
   // Write the full string.
   std::vector<char> full_output(input.size());
@@ -170,7 +173,7 @@ TEST(BufferWriterTest, WriteString) {
   EXPECT_EQ(input.size(), full_writer.Tell());
   // There is no null pointer at the end of the output buffer, so create a
   // string out of it using the known length of the input string.
-  EXPECT_EQ(input, string(full_output.data(), input.size()));
+  EXPECT_EQ(input, std::string(full_output.data(), input.size()));
 
   // Write the full string plus the null pointer.
   std::vector<char> full_null_output(input.size() + 1);
@@ -180,7 +183,7 @@ TEST(BufferWriterTest, WriteString) {
   EXPECT_EQ(input.size() + 1, full_null_writer.Tell());
   // The null pointer should have been written. It should determine the end of
   // the string.
-  EXPECT_EQ(input, string(full_null_output.data()));
+  EXPECT_EQ(input, std::string(full_null_output.data()));
 
   // Write the first half of the string.
   std::vector<char> half_output(input.size() / 2);
@@ -190,7 +193,7 @@ TEST(BufferWriterTest, WriteString) {
   // Null terminator is not guaranteed, so use the input string size to limit
   // the output string during comparison.
   EXPECT_EQ(input.substr(0, input.size() / 2),
-            string(half_output.data(), input.size() / 2));
+            std::string(half_output.data(), input.size() / 2));
 
   // Attempt to write past the end of the buffer. Should fail.
   std::vector<char> past_end_buffer(input.size());
@@ -241,7 +244,7 @@ TEST(BufferWriterTest, NoWritingOutOfBounds) {
 // modified beyond the writable boundaries.
 TEST(BufferWriterTest, NoWritingStringOutOfBounds) {
   // Construct an input string.
-  string input("This line is forty characters long.....");
+  std::string input("This line is forty characters long.....");
 
   // A sentinel value that fills memory to detect when that section of memory is
   // overwritten. If the memory shows another value, it means it has been

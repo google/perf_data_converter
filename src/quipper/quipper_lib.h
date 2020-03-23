@@ -13,6 +13,6 @@
 // and |argv| for the below quipper CLI usage:
 //   <exe> <duration in seconds> <perf command line>
 bool ParseOldPerfArguments(int argc, const char* argv[], int* duration,
-                           std::vector<string>* perf_args);
+                           std::vector<std::string>* perf_args);
 
 #endif  // PERF_DATA_CONVERTER_SRC_QUIPPER_QUIPPER_LIB_H_

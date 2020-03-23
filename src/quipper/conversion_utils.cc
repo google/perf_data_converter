@@ -25,10 +25,10 @@ namespace {
 
 // Parse options from the format strings, set the options, and return the base
 // format. Returns the empty string if options are not recognized.
-string ParseFormatOptions(string format, PerfParserOptions* options) {
+std::string ParseFormatOptions(std::string format, PerfParserOptions* options) {
   auto dot = format.find('.');
-  if (dot != string::npos) {
-    string opt = format.substr(dot + 1);
+  if (dot != std::string::npos) {
+    std::string opt = format.substr(dot + 1);
     format = format.substr(0, dot);
     if (opt == "remap") {
       options->do_remap = true;
@@ -50,7 +50,7 @@ bool ReadInput(const FormatAndFile& input, PerfReader* reader,
                PerfParserOptions* options) {
   LOG(INFO) << "Reading input.";
 
-  string format = ParseFormatOptions(input.format, options);
+  std::string format = ParseFormatOptions(input.format, options);
   if (format == kPerfFormat) {
     return reader->ReadFile(input.filename);
   }
@@ -59,7 +59,7 @@ bool ReadInput(const FormatAndFile& input, PerfReader* reader,
     PerfDataProto perf_data_proto;
     std::vector<char> data;
     if (!FileToBuffer(input.filename, &data)) return false;
-    string text(data.begin(), data.end());
+    std::string text(data.begin(), data.end());
     if (!TextFormat::ParseFromString(text, &perf_data_proto)) return false;
 
     return reader->Deserialize(perf_data_proto);
@@ -80,7 +80,7 @@ bool WriteOutput(const FormatAndFile& output, const PerfParserOptions& options,
   PerfParser parser(reader, options);
   if (!parser.ParseRawEvents()) return false;
 
-  string output_string;
+  std::string output_string;
   if (output.format == kPerfFormat) {
     return reader->WriteFile(output.filename);
   }

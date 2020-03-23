@@ -31,17 +31,17 @@ class DataWriter {
 
   // Like WriteData(), but prints an error if it doesn't write all |size| bytes.
   virtual bool WriteDataValue(const void* src, const size_t size,
-                              const string& value_name);
+                              const std::string& value_name);
 
   // Writes a string. If the string length is smaller than |size|, it will fill
   // in the remainder of of the destination memory with zeroes. If the string is
   // longer than |size|, it will truncate the string, and will not add a null
   // terminator. Returns true iff the expected number of bytes were written.
-  virtual bool WriteString(const string& str, const size_t size) = 0;
+  virtual bool WriteString(const std::string& str, const size_t size) = 0;
 
   // Writes a string |src| to data, prefixed with a 32-bit size field. The size
   // is rounded up to the next multiple of uint64.
-  bool WriteStringWithSizeToData(const string& src);
+  bool WriteStringWithSizeToData(const std::string& src);
 
  protected:
   // Returns true if |data_size| bytes of data can be written to the current

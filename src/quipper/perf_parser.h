@@ -49,15 +49,15 @@ struct ParsedEvent {
   uint32_t num_samples_in_mmap_region;
 
   // Command associated with this sample.
-  const string* command_;
+  const std::string* command_;
 
   // Accessor for command string.
-  const string command() const {
+  const std::string command() const {
     if (command_) return *command_;
-    return string();
+    return std::string();
   }
 
-  void set_command(const string* command) { command_ = command; }
+  void set_command(const std::string* command) { command_ = command; }
 
   // A struct that contains a DSO + offset pair.
   struct DSOAndOffset {
@@ -65,13 +65,13 @@ struct ParsedEvent {
     uint64_t offset_;
 
     // Accessor methods.
-    const string dso_name() const {
+    const std::string dso_name() const {
       if (dso_info_) return dso_info_->name;
-      return string();
+      return std::string();
     }
-    const string build_id() const {
+    const std::string build_id() const {
       if (dso_info_) return dso_info_->build_id;
-      return string();
+      return std::string();
     }
     uint64_t offset() const { return offset_; }
 
@@ -264,16 +264,16 @@ class PerfParser {
   PerfParserOptions options_;
 
   // Maps pid/tid to commands.
-  std::map<PidTid, const string*> pidtid_to_comm_map_;
+  std::map<PidTid, const std::string*> pidtid_to_comm_map_;
 
   // A set to store the actual command strings.
-  std::set<string> commands_;
+  std::set<std::string> commands_;
 
   // ParseRawEvents() records some statistics here.
   PerfEventStats stats_;
 
   // A set of unique DSOs that may be referenced by multiple events.
-  std::unordered_map<string, DSOInfo> name_to_dso_;
+  std::unordered_map<std::string, DSOInfo> name_to_dso_;
 
   // Maps process ID to an address mapper for that process.
   std::unordered_map<uint32_t, std::unique_ptr<AddressMapper>> process_mappers_;
