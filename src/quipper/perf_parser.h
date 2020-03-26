@@ -163,6 +163,9 @@ struct PerfParserOptions {
   // the perf data will see  a single mapping and not two or more distinct
   // mappings.
   bool combine_mappings = true;
+  // Handle unaligned MMAP events emited by VMs that dynamically generate
+  // code objects.
+  bool allow_unaligned_jit_mappings = false;
 };
 
 class PerfParser {

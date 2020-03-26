@@ -55,15 +55,20 @@ void PrintUsage() {
   LOG(INFO) << "perf_to_profile -i <input perf data> -o <output profile> [-f]";
   LOG(INFO) << "If the -f option is given, overwrite the existing output "
             << "profile.";
+  LOG(INFO) << "If the -j option is given, allow unaligne MMAP events required"
+            << "by perf data from VMs with JITs.";
 }
 
 bool ParseArguments(int argc, const char* argv[], std::string* input,
-                    std::string* output, bool* overwrite_output) {
+                    std::string* output, bool* overwrite_output,
+                    bool* allow_unaligned_jit_mappings) {
   *input = "";
   *output = "";
   *overwrite_output = false;
+  *allow_unaligned_jit_mappings = false;
   int opt;
-  while ((opt = getopt(argc, const_cast<char* const*>(argv), ":fi:o:")) != -1) {
+  while ((opt = getopt(argc, const_cast<char* const*>(argv), ":jfi:o:")) !=
+         -1) {
     switch (opt) {
       case 'i':
         *input = optarg;
@@ -73,6 +78,9 @@ bool ParseArguments(int argc, const char* argv[], std::string* input,
         break;
       case 'f':
         *overwrite_output = true;
+        break;
+      case 'j':
+        *allow_unaligned_jit_mappings = true;
         break;
       case ':':
         LOG(ERROR) << "Must provide arguments for flags -i and -o";

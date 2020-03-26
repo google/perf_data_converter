@@ -25,9 +25,15 @@ AddressMapper::AddressMapper(const AddressMapper& other) {
 
 bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
                               const uint64_t id, const uint64_t offset_base,
-                              bool remove_existing_mappings) {
+                              bool remove_existing_mappings,
+                              bool allow_unaligned_jit_mappings) {
   if (size == 0) {
     LOG(ERROR) << "Must allocate a nonzero-length address range.";
+    return false;
+  }
+
+  if (allow_unaligned_jit_mappings && !remove_existing_mappings) {
+    LOG(ERROR) << "JIT events have to be able to overwite existing mappings.";
     return false;
   }
 
@@ -91,18 +97,21 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
 
     // If the new mapping is not aligned to a page boundary at either its start
     // or end, it will require the end of the old mapping range to be moved,
-    // which is not allowed.
-    if (page_alignment_) {
-      if ((gap_before && GetAlignedOffset(range.real_addr)) ||
-          (gap_after && GetAlignedOffset(range.real_addr + range.size))) {
+    // which is not allowed. Fake JIT events can map non-page-aligned addresses
+    // for dynamically generated code.
+    if (!allow_unaligned_jit_mappings && page_alignment_) {
+      uint64_t page_offset_start = GetAlignedOffset(range.real_addr);
+      uint64_t page_offset_end = GetAlignedOffset(range.real_addr + range.size);
+      if ((gap_before && page_offset_start) || (gap_after && page_offset_end)) {
         LOG(ERROR) << "Split mapping must result in page-aligned mappings.";
         return false;
       }
     }
 
+    // Split the existing old range and insert the new range:
     if (gap_before) {
       if (!MapWithID(old_range.real_addr, gap_before, old_range.id,
-                     old_range.offset_base, false)) {
+                     old_range.offset_base, false, false)) {
         LOG(ERROR) << "Could not map old range from " << std::hex
                    << old_range.real_addr << " to "
                    << old_range.real_addr + gap_before;
@@ -110,7 +119,8 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
       }
     }
 
-    if (!MapWithID(range.real_addr, range.size, id, offset_base, false)) {
+    if (!MapWithID(range.real_addr, range.size, id, offset_base, false,
+                   false)) {
       LOG(ERROR) << "Could not map new range at " << std::hex << range.real_addr
                  << " to " << range.real_addr + range.size << " over old range";
       return false;
@@ -118,7 +128,8 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
 
     if (gap_after) {
       if (!MapWithID(range.real_addr + range.size, gap_after, old_range.id,
-                     old_range.offset_base + gap_before + range.size, false)) {
+                     old_range.offset_base + gap_before + range.size, false,
+                     false)) {
         LOG(ERROR) << "Could not map old range from " << std::hex
                    << old_range.real_addr << " to "
                    << old_range.real_addr + gap_before;
@@ -213,10 +224,10 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
 void AddressMapper::DumpToLog() const {
   MappingList::const_iterator it;
   for (it = mappings_.begin(); it != mappings_.end(); ++it) {
-    LOG(INFO) << " real_addr: " << std::hex << it->real_addr
-              << " mapped: " << std::hex << it->mapped_addr
-              << " id: " << std::hex << it->id
-              << " size: " << std::hex << it->size;
+    LOG(INFO) << " real_addr: 0x" << std::hex << it->real_addr << " mapped: 0x"
+              << std::hex << it->mapped_addr << " base: 0x" << std::hex
+              << it->mapped_addr << " id: 0x" << std::hex << it->id
+              << " size: 0x" << std::hex << it->size;
   }
 }
 

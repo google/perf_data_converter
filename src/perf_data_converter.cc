@@ -709,6 +709,7 @@ ProcessProfiles RawPerfDataToProfiles(
   opts.sort_events_by_time = true;
   opts.deduce_huge_page_mappings = true;
   opts.combine_mappings = true;
+  opts.allow_unaligned_jit_mappings = options & kAllowUnalignedJitMappings;
   quipper::PerfParser parser(&reader, opts);
   if (!parser.ParseRawEvents()) {
     LOG(ERROR) << "Could not parse perf events.";
