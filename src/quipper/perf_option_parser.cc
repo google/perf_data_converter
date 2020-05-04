@@ -17,8 +17,8 @@ enum class OptionType {
   Value,    // Uses another argument.
 };
 
-const std::map<string, OptionType>& GetPerfRecordOptions() {
-  static const auto* kPerfRecordOptions = new std::map<string, OptionType>{
+const std::map<std::string, OptionType>& GetPerfRecordOptions() {
+  static const auto* kPerfRecordOptions = new std::map<std::string, OptionType>{
       {"-e", OptionType::Value},
       {"--event", OptionType::Value},
       {"--filter", OptionType::Value},
@@ -101,8 +101,8 @@ const std::map<string, OptionType>& GetPerfRecordOptions() {
   return *kPerfRecordOptions;
 }
 
-const std::map<string, OptionType>& GetPerfStatOptions() {
-  static const auto* kPerfStatOptions = new std::map<string, OptionType>{
+const std::map<std::string, OptionType>& GetPerfStatOptions() {
+  static const auto* kPerfStatOptions = new std::map<std::string, OptionType>{
       {"-T", OptionType::Boolean},
       {"--transaction", OptionType::Boolean},
       {"-e", OptionType::Value},
@@ -156,8 +156,8 @@ const std::map<string, OptionType>& GetPerfStatOptions() {
   return *kPerfStatOptions;
 }
 
-const std::map<string, OptionType>& GetPerfMemOptions() {
-  static const auto* kPerfMemOptions = new std::map<string, OptionType>{
+const std::map<std::string, OptionType>& GetPerfMemOptions() {
+  static const auto* kPerfMemOptions = new std::map<std::string, OptionType>{
       {"-t", OptionType::Value},   {"--type", OptionType::Value},
       {"-D", OptionType::Boolean}, {"--dump-raw-samples", OptionType::Boolean},
       {"-x", OptionType::Value},   {"--field-separator", OptionType::Value},
@@ -167,9 +167,9 @@ const std::map<string, OptionType>& GetPerfMemOptions() {
 }
 
 bool ValidatePerfCommandLineOptions(
-    std::vector<string>::const_iterator begin_arg,
-    std::vector<string>::const_iterator end_arg,
-    const std::map<string, OptionType>& options) {
+    std::vector<std::string>::const_iterator begin_arg,
+    std::vector<std::string>::const_iterator end_arg,
+    const std::map<std::string, OptionType>& options) {
   for (auto args_iter = begin_arg; args_iter != end_arg; ++args_iter) {
     const auto& it = options.find(*args_iter);
     if (it == options.end()) {
@@ -187,7 +187,7 @@ bool ValidatePerfCommandLineOptions(
 
 }  // namespace
 
-bool ValidatePerfCommandLine(const std::vector<string>& args) {
+bool ValidatePerfCommandLine(const std::vector<std::string>& args) {
   if (args.size() < 2) {
     return false;
   }

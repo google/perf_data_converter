@@ -19,9 +19,9 @@ class PerfFile : public ::testing::TestWithParam<const char*> {};
 TEST_P(PerfFile, TextOutput) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  const string output_path = output_dir.path();
+  const std::string output_path = output_dir.path();
 
-  const string test_file = GetParam();
+  const std::string test_file = GetParam();
 
   FormatAndFile input, output;
 
@@ -31,7 +31,8 @@ TEST_P(PerfFile, TextOutput) {
   output.format = kProtoTextFormat;
   EXPECT_TRUE(ConvertFile(input, output));
 
-  string golden_file = GetTestInputFilePath(string(test_file) + ".pb_text");
+  std::string golden_file =
+      GetTestInputFilePath(std::string(test_file) + ".pb_text");
   LOG(INFO) << "golden: " << golden_file;
   LOG(INFO) << "output: " << output.filename;
 

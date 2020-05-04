@@ -9,7 +9,7 @@
 
 namespace {
 
-int StringToInt(const string& s) {
+int StringToInt(const std::string& s) {
   int r = 0;
   std::stringstream ss;
   ss << s;
@@ -20,7 +20,7 @@ int StringToInt(const string& s) {
 }  // namespace
 
 bool ParseOldPerfArguments(int argc, const char* argv[], int* duration,
-                           std::vector<string>* perf_args) {
+                           std::vector<std::string>* perf_args) {
   if (argc < 3) {
     return false;
   }

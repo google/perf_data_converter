@@ -19,10 +19,10 @@ class ScopedTempPath {
   ScopedTempPath() {}
   // The temporary path will be removed when the object is destroyed.
   virtual ~ScopedTempPath();
-  const string& path() const { return path_; }
+  const std::string& path() const { return path_; }
 
  protected:
-  string path_;
+  std::string path_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ScopedTempPath);
@@ -35,7 +35,7 @@ class ScopedTempFile : public ScopedTempPath {
   ScopedTempFile();
   // A temporary file is created using mkstemp() by adding "XXXXXX" to
   // |prefix|.
-  explicit ScopedTempFile(string prefix);
+  explicit ScopedTempFile(std::string prefix);
 };
 
 class ScopedTempDir : public ScopedTempPath {
@@ -45,7 +45,7 @@ class ScopedTempDir : public ScopedTempPath {
   ScopedTempDir();
   // A temporary file is created using mkdtemp() by adding "XXXXXX" to
   // |prefix|.
-  explicit ScopedTempDir(string prefix);
+  explicit ScopedTempDir(std::string prefix);
 };
 
 }  // namespace quipper

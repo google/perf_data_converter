@@ -57,12 +57,14 @@ enum {
 };
 
 // Split a char buffer into separate lines.
-void SeparateLines(const std::vector<char>& bytes, std::vector<string>* lines) {
+void SeparateLines(const std::vector<char>& bytes,
+                   std::vector<std::string>* lines) {
   if (!bytes.empty())
-    SplitString(string(&bytes[0], bytes.size()), kNewLineDelimiter, lines);
+    SplitString(std::string(&bytes[0], bytes.size()), kNewLineDelimiter, lines);
 }
 
-bool ReadExistingProtobufText(const string& filename, string* output_string) {
+bool ReadExistingProtobufText(const std::string& filename,
+                              std::string* output_string) {
   std::vector<char> output_buffer;
   if (!quipper::FileToBuffer(filename, &output_buffer)) {
     LOG(ERROR) << "Could not open file " << filename;
@@ -74,8 +76,9 @@ bool ReadExistingProtobufText(const string& filename, string* output_string) {
 
 // Given a perf data file, return its protobuf representation as a text string
 // and/or a serialized data stream.
-bool PerfDataToProtoRepresentation(const string& filename, string* output_text,
-                                   string* output_data) {
+bool PerfDataToProtoRepresentation(const std::string& filename,
+                                   std::string* output_text,
+                                   std::string* output_data) {
   PerfDataProto perf_data_proto;
   if (!SerializeFromFile(filename, &perf_data_proto)) {
     return false;
@@ -129,13 +132,14 @@ string GetPerfPath() {
   return "/usr/bin/perf";
 }
 
-int64_t GetFileSize(const string& filename) {
+int64_t GetFileSize(const std::string& filename) {
   FileReader reader(filename);
   if (!reader.IsOpen()) return -1;
   return reader.size();
 }
 
-bool CompareFileContents(const string& filename1, const string& filename2) {
+bool CompareFileContents(const std::string& filename1,
+                         const std::string& filename2) {
   std::vector<char> file1_contents;
   std::vector<char> file2_contents;
   if (!FileToBuffer(filename1, &file1_contents) ||
@@ -146,8 +150,8 @@ bool CompareFileContents(const string& filename1, const string& filename2) {
   return file1_contents == file2_contents;
 }
 
-bool GetPerfBuildIDMap(const string& filename,
-                       std::map<string, string>* output) {
+bool GetPerfBuildIDMap(const std::string& filename,
+                       std::map<std::string, std::string>* output) {
   // Try reading from a pre-generated report.  If it doesn't exist, call perf
   // buildid-list.
   std::vector<char> buildid_list;
@@ -160,7 +164,7 @@ bool GetPerfBuildIDMap(const string& filename,
       return false;
     }
   }
-  std::vector<string> lines;
+  std::vector<std::string> lines;
   SeparateLines(buildid_list, &lines);
 
   /* The output now looks like the following:
@@ -169,11 +173,11 @@ bool GetPerfBuildIDMap(const string& filename,
      7ac2d19f88118a4970adb48a84ed897b963e3fb7 /lib64/libpthread-2.15.so
   */
   output->clear();
-  for (string line : lines) {
+  for (std::string line : lines) {
     TrimWhitespace(&line);
     size_t separator = line.find(' ');
-    string build_id = line.substr(0, separator);
-    string filename = line.substr(separator + 1);
+    std::string build_id = line.substr(0, separator);
+    std::string filename = line.substr(separator + 1);
     (*output)[filename] = build_id;
   }
 
@@ -188,9 +192,9 @@ namespace {
 const bool UseProtobufDataFormat = true;
 }  // namespace
 
-bool MaybeWriteGolden(const string& protobuf_representation,
-                      const string& golden_filename) {
-  if (string(FLAGS_new_golden_file_path).empty()) {
+bool MaybeWriteGolden(const std::string& protobuf_representation,
+                      const std::string& golden_filename) {
+  if (std::string(FLAGS_new_golden_file_path).empty()) {
     return true;
   }
   if (protobuf_representation.empty()) {
@@ -201,8 +205,8 @@ bool MaybeWriteGolden(const string& protobuf_representation,
     LOG(ERROR) << "Must provide a golden file name.";
     return false;
   }
-  string new_golden_path =
-      string(FLAGS_new_golden_file_path) + "/" + golden_filename;
+  std::string new_golden_path =
+      std::string(FLAGS_new_golden_file_path) + "/" + golden_filename;
   LOG(INFO) << "Writing new golden file: " << new_golden_path;
   if (!BufferToFile(new_golden_path, protobuf_representation)) {
     LOG(ERROR) << "Failed to write new golden file: " << new_golden_path;
@@ -211,11 +215,12 @@ bool MaybeWriteGolden(const string& protobuf_representation,
   return true;
 }
 
-bool MaybeWriteGolden(const Message& proto, const string& golden_filename) {
-  if (string(FLAGS_new_golden_file_path).empty()) {
+bool MaybeWriteGolden(const Message& proto,
+                      const std::string& golden_filename) {
+  if (std::string(FLAGS_new_golden_file_path).empty()) {
     return true;
   }
-  string protobuf_representation;
+  std::string protobuf_representation;
   if (!TextFormat::PrintToString(proto, &protobuf_representation)) {
     LOG(ERROR) << "Failed to serialize new proto to string.";
     return false;
@@ -223,22 +228,22 @@ bool MaybeWriteGolden(const Message& proto, const string& golden_filename) {
   return MaybeWriteGolden(protobuf_representation, golden_filename);
 }
 
-bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
-                                  const string& baseline_filename,
-                                  string* difference) {
-  string extension =
+bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
+                                  const std::string& baseline_filename,
+                                  std::string* difference) {
+  std::string extension =
       UseProtobufDataFormat ? kProtobufDataExtension : kProtobufTextExtension;
-  string golden_name = baseline_filename;
+  std::string golden_name = baseline_filename;
   if (baseline_filename.empty()) {
     golden_name = basename(perfdata_filepath.c_str());
   }
-  string golden_path = GetTestInputFilePath(golden_name) + extension;
+  std::string golden_path = GetTestInputFilePath(golden_name) + extension;
   if (difference != nullptr) {
     difference->clear();
   }
 
   bool matches_baseline = false;
-  string protobuf_representation, baseline;
+  std::string protobuf_representation, baseline;
   if (!ReadExistingProtobufText(golden_path, &baseline)) {
     LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
     return false;
@@ -275,9 +280,10 @@ bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
   return matches_baseline;
 }
 
-bool ComparePerfBuildIDLists(const string& file1, const string& file2) {
-  std::map<string, string> output1;
-  std::map<string, string> output2;
+bool ComparePerfBuildIDLists(const std::string& file1,
+                             const std::string& file2) {
+  std::map<std::string, std::string> output1;
+  std::map<std::string, std::string> output2;
 
   // Generate a build id list for each file.
   CHECK(GetPerfBuildIDMap(file1, &output1));

@@ -13,13 +13,19 @@
 int main(int argc, char** argv) {
   std::string input, output;
   bool overwriteOutput = false;
+  bool allowUnalignedJitMappings = false;
   if (!ParseArguments(argc, const_cast<const char**>(argv), &input, &output,
-                      &overwriteOutput)) {
+                      &overwriteOutput, &allowUnalignedJitMappings)) {
     PrintUsage();
     return EXIT_FAILURE;
   }
 
-  const auto profiles = StringToProfiles(ReadFileToString(input));
+  uint32_t options = perftools::kNoOptions;
+  if (allowUnalignedJitMappings) {
+    options |= perftools::ConversionOptions::kAllowUnalignedJitMappings;
+  }
+  std::string data = ReadFileToString(input);
+  const auto profiles = StringToProfiles(data, perftools::kNoLabels, options);
 
   // With kNoOptions, all of the PID profiles should be merged into a
   // single one.

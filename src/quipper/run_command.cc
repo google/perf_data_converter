@@ -162,7 +162,8 @@ SigintHandler* SigintHandler::g_signal_handler;
 
 }  // namespace
 
-int RunCommand(const std::vector<string>& command, std::vector<char>* output) {
+int RunCommand(const std::vector<std::string>& command,
+               std::vector<char>* output) {
   std::vector<char*> c_str_cmd;
   c_str_cmd.reserve(command.size() + 1);
   for (const auto& c : command) {

@@ -133,12 +133,12 @@ class PerfDataHandler {
                       PerfDataHandler* handler);
 
   // Returns name string if it's non empty or hex string of md5_prefix.
-  static string NameOrMd5Prefix(string name, uint64_t md5_prefix);
+  static std::string NameOrMd5Prefix(std::string name, uint64_t md5_prefix);
 
   // Returns the file name of the mapping as either the real file path if it's
   // present or the string representation of the file path MD5 checksum prefix
   // when the real file path was stripped from the data for privacy reasons.
-  static string MappingFilename(const Mapping* m);
+  static std::string MappingFilename(const Mapping* m);
 
   virtual ~PerfDataHandler() {}
 

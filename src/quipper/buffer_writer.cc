@@ -20,7 +20,7 @@ bool BufferWriter::WriteData(const void* src, const size_t size) {
   return true;
 }
 
-bool BufferWriter::WriteString(const string& str, const size_t size) {
+bool BufferWriter::WriteString(const std::string& str, const size_t size) {
   // Make sure there is enough space left in the buffer.
   size_t write_size = std::min(str.size(), size);
   if (offset_ + size > size_ || !WriteData(str.c_str(), write_size))

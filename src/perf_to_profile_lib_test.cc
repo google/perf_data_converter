@@ -20,6 +20,7 @@ TEST(PerfToProfileTest, ParseArguments) {
     std::string expected_input;
     std::string expected_output;
     bool expected_overwrite_output;
+    bool allow_unaligned_jit_mappings;
     bool want_error;
   };
 
@@ -30,52 +31,62 @@ TEST(PerfToProfileTest, ParseArguments) {
       .expected_input = "input_perf_file",
       .expected_output = "output_profile",
       .expected_overwrite_output = true,
-      .want_error = false,
-  });
+      .allow_unaligned_jit_mappings = false,
+      .want_error = false});
+  tests.push_back(
+      Test{.desc = "With input and output flags",
+           .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile"},
+           .expected_input = "input_perf_file",
+           .expected_output = "output_profile",
+           .expected_overwrite_output = false,
+           .allow_unaligned_jit_mappings = false,
+           .want_error = false});
   tests.push_back(Test{
-      .desc = "With input and output flags",
-      .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile"},
+      .desc = "With input and output flags and jit-support",
+      .argv = {"<exec>", "-j", "-i", "input_perf_file", "-o", "output_profile"},
       .expected_input = "input_perf_file",
       .expected_output = "output_profile",
       .expected_overwrite_output = false,
-      .want_error = false,
-  });
-  tests.push_back(Test{
-      .desc = "With only overwrite flag",
-      .argv = {"<exec>", "-f"},
-      .expected_input = "",
-      .expected_output = "",
-      .expected_overwrite_output = false,
-      .want_error = true,
-  });
+      .allow_unaligned_jit_mappings = true,
+      .want_error = false});
+  tests.push_back(Test{.desc = "With only overwrite flag",
+                       .argv = {"<exec>", "-f"},
+                       .expected_input = "",
+                       .expected_output = "",
+                       .expected_overwrite_output = false,
+                       .allow_unaligned_jit_mappings = false,
+                       .want_error = true});
   tests.push_back(Test{
       .desc = "With input, output, and invalid flags",
       .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile", "-F"},
       .expected_input = "",
       .expected_output = "",
       .expected_overwrite_output = false,
-      .want_error = true,
-  });
-  tests.push_back(Test{
-      .desc = "With an invalid flag",
-      .argv = {"<exec>", "-F"},
-      .expected_input = "",
-      .expected_output = "",
-      .expected_overwrite_output = false,
-      .want_error = true,
-  });
+      .allow_unaligned_jit_mappings = false,
+      .want_error = true});
+  tests.push_back(Test{.desc = "With an invalid flag",
+                       .argv = {"<exec>", "-F"},
+                       .expected_input = "",
+                       .expected_output = "",
+                       .expected_overwrite_output = false,
+                       .allow_unaligned_jit_mappings = false,
+                       .want_error = true});
   for (auto test : tests) {
     std::string input;
     std::string output;
     bool overwrite_output;
+    bool allow_unaligned_jit_mappings;
     LOG(INFO) << "Testing: " << test.desc;
-    EXPECT_THAT(ParseArguments(test.argv.size(), test.argv.data(), &input,
-                               &output, &overwrite_output),
-                Eq(!test.want_error));
+    EXPECT_THAT(
+        ParseArguments(test.argv.size(), test.argv.data(), &input, &output,
+                       &overwrite_output, &allow_unaligned_jit_mappings),
+        Eq(!test.want_error));
     if (!test.want_error) {
       EXPECT_THAT(input, Eq(test.expected_input));
       EXPECT_THAT(output, Eq(test.expected_output));
       EXPECT_THAT(overwrite_output, Eq(test.expected_overwrite_output));
+      EXPECT_THAT(allow_unaligned_jit_mappings,
+                  Eq(test.allow_unaligned_jit_mappings));
     }
     optind = 1;
   }

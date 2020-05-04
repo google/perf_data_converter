@@ -27,7 +27,7 @@ namespace {
 
 // Find a section with a name matching one in |names|. Prefer sections matching
 // names earlier in the vector.
-Elf_Scn *FindElfSection(Elf *elf, const std::vector<string> &names) {
+Elf_Scn *FindElfSection(Elf *elf, const std::vector<std::string> &names) {
   size_t shstrndx;  // section index of the section names string table.
   if (elf_getshdrstrndx(elf, &shstrndx) != 0) {
     LOG(ERROR) << "elf_getshdrstrndx" << elf_errmsg(-1);
@@ -47,7 +47,7 @@ Elf_Scn *FindElfSection(Elf *elf, const std::vector<string> &names) {
       LOG(ERROR) << "Couldn't get string: " << shdr.sh_name << " " << shstrndx;
       return nullptr;
     }
-    const string name(n);
+    const std::string name(n);
     auto found = std::find(names.begin(), names.end(), name);
     if (found < best_match) {
       if (found == names.begin()) return sec;
@@ -59,15 +59,15 @@ Elf_Scn *FindElfSection(Elf *elf, const std::vector<string> &names) {
   return best_sec;
 }
 
-bool GetBuildID(Elf *elf, string *buildid) {
+bool GetBuildID(Elf *elf, std::string *buildid) {
   Elf_Kind kind = elf_kind(elf);
   if (kind != ELF_K_ELF) {
     DLOG(ERROR) << "Not an ELF file: " << elf_errmsg(-1);
     return false;
   }
 
-  static const std::vector<string> kNoteSectionNames{".note.gnu.build-id",
-                                                     ".notes", ".note"};
+  static const std::vector<std::string> kNoteSectionNames{".note.gnu.build-id",
+                                                          ".notes", ".note"};
   Elf_Scn *section = FindElfSection(elf, kNoteSectionNames);
   if (!section) {
     DLOG(ERROR) << "No note section found";
@@ -85,8 +85,9 @@ bool GetBuildID(Elf *elf, string *buildid) {
        (next = gelf_getnote(data, off, &note_header, &name_off, &desc_off)) > 0;
        off = next) {
     // name is null-padded to a 4-byte boundary.
-    string name(buf + name_off, strnlen(buf + name_off, note_header.n_namesz));
-    string desc(buf + desc_off, note_header.n_descsz);
+    std::string name(buf + name_off,
+                     strnlen(buf + name_off, note_header.n_namesz));
+    std::string desc(buf + desc_off, note_header.n_descsz);
     if (note_header.n_type == NT_GNU_BUILD_ID && name == ELF_NOTE_GNU) {
       *buildid = desc;
       return true;
@@ -103,7 +104,7 @@ void InitializeLibelf() {
   CHECK_NE(kElfVersionNone, elf_version(EV_CURRENT)) << elf_errmsg(-1);
 }
 
-bool ReadElfBuildId(const string &filename, string *buildid) {
+bool ReadElfBuildId(const std::string &filename, std::string *buildid) {
   int fd = open(filename.c_str(), O_RDONLY);
   if (fd < 0) {
     if (errno != ENOENT) LOG(ERROR) << "Failed to open ELF file: " << filename;
@@ -114,7 +115,7 @@ bool ReadElfBuildId(const string &filename, string *buildid) {
   return ret;
 }
 
-bool ReadElfBuildId(int fd, string *buildid) {
+bool ReadElfBuildId(int fd, std::string *buildid) {
   InitializeLibelf();
 
   Elf *elf = elf_begin(fd, ELF_C_READ_MMAP, nullptr);
@@ -132,8 +133,8 @@ bool ReadElfBuildId(int fd, string *buildid) {
 }
 
 // read /sys/module/<module_name>/notes/.note.gnu.build-id
-bool ReadModuleBuildId(const string &module_name, string *buildid) {
-  string note_filename =
+bool ReadModuleBuildId(const std::string &module_name, std::string *buildid) {
+  std::string note_filename =
       "/sys/module/" + module_name + "/notes/.note.gnu.build-id";
 
   FileReader file(note_filename);
@@ -142,16 +143,16 @@ bool ReadModuleBuildId(const string &module_name, string *buildid) {
   return ReadBuildIdNote(&file, buildid);
 }
 
-bool ReadBuildIdNote(DataReader *data, string *buildid) {
+bool ReadBuildIdNote(DataReader *data, std::string *buildid) {
   GElf_Nhdr note_header;
 
   while (data->ReadData(sizeof(note_header), &note_header)) {
     size_t name_size = Align<4>(note_header.n_namesz);
     size_t desc_size = Align<4>(note_header.n_descsz);
 
-    string name;
+    std::string name;
     if (!data->ReadString(name_size, &name)) return false;
-    string desc;
+    std::string desc;
     if (!data->ReadDataString(desc_size, &desc)) return false;
     if (note_header.n_type == NT_GNU_BUILD_ID && name == ELF_NOTE_GNU) {
       *buildid = desc;
@@ -161,9 +162,9 @@ bool ReadBuildIdNote(DataReader *data, string *buildid) {
   return false;
 }
 
-bool IsKernelNonModuleName(string name) {
+bool IsKernelNonModuleName(std::string name) {
   // List from kernel: tools/perf/util/dso.c : __kmod_path__parse()
-  static const std::vector<string> kKernelNonModuleNames{
+  static const std::vector<std::string> kKernelNonModuleNames{
       "[kernel.kallsyms]",
       "[guest.kernel.kallsyms",
       "[vdso]",

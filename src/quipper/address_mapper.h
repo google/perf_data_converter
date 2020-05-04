@@ -34,16 +34,21 @@ class AddressMapper {
   // |offset_base| represents the offset within the original region at which the
   // mapping begins. The original region can be much larger than the mapped
   // region.
-  // e.g. Given a mapped region with base=0x4000 and size=0x2000 mapped with
-  // offset_base=0x10000, then the address 0x5000 maps to an offset of 0x11000
-  // (0x5000 - 0x4000 + 0x10000).
-  // |remove_existing_mappings| indicates whether to remove old mappings that
+  // e.g. Given a mapped region with base/real_addr=0x4000 and size=0x2000
+  // mapped with offset_base=0x10000, then the address 0x5000 maps to an offset
+  // of 0x11000 = (0x5000 - 0x4000 + 0x10000).
+  // |remove_existing_mappings|  indicates whether to remove old mappings that
   // collide with the new range in real address space, indicating it has been
   // unmapped.
+  // |allow_unaligned_split_mappings| indicates whether the newly mapped address
+  // originates from a dynamically created code object created by a JIT. These
+  // mapped ranges are not necessary page-aligned since they typically
+  // correspond to single small functions.
   // Returns true if mapping was successful.
   bool MapWithID(const uint64_t real_addr, const uint64_t size,
                  const uint64_t id, const uint64_t offset_base,
-                 bool remove_existing_mappings);
+                 bool remove_existing_mappings,
+                 bool allow_unaligned_jit_mappings);
 
   // Looks up |real_addr| and returns the mapped address and MappingList
   // iterator.

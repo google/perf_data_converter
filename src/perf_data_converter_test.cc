@@ -33,6 +33,8 @@ using perftools::profiles::Mapping;
 using quipper::PerfDataProto;
 using testing::Contains;
 using testing::Eq;
+using testing::HasSubstr;
+using testing::UnorderedElementsAre;
 using testing::UnorderedPointwise;
 
 namespace {
@@ -506,6 +508,36 @@ TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   std::unordered_set<string> comments = AllComments(pps);
   EXPECT_THAT(comments, Contains(want_version));
   EXPECT_THAT(comments, Contains(want_command));
+}
+
+TEST_F(PerfDataConverterTest, RemovesDummy) {
+  string path = GetResource(
+      "testdata"
+      "/perf-with-dummy.textproto");
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(3, pps.size());
+
+  for (const auto& pp : pps) {
+    std::unordered_set<string> sample_types;
+    const auto& p = pp->data;
+    int sample_type_len = p.sample_type_size();
+    for (const auto& sample : p.sample()) {
+      EXPECT_EQ(sample_type_len, sample.value_size());
+    }
+    // dummy:HG_sample and dummy:HG_event should not be present.
+    for (const auto& type : p.sample_type()) {
+      auto sample_type = p.string_table(type.type());
+      EXPECT_THAT(sample_type, Not(HasSubstr("dummy")));
+      sample_types.insert(p.string_table(type.type()));
+    }
+    EXPECT_THAT(sample_types,
+                UnorderedElementsAre("UNHALTED_CORE_CYCLES_event",
+                                     "UNHALTED_CORE_CYCLES_sample"));
+  }
 }
 
 }  // namespace perftools

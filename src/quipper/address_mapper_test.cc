@@ -9,7 +9,6 @@
 
 #include "base/logging.h"
 #include "base/macros.h"
-
 #include "compat/test.h"
 
 namespace quipper {
@@ -79,11 +78,13 @@ class AddressMapperTest : public ::testing::Test {
  protected:
   // Maps a range using the AddressMapper and makes sure that it was successful.
   // Uses all fields of |range|, including id and base_offset.
-  bool MapRange(const Range& range, bool remove_old_mappings) {
+  bool MapRange(const Range& range, bool remove_old_mappings,
+                bool allow_unaligned_jit_mappings) {
     VLOG(1) << "Mapping range at " << std::hex << range.addr
             << " with length of " << range.size << " and id " << range.id;
     return mapper_->MapWithID(range.addr, range.size, range.id,
-                              range.base_offset, remove_old_mappings);
+                              range.base_offset, remove_old_mappings,
+                              allow_unaligned_jit_mappings);
   }
 
   // Tests a range that has been mapped. |expected_mapped_addr| is the starting
@@ -126,7 +127,7 @@ class AddressMapperTest : public ::testing::Test {
 TEST_F(AddressMapperTest, MapSingle) {
   for (const Range& range : kMapRanges) {
     mapper_.reset(new AddressMapper);
-    ASSERT_TRUE(MapRange(range, false));
+    ASSERT_TRUE(MapRange(range, false, false));
     EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
     TestMappedRange(range, 0);
 
@@ -149,7 +150,7 @@ TEST_F(AddressMapperTest, MapSingle) {
 TEST_F(AddressMapperTest, MapAll) {
   uint64_t size_mapped = 0;
   for (const Range& range : kMapRanges) {
-    ASSERT_TRUE(MapRange(range, false));
+    ASSERT_TRUE(MapRange(range, false, false));
     size_mapped += range.size;
   }
   EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
@@ -188,7 +189,8 @@ TEST_F(AddressMapperTest, MapAllWithIDsAndOffsets) {
   for (const Range& range : kMapRanges) {
     LOG(INFO) << "Mapping range at " << std::hex << range.addr
               << " with length of " << std::hex << range.size;
-    ASSERT_TRUE(mapper_->MapWithID(range.addr, range.size, range.id, 0, false));
+    ASSERT_TRUE(
+        mapper_->MapWithID(range.addr, range.size, range.id, 0, false, false));
   }
   EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
 
@@ -203,7 +205,8 @@ TEST_F(AddressMapperTest, MapAllWithIDsAndOffsets) {
 // Test overlap detection.
 TEST_F(AddressMapperTest, OverlapSimple) {
   // Map all the ranges first.
-  for (const Range& range : kMapRanges) ASSERT_TRUE(MapRange(range, false));
+  for (const Range& range : kMapRanges)
+    ASSERT_TRUE(MapRange(range, false, false));
 
   // Attempt to re-map each range, but offset by size / 2.
   for (const Range& range : kMapRanges) {
@@ -211,7 +214,7 @@ TEST_F(AddressMapperTest, OverlapSimple) {
     new_range.addr = range.addr + range.size / 2;
     new_range.size = range.size;
     // The maps should fail because of overlap with an existing mapping.
-    EXPECT_FALSE(MapRange(new_range, false));
+    EXPECT_FALSE(MapRange(new_range, false, false));
   }
 
   // Re-map each range with the same offset.  Only this time, remove any old
@@ -220,7 +223,7 @@ TEST_F(AddressMapperTest, OverlapSimple) {
     Range new_range;
     new_range.addr = range.addr + range.size / 2;
     new_range.size = range.size;
-    EXPECT_TRUE(MapRange(new_range, true));
+    EXPECT_TRUE(MapRange(new_range, true, false));
     // Make sure the number of ranges is unchanged (one deleted, one added).
     EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
 
@@ -238,11 +241,12 @@ TEST_F(AddressMapperTest, OverlapBig) {
   const Range kBigRegion(0xa00, 0xff000000, 0x1234, 0);
 
   // Map all the ranges first.
-  for (const Range& range : kMapRanges) ASSERT_TRUE(MapRange(range, false));
+  for (const Range& range : kMapRanges)
+    ASSERT_TRUE(MapRange(range, false, false));
 
   // Make sure overlap is detected before removing old ranges.
-  ASSERT_FALSE(MapRange(kBigRegion, false));
-  ASSERT_TRUE(MapRange(kBigRegion, true));
+  ASSERT_FALSE(MapRange(kBigRegion, false, false));
+  ASSERT_TRUE(MapRange(kBigRegion, true, false));
   EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
 
   TestMappedRange(kBigRegion, 0);
@@ -290,7 +294,7 @@ TEST_F(AddressMapperTest, EndOfMemory) {
   // A region that extends to the end of the address space.
   const Range kEndRegion(0xffffffff00000000, 0x100000000, 0x3456, 0);
 
-  ASSERT_TRUE(MapRange(kEndRegion, true));
+  ASSERT_TRUE(MapRange(kEndRegion, true, false));
   EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
   TestMappedRange(kEndRegion, 0);
 }
@@ -301,8 +305,8 @@ TEST_F(AddressMapperTest, OutOfBounds) {
   // address space.
   const Range kOutOfBoundsRegion(0xffffffff00000000, 0x00000000, 0xccddeeff, 0);
 
-  ASSERT_FALSE(MapRange(kOutOfBoundsRegion, false));
-  ASSERT_FALSE(MapRange(kOutOfBoundsRegion, true));
+  ASSERT_FALSE(MapRange(kOutOfBoundsRegion, false, false));
+  ASSERT_FALSE(MapRange(kOutOfBoundsRegion, true, false));
   EXPECT_EQ(0, mapper_->GetNumMappedRanges());
   uint64_t mapped_addr;
   AddressMapper::MappingList::const_iterator iter;
@@ -316,7 +320,7 @@ TEST_F(AddressMapperTest, FullRange) {
   // A huge region that covers all of the available space.
   const Range kFullRegion(0, UINT64_MAX, 0xaabbccdd, 0);
 
-  ASSERT_TRUE(MapRange(kFullRegion, false));
+  ASSERT_TRUE(MapRange(kFullRegion, false, false));
   size_t num_expected_ranges = 1;
   EXPECT_EQ(num_expected_ranges, mapper_->GetNumMappedRanges());
 
@@ -325,8 +329,8 @@ TEST_F(AddressMapperTest, FullRange) {
   // Map some smaller ranges.
   for (const Range& range : kMapRanges) {
     // Check for collision first.
-    ASSERT_FALSE(MapRange(range, false));
-    ASSERT_TRUE(MapRange(range, true));
+    ASSERT_FALSE(MapRange(range, false, false));
+    ASSERT_TRUE(MapRange(range, true, false));
 
     // Make sure the number of mapped ranges has increased by two.  The mapping
     // should have split an existing range.
@@ -350,8 +354,8 @@ TEST_F(AddressMapperTest, SplitRangeWithOffsetBase) {
             kSecondRange.addr + kSecondRange.size);
 
   // Map the two ranges.
-  ASSERT_TRUE(MapRange(kFirstRange, true));
-  ASSERT_TRUE(MapRange(kSecondRange, true));
+  ASSERT_TRUE(MapRange(kFirstRange, true, false));
+  ASSERT_TRUE(MapRange(kSecondRange, true, false));
 
   // The first range should have been split into two parts to make way for the
   // second range. There should be a total of three ranges.
@@ -385,7 +389,7 @@ TEST_F(AddressMapperTest, NotPageAligned) {
 
   // Map the ranges.
   for (const Range& range : kUnalignedRanges)
-    ASSERT_TRUE(MapRange(range, true));
+    ASSERT_TRUE(MapRange(range, true, false));
 
   EXPECT_EQ(4U, mapper_->GetNumMappedRanges());
 
@@ -417,14 +421,14 @@ TEST_F(AddressMapperTest, SplitRangeWithPageAlignment) {
   const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0);
   const Range kRange1(0x5000, 0x2000, 0xfeedbabe, 0);
 
-  EXPECT_TRUE(MapRange(kRange0, true));
-  EXPECT_TRUE(MapRange(kRange1, true));
+  EXPECT_TRUE(MapRange(kRange0, true, false));
+  EXPECT_TRUE(MapRange(kRange1, true, false));
 
   EXPECT_EQ(3U, mapper_->GetNumMappedRanges());
 
   // Determine the expected split mappings.
-  const Range kRange0Head(0x3000, 0x2000, 0xdeadbeef, 0);
-  const Range kRange0Tail(0x7000, 0x4000, 0xdeadbeef, 0x4000);
+  const Range kRange0Head(0x3000, 0x2000, kRange0.id, 0);
+  const Range kRange0Tail(0x7000, 0x4000, kRange0.id, 0x4000);
 
   // Everything should be mapped and split as usual.
   TestMappedRange(kRange0Head, 0);
@@ -440,10 +444,33 @@ TEST_F(AddressMapperTest, MisalignedSplitRangeWithPageAlignment) {
   const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0);
   const Range kMisalignedRange(0x4800, 0x2000, 0xfeedbabe, 0);
 
-  EXPECT_TRUE(MapRange(kRange0, true));
+  EXPECT_TRUE(MapRange(kRange0, true, false));
   // The misaligned mapping should not find enough space to split the existing
   // range. It is not allowed to move the existing mapping.
-  EXPECT_FALSE(MapRange(kMisalignedRange, true));
+  EXPECT_FALSE(MapRange(kMisalignedRange, true, false));
+}
+
+// Have one mapping in the middle of another, with a nonzero page alignment
+// parameter. The overlapping region will not be aligned to page boundaries.
+TEST_F(AddressMapperTest, MisalignedSplitRangeWithJitSupport) {
+  mapper_->set_page_alignment(0x1000);
+
+  const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0x0);
+  const Range kJittedRange(0x4800, 0x200, 0xffffffff, 0x10000);
+
+  EXPECT_TRUE(MapRange(kRange0, true, false));
+  // With JIT support enabled, even unaligned ranges can split existing ranges.
+  EXPECT_TRUE(MapRange(kJittedRange, true, true));
+
+  EXPECT_EQ(3U, mapper_->GetNumMappedRanges());
+
+  // Everything should be mapped and split as usual.
+  const Range kRange0Head(0x3000, 0x1800, kRange0.id, 0x0);
+  const Range kRange0Tail(0x6800, 0x1200, kRange0.id, 0x3800);
+
+  TestMappedRange(kRange0Head, 0);
+  TestMappedRange(kJittedRange, 0x2800);
+  TestMappedRange(kRange0Tail, 0x5800);
 }
 
 }  // namespace quipper

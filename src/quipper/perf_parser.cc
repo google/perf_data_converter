@@ -690,8 +690,11 @@ bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id,
     // revealed when |remap| is true.
     pgoff = 0;
   }
-
-  if (!mapper->MapWithID(start, len, id, pgoff, true)) {
+  bool is_jit_event = false;
+  if (options_.allow_unaligned_jit_mappings) {
+    is_jit_event = event->filename().find("jitted-") != std::string::npos;
+  }
+  if (!mapper->MapWithID(start, len, id, pgoff, true, is_jit_event)) {
     mapper->DumpToLog();
     return false;
   }

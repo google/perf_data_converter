@@ -15,12 +15,12 @@ namespace quipper {
 
 // Reads the contents of a file into |contents|. Returns true on success, false
 // if it fails.
-bool FileToBuffer(const string& filename, std::vector<char>* contents);
+bool FileToBuffer(const std::string& filename, std::vector<char>* contents);
 
 // Writes |contents| to a file, overwriting the file if it exists. Returns true
 // on success, false if it fails.
 template <typename CharContainer>
-bool BufferToFile(const string& filename, const CharContainer& contents) {
+bool BufferToFile(const std::string& filename, const CharContainer& contents) {
   FILE* fp = fopen(filename.c_str(), "wb");
   if (!fp) return false;
   // Do not write anything if |contents| contains nothing.  fopen will create
@@ -35,7 +35,7 @@ bool BufferToFile(const string& filename, const CharContainer& contents) {
 }
 
 // Returns true iff the file exists.
-bool FileExists(const string& filename);
+bool FileExists(const std::string& filename);
 
 }  // namespace quipper
 

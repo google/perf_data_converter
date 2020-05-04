@@ -57,21 +57,21 @@ size_t GetNumBits(const T& value) {
 }
 
 // Returns the leading 64 bits of the MD5 digest of |input|.
-uint64_t Md5Prefix(const string& input);
+uint64_t Md5Prefix(const std::string& input);
 uint64_t Md5Prefix(const std::vector<char>& input);
 
 // Returns a string that represents |array| in hexadecimal.
-string RawDataToHexString(const u8* array, size_t length);
+std::string RawDataToHexString(const u8* array, size_t length);
 
 // Given raw data in |str|, returns a string that represents the binary data as
 // hexadecimal.
-string RawDataToHexString(const string& str);
+std::string RawDataToHexString(const std::string& str);
 
 // Given a string |str| containing data represented in hexadecimal, converts to
 // to raw bytes stored in |array|.  Returns true on success.  Only stores up to
 // |length| bytes - if there are more characters in the string, they are
 // ignored (but the function may still return true).
-bool HexStringToRawData(const string& str, u8* array, size_t length);
+bool HexStringToRawData(const std::string& str, u8* array, size_t length);
 
 // Round |value| up to the next |alignment|. I.e. returns the smallest multiple
 // of |alignment| less than or equal to |value|. |alignment| must be a power

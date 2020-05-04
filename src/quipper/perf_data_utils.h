@@ -71,13 +71,13 @@ bool GetStringLength(const char* str, size_t max_size, size_t* size);
 
 // Makes |build_id| fit the perf format, by either truncating it or adding
 // zeroes to the end so that it has length kBuildIDStringLength.
-void PerfizeBuildIDString(string* build_id);
+void PerfizeBuildIDString(std::string* build_id);
 
 // Changes |build_id| to the best guess of what the build id was before going
 // through perf.  Specifically, it keeps removing trailing sequences of four
 // zero bytes (or eight '0' characters) until there are no more such sequences,
 // or the build id would be empty if the process were repeated.
-void TrimZeroesFromBuildIDString(string* build_id);
+void TrimZeroesFromBuildIDString(std::string* build_id);
 
 // If |event| is not of type PERF_RECORD_SAMPLE, returns the SampleInfo field
 // within it. Otherwise returns nullptr.
@@ -92,10 +92,10 @@ uint64_t GetTimeFromPerfEvent(const PerfDataProto_PerfEvent& event);
 uint64_t GetSampleIdFromPerfEvent(const PerfDataProto_PerfEvent& event);
 
 // Returns the metadata name for the given type.
-string GetMetadataName(uint32_t type);
+std::string GetMetadataName(uint32_t type);
 
 // Returns the event name for the given type.
-string GetEventName(uint32_t type);
+std::string GetEventName(uint32_t type);
 
 // For supported event |type|, updates |size| with the event data's fixed
 // payload size and returns true. Returns false for unsupported event type.

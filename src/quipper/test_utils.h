@@ -23,29 +23,31 @@ extern const char* kSupportedMetadata[];
 // Container for all the metadata from one perf report.  The key is the metadata
 // type, as shown in |kSupportedMetadata|.  The value is a vector of all the
 // occurrences of that type.  For some types, there is only one occurrence.
-typedef std::map<string, std::vector<string> > MetadataSet;
+typedef std::map<std::string, std::vector<std::string> > MetadataSet;
 
 // Path to the perf executable.
-string GetPerfPath();
+std::string GetPerfPath();
 
 // Converts a perf data filename to the full path.
-string GetTestInputFilePath(const string& filename);
+std::string GetTestInputFilePath(const std::string& filename);
 
 // Returns the size of a file in bytes.
-int64_t GetFileSize(const string& filename);
+int64_t GetFileSize(const std::string& filename);
 
 // Returns true if the contents of the two files are the same, false otherwise.
-bool CompareFileContents(const string& filename1, const string& filename2);
+bool CompareFileContents(const std::string& filename1,
+                         const std::string& filename2);
 
 // MaybeWriteGolden writes the given golden file, which can be provided either
 // as a string protobuf representation or as a proto.
-bool MaybeWriteGolden(const string& protobuf_representation,
-                      const string& golden_filename);
-bool MaybeWriteGolden(const Message& proto, const string& golden_filename);
+bool MaybeWriteGolden(const std::string& protobuf_representation,
+                      const std::string& golden_filename);
+bool MaybeWriteGolden(const Message& proto, const std::string& golden_filename);
 
 template <typename T>
-void CompareTextProtoFiles(const string& actual, const string& expected,
-                           const string& golden_filename = "") {
+void CompareTextProtoFiles(const std::string& actual,
+                           const std::string& expected,
+                           const std::string& golden_filename = "") {
   std::vector<char> actual_contents;
   std::vector<char> expected_contents;
   ASSERT_TRUE(FileToBuffer(actual, &actual_contents));
@@ -59,7 +61,7 @@ void CompareTextProtoFiles(const string& actual, const string& expected,
   ASSERT_TRUE(TextFormat::Parse(&actual_arr, &actual_proto));
   ASSERT_TRUE(TextFormat::Parse(&expected_arr, &expected_proto));
 
-  string difference;
+  std::string difference;
   bool matches_baseline =
       EqualsProto(actual_proto, expected_proto, &difference);
   if (!matches_baseline) {
@@ -70,29 +72,31 @@ void CompareTextProtoFiles(const string& actual, const string& expected,
 
 // Given a perf data file, get the list of build ids and create a map from
 // filenames to build ids.
-bool GetPerfBuildIDMap(const string& filename,
-                       std::map<string, string>* output);
+bool GetPerfBuildIDMap(const std::string& filename,
+                       std::map<std::string, std::string>* output);
 
 // Checks the given perf.data against the golden file. Provide baseline filename
 // only for the perf.data files that have different golden filenames.
-bool CheckPerfDataAgainstBaseline(const string& perfdata_filepath,
-                                  const string& baseline_filename = "",
-                                  string* difference = nullptr);
+bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
+                                  const std::string& baseline_filename = "",
+                                  std::string* difference = nullptr);
 
 // Returns true if the perf buildid-lists are the same.
-bool ComparePerfBuildIDLists(const string& file1, const string& file2);
+bool ComparePerfBuildIDLists(const std::string& file1,
+                             const std::string& file2);
 
 // Returns options suitable for correctness tests.
 PerfParserOptions GetTestOptions();
 
 template <typename T>
-bool EqualsProto(T actual, T expected, string* difference = nullptr) {
+bool EqualsProto(T actual, T expected, std::string* difference = nullptr) {
   std::unique_ptr<MessageDifferencer> differencer(new MessageDifferencer);
   return CompareProto(std::move(differencer), actual, expected, difference);
 }
 
 template <typename T>
-bool PartiallyEqualsProto(T actual, T expected, string* difference = nullptr) {
+bool PartiallyEqualsProto(T actual, T expected,
+                          std::string* difference = nullptr) {
   std::unique_ptr<MessageDifferencer> differencer(new MessageDifferencer);
   differencer->set_scope(MessageDifferencer::PARTIAL);
   return CompareProto(std::move(differencer), actual, expected, difference);
@@ -100,7 +104,7 @@ bool PartiallyEqualsProto(T actual, T expected, string* difference = nullptr) {
 
 template <typename T>
 bool CompareProto(std::unique_ptr<MessageDifferencer> differencer, T actual,
-                  T expected, string* difference) {
+                  T expected, std::string* difference) {
   differencer->set_message_field_comparison(MessageDifferencer::EQUAL);
   if (difference != nullptr) {
     difference->clear();

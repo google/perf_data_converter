@@ -77,6 +77,9 @@ enum ConversionOptions {
   // Whether the conversion should fail if there is a detected mismatch between
   // the main mapping in the sample data vs. mapping data.
   kFailOnMainMappingMismatch = 2,
+  // Whether to support unaligned MMAP events created by VMs using the JITs
+  // which dynamically generate small code objects that are not page aligned.
+  kAllowUnalignedJitMappings = 4,
 };
 
 struct ProcessProfile {
