@@ -295,6 +295,9 @@ class PerfDataConverter : public PerfDataHandler {
   const uint32 sample_labels_;
   const uint32 options_;
   std::unordered_map<Tid, string> thread_types_;
+  // Maps the event_index in perf.data's file_attr array to the order of values
+  // output in profile.proto; -1 represents that an event shouldn't be stored.
+  std::vector<int> event_to_value_index_;
 };
 
 SampleKey PerfDataConverter::MakeSampleKey(
@@ -345,6 +348,17 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
     ProfileBuilder* builder = per_pid.builder;
     Profile* profile = builder->mutable_profile();
     int unknown_event_idx = 0;
+
+    event_to_value_index_.resize(perf_data_.file_attrs_size(), -1);
+    int counter = 0;
+    for (int i = 0; i < perf_data_.file_attrs_size(); i++) {
+      // Ignore the dummy event, which doesn't generate any samples.
+      if (perf_data_.file_attrs(i).attr().config() !=
+          quipper::PERF_COUNT_SW_DUMMY) {
+        event_to_value_index_[i] = counter++;
+      }
+    }
+
     for (int event_idx = 0; event_idx < perf_data_.file_attrs_size();
          ++event_idx) {
       // Come up with an event name for this event.  perf.data will usually
@@ -355,6 +369,10 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       if (perf_data_.file_attrs_size() == perf_data_.event_types_size()) {
         const auto& event_type = perf_data_.event_types(event_idx);
         if (event_type.has_name()) {
+          // Do not add samples for dummy events.
+          if (event_type.id() == quipper::PERF_COUNT_SW_DUMMY) {
+            continue;
+          }
           event_name = event_type.name() + "_";
         }
       }
@@ -504,12 +522,13 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(ThreadCommLabelKey));
       label->set_str(sample_key.thread_comm);
     }
-    // Two values per collected event: the first is sample counts, the second is
-    // event counts (unsampled weight for each sample).
-    for (int event_id = 0; event_id < perf_data_.file_attrs_size();
-         ++event_id) {
-      sample->add_value(0);
-      sample->add_value(0);
+    // Two values per event saved in the map: the first is sample counts, the
+    // second is event counts (unsampled weight for each sample).
+    for (const auto& value_index : event_to_value_index_) {
+      if (value_index != -1) {
+        sample->add_value(0);
+        sample->add_value(0);
+      }
     }
   }
 
@@ -526,9 +545,12 @@ void PerfDataConverter::AddOrUpdateSample(
     }
   }
   int event_index = context.file_attrs_index;
-  sample->set_value(2 * event_index, sample->value(2 * event_index) + 1);
-  sample->set_value(2 * event_index + 1,
-                    sample->value(2 * event_index + 1) + weight);
+  if (event_to_value_index_[event_index] != -1) {
+    int value_index = event_to_value_index_[event_index];
+    sample->set_value(2 * value_index, sample->value(2 * value_index) + 1);
+    sample->set_value(2 * value_index + 1,
+                      sample->value(2 * value_index + 1) + weight);
+  }
 }
 
 uint64 PerfDataConverter::AddOrGetLocation(

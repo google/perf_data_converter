@@ -82,6 +82,7 @@ cc_test(
         "//src/testdata:perf-non-exec-comm-events.pb_proto",
         "//src/testdata:perf-overlapping-kernel-mapping.pb_proto",
         "//src/testdata:perf-unmapped-callchain-ip.pb_proto",
+        "//src/testdata:perf-with-dummy.textproto",
         "//src/testdata:single-event-multi-process.perf.data",
         "//src/testdata:single-event-multi-process-single-ip.pb_proto",
         "//src/testdata:single-event-single-process.perf.data",

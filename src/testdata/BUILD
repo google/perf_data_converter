@@ -8,6 +8,7 @@ exports_files(
         "perf-overlapping-kernel-mapping.pb_proto",
         "perf-comm-and-task-comm.textproto",
         "perf-cros-kernel-3_18-mapping.pb_proto",
+        "perf-with-dummy.textproto",
         "perf-include-comm-md5-prefix.pb_proto",
         "perf-non-exec-comm-events.pb_proto",
         "perf-unmapped-callchain-ip.pb_proto",
