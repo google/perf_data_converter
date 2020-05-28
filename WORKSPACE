@@ -3,6 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
 http_archive(
      name = "com_google_googletest",
+     sha256 = "fcda881b5c49d3e299fecd0aaae188a19743c24330e947526adfc952c0ed6183",
      urls = ["https://github.com/google/googletest/archive/master.zip"],
      strip_prefix = "googletest-master",
 )
@@ -46,12 +47,14 @@ http_archive(
 
 http_archive(
     name   = "com_github_gflags_gflags",
+    sha256 = "d5e220a6f8c7d348d4cca4855a67f9046e3c5ededce73ee489fa43780ec80149",
     urls = ["https://github.com/gflags/gflags/archive/master.zip"],
     strip_prefix = "gflags-master",
 )
 
 http_archive(
     name = "com_google_re2",
+    sha256 = "ea4425b9cd4f963e142f6f95826cae3f36f4fd6daba19485b17fbee4d9021801",
     urls = ["https://github.com/google/re2/archive/master.zip"],
     strip_prefix = "re2-master",
 )
