@@ -1,0 +1,39 @@
+file_attrs: {
+  attr: {
+    type    : 0x00000000
+    size    : 0x00000060
+    config  : 0x0000000000000000
+    sample_period   : 0x0000000000000001
+    sample_type     : 0x0000000000000087
+    precise_ip      : 0x00000000
+  }
+}
+events: {
+  header: {
+    type: 0x0000000a
+    misc: 0x00000002
+  }
+  mmap_event: {
+    pid: 0x00000002
+    tid: 0x00000002
+    start      :  0x0000000000000000
+    len: 0x0000500000000000
+    pgoff      : 0x0000000000000000
+    filename   : "/usr/lib/systemd/systemd-journald"
+  }
+}
+events: {
+  header: {
+    type: 0x00000009
+    misc: 0x00000001
+  }
+  sample_event: {
+    ip    : 0x000000002a7fd3f6
+    pid   : 0x00000002
+    tid   : 0x00000002
+    callchain: 0xfffffffffffffe00
+    callchain: 0x000000002a7fd3f6
+    callchain: 0x000000002a2726e7
+  }
+}
+

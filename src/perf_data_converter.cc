@@ -295,9 +295,6 @@ class PerfDataConverter : public PerfDataHandler {
   const uint32 sample_labels_;
   const uint32 options_;
   std::unordered_map<Tid, string> thread_types_;
-  // Maps the event_index in perf.data's file_attr array to the order of values
-  // output in profile.proto; -1 represents that an event shouldn't be stored.
-  std::vector<int> event_to_value_index_;
 };
 
 SampleKey PerfDataConverter::MakeSampleKey(
@@ -348,17 +345,6 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
     ProfileBuilder* builder = per_pid.builder;
     Profile* profile = builder->mutable_profile();
     int unknown_event_idx = 0;
-
-    event_to_value_index_.resize(perf_data_.file_attrs_size(), -1);
-    int counter = 0;
-    for (int i = 0; i < perf_data_.file_attrs_size(); i++) {
-      // Ignore the dummy event, which doesn't generate any samples.
-      if (perf_data_.file_attrs(i).attr().config() !=
-          quipper::PERF_COUNT_SW_DUMMY) {
-        event_to_value_index_[i] = counter++;
-      }
-    }
-
     for (int event_idx = 0; event_idx < perf_data_.file_attrs_size();
          ++event_idx) {
       // Come up with an event name for this event.  perf.data will usually
@@ -369,10 +355,6 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       if (perf_data_.file_attrs_size() == perf_data_.event_types_size()) {
         const auto& event_type = perf_data_.event_types(event_idx);
         if (event_type.has_name()) {
-          // Do not add samples for dummy events.
-          if (event_type.id() == quipper::PERF_COUNT_SW_DUMMY) {
-            continue;
-          }
           event_name = event_type.name() + "_";
         }
       }
@@ -522,13 +504,12 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(ThreadCommLabelKey));
       label->set_str(sample_key.thread_comm);
     }
-    // Two values per event saved in the map: the first is sample counts, the
-    // second is event counts (unsampled weight for each sample).
-    for (const auto& value_index : event_to_value_index_) {
-      if (value_index != -1) {
-        sample->add_value(0);
-        sample->add_value(0);
-      }
+    // Two values per collected event: the first is sample counts, the second is
+    // event counts (unsampled weight for each sample).
+    for (int event_id = 0; event_id < perf_data_.file_attrs_size();
+         ++event_id) {
+      sample->add_value(0);
+      sample->add_value(0);
     }
   }
 
@@ -545,12 +526,9 @@ void PerfDataConverter::AddOrUpdateSample(
     }
   }
   int event_index = context.file_attrs_index;
-  if (event_to_value_index_[event_index] != -1) {
-    int value_index = event_to_value_index_[event_index];
-    sample->set_value(2 * value_index, sample->value(2 * value_index) + 1);
-    sample->set_value(2 * value_index + 1,
-                      sample->value(2 * value_index + 1) + weight);
-  }
+  sample->set_value(2 * event_index, sample->value(2 * event_index) + 1);
+  sample->set_value(2 * event_index + 1,
+                    sample->value(2 * event_index + 1) + weight);
 }
 
 uint64 PerfDataConverter::AddOrGetLocation(
@@ -637,32 +615,37 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     if (lbr_sample && frame.ip == quipper::PERF_CONTEXT_USER) {
       break;
     }
-    if (!skipped_dup && sample_key.stack.size() == 1 && frame.ip == ip) {
+
+    // These aren't real callchain entries, just hints as to kernel / user
+    // addresses.
+    if (frame.ip >= quipper::PERF_CONTEXT_MAX) {
+      continue;
+    }
+
+    // perf_events includes the IP at the leaf of the callchain. If PEBS is on,
+    // kernels built after
+    // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/x86/events/intel/ds.c?id=b8000586c90b4804902058a38d3a59ce5708e695
+    // will have the first callchain entry be the interrupted IP, while in older
+    // kernels it will be the sampled IP. If PEBS is off, the first callchain
+    // entry will be the interrupted IP. Either way, skip the first non-marker
+    // entry.
+    if (!skipped_dup && sample_key.stack.size() == 1) {
       skipped_dup = true;
-      // Newer versions of perf_events include the IP at the leaf of
-      // the callchain.
       continue;
     }
     if (frame.mapping == nullptr) {
       continue;
     }
-    uint64 frame_ip = frame.ip;
     // Why <=? Because this is a return address, which should be
     // preceded by a call (the "real" context.)  If we're at the edge
     // of the mapping, we're really off its edge.
-    if (frame_ip <= frame.mapping->start) {
-      continue;
-    }
-    // these aren't real callchain entries, just hints as to kernel/user
-    // addresses.
-    if (frame_ip >= quipper::PERF_CONTEXT_MAX) {
+    if (frame.ip <= frame.mapping->start) {
       continue;
     }
 
-    // subtract one so we point to the call instead of the return addr.
-    frame_ip--;
+    // Subtract one so we point to the call instead of the return addr.
     sample_key.stack.push_back(
-        AddOrGetLocation(event_pid, frame_ip, frame.mapping, builder));
+        AddOrGetLocation(event_pid, frame.ip - 1, frame.mapping, builder));
   }
   for (const auto& frame : sample.branch_stack) {
     // branch_stack entries are pairs of <from, to> locations corresponding to
