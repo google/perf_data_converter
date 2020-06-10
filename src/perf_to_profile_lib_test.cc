@@ -92,23 +92,20 @@ TEST(PerfToProfileTest, ParseArguments) {
   }
 }
 
-// Assumes relpath does not begin with a '/'
 std::string GetResource(const std::string& relpath) {
-  return "src/" + relpath;
+  return "src/testdata/" + relpath;
 }
 
 TEST(PerfToProfileTest, RawPerfDataStringToProfiles) {
   std::string raw_perf_data_path(
-      GetResource("testdata"
-                  "/multi-event-single-process.perf.data"));
+      GetResource("multi-event-single-process.perf.data"));
   const auto profiles = StringToProfiles(ReadFileToString(raw_perf_data_path));
   EXPECT_EQ(profiles.size(), 1);
 }
 
 TEST(PerfToProfileTest, PerfDataProtoStringToProfiles) {
   std::string perf_data_proto_path(
-      GetResource("testdata"
-                  "/multi-event-single-process.perf_data.pb.data"));
+      GetResource("multi-event-single-process.perf_data.pb.data"));
   const auto profiles =
       StringToProfiles(ReadFileToString(perf_data_proto_path));
   EXPECT_EQ(profiles.size(), 1);

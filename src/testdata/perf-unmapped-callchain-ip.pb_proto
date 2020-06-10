@@ -76,6 +76,7 @@ events: {
     tid   : 0x000001a9
     sample_time_ns: 0x000313856b16ddba
     cpu   : 0x00000001
+    callchain: 0x000000002ba56001
     callchain: 0x000000002ba56005
     callchain: 0x8000000000000001
   }
