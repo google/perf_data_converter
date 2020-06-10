@@ -372,10 +372,10 @@ TEST_P(PerfPipedDataFiles, PipedModePerfData) {
   ++seed;
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     PerfParserTest, PerfDataFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfDataFiles()));
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     PerfParserTest, PerfPipedDataFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfPipedDataFiles()));
 

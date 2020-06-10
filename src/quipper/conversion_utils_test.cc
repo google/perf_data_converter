@@ -40,7 +40,7 @@ TEST_P(PerfFile, TextOutput) {
                                        basename(output.filename.c_str()));
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     ConversionUtilsTest, PerfFile,
     ::testing::ValuesIn(perf_test_files::GetPerfDataFiles()));
 }  // namespace quipper

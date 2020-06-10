@@ -1490,12 +1490,12 @@ std::vector<const char*> AllPerfData() {
 }
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     PerfSerializerTest, SerializePerfDataFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfDataFiles()));
-INSTANTIATE_TEST_CASE_P(PerfSerializerTest, SerializeAllPerfDataFiles,
+INSTANTIATE_TEST_SUITE_P(PerfSerializerTest, SerializeAllPerfDataFiles,
                          ::testing::ValuesIn(AllPerfData()));
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     PerfSerializerTest, SerializePerfDataProtoFiles,
     ::testing::ValuesIn(perf_test_files::GetPerfDataProtoFiles()));
 }  // namespace quipper
