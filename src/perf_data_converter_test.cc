@@ -496,6 +496,21 @@ TEST_F(PerfDataConverterTest, SkipsFirstCallchainIPNonPebs) {
   EXPECT_EQ(0x2a2726e7 - 1, profile.location(1).address());
 }
 
+TEST_F(PerfDataConverterTest, IgnoresClassesJsaAsMainMapping) {
+  string ascii_pb(GetContents(GetResource("perf-java-classes-jsa.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(pps.size(), 1);
+  const auto& p = pps[0]->data;
+
+  EXPECT_EQ(p.mapping_size(), 2);
+  EXPECT_GT(p.string_table_size(), 0);
+  EXPECT_EQ(p.string_table(p.mapping(0).filename()), "/export/package/App.jar");
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource("single-event-single-process.perf.data");
   string raw_perf_data = GetContents(path);

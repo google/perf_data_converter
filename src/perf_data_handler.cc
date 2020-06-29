@@ -510,6 +510,11 @@ void Normalizer::UpdateMapsWithMMapEvent(
       !IsDeletedSharedObject(mmap->filename()) &&
       !IsVersionedSharedObject(mmap->filename()) &&
       !IsVirtualMapping(mmap->filename()) &&
+      // Java runtime shared class image ("classes.jsa") may be mapped into the
+      // program address space early. Ignore it when determining the logical
+      // name of the process since "classes.jsa" is not useful as the name.
+      // See b/152911108 for more context.
+      !HasSuffixString(mmap->filename(), "/classes.jsa") &&
       !HasPrefixString(mmap->filename(), kKernelPrefix)) {
     if (!HasPrefixString(mmap->filename(), "/usr/bin") &&
         !HasPrefixString(mmap->filename(), "/usr/sbin") &&

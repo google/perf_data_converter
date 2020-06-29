@@ -81,6 +81,7 @@ cc_test(
         "//src/testdata:perf-comm-and-task-comm.textproto",
         "//src/testdata:perf-cros-kernel-3_18-mapping.textproto",
         "//src/testdata:perf-include-comm-md5-prefix.textproto",
+        "//src/testdata:perf-java-classes-jsa.textproto",
         "//src/testdata:perf-non-exec-comm-events.textproto",
         "//src/testdata:perf-overlapping-kernel-mapping.textproto",
         "//src/testdata:perf-unmapped-callchain-ip.textproto",
@@ -89,7 +90,7 @@ cc_test(
         "//src/testdata:single-event-single-process.perf.data",
         "//src/testdata:with-callchain.perf.data",
     ],
-    shard_count = 4,
+    shard_count = 8,
     tags = ["client"],
     deps = [
         ":intervalmap",
