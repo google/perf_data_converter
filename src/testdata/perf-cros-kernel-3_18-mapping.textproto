@@ -1,3 +1,5 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
 file_attrs {
   attr {
     type: 0
@@ -52,9 +54,9 @@ events {
   mmap_event {
     pid: 100
     tid: 100
-    start: 0
-    len: 18446744073709551615
-    pgoff: 4000
+    start: 0xffffffff8bc001c8
+    len: 0x0000000034402e38
+    pgoff: 0xffffffff8bc001c8
     filename: "[kernel.kallsyms]_text"
   }
 }
@@ -67,9 +69,9 @@ events {
   mmap_event {
     pid: 100
     tid: 100
-    start: 1000
-    len: 1000
-    pgoff: 0
+    start: 0x3e8
+    len: 0x3e8
+    pgoff: 0x000
     filename: "/bin/ls"
   }
 }
@@ -80,7 +82,7 @@ events {
     size: 56
   }
   sample_event {
-    ip: 5000
+    ip: 0xffffffff8bc002c8
     pid: 100
     tid: 100
     sample_time_ns: 100000000000
@@ -96,7 +98,7 @@ events {
     size: 56
   }
   sample_event {
-    ip: 1500
+    ip: 0x5dc
     pid: 100
     tid: 100
     sample_time_ns: 100000000010
@@ -112,7 +114,7 @@ events {
     size: 56
   }
   sample_event {
-    ip: 500
+    ip: 0x1f4
     pid: 100
     tid: 100
     sample_time_ns: 100000000020

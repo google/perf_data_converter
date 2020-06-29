@@ -1,3 +1,5 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
 file_attrs: {
   attr: {
     type: 0
