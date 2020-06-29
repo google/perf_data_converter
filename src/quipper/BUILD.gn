@@ -65,7 +65,6 @@ static_library("common") {
   libs = [
     "elf",
     "gflags",
-    "re2",
   ]
   deps = [
     ":perf_data_proto",
