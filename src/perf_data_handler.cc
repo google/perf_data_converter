@@ -516,10 +516,16 @@ void Normalizer::UpdateMapsWithMMapEvent(
       // See b/152911108 for more context.
       !HasSuffixString(mmap->filename(), "/classes.jsa") &&
       !HasPrefixString(mmap->filename(), kKernelPrefix)) {
-    if (!HasPrefixString(mmap->filename(), "/usr/bin") &&
-        !HasPrefixString(mmap->filename(), "/usr/sbin") &&
-        !HasSuffixString(mmap->filename(), "/sel_ldr")) {
-      LOG(INFO) << "guessing main for pid: " << pid << " " << mmap->filename();
+    if (!HasPrefixString(mmap->filename(), "/usr/bin/") &&
+        !HasPrefixString(mmap->filename(), "/usr/sbin/") &&
+        !HasPrefixString(mmap->filename(), "/bin/") &&
+        !HasPrefixString(mmap->filename(), "/sbin/") &&
+        !HasPrefixString(mmap->filename(), "/usr/local/bin/") &&
+        !HasPrefixString(mmap->filename(), "/usr/local/sbin/") &&
+        !HasPrefixString(mmap->filename(), "/usr/libexec/") &&
+        !HasSuffixString(mmap->filename(), "/sel_ldr/")) {
+      LOG(INFO) << "Guessing main mapping for PID=" << pid << " "
+                << mmap->filename();
     }
     pid_to_executable_mmap_[pid] = mapping;
     return;
