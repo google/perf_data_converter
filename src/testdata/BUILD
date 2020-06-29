@@ -4,7 +4,6 @@ licenses(["notice"])  # BSD
 
 exports_files(
     [
-        "LICENSE",
         "perf-overlapping-kernel-mapping.pb_proto",
         "perf-comm-and-task-comm.textproto",
         "perf-cros-kernel-3_18-mapping.pb_proto",
