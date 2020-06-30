@@ -1817,13 +1817,13 @@ events {
   header {
     type: 3
     misc: 0
-    size: 48
+    size: 56
   }
   comm_event {
     pid: 5644
     tid: 5644
-    comm: "418244077874547"
-    comm_md5_prefix: 34177195656094620
+    comm: "4182440778745474060"
+    comm_md5_prefix: 11870201850547931912
     sample_info {
       pid: 0
       tid: 0
@@ -3079,13 +3079,13 @@ events {
   header {
     type: 3
     misc: 0
-    size: 48
+    size: 56
   }
   comm_event {
     pid: 5644
     tid: 5644
-    comm: "177280276620730"
-    comm_md5_prefix: 7735936232737492733
+    comm: "17728027662073043058"
+    comm_md5_prefix: 3605130843776423125
     sample_info {
       pid: 5644
       tid: 5644
