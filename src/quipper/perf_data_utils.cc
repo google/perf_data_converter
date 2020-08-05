@@ -10,6 +10,7 @@
 #include "base/logging.h"
 #include "compat/proto.h"
 #include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
 namespace quipper {
 
 namespace {
@@ -447,12 +448,12 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
 
       // Even though the comm sizes from the thread map entries are not
       // required, calculate them to validate null termination within
-      // |kMaxCommSize|.
+      // |kMaxThreadCommSize|.
       for (u64 i = 0; i < event.thread_map.nr; ++i) {
         size_t comm_size = 0;
-        if (!GetUint64AlignedStringLength(event.thread_map.entries[i].comm,
-                                          kMaxCommSize, "thread_map.entry.comm",
-                                          &comm_size)) {
+        if (!GetUint64AlignedStringLength(
+                event.thread_map.entries[i].comm, kMaxThreadCommSize,
+                "thread_map.entry.comm", &comm_size)) {
           return false;
         }
       }

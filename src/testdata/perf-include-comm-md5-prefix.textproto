@@ -1,0 +1,101 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0x00000000
+    size: 0x00000060
+    config: 0x0000000000000000
+    sample_period: 0x00000000000f4243
+    sample_type: 0x0000000000000087
+    read_format: 0x0000000000000000
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0x00000000
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0x00000000
+    bp_type: 0x00000000
+    bp_addr: 0x0000000000000000
+    bp_len: 0x0000000000000000
+    branch_sample_type: 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user: 0x00000000
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+}
+events: {
+  header: {
+    type: 0x00000007
+    misc: 0x00000000
+  }
+  fork_event: {
+    pid: 0x0000003c
+    ppid: 0x00000002
+    tid: 0x0000003c
+    ptid: 0x00000002
+    fork_time_ns: 0x0000000000000000
+    sample_info: {
+      pid: 0x00000000
+      tid: 0x00000000
+      sample_time_ns: 0x0000000000000000
+      cpu: 0x00000000
+    }
+  }
+  timestamp: 0x0000000000000000
+}
+events: {
+  header: {
+    type: 0x00000003
+    misc: 0x00000000
+  }
+  comm_event: {
+    pid: 0x0000003c
+    tid: 0x0000003c
+    comm_md5_prefix: 0xb8c090b480e340b7
+    sample_info: {
+      pid: 0x00000000
+      tid: 0x00000000
+      sample_time_ns: 0x0000000000000000
+      cpu: 0x00000000
+    }
+  }
+  timestamp: 0x0000000000000000
+}
+events: {
+  header: {
+    type: 0x00000009
+    misc: 0x00000001
+  }
+  sample_event: {
+    ip: 0x00000000005bd43c
+    pid: 0x0000003c
+    tid: 0x0000003c
+    sample_time_ns: 0x00003abf8b30e183
+    cpu: 0x00000001
+  }
+  timestamp: 0x00003abf8b30e183
+}
+timestamp_sec: 0x000000005d8a55d9
+metadata_mask: 0x0000000000113dfc

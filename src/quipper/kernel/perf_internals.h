@@ -111,7 +111,11 @@ struct mmap2_event {
   char filename[PATH_MAX];
 };
 
-const u16 kMaxCommSize = 16;
+// The max size is 16 for comm name in Linux perf. However, to support comm name
+// from Android simpleperf that is longer than 16, the max size is increased.
+// We still cap the max size of comm name in thread_map_event at 16 characters.
+const u16 kMaxCommSize = PATH_MAX;
+const u16 kMaxThreadCommSize = 16;
 
 struct comm_event {
   struct perf_event_header header;
@@ -425,7 +429,7 @@ struct context_switch_event {
 
 struct thread_map_event_entry {
   u64 pid;
-  char comm[kMaxCommSize];
+  char comm[kMaxThreadCommSize];
 };
 
 struct thread_map_event {

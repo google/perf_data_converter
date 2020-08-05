@@ -1040,13 +1040,13 @@ events {
   header {
     type: 3
     misc: 0
-    size: 56
+    size: 64
   }
   comm_event {
     pid: 6288
     tid: 6288
-    comm: "418244077874547"
-    comm_md5_prefix: 34177195656094620
+    comm: "4182440778745474060"
+    comm_md5_prefix: 11870201850547931912
     sample_info {
       pid: 0
       tid: 0
@@ -1068,13 +1068,13 @@ events {
   header {
     type: 3
     misc: 8192
-    size: 56
+    size: 64
   }
   comm_event {
     pid: 6288
     tid: 6288
-    comm: "146775465757492"
-    comm_md5_prefix: 15671392160032608659
+    comm: "14677546575749228893"
+    comm_md5_prefix: 2263106985543373251
     sample_info {
       pid: 6288
       tid: 6288
@@ -3662,13 +3662,13 @@ events {
   header {
     type: 3
     misc: 0
-    size: 56
+    size: 64
   }
   comm_event {
     pid: 6288
     tid: 6288
-    comm: "146775465757492"
-    comm_md5_prefix: 15671392160032608659
+    comm: "14677546575749228893"
+    comm_md5_prefix: 2263106985543373251
     sample_info {
       pid: 6288
       tid: 6288

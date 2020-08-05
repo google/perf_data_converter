@@ -1,0 +1,128 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0
+    size: 0x00000060
+    config: 0
+    sample_period: 1000003
+    sample_type: 0x0000000000000087
+    read_format: 0
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+  ids: 1
+}
+# MMap events. The "classes.jsa" ones comes first but should be ignored.
+events {
+  header {
+    type: 1
+    misc: 1
+  }
+  mmap_event {
+    pid: 100
+    tid: 100
+    start: 1000
+    len: 1000
+    pgoff: 0
+    filename: "/usr/local/java/lib/server/classes.jsa"
+  }
+}
+events {
+  header {
+    type: 1
+    misc: 1
+  }
+  mmap_event {
+    pid: 100
+    tid: 100
+    start: 2000
+    len: 1000
+    pgoff: 0
+    filename: "/export/package/App.jar"
+  }
+}
+# Sample events.
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 1001
+    pid: 100
+    tid: 100
+    sample_time_ns: 100
+    cpu: 1
+    id: 1
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 2001
+    pid: 100
+    tid: 100
+    sample_time_ns: 100
+    cpu: 1
+    id: 1
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 2001
+    pid: 100
+    tid: 100
+    sample_time_ns: 100
+    cpu: 1
+    id: 1
+  }
+  timestamp: 100
+}
+metadata_mask: 0x0000000000113dfc
+event_types {
+  id: 0
+  name: "cycles"
+}

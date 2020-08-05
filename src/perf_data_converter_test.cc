@@ -250,7 +250,7 @@ TEST_F(PerfDataConverterTest, ConvertsGroupPid) {
 }
 
 TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
-  string path(GetResource("single-event-multi-process-single-ip.pb_proto"));
+  string path(GetResource("single-event-multi-process-single-ip.textproto"));
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -314,7 +314,7 @@ TEST_F(PerfDataConverterTest, Injects) {
 }
 
 TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
-  string path = GetResource("perf-overlapping-kernel-mapping.pb_proto");
+  string path = GetResource("perf-overlapping-kernel-mapping.textproto");
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -337,7 +337,7 @@ TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
 }
 
 TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
-  string path = GetResource("perf-cros-kernel-3_18-mapping.pb_proto");
+  string path = GetResource("perf-cros-kernel-3_18-mapping.textproto");
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -360,7 +360,7 @@ TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
 }
 
 TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
-  string path = GetResource("perf-non-exec-comm-events.pb_proto");
+  string path = GetResource("perf-non-exec-comm-events.textproto");
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -381,7 +381,7 @@ TEST_F(PerfDataConverterTest, HandlesNonExecCommEvents) {
 }
 
 TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
-  string path = GetResource("perf-include-comm-md5-prefix.pb_proto");
+  string path = GetResource("perf-include-comm-md5-prefix.textproto");
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -396,7 +396,7 @@ TEST_F(PerfDataConverterTest, HandlesIncludingCommMd5Prefix) {
 }
 
 TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
-  string path = GetResource("perf-unmapped-callchain-ip.pb_proto");
+  string path = GetResource("perf-unmapped-callchain-ip.textproto");
   string ascii_pb = GetContents(path);
   ASSERT_FALSE(ascii_pb.empty()) << path;
   PerfDataProto perf_data_proto;
@@ -466,7 +466,7 @@ TEST_F(PerfDataConverterTest, GroupsByComm) {
 }
 
 TEST_F(PerfDataConverterTest, SkipsFirstCallchainIPPebs) {
-  string ascii_pb(GetContents(GetResource("perf-callchain-pebs.pb_proto")));
+  string ascii_pb(GetContents(GetResource("perf-callchain-pebs.textproto")));
   ASSERT_FALSE(ascii_pb.empty());
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
@@ -481,7 +481,8 @@ TEST_F(PerfDataConverterTest, SkipsFirstCallchainIPPebs) {
 }
 
 TEST_F(PerfDataConverterTest, SkipsFirstCallchainIPNonPebs) {
-  string ascii_pb(GetContents(GetResource("perf-callchain-non-pebs.pb_proto")));
+  string ascii_pb(
+      GetContents(GetResource("perf-callchain-non-pebs.textproto")));
   ASSERT_FALSE(ascii_pb.empty());
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
@@ -493,6 +494,21 @@ TEST_F(PerfDataConverterTest, SkipsFirstCallchainIPNonPebs) {
   EXPECT_EQ(2, profile.location_size());
   EXPECT_EQ(0x2a7fd3f6, profile.location(0).address());
   EXPECT_EQ(0x2a2726e7 - 1, profile.location(1).address());
+}
+
+TEST_F(PerfDataConverterTest, IgnoresClassesJsaAsMainMapping) {
+  string ascii_pb(GetContents(GetResource("perf-java-classes-jsa.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(pps.size(), 1);
+  const auto& p = pps[0]->data;
+
+  EXPECT_EQ(p.mapping_size(), 2);
+  EXPECT_GT(p.string_table_size(), 0);
+  EXPECT_EQ(p.string_table(p.mapping(0).filename()), "/export/package/App.jar");
 }
 
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {

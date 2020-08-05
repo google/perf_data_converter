@@ -478,15 +478,15 @@ TEST_P(HugepageTextStyleDependent, DisjointAnonMmapBeforeHugePageText) {
                                  "len:0x401000 pgoff: 0 filename: 'file'}"}));
 }
 
-INSTANTIATE_TEST_CASE_P(NoHugepageText, HugepageTextStyleDependent,
+INSTANTIATE_TEST_SUITE_P(NoHugepageText, HugepageTextStyleDependent,
                          ::testing::Values(kNoHugepageText));
-INSTANTIATE_TEST_CASE_P(SlashSlashAnon, HugepageTextStyleDependent,
+INSTANTIATE_TEST_SUITE_P(SlashSlashAnon, HugepageTextStyleDependent,
                          ::testing::Values(kSlashSlashAnon));
-INSTANTIATE_TEST_CASE_P(AnonHugepage, HugepageTextStyleDependent,
+INSTANTIATE_TEST_SUITE_P(AnonHugepage, HugepageTextStyleDependent,
                          ::testing::Values(kAnonHugepage));
-INSTANTIATE_TEST_CASE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
+INSTANTIATE_TEST_SUITE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
                          ::testing::Values(kAnonHugepageDeleted));
-INSTANTIATE_TEST_CASE_P(MemFdHugepageText, HugepageTextStyleDependent,
+INSTANTIATE_TEST_SUITE_P(MemFdHugepageText, HugepageTextStyleDependent,
                          ::testing::Values(kMemFdHugePageText));
 
 TEST(HugePageDeducer, DoesNotChangeVirtuallyContiguousPgoffNonContiguous) {
