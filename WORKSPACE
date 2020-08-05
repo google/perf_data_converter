@@ -45,9 +45,12 @@ http_archive(
 )
 
 http_archive(
+    # TODO(b/162945467): Use master once gflags is fixed for gcc-4.8.
+    # This would otherwise fail as there's a missing <string.h> inclusion.
     name   = "com_github_gflags_gflags",
-    urls = ["https://github.com/gflags/gflags/archive/master.zip"],
-    strip_prefix = "gflags-master",
+    sha256 = "19713a36c9f32b33df59d1c79b4958434cb005b5b47dc5400a7a4b078111d9b5",
+    urls = ["https://github.com/gflags/gflags/archive/v2.2.2.zip"],
+    strip_prefix = "gflags-2.2.2",
 )
 
 http_archive(
