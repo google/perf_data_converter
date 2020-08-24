@@ -21,6 +21,7 @@ cc_library(
     deps = [
         "//src:profile_cc_proto",
         "//src/quipper:base",
+        "//src/quipper:base:port",
     ],
 )
 
