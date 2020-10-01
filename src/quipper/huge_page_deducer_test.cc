@@ -489,6 +489,33 @@ INSTANTIATE_TEST_SUITE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
 INSTANTIATE_TEST_SUITE_P(MemFdHugepageText, HugepageTextStyleDependent,
                          ::testing::Values(kMemFdHugePageText));
 
+TEST(HugePageDeducer, MemfsRandomSufix) {
+  RepeatedPtrField<PerfEvent> events;
+
+  AddMmapWithoutPid(
+      2097152, 69206016, 0,
+      "/foo.buildid_c45ff2c1f18928fdd3b79e56ddd15a8f.iWhFLe (deleted)",
+      &events);
+  AddMmapWithoutPid(
+      71303168, 4194304, 69206016,
+      "/foo.buildid_c45ff2c1f18928fdd3b79e56ddd15a8f.I4gGvd (deleted)",
+      &events);
+  AddMmapWithoutPid(75497472, 49078272, 73400320,
+                    "/tempfile-nonet5-2293-8851-cec47724674-5b09f37381545",
+                    &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(
+      events,
+      Pointwise(Partially(EqualsProto()),
+                {
+                    "mmap_event: { pgoff: 0 filename: "
+                    "'/tempfile-nonet5-2293-8851-cec47724674-5b09f37381545' }",
+                }));
+}
+
 TEST(HugePageDeducer, DoesNotChangeVirtuallyContiguousPgoffNonContiguous) {
   // We've seen programs with strange memory layouts having virtually contiguous
   // memory backed by non-contiguous bits of a file.
