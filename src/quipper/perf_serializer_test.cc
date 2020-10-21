@@ -13,11 +13,11 @@
 
 #include "base/logging.h"
 #include "base/macros.h"
-
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
+#include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "perf_protobuf_io.h"

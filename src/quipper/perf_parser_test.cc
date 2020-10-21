@@ -18,11 +18,11 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "compat/string.h"
 #include "compat/test.h"
 #include "compat/thread.h"
 #include "dso_test_utils.h"
+#include "perf_buildid.h"
 #include "perf_data_utils.h"
 #include "perf_reader.h"
 #include "perf_serializer.h"

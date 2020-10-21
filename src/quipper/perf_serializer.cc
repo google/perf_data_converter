@@ -11,11 +11,11 @@
 #include <algorithm>  // for std::copy
 
 #include "base/logging.h"
-
 #include "binary_data_utils.h"
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "kernel/perf_event.h"
+#include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "perf_parser.h"

@@ -149,6 +149,7 @@ cc_library(
     deps = [
         ":binary_data_utils",
         ":compat",
+        ":perf_buildid",
         ":perf_data_utils",
         ":sample_info_reader",
         ":base",
@@ -208,6 +209,7 @@ cc_library(
         ":file_reader",
         ":file_utils",
         ":kernel",
+        ":perf_buildid",
         ":perf_data_utils",
         ":perf_serializer",
         ":sample_info_reader",
@@ -329,6 +331,16 @@ cc_binary(
     deps = [
         ":compat",
         ":conversion_utils",
+    ],
+)
+
+cc_library(
+    name = "perf_buildid",
+    srcs = ["perf_buildid.cc"],
+    hdrs = ["perf_buildid.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":base",
     ],
 )
 
@@ -588,6 +600,15 @@ cc_test(
         ":perf_option_parser",
         ":test_runner",
         ":test_utils",
+    ],
+)
+
+cc_test(
+    name = "perf_buildid_test",
+    srcs = ["perf_buildid_test.cc"],
+    deps = [
+        ":perf_buildid",
+        ":test_runner",
     ],
 )
 

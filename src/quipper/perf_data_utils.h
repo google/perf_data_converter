@@ -18,10 +18,6 @@ namespace quipper {
 class PerfDataProto_PerfEvent;
 class PerfDataProto_SampleInfo;
 
-// Based on kernel/perf_internals.h
-const size_t kBuildIDArraySize = 20;
-const size_t kBuildIDStringLength = kBuildIDArraySize * 2;
-
 // Used by malloced_unique_ptr.
 struct FreeDeleter {
   inline void operator()(void* pointer) { free(pointer); }
@@ -68,16 +64,6 @@ inline size_t GetUint64AlignedStringLength(size_t size) {
 // Gets the given |str| length using strnlen. Returns true when the |str| is
 // null-terminated before the max_size. Otherwise, returns false.
 bool GetStringLength(const char* str, size_t max_size, size_t* size);
-
-// Makes |build_id| fit the perf format, by either truncating it or adding
-// zeroes to the end so that it has length kBuildIDStringLength.
-void PerfizeBuildIDString(std::string* build_id);
-
-// Changes |build_id| to the best guess of what the build id was before going
-// through perf.  Specifically, it keeps removing trailing sequences of four
-// zero bytes (or eight '0' characters) until there are no more such sequences,
-// or the build id would be empty if the process were repeated.
-void TrimZeroesFromBuildIDString(std::string* build_id);
 
 // If |event| is not of type PERF_RECORD_SAMPLE, returns the SampleInfo field
 // within it. Otherwise returns nullptr.

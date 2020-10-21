@@ -78,25 +78,6 @@ bool GetStringLength(const char* str, size_t max_size, size_t* size) {
   return true;
 }
 
-void PerfizeBuildIDString(string* build_id) {
-  build_id->resize(kBuildIDStringLength, '0');
-}
-
-void TrimZeroesFromBuildIDString(string* build_id) {
-  const size_t kPaddingSize = 8;
-  const string kBuildIDPadding = string(kPaddingSize, '0');
-
-  // Remove kBuildIDPadding from the end of build_id until we cannot remove any
-  // more. The build ID string can be reduced down to an empty string. This
-  // could happen if the file did not have a build ID but was given a build ID
-  // of all zeroes. The empty build ID string would reflect the original lack of
-  // build ID.
-  while (build_id->size() >= kPaddingSize &&
-         build_id->substr(build_id->size() - kPaddingSize) == kBuildIDPadding) {
-    build_id->resize(build_id->size() - kPaddingSize);
-  }
-}
-
 const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
     const PerfDataProto_PerfEvent& event) {
   switch (event.header().type()) {

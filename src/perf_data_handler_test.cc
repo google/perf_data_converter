@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/perf_data_handler.h"
+
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -12,10 +14,9 @@
 #include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
 #include "src/path_matching.h"
-#include "src/perf_data_handler.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/kernel/perf_event.h"
-#include "src/quipper/perf_data_utils.h"
+#include "src/quipper/perf_buildid.h"
 
 using BranchStackEntry = quipper::PerfDataProto::BranchStackEntry;
 
