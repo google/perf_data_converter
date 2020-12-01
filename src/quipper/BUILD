@@ -340,6 +340,7 @@ cc_library(
     hdrs = ["perf_buildid.h"],
     visibility = ["//visibility:public"],
     deps = [
+        ":compat",
         ":base",
     ],
 )
