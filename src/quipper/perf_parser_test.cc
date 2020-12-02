@@ -18,11 +18,11 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "compat/string.h"
 #include "compat/test.h"
 #include "compat/thread.h"
 #include "dso_test_utils.h"
+#include "perf_buildid.h"
 #include "perf_data_utils.h"
 #include "perf_reader.h"
 #include "perf_serializer.h"
@@ -295,10 +295,13 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data, "", &difference))
       << difference;
 
-  // Remapping again should produce the same addresses.
+  // Remapping again should produce the same addresses. Disable mappings
+  // combining on second remapping, because the first remapping step made all
+  // mapping ranges contiguous.
   LOG(INFO) << "Reading in remapped data: " << remapped_perf_data;
   PerfReader remap_reader;
   ASSERT_TRUE(remap_reader.ReadFile(remapped_perf_data));
+  options.combine_mappings = false;
 
   PerfParser remap_parser(&remap_reader, options);
   ASSERT_TRUE(remap_parser.ParseRawEvents());

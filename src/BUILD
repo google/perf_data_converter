@@ -66,7 +66,7 @@ cc_test(
         "//src/compat:test_compat",
         "//src/quipper:binary_data_utils",
         "//src/quipper:kernel",
-        "//src/quipper:perf_data_utils",
+        "//src/quipper:perf_buildid",
     ],
 )
 

@@ -21,7 +21,7 @@ group("all") {
 
 pkg_config("target_defaults_pkgs") {
   pkg_deps = [
-    "libchrome-${libbase_ver}",
+    "libchrome",
     "openssl",
     "protobuf",
   ]

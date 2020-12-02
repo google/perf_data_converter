@@ -74,10 +74,8 @@ bool PerfParser::ParseRawEvents() {
       DeduceHugePages(reader_->mutable_events());
   }
 
-  // Combine split mappings.  Because the remapping process makes addresses
-  // contiguous, we cannot try to combine mappings in these situations (as we
-  // collapse maps that were non-contiguous).
-  if (options_.combine_mappings && !options_.do_remap) {
+  // Combine split mappings.
+  if (options_.combine_mappings) {
     CombineMappings(reader_->mutable_events());
   }
 

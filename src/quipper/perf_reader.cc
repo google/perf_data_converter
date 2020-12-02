@@ -14,7 +14,6 @@
 
 #include "base/logging.h"
 #include "base/macros.h"
-
 #include "binary_data_utils.h"
 #include "buffer_reader.h"
 #include "buffer_writer.h"
@@ -22,6 +21,7 @@
 #include "file_reader.h"
 #include "file_utils.h"
 #include "kernel/perf_internals.h"
+#include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "sample_info_reader.h"

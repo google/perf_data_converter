@@ -359,12 +359,19 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
 
     // Don't use IsEquivalentFile(); we don't want to combine //anon with
     // files if DeduceHugepages didn't already fix up the mappings.
-    should_merge = should_merge && prev_mmap->filename() == mmap->filename() &&
+    //
+    // TODO(b/169891636):  For hugetlbfs-backed files, We should verify that the
+    // build IDs match as well.
+    should_merge = should_merge && IsEquivalentFile(*prev_mmap, *mmap) &&
                    IsFileContiguous(*prev_mmap, *mmap) &&
                    IsVmaContiguous(*prev_mmap, *mmap);
     if (should_merge) {
       // Combine the lengths of the two mappings.
       prev_mmap->set_len(prev_mmap->len() + mmap->len());
+
+      if (IsHugePage(*prev_mmap) && !IsHugePage(*mmap)) {
+        prev_mmap->set_filename(mmap->filename());
+      }
     } else {
       // Remember the last mmap event for a PID.
       if (mmap != nullptr) {
