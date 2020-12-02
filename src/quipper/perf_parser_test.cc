@@ -403,7 +403,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   testing::ExampleMmapEvent(1001, 0x1c3000, 0x2000, 0x2000, "/usr/lib/bar.so",
                             testing::SampleInfo().Tid(1001))
       .WriteTo(&input);  // 1
-  // becomes: 0x1000, 0x2000, 0
+  // becomes: 0x1000, 0x2000, 0x2000
 
   // PERF_RECORD_MMAP2
   testing::ExampleMmap2Event(1002, 0x2c1000, 0x2000, 0, "/usr/lib/baz.so",
@@ -413,7 +413,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   testing::ExampleMmap2Event(1002, 0x2c3000, 0x1000, 0x3000, "/usr/lib/xyz.so",
                              testing::SampleInfo().Tid(1002))
       .WriteTo(&input);  // 3
-  // becomes: 0x1000, 0x1000, 0
+  // becomes: 0x1000, 0x1000, 0x3000
 
   // PERF_RECORD_SAMPLE
   testing::ExamplePerfSampleEvent(
@@ -445,6 +445,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   testing::ExampleMmap2Event(1002, 0x2c4000, 0x1000, 0, "/usr/lib/new.so",
                              testing::SampleInfo().Tid(1002))
       .WriteTo(&input);  // 12
+  // becomes: 0x2000, 0x1000, 0
   testing::ExamplePerfSampleEvent(
       testing::SampleInfo().Ip(0x00000000002c400b).Tid(1002))
       .WriteTo(&input);  // 13
@@ -465,6 +466,8 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   EXPECT_EQ(5, parser.stats().num_mmap_events);
   EXPECT_EQ(9, parser.stats().num_sample_events);
   EXPECT_EQ(6, parser.stats().num_sample_events_mapped);
+  EXPECT_EQ(0, parser.stats().num_data_sample_events);
+  EXPECT_EQ(0, parser.stats().num_data_sample_events_mapped);
 
   const std::vector<ParsedEvent> &events = parser.parsed_events();
   ASSERT_EQ(14, events.size());
@@ -542,6 +545,224 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   EXPECT_EQ("/usr/lib/new.so", events[13].dso_and_offset.dso_name());
   EXPECT_EQ(0xb, events[13].dso_and_offset.offset());
   EXPECT_EQ(0x300b, events[13].event_ptr->sample_event().ip());
+}
+
+TEST(PerfParserTest, MapsSampleEventAddr) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(
+      PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_ADDR,
+      true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent(1001, 0x1c1000, 0x1000, 0, "/usr/lib/foo.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 0
+  // becomes: 0x0000, 0x1000, 0
+  testing::ExampleMmapEvent(1001, 0x1c3000, 0x2000, 0x2000, "/usr/lib/bar.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 1
+  // becomes: 0x1000, 0x2000, 0x2000
+  testing::ExampleMmapEvent(1001, 0x1c6000, 0x1000, 0x4000, "/usr/lib/bar.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 2
+  // becomes: 0x3000, 0x1000, 0x4000
+
+  // PERF_RECORD_MMAP2
+  testing::ExampleMmap2Event(1002, 0x2c1000, 0x2000, 0, "/usr/lib/baz.so",
+                             testing::SampleInfo().Tid(1002))
+      .WriteTo(&input);  // 3
+  // becomes: 0x0000, 0x2000, 0
+  testing::ExampleMmap2Event(1002, 0x2c4000, 0x2000, 0x2000, "/usr/lib/baz.so",
+                             testing::SampleInfo().Tid(1002))
+      .WriteTo(&input);  // 4
+  // becomes: 0x2000, 0x2000, 0x2000
+  testing::ExampleMmap2Event(1002, 0x2d1000, 0x1000, 0x3000, "/usr/lib/xyz.so",
+                             testing::SampleInfo().Tid(1002))
+      .WriteTo(&input);  // 5
+  // becomes: 0x4000, 0x1000, 0x3000
+
+  // PERF_RECORD_SAMPLE
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000001c1000)
+                                      .Tid(1001)
+                                      .Addr(0x00000000001c6100))
+      .WriteTo(&input);  // 6
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000001c3fff)
+                                      .Tid(1001)
+                                      .Addr(0x00000000001c6820))
+      .WriteTo(&input);  // 7
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000001c3b00)
+                                      .Tid(1001)
+                                      .Addr(0x00000000001c7bad))
+      .WriteTo(&input);  // 8 (addr not mapped)
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000002c100a)
+                                      .Tid(1002)
+                                      .Addr(0x00000000002c4100))
+      .WriteTo(&input);  // 9
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000002c2800)
+                                      .Tid(1002)
+                                      .Addr(0x00000000002c6bad))
+      .WriteTo(&input);  // 10 (addr not mapped)
+  // Zero data addresses are not counted as samples with data.
+  testing::ExamplePerfSampleEvent(
+      testing::SampleInfo().Ip(0x00000000002d100b).Tid(1002).Addr(0))
+      .WriteTo(&input);  // 11
+
+  // not mapped yet:
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000002d1200)
+                                      .Tid(1002)
+                                      .Addr(0x00000000002d3300))
+      .WriteTo(&input);  // 12
+  testing::ExampleMmap2Event(1002, 0x2d3000, 0x1000, 0x4000, "/usr/lib/xyz.so",
+                             testing::SampleInfo().Tid(1002))
+      .WriteTo(&input);  // 13
+  // becomes: 0x5000, 0x1000, 0x4000
+  testing::ExamplePerfSampleEvent(testing::SampleInfo()
+                                      .Ip(0x00000000002d1200)
+                                      .Tid(1002)
+                                      .Addr(0x00000000002d3300))
+      .WriteTo(&input);  // 14
+
+  //
+  // Parse input.
+  //
+
+  PerfReader reader;
+  EXPECT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  EXPECT_EQ(7, parser.stats().num_mmap_events);
+  EXPECT_EQ(8, parser.stats().num_sample_events);
+  EXPECT_EQ(8, parser.stats().num_sample_events_mapped);
+  EXPECT_EQ(7, parser.stats().num_data_sample_events);
+  EXPECT_EQ(4, parser.stats().num_data_sample_events_mapped);
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(15, events.size());
+
+  // MMAPs
+
+  EXPECT_EQ(PERF_RECORD_MMAP, events[0].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/foo.so", events[0].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x0000, events[0].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x1000, events[0].event_ptr->mmap_event().len());
+  EXPECT_EQ(0, events[0].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP, events[1].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[1].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x1000, events[1].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x2000, events[1].event_ptr->mmap_event().len());
+  EXPECT_EQ(0x2000, events[1].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP, events[2].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[2].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x3000, events[2].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x1000, events[2].event_ptr->mmap_event().len());
+  EXPECT_EQ(0x4000, events[2].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP2, events[3].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/baz.so", events[3].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x0000, events[3].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x2000, events[3].event_ptr->mmap_event().len());
+  EXPECT_EQ(0, events[3].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP2, events[4].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/baz.so", events[4].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x2000, events[4].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x2000, events[4].event_ptr->mmap_event().len());
+  EXPECT_EQ(0x2000, events[4].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP2, events[5].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/xyz.so", events[5].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x4000, events[5].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x1000, events[5].event_ptr->mmap_event().len());
+  EXPECT_EQ(0x3000, events[5].event_ptr->mmap_event().pgoff());
+
+  // SAMPLEs
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[6].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/foo.so", events[6].dso_and_offset.dso_name());
+  EXPECT_EQ(0x0, events[6].dso_and_offset.offset());
+  EXPECT_EQ(0x0, events[6].event_ptr->sample_event().ip());
+  EXPECT_EQ("/usr/lib/bar.so", events[6].data_dso_and_offset.dso_name());
+  EXPECT_EQ(0x4100, events[6].data_dso_and_offset.offset());
+  EXPECT_EQ(0x3100, events[6].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[7].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[7].dso_and_offset.dso_name());
+  EXPECT_EQ(0x2fff, events[7].dso_and_offset.offset());
+  EXPECT_EQ(0x1fff, events[7].event_ptr->sample_event().ip());
+  EXPECT_EQ("/usr/lib/bar.so", events[7].data_dso_and_offset.dso_name());
+  EXPECT_EQ(0x4820, events[7].data_dso_and_offset.offset());
+  EXPECT_EQ(0x3820, events[7].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[8].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[8].dso_and_offset.dso_name());
+  EXPECT_EQ(0x2b00, events[8].dso_and_offset.offset());
+  EXPECT_EQ(0x1b00, events[8].event_ptr->sample_event().ip());
+  // addr field not mapped.
+  EXPECT_EQ(0x1c7bad, events[8].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[9].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/baz.so", events[9].dso_and_offset.dso_name());
+  EXPECT_EQ(0xa, events[9].dso_and_offset.offset());
+  EXPECT_EQ(0xa, events[9].event_ptr->sample_event().ip());
+  EXPECT_EQ("/usr/lib/baz.so", events[9].data_dso_and_offset.dso_name());
+  EXPECT_EQ(0x2100, events[9].data_dso_and_offset.offset());
+  EXPECT_EQ(0x2100, events[9].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[10].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/baz.so", events[10].dso_and_offset.dso_name());
+  EXPECT_EQ(0x1800, events[10].dso_and_offset.offset());
+  EXPECT_EQ(0x1800, events[10].event_ptr->sample_event().ip());
+  // addr field not mapped.
+  EXPECT_EQ(0x2c6bad, events[10].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[11].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/xyz.so", events[11].dso_and_offset.dso_name());
+  EXPECT_EQ(0x300b, events[11].dso_and_offset.offset());
+  EXPECT_EQ(0x400b, events[11].event_ptr->sample_event().ip());
+  EXPECT_EQ(0, events[11].event_ptr->sample_event().addr());
+
+  // not mapped yet:
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[12].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/xyz.so", events[12].dso_and_offset.dso_name());
+  EXPECT_EQ(0x3200, events[12].dso_and_offset.offset());
+  EXPECT_EQ(0x4200, events[12].event_ptr->sample_event().ip());
+  EXPECT_EQ(0x2d3300, events[12].event_ptr->sample_event().addr());
+
+  EXPECT_EQ(PERF_RECORD_MMAP2, events[13].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/xyz.so", events[13].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x5000, events[13].event_ptr->mmap_event().start());
+  EXPECT_EQ(0x1000, events[13].event_ptr->mmap_event().len());
+  EXPECT_EQ(0x4000, events[13].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[14].event_ptr->header().type());
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[14].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/xyz.so", events[14].dso_and_offset.dso_name());
+  EXPECT_EQ(0x3200, events[14].dso_and_offset.offset());
+  EXPECT_EQ(0x4200, events[14].event_ptr->sample_event().ip());
+  EXPECT_EQ("/usr/lib/xyz.so", events[14].data_dso_and_offset.dso_name());
+  EXPECT_EQ(0x4300, events[14].data_dso_and_offset.offset());
+  EXPECT_EQ(0x5300, events[14].event_ptr->sample_event().addr());
 }
 
 TEST(PerfParserTest, ContextSwitchEvents) {

@@ -182,7 +182,7 @@ bool PerfParser::ProcessEvents() {
         // previously-endian-swapped location. This used to log ip.
         VLOG(1) << "SAMPLE";
         ++stats_.num_sample_events;
-        if (MapSampleEvent(&parsed_event)) ++stats_.num_sample_events_mapped;
+        MapSampleEvent(&parsed_event);
         break;
       case PERF_RECORD_MMAP:
       case PERF_RECORD_MMAP2: {
@@ -269,7 +269,10 @@ bool PerfParser::ProcessEvents() {
             << stats_.num_fork_events << " FORK events, "
             << stats_.num_exit_events << " EXIT events, "
             << stats_.num_sample_events << " SAMPLE events, "
-            << stats_.num_sample_events_mapped << " of these were mapped";
+            << stats_.num_sample_events_mapped << " of these were mapped, "
+            << stats_.num_data_sample_events
+            << " SAMPLE events with a data address, "
+            << stats_.num_data_sample_events_mapped << " of these were mapped";
   // clang-format on
 
   if (stats_.num_sample_events == 0) {
@@ -428,15 +431,10 @@ void PerfParser::UpdatePerfEventsFromParsedEvents() {
   reader_->mutable_events()->Swap(&new_events);
 }
 
-bool PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
-  bool mapping_failed = false;
-
+void PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
   const PerfEvent& event = *parsed_event->event_ptr;
-  if (!event.has_sample_event() ||
-      !(event.sample_event().has_ip() && event.sample_event().has_pid() &&
-        event.sample_event().has_tid())) {
-    return false;
-  }
+  if (!event.has_sample_event()) return;
+
   SampleEvent& sample_info = *parsed_event->event_ptr->mutable_sample_event();
 
   // Find the associated command.
@@ -448,28 +446,42 @@ bool PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
   const uint64_t unmapped_event_ip = sample_info.ip();
   uint64_t remapped_event_ip = 0;
 
+  bool mapping_ok = true;
   // Map the event IP itself.
   if (!MapIPAndPidAndGetNameAndOffset(sample_info.ip(), pidtid,
                                       &remapped_event_ip,
                                       &parsed_event->dso_and_offset)) {
-    mapping_failed = true;
+    mapping_ok = false;
   } else {
     sample_info.set_ip(remapped_event_ip);
+  }
+
+  if (sample_info.has_addr() && sample_info.addr() != 0) {
+    ++stats_.num_data_sample_events;
+    uint64_t remapped_addr = 0;
+    if (MapIPAndPidAndGetNameAndOffset(sample_info.addr(), pidtid,
+                                       &remapped_addr,
+                                       &parsed_event->data_dso_and_offset)) {
+      ++stats_.num_data_sample_events_mapped;
+      sample_info.set_addr(remapped_addr);
+    }
   }
 
   if (sample_info.callchain_size() &&
       !MapCallchain(sample_info.ip(), pidtid, unmapped_event_ip,
                     sample_info.mutable_callchain(), parsed_event)) {
-    mapping_failed = true;
+    mapping_ok = false;
   }
 
   if (sample_info.branch_stack_size() &&
       !MapBranchStack(pidtid, sample_info.mutable_branch_stack(),
                       parsed_event)) {
-    mapping_failed = true;
+    mapping_ok = false;
   }
 
-  return !mapping_failed;
+  if (mapping_ok) {
+    ++stats_.num_sample_events_mapped;
+  }
 }
 
 bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
@@ -481,14 +493,13 @@ bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
     return false;
   }
 
-  bool mapping_failed = false;
-
   // If the callchain is empty, there is no work to do.
   if (callchain->empty()) return true;
 
   // Keeps track of whether the current entry is kernel or user.
   parsed_event->callchain.resize(callchain->size());
   int num_entries_mapped = 0;
+  bool mapping_ok = true;
   for (int i = 0; i < callchain->size(); ++i) {
     uint64_t entry = callchain->Get(i);
     // When a callchain context entry is found, do not attempt to symbolize it.
@@ -504,7 +515,7 @@ bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
     if (!MapIPAndPidAndGetNameAndOffset(
             entry, pidtid, &mapped_addr,
             &parsed_event->callchain[num_entries_mapped++])) {
-      mapping_failed = true;
+      mapping_ok = false;
       // During the remapping process, callchain ips that are not mapped to the
       // quipper space will have their original addresses passed on, based on an
       // earlier logic. This would sometimes lead to incorrect assignment of
@@ -528,7 +539,7 @@ bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
   // remove unused entries at the end.
   parsed_event->callchain.resize(num_entries_mapped);
 
-  return !mapping_failed;
+  return mapping_ok;
 }
 
 bool PerfParser::MapBranchStack(

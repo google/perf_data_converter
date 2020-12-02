@@ -274,6 +274,7 @@ class SampleInfo {
     return AddField(PunU32U64{.v32 = {pid, pid}}.v64);
   }
   SampleInfo& Time(u64 time) { return AddField(time); }
+  SampleInfo& Addr(u64 addr) { return AddField(addr); }
   SampleInfo& Id(u64 id) { return AddField(id); }
   SampleInfo& BranchStack_nr(u64 nr) { return AddField(nr); }
   SampleInfo& BranchStack_lbr(u64 from, u64 to, u64 flags) {
