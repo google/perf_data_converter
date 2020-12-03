@@ -52,6 +52,7 @@ cc_library(
         "intervalmap.h",
     ],
     deps = [
+        "//src/quipper:base",
         "//src/compat:int_compat",
     ],
 )

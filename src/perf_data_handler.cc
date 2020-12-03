@@ -302,10 +302,7 @@ void Normalizer::Normalize() {
 
 void Normalizer::InvokeHandleSample(
     const quipper::PerfDataProto::PerfEvent& event_proto) {
-  if (!event_proto.has_sample_event()) {
-    std::cerr << "Expected sample event." << std::endl;
-    abort();
-  }
+  CHECK(event_proto.has_sample_event());
   const auto& sample = event_proto.sample_event();
   PerfDataHandler::SampleContext context(event_proto.header(),
                                          event_proto.sample_event());
@@ -578,13 +575,8 @@ const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
     VLOG(2) << "no sample mmap found for pid " << pid << " and ip " << ip;
     return nullptr;
   }
-  if (ip < mapping->start || ip >= mapping->limit) {
-    std::cerr << "IP is not in mapping." << std::endl
-              << "IP: " << ip << std::endl
-              << "Start: " << mapping->start << std::endl
-              << "Limit: " << mapping->limit << std::endl;
-    abort();
-  }
+  CHECK_GE(ip, mapping->start);
+  CHECK_LT(ip, mapping->limit);
   return mapping;
 }
 

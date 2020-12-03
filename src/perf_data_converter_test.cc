@@ -13,7 +13,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
@@ -47,11 +46,7 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
     const auto& profile = pp->data;
     std::unordered_map<uint64, const Location*> locations;
     perftools::IntervalMap<const Mapping*> mappings;
-    if (profile.mapping_size() <= 0) {
-      std::cerr << "Invalid mapping size: " << profile.mapping_size()
-                << std::endl;
-      abort();
-    }
+    CHECK_GT(profile.mapping_size(), 0);
     const Mapping& main = profile.mapping(0);
     for (const auto& mapping : profile.mapping()) {
       mappings.Set(mapping.memory_start(), mapping.memory_limit(), &mapping);
@@ -63,21 +58,14 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
       const auto& sample = profile.sample(i);
       for (int id_index = 0; id_index < sample.location_id_size(); ++id_index) {
         uint64 id = sample.location_id(id_index);
-        if (!locations[id]) {
-          std::cerr << "No location for id: " << id << std::endl;
-          abort();
-        }
-
+        CHECK(locations[id] != nullptr);
         std::stringstream key_stream;
         key_stream << profile.string_table(main.filename()) << ":"
                    << profile.string_table(main.build_id());
         if (locations[id]->mapping_id() != 0) {
           const Mapping* dso;
           uint64 addr = locations[id]->address();
-          if (!mappings.Lookup(addr, &dso)) {
-            std::cerr << "no mapping for id: " << std::hex << addr << std::endl;
-            abort();
-          }
+          CHECK(mappings.Lookup(addr, &dso));
           key_stream << "+" << profile.string_table(dso->filename()) << ":"
                      << profile.string_table(dso->build_id()) << std::hex
                      << (addr - dso->memory_start());
