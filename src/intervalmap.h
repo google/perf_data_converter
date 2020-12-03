@@ -9,11 +9,11 @@
 #define PERFTOOLS_INTERVALMAP_H_
 
 #include <cstdlib>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <sstream>
 
+#include "src/quipper/base/logging.h"
 #include "src/compat/int_compat.h"
 
 namespace perftools {
@@ -56,9 +56,6 @@ class IntervalMap {
 
   using MapIter = typename std::map<uint64, Value>::iterator;
   using ConstMapIter = typename std::map<uint64, Value>::const_iterator;
-
-  // For an interval to be valid, start must be strictly less than limit.
-  void AssertValidInterval(uint64 start, uint64 limit) const;
 
   // Returns an iterator pointing to the interval containing the given key, or
   // end() if one was not found.
@@ -112,7 +109,7 @@ IntervalMap<V>::IntervalMap() {}
 
 template <class V>
 void IntervalMap<V>::Set(uint64 start, uint64 limit, const V& value) {
-  AssertValidInterval(start, limit);
+  CHECK_LT(start, limit);
   RemoveInterval(start, limit);
   Insert(start, limit, value);
 }
@@ -147,7 +144,7 @@ void IntervalMap<V>::Clear() {
 
 template <class V>
 void IntervalMap<V>::ClearInterval(uint64 clear_start, uint64 clear_limit) {
-  AssertValidInterval(clear_start, clear_limit);
+  CHECK_LT(clear_start, clear_limit);
   RemoveInterval(clear_start, clear_limit);
 }
 
@@ -205,16 +202,6 @@ bool IntervalMap<V>::Decrement(MapIter* iter) {
 template <class V>
 void IntervalMap<V>::Insert(uint64 start, uint64 limit, const V& value) {
   interval_start_.emplace(std::pair<uint64, Value>{start, {limit, value}});
-}
-
-template <class V>
-void IntervalMap<V>::AssertValidInterval(uint64 start, uint64 limit) const {
-  if (start >= limit) {
-    std::cerr << "Invalid interval. Start may not be >= limit." << std::endl
-              << "Start: " << start << std::endl
-              << "Limit: " << limit << std::endl;
-    abort();
-  }
 }
 
 }  // namespace perftools

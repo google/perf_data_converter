@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <deque>
-#include <iostream>
 #include <map>
 #include <sstream>
 #include <utility>
@@ -54,7 +53,7 @@ const char* ExecModeString(ExecutionMode mode) {
     case Hypervisor:
       return ExecutionModeHypervisor;
     default:
-      std::cerr << "Execution mode not handled: " << mode << std::endl;
+      LOG(ERROR) << "Execution mode not handled: " << mode;
       return "";
   }
 }
@@ -143,7 +142,8 @@ struct SampleKeyHasher {
 // labels include timestamp_ns, then we'll need to have separate
 // profile_proto::Samples for samples that are identical except for timestamp.
 typedef std::unordered_map<SampleKey, perftools::profiles::Sample*,
-                           SampleKeyHasher, SampleKeyEqualityTester> SampleMap;
+                           SampleKeyHasher, SampleKeyEqualityTester>
+    SampleMap;
 
 // Map from a virtual address to a profile location ID. It only keys off the
 // address, not also the mapping ID since the map / its portions are invalidated
@@ -415,10 +415,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
 uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
                                           const PerfDataHandler::Mapping* smap,
                                           ProfileBuilder* builder) {
-  if (builder == nullptr) {
-    std::cerr << "Cannot add mapping to null builder." << std::endl;
-    abort();
-  }
+  CHECK(builder != nullptr) << "Cannot add mapping to null builder";
 
   if (smap == nullptr) {
     return 0;
@@ -441,22 +438,16 @@ uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
     mapping->set_build_id(UTF8StringId(*smap->build_id, builder));
   }
   mapping->set_filename(UTF8StringId(MappingFilename(smap), builder));
-  if (mapping->memory_start() >= mapping->memory_limit()) {
-    std::cerr << "The start of the mapping must be strictly less than its"
-              << "limit in file: " << mapping->filename() << std::endl
-              << "Start: " << mapping->memory_start() << std::endl
-              << "Limit: " << mapping->memory_limit() << std::endl;
-    abort();
-  }
+  CHECK_LE(mapping->memory_start(), mapping->memory_limit())
+      << "Mapping start must be strictly less than its limit: "
+      << mapping->filename();
   mapmap.insert(std::make_pair(smap, mapping_id));
   return mapping_id;
 }
 
 void PerfDataConverter::AddOrUpdateSample(
     const PerfDataHandler::SampleContext& context, const Pid& pid,
-    const SampleKey& sample_key,
-    ProfileBuilder* builder) {
-
+    const SampleKey& sample_key, ProfileBuilder* builder) {
   perftools::profiles::Sample* sample = per_pid_[pid].sample_map[sample_key];
 
   if (sample == nullptr) {
@@ -549,11 +540,7 @@ uint64 PerfDataConverter::AddOrGetLocation(
   if (mapping_id != 0) {
     loc->set_mapping_id(mapping_id);
   } else {
-    if (addr != 0) {
-      std::cerr << "Found unmapped address: " << addr << " in PID " << pid
-                << std::endl;
-      abort();
-    }
+    CHECK(addr == 0) << "Unmapped address in PID " << pid;
   }
   loc_map[addr] = loc_id;
   return loc_id;
@@ -587,19 +574,15 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   }
 
   Pid event_pid = sample.sample.pid();
-  ProfileBuilder *builder = GetOrCreateBuilder(sample);
+  ProfileBuilder* builder = GetOrCreateBuilder(sample);
   SampleKey sample_key = MakeSampleKey(sample, builder);
 
   uint64 ip = sample.sample_mapping != nullptr ? sample.sample.ip() : 0;
   if (ip != 0) {
     const auto start = sample.sample_mapping->start;
     const auto limit = sample.sample_mapping->limit;
-    if (ip < start || ip >= limit) {
-      std::cerr << "IP is out of bound of mapping." << std::endl
-                << "IP: " << ip << std::endl
-                << "Start: " << start << std::endl
-                << "Limit: " << limit << std::endl;
-    }
+    CHECK_GE(ip, start);
+    CHECK_LT(ip, limit);
   }
 
   // Leaf at stack[0]

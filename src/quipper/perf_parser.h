@@ -84,6 +84,9 @@ struct ParsedEvent {
     }
   } dso_and_offset;
 
+  // DSO and offset information for data access address.
+  DSOAndOffset data_dso_and_offset;
+
   // DSO + offset info for callchain.
   std::vector<DSOAndOffset> callchain;
 
@@ -110,6 +113,7 @@ struct ParsedEvent {
   // For comparing ParsedEvents.
   bool operator==(const ParsedEvent& other) const {
     return dso_and_offset == other.dso_and_offset &&
+           data_dso_and_offset == other.data_dso_and_offset &&
            std::equal(callchain.begin(), callchain.end(),
                       other.callchain.begin()) &&
            std::equal(branch_stack.begin(), branch_stack.end(),
@@ -125,11 +129,16 @@ struct PerfEventStats {
   uint32_t num_fork_events;
   uint32_t num_exit_events;
 
-  // Number of sample events that were successfully mapped using the address
-  // mapper.  The mapping is recorded regardless of whether the address in the
-  // perf sample event itself was assigned the remapped address.  The latter is
-  // indicated by |did_remap|.
+  // Number of sample events whose code addresses were successfully mapped using
+  // the address mapper. The mapping is recorded regardless of whether the
+  // address in the perf sample event itself was assigned the remapped address.
+  // The latter is indicated by |did_remap|.
   uint32_t num_sample_events_mapped;
+
+  // Number of sample events that contain data addresses and how many of these
+  // could be mapped using the address mapper.
+  uint32_t num_data_sample_events;
+  uint32_t num_data_sample_events_mapped;
 
   // Whether address remapping was enabled during event parsing.
   bool did_remap;
@@ -211,8 +220,10 @@ class PerfParser {
   // |reader_| would be updated to contain the new sequence of events.
   void UpdatePerfEventsFromParsedEvents();
 
-  // Does a sample event remap and then returns DSO name and offset of sample.
-  bool MapSampleEvent(ParsedEvent* parsed_event);
+  // Performs a sample event remap including for code and data addresses if
+  // present. It increments stats counters for samples that could be mapped,
+  // samples that include data, and samples with data that could be mapped.
+  void MapSampleEvent(ParsedEvent* parsed_event);
 
   // Calls MapIPAndPidAndGetNameAndOffset() on the callchain of a sample event.
   bool MapCallchain(const uint64_t ip, const PidTid pidtid,
