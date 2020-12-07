@@ -335,8 +335,10 @@ SampleKey PerfDataConverter::MakeSampleKey(
 ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
     const PerfDataHandler::SampleContext& sample) {
   Pid builder_pid = (options_ & kGroupByPids) ? sample.sample.pid() : 0;
+  VLOG(2) << "Processing sample for PID=" << sample.sample.pid();
   auto& per_pid = per_pid_[builder_pid];
   if (per_pid.builder == nullptr) {
+    VLOG(2) << "Creating a new profile for PID key " << builder_pid;
     builders_.push_back(ProfileBuilder());
     per_pid.builder = &builders_.back();
     process_metas_.push_back(ProcessMeta(builder_pid));
@@ -437,10 +439,16 @@ uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
   if (smap->build_id != nullptr && !smap->build_id->empty()) {
     mapping->set_build_id(UTF8StringId(*smap->build_id, builder));
   }
-  mapping->set_filename(UTF8StringId(MappingFilename(smap), builder));
+  string mapping_filename = MappingFilename(smap);
+  mapping->set_filename(UTF8StringId(mapping_filename, builder));
   CHECK_LE(mapping->memory_start(), mapping->memory_limit())
       << "Mapping start must be strictly less than its limit: "
       << mapping->filename();
+  VLOG(2) << "Added mapping ID=" << mapping_id
+          << ", filename=" << mapping_filename
+          << ", memory_start=" << mapping->memory_start()
+          << ", memory_limit=" << mapping->memory_limit()
+          << ", file_offset=" << mapping->file_offset();
   mapmap.insert(std::make_pair(smap, mapping_id));
   return mapping_id;
 }
@@ -542,6 +550,8 @@ uint64 PerfDataConverter::AddOrGetLocation(
   } else {
     CHECK(addr == 0) << "Unmapped address in PID " << pid;
   }
+  VLOG(2) << "Added location ID=" << loc_id << ", addr=" << addr
+          << ", mapping_id=" << mapping_id;
   loc_map[addr] = loc_id;
   return loc_id;
 }
@@ -552,6 +562,7 @@ void PerfDataConverter::Comm(const CommContext& comm) {
   if (comm.is_exec) {
     // The is_exec bit indicates an exec() happened, so clear everything
     // from the existing pid.
+    VLOG(2) << "exec() for PID=" << pid << ", clearing the profile";
     per_pid_[pid].clear();
   }
   per_pid_[pid].tid_to_comm_map[tid] = PerfDataHandler::NameOrMd5Prefix(
