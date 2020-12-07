@@ -16,6 +16,7 @@ exports_files(
         "perf-cros-kernel-3_18-mapping.textproto",
         "perf-include-comm-md5-prefix.textproto",
         "perf-java-classes-jsa.textproto",
+        "perf-kernel-sample-before-mmap.textproto",
         "perf-non-exec-comm-events.textproto",
         "perf-overlapping-kernel-mapping.textproto",
         "perf-unmapped-callchain-ip.textproto",

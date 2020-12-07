@@ -1,0 +1,125 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0
+    size: 0x00000060
+    config: 0x0000000000000000
+    sample_period: 0x00000000000f4243
+    sample_type: 0x0000000000000087
+    read_format: 0x0000000000000000
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0x00000000
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0x00000000
+    bp_type: 0x00000000
+    bp_addr: 0x0000000000000000
+    bp_len: 0x0000000000000000
+    branch_sample_type: 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user: 0x00000000
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+  ids: 1
+}
+
+# Exec for the process profiled by perf.
+events: {
+  header: {
+    type: 3
+    misc: 0x2000  # PERF_RECORD_MISC_COMM_EXEC
+  }
+  comm_event: {
+    pid: 1234
+    tid: 1234
+    comm: "foo"
+    sample_info: {
+      pid: 1234
+      tid: 1234
+      cpu: 1
+      id: 1
+    }
+  }
+  timestamp: 100
+}
+
+# A kernel sample in the exec'ed process. A fake mapping will be created for
+# the sample's main mapping.
+events {
+  header {
+    type: 9
+    misc: 1
+  }
+  sample_event {
+    ip: 0xffffffff00000000
+    pid: 1234
+    tid: 1234
+    cpu: 1
+    id: 1
+  }
+  timestamp: 200
+}
+
+# The mmap for the main executable of the process. This is where the proper
+# main mapping for the process becomes known.
+events {
+  header {
+    type: 1
+    misc: 1
+  }
+  mmap_event {
+    pid: 1234
+    tid: 1234
+    start: 1000
+    len: 1000
+    pgoff: 0
+    filename: "/usr/bin/foo"
+  }
+  timestamp: 300
+}
+
+# A usual user-mode sample for the process.
+events {
+  header {
+    type: 9
+    misc: 1
+  }
+  sample_event {
+    ip: 1500
+    pid: 1234
+    tid: 1234
+    cpu: 1
+    id: 1
+  }
+  timestamp: 400
+}
+
+metadata_mask: 0x0000000000113dfc
+event_types {
+  id: 0
+  name: "cycles"
+}

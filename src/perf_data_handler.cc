@@ -128,6 +128,13 @@ class Normalizer {
   // Normalize the sample_event in event_proto and call handler_->Sample
   void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& event_proto);
 
+  // Get a memoized fake mapping by specified attributes or add one. Never
+  // returns nullptr. The returned pointer is owned by the normalizer and
+  // bound to its lifetime.
+  const PerfDataHandler::Mapping* GetOrAddFakeMapping(
+      const std::string& comm, const std::string& build_id,
+      uint64 comm_md5_prefix);
+
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
   const PerfDataHandler::Mapping* TryLookupInPid(uint32 pid, uint64 ip) const;
@@ -156,6 +163,30 @@ class Normalizer {
   std::vector<std::unique_ptr<PerfDataHandler::Mapping>> owned_mappings_;
   std::vector<std::unique_ptr<quipper::PerfDataProto_MMapEvent>>
       owned_quipper_mappings_;
+
+  struct FakeMappingKey {
+    string comm;
+    string build_id;
+    uint64 comm_md5_prefix;
+
+    bool operator==(const FakeMappingKey& rhs) const {
+      return (comm == rhs.comm && build_id == rhs.build_id &&
+              comm_md5_prefix == rhs.comm_md5_prefix);
+    }
+
+    struct Hasher {
+      std::size_t operator()(const FakeMappingKey& k) const noexcept {
+        std::size_t h = std::hash<std::string>{}(k.comm);
+        h ^= std::hash<std::string>{}(k.build_id);
+        h ^= std::hash<uint64>{}(k.comm_md5_prefix);
+        return h;
+      }
+    };
+  };
+
+  std::unordered_map<FakeMappingKey, const PerfDataHandler::Mapping*,
+                     FakeMappingKey::Hasher>
+      fake_mappings_;
 
   // The event for a given sample is determined by the id.
   // Map each id to an index in the event_profiles_ vector.
@@ -335,10 +366,9 @@ void Normalizer::InvokeHandleSample(
       // The comm_md5_prefix is used for the filename_md5_prefix field in the
       // fake mapping. This allows recovery of the process name (execname) by
       // resolving its md5 prefix when the comm string is nil or empty.
-      fake.reset(
-          new PerfDataHandler::Mapping(comm_it->second->comm(), build_id, 0, 1,
-                                       0, comm_it->second->comm_md5_prefix()));
-      context.main_mapping = fake.get();
+      context.main_mapping =
+          GetOrAddFakeMapping(comm_it->second->comm(), build_id,
+                              comm_it->second->comm_md5_prefix());
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
       // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.
       context.main_mapping = kernel_it->second;
@@ -388,6 +418,20 @@ void Normalizer::InvokeHandleSample(
   }
 
   handler_->Sample(context);
+}
+
+const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
+    const std::string& comm, const std::string& build_id,
+    uint64 comm_md5_prefix) {
+  FakeMappingKey key = {comm, build_id, comm_md5_prefix};
+  auto it = fake_mappings_.find(key);
+  if (it != fake_mappings_.end()) {
+    return it->second;
+  }
+  owned_mappings_.emplace_back(
+      new PerfDataHandler::Mapping(comm, build_id, 0, 1, 0, comm_md5_prefix));
+  return fake_mappings_.insert({key, owned_mappings_.back().get()})
+      .first->second;
 }
 
 static void CheckStat(int64 num, int64 denom, const string& desc) {

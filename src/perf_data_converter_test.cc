@@ -499,6 +499,39 @@ TEST_F(PerfDataConverterTest, IgnoresClassesJsaAsMainMapping) {
   EXPECT_EQ(p.string_table(p.mapping(0).filename()), "/export/package/App.jar");
 }
 
+TEST_F(PerfDataConverterTest, HandlesKernelSampleAfterExecBeforeMmap) {
+  string ascii_pb(
+      GetContents(GetResource("perf-kernel-sample-before-mmap.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  ASSERT_EQ(pps.size(), 1);
+  const auto& p = pps[0]->data;
+
+  ASSERT_EQ(p.mapping_size(), 2);
+  ASSERT_GE(p.string_table_size(), 2);
+  // Main mapping - not referenced by any locations or samples.
+  const auto& m0 = p.mapping(0);
+  EXPECT_EQ(p.string_table(m0.filename()), "foo");
+  EXPECT_EQ(m0.id(), 1);
+  // The binary mapping, referenced by the second sample.
+  const auto& m1 = p.mapping(1);
+  EXPECT_EQ(p.string_table(m1.filename()), "/usr/bin/foo");
+  EXPECT_EQ(m1.id(), 2);
+
+  ASSERT_EQ(p.sample_size(), 2);
+  // The first sample is unmapped.
+  const auto& s0 = p.sample(0);
+  EXPECT_EQ(s0.location_id_size(), 1);
+  EXPECT_EQ(p.location(s0.location_id(0) - 1).mapping_id(), 0 /*no mapping*/);
+  // The second sample points to the binary.
+  const auto& s1 = p.sample(1);
+  EXPECT_EQ(s1.location_id_size(), 1);
+  EXPECT_EQ(p.location(s1.location_id(0) - 1).mapping_id(), m1.id());
+}
+
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   string path = GetResource("single-event-single-process.perf.data");
   string raw_perf_data = GetContents(path);
