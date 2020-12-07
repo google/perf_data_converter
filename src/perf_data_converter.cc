@@ -392,7 +392,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
   } else {
     Profile* profile = per_pid.builder->mutable_profile();
     if ((options_ & kGroupByPids) && sample.main_mapping != nullptr &&
-        sample.main_mapping->filename != nullptr) {
+        !sample.main_mapping->filename.empty()) {
       const string& filename =
           profile->string_table(profile->mapping(0).filename());
       const string& sample_filename = MappingFilename(sample.main_mapping);
@@ -436,8 +436,8 @@ uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
   mapping->set_memory_start(smap->start);
   mapping->set_memory_limit(smap->limit);
   mapping->set_file_offset(smap->file_offset);
-  if (smap->build_id != nullptr && !smap->build_id->empty()) {
-    mapping->set_build_id(UTF8StringId(*smap->build_id, builder));
+  if (!smap->build_id.empty()) {
+    mapping->set_build_id(UTF8StringId(smap->build_id, builder));
   }
   string mapping_filename = MappingFilename(smap);
   mapping->set_filename(UTF8StringId(mapping_filename, builder));

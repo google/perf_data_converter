@@ -94,22 +94,17 @@ class TestPerfDataHandler : public PerfDataHandler {
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
-    const string* actual_build_id = mmap.mapping->build_id;
-    const string* actual_filename = mmap.mapping->filename;
+    string actual_build_id = mmap.mapping->build_id;
+    string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
-        _expected_filename_to_build_id.find(*actual_filename);
+        _expected_filename_to_build_id.find(actual_filename);
     if (expected_build_id_it != _expected_filename_to_build_id.end()) {
-      EXPECT_TRUE(actual_build_id != nullptr)
-          << "Expected build id " << expected_build_id_it->second
-          << " for the filename " << *actual_filename;
-      if (actual_build_id != nullptr) {
-        EXPECT_EQ(expected_build_id_it->second, *actual_build_id);
-        _seen_filenames.insert(*actual_filename);
-      }
+      EXPECT_EQ(actual_build_id, expected_build_id_it->second)
+          << "Build ID mismatch for the filename " << actual_filename;
+      _seen_filenames.insert(actual_filename);
     } else {
-      EXPECT_TRUE(actual_build_id == nullptr)
-          << "Actual build id " << *actual_build_id << " for the filename "
-          << *actual_filename;
+      EXPECT_EQ(actual_build_id, "")
+          << "Unexpected build ID for the filename " << actual_filename;
     }
   }
 
