@@ -82,12 +82,13 @@ class PerfDataHandler {
   };
 
   struct SampleContext {
-    SampleContext(const quipper::PerfDataProto::EventHeader &h,
-                  const quipper::PerfDataProto::SampleEvent &s)
+    SampleContext(const quipper::PerfDataProto::EventHeader& h,
+                  const quipper::PerfDataProto::SampleEvent& s)
         : header(h),
           sample(s),
           main_mapping(nullptr),
           sample_mapping(nullptr),
+          addr_mapping(nullptr),
           file_attrs_index(-1) {}
 
     // The event's header.
@@ -98,6 +99,8 @@ class PerfDataHandler {
     const Mapping* main_mapping;
     // The mapping in which event.ip is found.
     const Mapping* sample_mapping;
+    // The mapping in which event.addr is found.
+    const Mapping* addr_mapping;
     // Locations corresponding to event.callchain.
     std::vector<Location> callchain;
     // Locations corresponding to entries in event.branch_stack.

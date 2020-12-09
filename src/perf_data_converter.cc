@@ -596,7 +596,20 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     CHECK_LT(ip, limit);
   }
 
-  // Leaf at stack[0]
+  // Leaf at stack[0]. Record the program counter of the sample as the leaf of
+  // the stack. When kAddDataAddressFrames is set, add another leaf with the
+  // virtual data address of the access.
+  if (options_ & kAddDataAddressFrames) {
+    uint64 addr = sample.addr_mapping != nullptr ? sample.sample.addr() : 0;
+    if (addr != 0) {
+      const auto start = sample.addr_mapping->start;
+      const auto limit = sample.addr_mapping->limit;
+      CHECK_GE(addr, start);
+      CHECK_LT(addr, limit);
+    }
+    sample_key.stack.push_back(
+        AddOrGetLocation(event_pid, addr, sample.addr_mapping, builder));
+  }
   sample_key.stack.push_back(
       AddOrGetLocation(event_pid, ip, sample.sample_mapping, builder));
 
@@ -623,7 +636,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     // kernels it will be the sampled IP. If PEBS is off, the first callchain
     // entry will be the interrupted IP. Either way, skip the first non-marker
     // entry.
-    if (!skipped_dup && sample_key.stack.size() == 1) {
+    if (!skipped_dup) {
       skipped_dup = true;
       continue;
     }

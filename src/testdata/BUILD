@@ -20,6 +20,8 @@ exports_files(
         "perf-non-exec-comm-events.textproto",
         "perf-overlapping-kernel-mapping.textproto",
         "perf-unmapped-callchain-ip.textproto",
+        "profile-with-data-addresses-flat.textproto",
+        "profile-with-data-addresses-callchain.textproto",
         "single-event-multi-process.perf.data",
         "single-event-multi-process-single-ip.textproto",
         "single-event-single-process.perf.data",

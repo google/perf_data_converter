@@ -80,6 +80,9 @@ enum ConversionOptions {
   // Whether to support unaligned MMAP events created by VMs using the JITs
   // which dynamically generate small code objects that are not page aligned.
   kAllowUnalignedJitMappings = 4,
+  // Whether to add sampled data addresses as leaf frames for converted
+  // profiles.
+  kAddDataAddressFrames = 8,
 };
 
 struct ProcessProfile {

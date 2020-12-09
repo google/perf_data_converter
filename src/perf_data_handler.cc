@@ -216,8 +216,10 @@ class Normalizer {
 
   struct {
     int64 samples = 0;
+    int64 samples_with_addr = 0;
     int64 missing_main_mmap = 0;
     int64 missing_sample_mmap = 0;
+    int64 missing_addr_mmap = 0;
 
     int64 callchain_ips = 0;
     int64 missing_callchain_mmap = 0;
@@ -350,6 +352,12 @@ void Normalizer::InvokeHandleSample(
   context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
   stat_.missing_sample_mmap += context.sample_mapping == nullptr;
 
+  if (sample.has_addr()) {
+    ++stat_.samples_with_addr;
+    context.addr_mapping = GetMappingFromPidAndIP(pid, sample.addr(), false);
+    stat_.missing_addr_mmap += context.addr_mapping == nullptr;
+  }
+
   context.main_mapping = GetMainMMapFromPid(pid);
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
@@ -444,6 +452,8 @@ static void CheckStat(int64 num, int64 denom, const string& desc) {
 void Normalizer::LogStats() {
   CheckStat(stat_.missing_main_mmap, stat_.samples, "missing_main_mmap");
   CheckStat(stat_.missing_sample_mmap, stat_.samples, "missing_sample_mmap");
+  CheckStat(stat_.missing_addr_mmap, stat_.samples_with_addr,
+            "missing_addr_mmap");
   CheckStat(stat_.missing_callchain_mmap, stat_.callchain_ips,
             "missing_callchain_mmap");
   CheckStat(stat_.missing_branch_stack_mmap, stat_.branch_stack_ips,
