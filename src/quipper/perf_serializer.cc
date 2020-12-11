@@ -44,6 +44,7 @@ bool PerfSerializer::IsSupportedKernelEventType(uint32_t type) {
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
     case PERF_RECORD_NAMESPACES:
+    case PERF_RECORD_CGROUP:
       return true;
   }
   return false;
@@ -201,6 +202,7 @@ bool PerfSerializer::SerializePerfEventAttr(
   S(context_switch);
   S(write_backward);
   S(namespaces);
+  S(cgroup);
   if (perf_event_attr_proto->watermark())
     S(wakeup_watermark);
   else
@@ -257,6 +259,7 @@ bool PerfSerializer::DeserializePerfEventAttr(
   S(context_switch);
   S(write_backward);
   S(namespaces);
+  S(cgroup);
   if (perf_event_attr->watermark)
     S(wakeup_watermark);
   else
@@ -350,6 +353,8 @@ bool PerfSerializer::SerializeKernelEvent(
     case PERF_RECORD_NAMESPACES:
       return SerializeNamespacesEvent(event,
                                       event_proto->mutable_namespaces_event());
+    case PERF_RECORD_CGROUP:
+      return SerializeCgroupEvent(event, event_proto->mutable_cgroup_event());
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(event.header.type);
   }
@@ -469,6 +474,8 @@ bool PerfSerializer::DeserializeKernelEvent(
                                            event);
     case PERF_RECORD_NAMESPACES:
       return DeserializeNamespacesEvent(event_proto.namespaces_event(), event);
+    case PERF_RECORD_CGROUP:
+      return DeserializeCgroupEvent(event_proto.cgroup_event(), event);
       break;
   }
   return false;
@@ -872,6 +879,23 @@ bool PerfSerializer::DeserializeNamespacesEvent(
   }
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
+
+bool PerfSerializer::SerializeCgroupEvent(
+    const event_t& event, PerfDataProto_CgroupEvent* sample) const {
+  const struct cgroup_event& cgroup = event.cgroup;
+  sample->set_id(cgroup.id);
+  sample->set_path(cgroup.path);
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeCgroupEvent(
+    const PerfDataProto_CgroupEvent& sample, event_t* event) const {
+  struct cgroup_event& cgroup = event->cgroup;
+  cgroup.id = sample.id();
+  snprintf(cgroup.path, PATH_MAX, "%s", sample.path().c_str());
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
 bool PerfSerializer::SerializeSampleInfo(
     const event_t& event, PerfDataProto_SampleInfo* sample) const {
   if (!ContainsSampleInfo(event.header.type)) return true;

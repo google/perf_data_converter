@@ -130,6 +130,12 @@ struct namespaces_event {
   struct perf_ns_link_info link_info[];
 };
 
+struct cgroup_event {
+  struct perf_event_header header;
+  u64 id;
+  char path[PATH_MAX];
+};
+
 struct fork_event {
   struct perf_event_header header;
   u32 pid, ppid;
@@ -276,6 +282,7 @@ struct perf_sample {
   struct stack_dump user_stack;
   struct sample_read read;
   u64 physical_addr;
+  u64 cgroup;
 
   perf_sample()
       : ip(0),
@@ -298,7 +305,8 @@ struct perf_sample {
         branch_stack(nullptr),
         user_stack({}),
         read({}),
-        physical_addr(0) {}
+        physical_addr(0),
+        cgroup(0) {}
   ~perf_sample() {
     delete[] callchain;
     delete[] branch_stack;
@@ -514,6 +522,7 @@ union perf_event {
   struct mmap2_event mmap2;
   struct comm_event comm;
   struct namespaces_event namespaces;
+  struct cgroup_event cgroup;
   struct fork_event fork;
   struct lost_event lost;
   struct lost_samples_event lost_samples;

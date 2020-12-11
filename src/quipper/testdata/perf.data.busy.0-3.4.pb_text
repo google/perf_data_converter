@@ -37,6 +37,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 5
   ids: 6
@@ -82,6 +87,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 9
   ids: 10
@@ -127,6 +137,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 13
   ids: 14
@@ -172,6 +187,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 17
   ids: 18
@@ -217,6 +237,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 21
   ids: 22
@@ -262,6 +287,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 25
   ids: 26

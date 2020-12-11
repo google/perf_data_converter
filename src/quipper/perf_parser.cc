@@ -250,6 +250,7 @@ bool PerfParser::ProcessEvents() {
       case PERF_RECORD_SWITCH:
       case PERF_RECORD_SWITCH_CPU_WIDE:
       case PERF_RECORD_NAMESPACES:
+      case PERF_RECORD_CGROUP:
         VLOG(1) << "Parsed event type: " << GetEventName(event.header().type())
                 << ". Doing nothing.";
         break;

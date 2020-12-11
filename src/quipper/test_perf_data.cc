@@ -148,6 +148,7 @@ void ExamplePerfEventAttrEvent_Hardware::WriteTo(std::ostream* out) const {
   attr.context_switch = context_switch_;
   attr.write_backward = write_backward_;
   attr.namespaces = namespaces_;
+  attr.cgroup = cgroup_;
 
   const size_t event_size = sizeof(perf_event_header) + attr.size +
                             ids_.size() * sizeof(decltype(ids_)::value_type);
@@ -189,6 +190,7 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   attr.context_switch = context_switch_;
   attr.write_backward = write_backward_;
   attr.namespaces = namespaces_;
+  attr.cgroup = cgroup_;
 
   if (is_cross_endian()) {
     // The order of operations here is for native-to-cross-endian conversion.
@@ -749,6 +751,35 @@ void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleCgroupEvent::GetSize() const {
+  return offsetof(struct cgroup_event, path) +
+         GetUint64AlignedStringLength(path_.size()) +
+         sample_id_.size();  // sample_id_all
+}
+
+void ExampleCgroupEvent::WriteTo(std::ostream* out) const {
+  const size_t path_aligned_length = GetUint64AlignedStringLength(path_.size());
+  const size_t event_size = GetSize();
+  struct cgroup_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_CGROUP),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .id = id_,
+  };
+
+  const size_t pre_cgroup_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event),
+             offsetof(struct cgroup_event, path));
+  *out << path_ << string(path_aligned_length - path_.size(), '\0');
+  out->write(sample_id_.data(), sample_id_.size());
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_cgroup_offset;
+  CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
 }
 
 }  // namespace testing

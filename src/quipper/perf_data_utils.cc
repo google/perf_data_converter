@@ -106,6 +106,8 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
       return &event.context_switch_event().sample_info();
     case PERF_RECORD_NAMESPACES:
       return &event.namespaces_event().sample_info();
+    case PERF_RECORD_CGROUP:
+      return &event.cgroup_event().sample_info();
   }
   return nullptr;
 }
@@ -245,6 +247,8 @@ string GetEventName(uint32_t type) {
       return "PERF_RECORD_TIME_CONV";
     case PERF_RECORD_HEADER_FEATURE:
       return "PERF_RECORD_HEADER_FEATURE";
+    case PERF_RECORD_CGROUP:
+      return "PERF_RECORD_CGROUP";
   }
   return "UNKNOWN_EVENT_" + std::to_string(type);
 }
@@ -319,6 +323,9 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
     case PERF_RECORD_TIME_CONV:
       *size = sizeof(struct time_conv_event);
       return true;
+    case PERF_RECORD_CGROUP:
+      *size = offsetof(struct cgroup_event, path);
+      return true;
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(type);
   }
@@ -369,6 +376,14 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
         return false;
       }
       *size = event.namespaces.nr_namespaces * sizeof(struct perf_ns_link_info);
+      break;
+    }
+    case PERF_RECORD_CGROUP: {
+      size_t max_path_size = std::min<size_t>(remaining_event_size, PATH_MAX);
+      if (!GetUint64AlignedStringLength(event.cgroup.path, max_path_size,
+                                        "cgroup.path", size)) {
+        return false;
+      }
       break;
     }
     // The below events don't have variable payload event data but might have
@@ -521,6 +536,9 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     case PERF_RECORD_STAT_CONFIG:
       *size = event.stat_config_event().data_size() *
               sizeof(struct stat_config_event_entry);
+      break;
+    case PERF_RECORD_CGROUP:
+      *size = GetUint64AlignedStringLength(event.cgroup_event().path().size());
       break;
     // The below supported perf events have no varaible payload event data.
     case PERF_RECORD_LOST:
