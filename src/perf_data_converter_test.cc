@@ -121,7 +121,7 @@ string GetContents(const string& path) {
 // Gets the string after the last '/' or returns the entire string if there are
 // no slashes.
 inline string Basename(const string& path) {
-  return path.substr(path.find_last_of("/"));
+  return path.substr(path.find_last_of('/'));
 }
 
 string GetResource(const string& relpath) {
