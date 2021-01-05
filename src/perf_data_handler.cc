@@ -30,7 +30,10 @@ using quipper::PerfDataProto_MMapEvent;
 namespace perftools {
 namespace {
 
-static const char kKernelPrefix[] = "[kernel.kallsyms]";
+static constexpr char kKernelPrefix[] = "[kernel.kallsyms]";
+// PID value used by perf for synthesized mmap records for the kernel binary
+// and *.ko modules.
+static constexpr uint32 kKernelPid = std::numeric_limits<uint32>::max();
 
 bool HasPrefixString(const string& s, const char* substr) {
   const size_t substr_len = strlen(substr);
@@ -365,7 +368,7 @@ void Normalizer::InvokeHandleSample(
       (event_proto.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
           quipper::PERF_RECORD_MISC_KERNEL) {
     auto comm_it = pid_to_comm_event_.find(pid);
-    auto kernel_it = pid_to_executable_mmap_.find(-1);
+    auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
       string build_id;
       if (kernel_it != pid_to_executable_mmap_.end()) {
@@ -579,8 +582,7 @@ void Normalizer::UpdateMapsWithMMapEvent(
     return;
   }
 
-  if (pid == std::numeric_limits<uint32>::max() &&
-      HasPrefixString(mmap->filename(), kKernelPrefix)) {
+  if (pid == kKernelPid && HasPrefixString(mmap->filename(), kKernelPrefix)) {
     pid_to_executable_mmap_[pid] = mapping;
   }
 }
