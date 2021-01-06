@@ -147,7 +147,7 @@ cc_test(
     srcs = ["perf_to_profile_lib_test.cc"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
-        "//src/testdata:multi-event-single-process.perf_data.pb.data",
+        "//src/testdata:multi-event-single-process.perf_data.pb",
     ],
     deps = [
         ":perf_to_profile_lib",
