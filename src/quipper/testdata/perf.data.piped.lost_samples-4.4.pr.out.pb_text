@@ -1061,14 +1061,6 @@ events {
 }
 events {
   header {
-    type: 68
-    misc: 0
-    size: 8
-  }
-  timestamp: 0
-}
-events {
-  header {
     type: 3
     misc: 8192
     size: 48
@@ -4391,6 +4383,14 @@ events {
     }
   }
   timestamp: 1765049818284
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
 }
 timestamp_sec: 0
 stats {

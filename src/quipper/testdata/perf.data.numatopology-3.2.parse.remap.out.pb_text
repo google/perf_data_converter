@@ -45780,8 +45780,31 @@ events {
     pid: 5629
     tid: 5629
     start: 2138066944
-    len: 36544512
+    len: 27316224
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
+    filename_md5_prefix: 7670546865716743204
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 5629
+    tid: 5629
+    start: 2165383168
+    len: 9228288
+    pgoff: 27316224
     filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
     filename_md5_prefix: 7670546865716743204
     sample_info {
@@ -45849,8 +45872,31 @@ events {
     pid: 5629
     tid: 5629
     start: 2174726144
-    len: 9662464
+    len: 7634944
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/xorg/libglx.so.310.51"
+    filename_md5_prefix: 14540977176778189844
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 5629
+    tid: 5629
+    start: 2182361088
+    len: 2027520
+    pgoff: 7634944
     filename: "/usr/lib/nvidia-current/xorg/libglx.so.310.51"
     filename_md5_prefix: 14540977176778189844
     sample_info {
@@ -119412,8 +119458,31 @@ events {
     pid: 6706
     tid: 6706
     start: 2149773312
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6706
+    tid: 6706
+    start: 2152521728
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -122695,8 +122764,31 @@ events {
     pid: 6711
     tid: 6711
     start: 2149773312
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6711
+    tid: 6711
+    start: 2152521728
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -124914,8 +125006,31 @@ events {
     pid: 6768
     tid: 6768
     start: 2150821888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6768
+    tid: 6768
+    start: 2153570304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -127156,8 +127271,31 @@ events {
     pid: 6809
     tid: 6809
     start: 2151845888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6809
+    tid: 6809
+    start: 2154594304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -129375,8 +129513,31 @@ events {
     pid: 6817
     tid: 6817
     start: 2150821888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6817
+    tid: 6817
+    start: 2153570304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -131594,8 +131755,31 @@ events {
     pid: 6826
     tid: 6826
     start: 2150821888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6826
+    tid: 6826
+    start: 2153570304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -133836,8 +134020,31 @@ events {
     pid: 6832
     tid: 6832
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6832
+    tid: 6832
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -136055,8 +136262,31 @@ events {
     pid: 6836
     tid: 6836
     start: 2150825984
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6836
+    tid: 6836
+    start: 2153574400
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -138297,8 +138527,31 @@ events {
     pid: 6849
     tid: 6849
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 6849
+    tid: 6849
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -142950,8 +143203,31 @@ events {
     pid: 7035
     tid: 7035
     start: 2162049024
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7035
+    tid: 7035
+    start: 2164797440
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -145407,8 +145683,31 @@ events {
     pid: 7043
     tid: 7043
     start: 2156949504
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7043
+    tid: 7043
+    start: 2159697920
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -148399,8 +148698,31 @@ events {
     pid: 7076
     tid: 7076
     start: 2151542784
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7076
+    tid: 7076
+    start: 2154291200
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -150641,8 +150963,31 @@ events {
     pid: 7244
     tid: 7244
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7244
+    tid: 7244
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -152883,8 +153228,31 @@ events {
     pid: 7255
     tid: 7255
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7255
+    tid: 7255
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -155171,8 +155539,31 @@ events {
     pid: 7261
     tid: 7261
     start: 2154012672
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7261
+    tid: 7261
+    start: 2156761088
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -157459,8 +157850,31 @@ events {
     pid: 7269
     tid: 7269
     start: 2154012672
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7269
+    tid: 7269
+    start: 2156761088
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -159724,8 +160138,31 @@ events {
     pid: 7277
     tid: 7277
     start: 2152869888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7277
+    tid: 7277
+    start: 2155618304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -162012,8 +162449,31 @@ events {
     pid: 7300
     tid: 7300
     start: 2152865792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7300
+    tid: 7300
+    start: 2155614208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -165041,8 +165501,31 @@ events {
     pid: 7314
     tid: 7314
     start: 2181419008
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7314
+    tid: 7314
+    start: 2184167424
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -169134,8 +169617,31 @@ events {
     pid: 7340
     tid: 7340
     start: 2130714624
-    len: 36544512
+    len: 27316224
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
+    filename_md5_prefix: 7670546865716743204
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 7340
+    tid: 7340
+    start: 2158030848
+    len: 9228288
+    pgoff: 27316224
     filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
     filename_md5_prefix: 7670546865716743204
     sample_info {
@@ -169203,8 +169709,31 @@ events {
     pid: 7340
     tid: 7340
     start: 2167373824
-    len: 1101824
+    len: 843776
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/libGL.so.310.51"
+    filename_md5_prefix: 14110608429651433031
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7340
+    tid: 7340
+    start: 2168217600
+    len: 258048
+    pgoff: 843776
     filename: "/usr/lib/nvidia-current/libGL.so.310.51"
     filename_md5_prefix: 14110608429651433031
     sample_info {
@@ -171040,8 +171569,31 @@ events {
     pid: 7356
     tid: 7356
     start: 2130706432
-    len: 36544512
+    len: 27316224
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
+    filename_md5_prefix: 7670546865716743204
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 7356
+    tid: 7356
+    start: 2158022656
+    len: 9228288
+    pgoff: 27316224
     filename: "/usr/lib/nvidia-current/libnvidia-glcore.so.310.51"
     filename_md5_prefix: 7670546865716743204
     sample_info {
@@ -171109,8 +171661,31 @@ events {
     pid: 7356
     tid: 7356
     start: 2167365632
-    len: 1101824
+    len: 843776
     pgoff: 0
+    filename: "/usr/lib/nvidia-current/libGL.so.310.51"
+    filename_md5_prefix: 14110608429651433031
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 7356
+    tid: 7356
+    start: 2168209408
+    len: 258048
+    pgoff: 843776
     filename: "/usr/lib/nvidia-current/libGL.so.310.51"
     filename_md5_prefix: 14110608429651433031
     sample_info {
@@ -176910,8 +177485,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2166255616
-    len: 2109440
+    len: 536576
     pgoff: 69632
+    filename: "/usr/lib/i386-linux-gnu/wine/kernel32.dll.so"
+    filename_md5_prefix: 15231376534128005211
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2166792192
+    len: 1572864
+    pgoff: 606208
     filename: "/usr/lib/i386-linux-gnu/wine/kernel32.dll.so"
     filename_md5_prefix: 15231376534128005211
     sample_info {
@@ -177485,8 +178083,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2171555840
-    len: 20480
+    len: 16384
     pgoff: 57344
+    filename: "/usr/lib/i386-linux-gnu/wine/msimg32.dll.so"
+    filename_md5_prefix: 10551471046319383972
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2171572224
+    len: 4096
+    pgoff: 73728
     filename: "/usr/lib/i386-linux-gnu/wine/msimg32.dll.so"
     filename_md5_prefix: 10551471046319383972
     sample_info {
@@ -177991,8 +178612,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2175266816
-    len: 102400
+    len: 98304
     pgoff: 24576
+    filename: "/usr/lib/i386-linux-gnu/wine/localspl.dll.so"
+    filename_md5_prefix: 13374526092207974050
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2175365120
+    len: 4096
+    pgoff: 122880
     filename: "/usr/lib/i386-linux-gnu/wine/localspl.dll.so"
     filename_md5_prefix: 13374526092207974050
     sample_info {
@@ -178037,8 +178681,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2175385600
-    len: 184320
+    len: 180224
     pgoff: 20480
+    filename: "/usr/lib/i386-linux-gnu/wine/uxtheme.dll.so"
+    filename_md5_prefix: 15762547216107092164
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2175565824
+    len: 4096
+    pgoff: 200704
     filename: "/usr/lib/i386-linux-gnu/wine/uxtheme.dll.so"
     filename_md5_prefix: 15762547216107092164
     sample_info {
@@ -178290,8 +178957,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2176126976
-    len: 118784
+    len: 114688
     pgoff: 12288
+    filename: "/usr/lib/i386-linux-gnu/wine/imm32.dll.so"
+    filename_md5_prefix: 4809136191849750233
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2176241664
+    len: 4096
+    pgoff: 126976
     filename: "/usr/lib/i386-linux-gnu/wine/imm32.dll.so"
     filename_md5_prefix: 4809136191849750233
     sample_info {
@@ -178842,8 +179532,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2180730880
-    len: 274432
+    len: 270336
     pgoff: 40960
+    filename: "/usr/lib/i386-linux-gnu/wine/comdlg32.dll.so"
+    filename_md5_prefix: 4189257805529482039
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2181001216
+    len: 4096
+    pgoff: 311296
     filename: "/usr/lib/i386-linux-gnu/wine/comdlg32.dll.so"
     filename_md5_prefix: 4189257805529482039
     sample_info {
@@ -179371,8 +180084,31 @@ events {
     pid: 8615
     tid: 8615
     start: 2185195520
-    len: 57344
+    len: 53248
     pgoff: 40960
+    filename: "/usr/lib/i386-linux-gnu/wine/version.dll.so"
+    filename_md5_prefix: 14164333238489460313
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 112
+  }
+  mmap_event {
+    pid: 8615
+    tid: 8615
+    start: 2185248768
+    len: 4096
+    pgoff: 94208
     filename: "/usr/lib/i386-linux-gnu/wine/version.dll.so"
     filename_md5_prefix: 14164333238489460313
     sample_info {
@@ -186656,8 +187392,31 @@ events {
     pid: 10681
     tid: 10681
     start: 2150821888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 10681
+    tid: 10681
+    start: 2153570304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -191266,8 +192025,31 @@ events {
     pid: 11907
     tid: 11907
     start: 2154901504
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 11907
+    tid: 11907
+    start: 2157649920
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -193867,8 +194649,31 @@ events {
     pid: 14761
     tid: 14761
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 14761
+    tid: 14761
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -196126,8 +196931,31 @@ events {
     pid: 16604
     tid: 16604
     start: 2150821888
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 16604
+    tid: 16604
+    start: 2153570304
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -198368,8 +199196,31 @@ events {
     pid: 16960
     tid: 16960
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 16960
+    tid: 16960
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -204864,8 +205715,31 @@ events {
     pid: 17360
     tid: 17360
     start: 2152861696
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 17360
+    tid: 17360
+    start: 2155610112
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -207106,8 +207980,31 @@ events {
     pid: 17460
     tid: 17460
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 17460
+    tid: 17460
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -213230,8 +214127,31 @@ events {
     pid: 20053
     tid: 20053
     start: 2151849984
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 20053
+    tid: 20053
+    start: 2154598400
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -223036,8 +223956,31 @@ events {
     pid: 26969
     tid: 26969
     start: 2151841792
-    len: 2760704
+    len: 2748416
     pgoff: 0
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      cpu: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 26969
+    tid: 26969
+    start: 2154590208
+    len: 12288
+    pgoff: 2748416
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
     sample_info {
@@ -234981,7 +235924,7 @@ events {
 timestamp_sec: 0
 stats {
   num_sample_events: 175
-  num_mmap_events: 8580
+  num_mmap_events: 8621
   num_fork_events: 0
   num_exit_events: 2
   num_sample_events_mapped: 175

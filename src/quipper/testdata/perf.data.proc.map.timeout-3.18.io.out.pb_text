@@ -18856,28 +18856,6 @@ events {
 }
 events {
   header {
-    type: 68
-    misc: 0
-    size: 8
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 32
-  }
-  sample_event {
-    ip: 101600455110397
-    pid: 9463
-    tid: 9470
-    sample_time_ns: 719735789766266
-  }
-  timestamp: 719735789766266
-}
-events {
-  header {
     type: 9
     misc: 1
     size: 32
@@ -18889,20 +18867,6 @@ events {
     sample_time_ns: 719735863522186
   }
   timestamp: 719735863522186
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 32
-  }
-  sample_event {
-    ip: 101600512338591
-    pid: 9463
-    tid: 9470
-    sample_time_ns: 719735880794778
-  }
-  timestamp: 719735880794778
 }
 events {
   header {
@@ -18925,12 +18889,26 @@ events {
     size: 32
   }
   sample_event {
-    ip: 101600521960079
+    ip: 101600455233449
     pid: 9463
     tid: 9470
-    sample_time_ns: 719736039942189
+    sample_time_ns: 719736356294141
   }
-  timestamp: 719736039942189
+  timestamp: 719736356294141
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600455110397
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719735789766266
+  }
+  timestamp: 719735789766266
 }
 events {
   header {
@@ -18967,12 +18945,34 @@ events {
     size: 32
   }
   sample_event {
-    ip: 101600455233449
+    ip: 101600521960079
     pid: 9463
     tid: 9470
-    sample_time_ns: 719736356294141
+    sample_time_ns: 719736039942189
   }
-  timestamp: 719736356294141
+  timestamp: 719736039942189
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 32
+  }
+  sample_event {
+    ip: 101600512338591
+    pid: 9463
+    tid: 9470
+    sample_time_ns: 719735880794778
+  }
+  timestamp: 719735880794778
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
 }
 timestamp_sec: 0
 stats {

@@ -45878,6 +45878,22 @@ events {
     size: 48
   }
   sample_event {
+    ip: 18446744071937934218
+    pid: 2046
+    tid: 2046
+    sample_time_ns: 346737185178111
+    period: 826009
+    cpu: 0
+  }
+  timestamp: 346737185178111
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
     ip: 18446744071937538751
     pid: 0
     tid: 0
@@ -45966,22 +45982,6 @@ events {
     cpu: 1
   }
   timestamp: 346737185165956
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 18446744071937934218
-    pid: 2046
-    tid: 2046
-    sample_time_ns: 346737185178111
-    period: 826009
-    cpu: 0
-  }
-  timestamp: 346737185178111
 }
 events {
   header {

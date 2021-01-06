@@ -266,11 +266,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_FALSE(stats.did_remap);
 
   string parsed_perf_data = output_path + test_file + ".parse.out";
-  string parsed_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(
-      parsed_perf_data, parsed_baseline_filename, &difference))
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(parsed_perf_data, "", &difference))
       << difference;
   EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, parsed_perf_data));
 

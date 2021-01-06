@@ -88,6 +88,10 @@ bool ComparePerfBuildIDLists(const std::string& file1,
 // Returns options suitable for correctness tests.
 PerfParserOptions GetTestOptions();
 
+// Returns options suitable for validatig the parser output. Avoid any optional
+// transformations on the parsed perf data file.
+PerfParserOptions GetMinimalProcessingOptions();
+
 template <typename T>
 bool EqualsProto(T actual, T expected, std::string* difference = nullptr) {
   std::unique_ptr<MessageDifferencer> differencer(new MessageDifferencer);
