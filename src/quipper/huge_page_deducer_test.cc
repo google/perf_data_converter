@@ -5,9 +5,11 @@
 #include "huge_page_deducer.h"
 
 #include "base/logging.h"
-
 #include "compat/string.h"
 #include "compat/test.h"
+#include "perf_reader.h"
+#include "perf_serializer.h"
+#include "test_perf_data.h"
 
 namespace quipper {
 namespace {
@@ -650,6 +652,42 @@ TEST(HugePageDeducer, CombineMappings) {
                             "pid: 20 start: 0x7f0000000000 "
                             "pgoff: 0 filename: 'lib2.so', len: 0xb000 }",
                         }));
+}
+
+TEST(HugePageDeducer, WriteOutCombinedMappings) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent(10, 0x1000, 0x1000, 0, "//anon",
+                            testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP2
+  testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x1000,
+                             "/some/path/some_long_file_name",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+
+  // Parse and combine mappings.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  EXPECT_EQ(2, reader.events().size());
+
+  CombineMappings(reader.mutable_events());
+  EXPECT_EQ(1, reader.events().size());
+
+  // The following WriteToString command fails if the combined mmap event is not
+  // well formed, with the correct size set in the header.
+  std::string output;
+  ASSERT_TRUE(reader.WriteToString(&output));
 }
 
 }  // namespace

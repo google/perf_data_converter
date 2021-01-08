@@ -346,6 +346,7 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
 
     const MMapEvent* mmap = nullptr;
     MMapEvent* prev_mmap = nullptr;
+    PerfEvent* prev_mmap_event = nullptr;
     int32_t pid = -1;
     if (event->has_mmap_event()) {
       mmap = &event->mmap_event();
@@ -353,7 +354,8 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
       auto itr = pid_to_prev_map.find(pid);
       should_merge = itr != pid_to_prev_map.end();
       if (should_merge) {
-        prev_mmap = new_events.Mutable(itr->second)->mutable_mmap_event();
+        prev_mmap_event = new_events.Mutable(itr->second);
+        prev_mmap = prev_mmap_event->mutable_mmap_event();
       }
     }
 
@@ -370,7 +372,8 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
       prev_mmap->set_len(prev_mmap->len() + mmap->len());
 
       if (IsHugePage(*prev_mmap) && !IsHugePage(*mmap)) {
-        prev_mmap->set_filename(mmap->filename());
+        SetMmapFilename(prev_mmap_event, mmap->filename(),
+                        mmap->filename_md5_prefix());
       }
     } else {
       // Remember the last mmap event for a PID.
