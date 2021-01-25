@@ -1,5 +1,13 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# bazel_skylib is a dependency of protobuf; this declaration must come before
+# protobuf to override its internally-declared version.
+http_archive(
+    name = "bazel_skylib",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz"],
+    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+)
+
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
 http_archive(
      name = "com_google_googletest",
@@ -7,21 +15,19 @@ http_archive(
      strip_prefix = "googletest-master",
 )
 
+# rules_python is a dependency for protobuf.
+http_archive(
+    name = "rules_python",
+    urls = ["https://github.com/bazelbuild/rules_python/archive/master.tar.gz"],
+    strip_prefix = "rules_python-master",
+)
+
 # proto_library, cc_proto_library, and java_proto_library rules implicitly
 # depend on @com_google_protobuf for protoc and proto runtimes.
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip"],
-    strip_prefix = "protobuf-3.9.0",
-)
-
-# bazel_skylib is a dependency of protobuf.
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
-    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/master.zip"],
+    strip_prefix = "protobuf-master",
 )
 
 http_archive(

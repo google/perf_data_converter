@@ -12,7 +12,7 @@
 namespace quipper {
 
 // Check that "args" is safe to pass to perf. That is, that it only contains
-// safe options from a whitelist of those that modify event collection.
+// safe options from an allowlist of those that modify event collection.
 // e.g., "perf record -e cycles -- rm -rf /" is unsafe.
 // This check should be made on the arguments coming from an untrusted caller of
 // quipper before quipper adds its own arguments, like "-- sleep 2" to set the
