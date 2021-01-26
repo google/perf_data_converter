@@ -305,9 +305,9 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
       .min = min_,
       .ino = ino_,
       .ino_generation = 9,
-      .prot = 1 | 2,  // == PROT_READ | PROT_WRITE
-      .flags = 2,     // == MAP_PRIVATE
-                      // .filename = ..., // written separately
+      .prot = prot_,
+      .flags = flags_,
+      // .filename = ..., written separately
   };
 
   const size_t pre_mmap_offset = out->tellp();

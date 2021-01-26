@@ -4,10 +4,11 @@
 
 #include "huge_page_deducer.h"
 
+#include <sys/mman.h>
+
 #include <limits>
 
 #include "base/logging.h"
-
 #include "perf_data_utils.h"
 
 using PerfEvent = quipper::PerfDataProto::PerfEvent;
@@ -31,16 +32,15 @@ bool IsAnon(const MMapEvent& event) {
   return is_anon;
 }
 
+// HasExecuteProtection returns if the given |mmap| has the execute protection.
+bool HasExecuteProtection(const MMapEvent& mmap) {
+  return (mmap.prot() & PROT_EXEC) != 0;
+}
+
 // IsVmaContiguous returns true if mmap |a| is immediately followed by |b|
 // within a process' address space.
 bool IsVmaContiguous(const MMapEvent& a, const MMapEvent& b) {
   return a.pid() == b.pid() && (a.start() + a.len()) == b.start();
-}
-
-// IsFileContiguous returns true if mmap offset of |a| is immediately followed
-// by |b|.
-bool IsFileContiguous(const MMapEvent& a, const MMapEvent& b) {
-  return (a.pgoff() + a.len()) == b.pgoff();
 }
 
 // Does mmap look like it comes from a huge page source?  Note: this will return
@@ -67,6 +67,21 @@ bool IsHugePage(const MMapEvent& mmap) {
   return mmap.filename().length() > buildid_start + strlen(kBuildIdStr);
 }
 
+// IsFileContiguous returns true if the mmap offset of |a| is immediately
+// followed by |b|, or if |a| doesn't have execute protection and |b| is an
+// anonymous mapping, and therefore the file offset is meaningless for it. We
+// don't combine anonymous mappings followed by file backed mappings, since they
+// don't correspond to any known segment splitting scenarios that we handle.
+bool IsFileContiguous(const MMapEvent& a, const MMapEvent& b) {
+  // Huge page mappings are identified by DeduceHugePages and their backing
+  // file names and file offsets are adjusted at that point, so they fall under
+  // the first condition below. Data segments that include initialized and
+  // uninitialized data are split into contiguous file backed and anonymous
+  // mappings, and they are captured by the second condition below.
+  return ((a.pgoff() + a.len()) == b.pgoff() && !IsAnon(a)) ||
+         (!HasExecuteProtection(a) && !IsAnon(a) && IsAnon(b));
+}
+
 // IsEquivalentFile returns true iff |a| and |b| have the same name, or if
 // either of them are anonymous memory (and thus likely to be a --hugepage_text
 // version of the same file).
@@ -75,6 +90,29 @@ bool IsEquivalentFile(const MMapEvent& a, const MMapEvent& b) {
   // filename rather than "//anon", so check filename equality, as well as
   // anonymous.
   return a.filename() == b.filename() || IsHugePage(a) || IsHugePage(b);
+}
+
+// IsEquivalentProtection returns true iff |a| and |b| have the same protection
+// mask. It's also possible for a RW segment to be split into a read-only part
+// and a RW part. Assume such cases don't have the executable bit set, and have
+// the same sharing flags (shared vs. private).
+bool IsEquivalentProtection(const MMapEvent& a, const MMapEvent& b) {
+  constexpr uint32_t ro_prot = PROT_READ;
+  constexpr uint32_t rw_prot = PROT_READ | PROT_WRITE;
+  return a.flags() == b.flags() &&
+         (a.prot() == b.prot() ||
+          (a.prot() == ro_prot && b.prot() == rw_prot) ||
+          (a.prot() == rw_prot && b.prot() == ro_prot));
+}
+
+// Returns if the file associated with the given mapping is combinable. For
+// example, device files are special files, so we shouldn't try to combine
+// mappings associated with such files.
+bool IsCombinableFile(const MMapEvent& mmap) {
+  if (mmap.filename().rfind("/dev/", 0) == 0) {
+    return false;
+  }
+  return true;
 }
 
 // Helper to correctly update a filename on a PerfEvent that contains an
@@ -364,17 +402,21 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
     //
     // TODO(b/169891636):  For hugetlbfs-backed files, We should verify that the
     // build IDs match as well.
-    should_merge = should_merge && IsEquivalentFile(*prev_mmap, *mmap) &&
+    should_merge = should_merge && IsCombinableFile(*mmap) &&
+                   IsCombinableFile(*prev_mmap) &&
+                   IsEquivalentFile(*prev_mmap, *mmap) &&
+                   IsEquivalentProtection(*prev_mmap, *mmap) &&
                    IsFileContiguous(*prev_mmap, *mmap) &&
                    IsVmaContiguous(*prev_mmap, *mmap);
     if (should_merge) {
-      // Combine the lengths of the two mappings.
-      prev_mmap->set_len(prev_mmap->len() + mmap->len());
-
       if (IsHugePage(*prev_mmap) && !IsHugePage(*mmap)) {
+        // Update the file offset and filename for the anon mapping.
+        prev_mmap->set_pgoff(mmap->pgoff() - prev_mmap->len());
         SetMmapFilename(prev_mmap_event, mmap->filename(),
                         mmap->filename_md5_prefix());
       }
+      // Combine the lengths of the two mappings.
+      prev_mmap->set_len(prev_mmap->len() + mmap->len());
     } else {
       // Remember the last mmap event for a PID.
       if (mmap != nullptr) {

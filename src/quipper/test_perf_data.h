@@ -5,6 +5,8 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_TEST_PERF_DATA_H_
 #define CHROMIUMOS_WIDE_PROFILING_TEST_PERF_DATA_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 #include <ostream>  
 #include <vector>
@@ -364,6 +366,8 @@ class ExampleMmap2Event : public StreamWriteable {
         maj_(6),
         min_(7),
         ino_(8),
+        prot_(PROT_READ | PROT_WRITE),
+        flags_(MAP_PRIVATE),
         filename_(filename),
         sample_id_(sample_id) {}
   size_t GetSize() const;
@@ -375,6 +379,11 @@ class ExampleMmap2Event : public StreamWriteable {
     maj_ = maj;
     min_ = min;
     ino_ = ino;
+    return *this;
+  }
+  SelfT& WithProtFlags(u32 prot, u32 flags) {
+    prot_ = prot;
+    flags_ = flags;
     return *this;
   }
 
@@ -390,6 +399,8 @@ class ExampleMmap2Event : public StreamWriteable {
   u32 maj_;
   u32 min_;
   u64 ino_;
+  u32 prot_;
+  u32 flags_;
   const string filename_;
   const SampleInfo sample_id_;
 };
