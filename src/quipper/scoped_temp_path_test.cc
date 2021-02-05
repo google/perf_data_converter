@@ -30,14 +30,14 @@ const size_t kTemplateSuffixSize = strlen("XXXXXX");
 const char kTempPathTemplatePrefix[] = "/tmp/quipper.";
 
 // Tests if |path| exists on the file system.
-bool PathExists(const string& path) {
+bool PathExists(const std::string& path) {
   struct stat buf;
   // stat() returns 0 on success, i.e. if the path exists and is valid.
   return !stat(path.c_str(), &buf);
 }
 
 // Creates some files in a directory. Returns the number of files created.
-int PopulateDirectoryWithFiles(const string& dir, int num_files) {
+int PopulateDirectoryWithFiles(const std::string& dir, int num_files) {
   // The last six characters of the file template must be "XXXXXX".
   const char kPathTemplateSuffix[] = "/testXXXXXX";
 
@@ -70,7 +70,7 @@ namespace quipper {
 
 // Create one file and make sure it is deleted when out of scope.
 TEST(ScopedTempPathTest, OneFile) {
-  string path;
+  std::string path;
   {
     ScopedTempFile temp_file;
     path = temp_file.path();
@@ -85,9 +85,9 @@ TEST(ScopedTempPathTest, OneFile) {
 
 // Create a file with a custom template filename.
 TEST(ScopedTempPathTest, CustomFileTemplate) {
-  string path;
+  std::string path;
   {
-    const string prefix = "/tmp/foobar.";
+    const std::string prefix = "/tmp/foobar.";
     ScopedTempFile temp_file(prefix);
     path = temp_file.path();
     EXPECT_TRUE(PathExists(path)) << path;
@@ -99,7 +99,7 @@ TEST(ScopedTempPathTest, CustomFileTemplate) {
 
 // Create many files and make sure they are deleted when out of scope.
 TEST(ScopedTempPathTest, MultipleFiles) {
-  std::vector<string> paths(kNumMultiplePaths);
+  std::vector<std::string> paths(kNumMultiplePaths);
   {
     std::vector<ScopedTempFile> temp_files(kNumMultiplePaths);
     for (size_t i = 0; i < kNumMultiplePaths; ++i) {
@@ -114,7 +114,7 @@ TEST(ScopedTempPathTest, MultipleFiles) {
 
 // Create one empty directory and make sure it is deleted when out of scope.
 TEST(ScopedTempPathTest, OneEmptyDir) {
-  string path;
+  std::string path;
   {
     ScopedTempDir temp_path;
     path = temp_path.path();
@@ -130,9 +130,9 @@ TEST(ScopedTempPathTest, OneEmptyDir) {
 
 // Create a file with a custom template dirname.
 TEST(ScopedTempPathTest, CustomDirTemplate) {
-  string path;
+  std::string path;
   {
-    const string prefix = "/tmp/foobar.";
+    const std::string prefix = "/tmp/foobar.";
     ScopedTempDir temp_path(prefix);
     path = temp_path.path();
     EXPECT_TRUE(PathExists(path)) << path;
@@ -147,7 +147,7 @@ TEST(ScopedTempPathTest, CustomDirTemplate) {
 // Create many empty directories and make sure they are deleted when out of
 // scope.
 TEST(ScopedTempPathTest, MultipleEmptyDirs) {
-  std::vector<string> paths(kNumMultiplePaths);
+  std::vector<std::string> paths(kNumMultiplePaths);
   {
     std::vector<ScopedTempDir> temp_dirs(kNumMultiplePaths);
     for (size_t i = 0; i < kNumMultiplePaths; ++i) {
@@ -163,7 +163,7 @@ TEST(ScopedTempPathTest, MultipleEmptyDirs) {
 // Create a directory with some files in it, and make sure it is deleted when
 // out of scope.
 TEST(ScopedTempPathTest, OneNonEmptyDir) {
-  string path;
+  std::string path;
   {
     ScopedTempDir temp_path;
     path = temp_path.path();
@@ -178,7 +178,7 @@ TEST(ScopedTempPathTest, OneNonEmptyDir) {
 // Create many empty directories with files in them, and make sure they are
 // deleted when out of scope.
 TEST(ScopedTempPathTest, MultipleNonEmptyDirs) {
-  std::vector<string> paths(kNumMultiplePaths);
+  std::vector<std::string> paths(kNumMultiplePaths);
   {
     std::vector<ScopedTempDir> temp_dirs(kNumMultiplePaths);
     for (size_t i = 0; i < kNumMultiplePaths; ++i) {
