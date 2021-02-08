@@ -1756,7 +1756,7 @@ bool PerfReader::ReadAuxtraceTraceData(DataReader* data,
   if (size > remaining_size) {
     LOG(ERROR)
         << "Size " << size
-        << " of the PERF_RECORD_AUXTRACE trace data should be at most the "
+        << " of the PERF_RECORD_AUXTRACE trace data should be at most the"
         << " remaining size " << remaining_size << " of the perf.data input";
     return false;
   }
