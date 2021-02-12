@@ -606,6 +606,7 @@ bool PerfSerializer::SerializeSampleEvent(
     sample->set_transaction(sample_info.transaction);
   if (sample_type & PERF_SAMPLE_PHYS_ADDR)
     sample->set_physical_addr(sample_info.physical_addr);
+  if (sample_type & PERF_SAMPLE_CGROUP) sample->set_cgroup(sample_info.cgroup);
 
   return true;
 }
@@ -1633,6 +1634,7 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
   if (sample.has_transaction()) sample_info->transaction = sample.transaction();
   if (sample.has_physical_addr())
     sample_info->physical_addr = sample.physical_addr();
+  if (sample.has_cgroup()) sample_info->cgroup = sample.cgroup();
 }
 
 }  // namespace quipper

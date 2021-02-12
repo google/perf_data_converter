@@ -432,7 +432,7 @@ bool ReadPerfSampleFromData(const event_t& event,
   // { u64                   cgroup; } && PERF_SAMPLE_CGROUP
   if (sample_fields & PERF_SAMPLE_CGROUP &&
       !reader.ReadUint64(&sample->cgroup)) {
-    LOG(ERROR) << "Couldn't read PERF_SAMPLE_PHYS_ADDR";
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_CGROUP";
     return false;
   }
 
