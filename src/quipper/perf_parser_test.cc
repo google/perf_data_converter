@@ -1672,6 +1672,51 @@ TEST(PerfParserTest, TimeConvEvents) {
   EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
 }
 
+// Kernel 5.10 increased struct time_conv_event from 32 bytes to 56 bytes.
+TEST(PerfParserTest, TimeConvEventsLarge) {
+  std::stringstream input;
+
+  // PERF_RECORD_TIME_CONV
+  testing::ExampleTimeConvEventLarge time_conv_event(5656, 4, 234321);
+
+  size_t data_size = time_conv_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  time_conv_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_TIME_CONV, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
+  EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
+  EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+}
+
 TEST(PerfParserTest, PipedTimeConvEvents) {
   std::stringstream input;
 

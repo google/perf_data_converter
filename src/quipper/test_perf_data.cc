@@ -747,10 +747,16 @@ void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
   };
 
   const size_t pre_time_conv_offset = out->tellp();
-  out->write(reinterpret_cast<const char*>(&event), event_size);
+  out->write(reinterpret_cast<const char*>(&event), sizeof(event));
+  if (sizeof(event) < event_size)
+    WriteExtraBytes(event_size - sizeof(event), out);
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleTimeConvEventLarge::GetSize() const {
+  return ExampleTimeConvEvent::GetSize() + 24;
 }
 
 size_t ExampleCgroupEvent::GetSize() const {
