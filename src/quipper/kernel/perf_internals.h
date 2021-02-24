@@ -508,6 +508,11 @@ struct time_conv_event {
   u64 time_shift;
   u64 time_mult;
   u64 time_zero;
+  // New members introduced in kernel 5.10
+  // u64 time_cycles;
+  // u64 time_mask;
+  // bool cap_user_time_zero;
+  // bool cap_user_time_short;
 };
 
 struct feature_event {

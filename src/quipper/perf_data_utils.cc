@@ -473,13 +473,22 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
       }
       break;
     }
+    // The below events changed size between kernel versions,
+    // so ensure the variable payload size completely exhausts
+    // the remaining_event_size.
+    case PERF_RECORD_TIME_CONV: {
+      if (remaining_event_size == 0 || remaining_event_size == 24) {
+        *size = remaining_event_size;
+        break;
+      }
+      return false;
+    }
     // The below events neither have varaible payload event data nor have
     // trailing sample info data so ensure there is no remaining_event_size.
     case PERF_RECORD_FINISHED_ROUND:
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
-    case PERF_RECORD_TIME_CONV:
       if (remaining_event_size != 0) {
         LOG(ERROR)
             << "Non-zero remaining event size " << remaining_event_size

@@ -761,13 +761,20 @@ class ExampleTimeConvEvent : public StreamWriteable {
  public:
   ExampleTimeConvEvent(u64 time_shift, u64 time_mult, u64 time_zero)
       : time_shift_(time_shift), time_mult_(time_mult), time_zero_(time_zero) {}
-  size_t GetSize() const;
+  virtual size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
  private:
   const u64 time_shift_;
   const u64 time_mult_;
   const u64 time_zero_;
+};
+
+// Kernel 5.10 increased struct time_conv_event from 32 bytes to 56 bytes.
+class ExampleTimeConvEventLarge : public ExampleTimeConvEvent {
+ public:
+  using ExampleTimeConvEvent::ExampleTimeConvEvent;
+  size_t GetSize() const override;
 };
 
 // Produces PERF_RECORD_CGROUP event.

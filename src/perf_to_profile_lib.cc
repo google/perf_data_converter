@@ -55,8 +55,8 @@ void PrintUsage() {
   LOG(INFO) << "perf_to_profile -i <input perf data> -o <output profile> [-f]";
   LOG(INFO) << "If the -f option is given, overwrite the existing output "
             << "profile.";
-  LOG(INFO) << "If the -j option is given, allow unaligne MMAP events required"
-            << "by perf data from VMs with JITs.";
+  LOG(INFO) << "If the -j option is given, allow unaligned MMAP events "
+            << "required by perf data from VMs with JITs.";
 }
 
 bool ParseArguments(int argc, const char* argv[], std::string* input,
