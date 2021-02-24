@@ -14,6 +14,7 @@ For details on pprof, see https://github.com/google/pprof
   ```
   sudo apt-get -y install g++ git libelf-dev libcap-dev
   ```
+* At least g++-5 or clang-7
 
 # Compile and Test
 To install all dependences and build the binary, run the following commands.
