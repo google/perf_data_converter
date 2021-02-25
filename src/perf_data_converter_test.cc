@@ -121,7 +121,7 @@ string GetContents(const string& path) {
 // Gets the string after the last '/' or returns the entire string if there are
 // no slashes.
 inline string Basename(const string& path) {
-  return path.substr(path.find_last_of("/"));
+  return path.substr(path.find_last_of('/'));
 }
 
 string GetResource(const string& relpath) {
@@ -299,6 +299,64 @@ TEST_F(PerfDataConverterTest, Injects) {
       raw_perf_data.size(), build_ids);
   std::unordered_set<string> all_build_ids = AllBuildIDs(pps);
   EXPECT_THAT(all_build_ids, Contains(want_build_id));
+}
+
+TEST_F(PerfDataConverterTest, HandlesDataAddresses) {
+  struct TestCase {
+    string desc;
+    string filename;
+    uint32 options;
+    size_t want_samples;
+    std::vector<size_t> want_frames;  // expected # of frames per sample
+  };
+  std::vector<TestCase> cases;
+  cases.emplace_back(TestCase{"Flat profile without data",
+                              "profile-with-data-addresses-flat.textproto",
+                              kNoOptions,
+                              3,
+                              {1, 1, 1}});
+  cases.emplace_back(TestCase{"Flat profile with data",
+                              "profile-with-data-addresses-flat.textproto",
+                              kAddDataAddressFrames,
+                              3,
+                              {2, 2, 2}});
+  cases.emplace_back(TestCase{"Callchain profile without data",
+                              "profile-with-data-addresses-callchain.textproto",
+                              kNoOptions,
+                              3,
+                              {4, 4, 3}});
+  cases.emplace_back(TestCase{"Callchain profile with data",
+                              "profile-with-data-addresses-callchain.textproto",
+                              kAddDataAddressFrames,
+                              3,
+                              {5, 5, 4}});
+
+  for (const auto& c : cases) {
+    string path(GetResource(c.filename));
+    string ascii_pb = GetContents(path);
+    ASSERT_FALSE(ascii_pb.empty()) << path;
+    PerfDataProto perf_data_proto;
+    ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto))
+        << path;
+
+    const ProcessProfiles pps =
+        PerfDataProtoToProfiles(&perf_data_proto, kNoLabels, c.options);
+
+    // Expecting a single profile.
+    EXPECT_EQ(1u, pps.size()) << c.desc;
+    if (pps.empty()) continue;
+
+    const auto& profile = pps[0]->data;
+    ASSERT_EQ(c.want_samples, profile.sample_size()) << c.desc;
+    ASSERT_EQ(c.want_samples, c.want_frames.size())
+        << c.desc << ": frames vector has unexpected number of entries";
+    int i = 0;
+    for (const auto& sample : profile.sample()) {
+      EXPECT_EQ(c.want_frames[i], sample.location_id_size())
+          << c.desc << ": frame " << i;
+      i++;
+    }
+  }
 }
 
 TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
@@ -497,6 +555,39 @@ TEST_F(PerfDataConverterTest, IgnoresClassesJsaAsMainMapping) {
   EXPECT_EQ(p.mapping_size(), 2);
   EXPECT_GT(p.string_table_size(), 0);
   EXPECT_EQ(p.string_table(p.mapping(0).filename()), "/export/package/App.jar");
+}
+
+TEST_F(PerfDataConverterTest, HandlesKernelSampleAfterExecBeforeMmap) {
+  string ascii_pb(
+      GetContents(GetResource("perf-kernel-sample-before-mmap.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  ASSERT_EQ(pps.size(), 1);
+  const auto& p = pps[0]->data;
+
+  ASSERT_EQ(p.mapping_size(), 2);
+  ASSERT_GE(p.string_table_size(), 2);
+  // Main mapping - not referenced by any locations or samples.
+  const auto& m0 = p.mapping(0);
+  EXPECT_EQ(p.string_table(m0.filename()), "foo");
+  EXPECT_EQ(m0.id(), 1);
+  // The binary mapping, referenced by the second sample.
+  const auto& m1 = p.mapping(1);
+  EXPECT_EQ(p.string_table(m1.filename()), "/usr/bin/foo");
+  EXPECT_EQ(m1.id(), 2);
+
+  ASSERT_EQ(p.sample_size(), 2);
+  // The first sample is unmapped.
+  const auto& s0 = p.sample(0);
+  EXPECT_EQ(s0.location_id_size(), 1);
+  EXPECT_EQ(p.location(s0.location_id(0) - 1).mapping_id(), 0 /*no mapping*/);
+  // The second sample points to the binary.
+  const auto& s1 = p.sample(1);
+  EXPECT_EQ(s1.location_id_size(), 1);
+  EXPECT_EQ(p.location(s1.location_id(0) - 1).mapping_id(), m1.id());
 }
 
 TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {

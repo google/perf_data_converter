@@ -41,6 +41,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 150
   ids: 151
@@ -90,6 +91,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 154
   ids: 155
@@ -609,14 +611,6 @@ events {
       sample_time_ns: 0
       id: 0
     }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 68
-    misc: 0
-    size: 8
   }
   timestamp: 0
 }
@@ -1178,6 +1172,14 @@ events {
     }
   }
   timestamp: 16450093095521
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
 }
 timestamp_sec: 0
 stats {

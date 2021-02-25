@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/perf_data_handler.h"
+
 #include <cstring>
 #include <iomanip>
 #include <memory>
@@ -17,19 +19,21 @@
 #include "src/compat/string_compat.h"
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
-#include "src/perf_data_handler.h"
 #include "src/quipper/dso.h"
 #include "src/quipper/kernel/perf_event.h"
 #include "src/quipper/perf_reader.h"
 
 using quipper::PerfDataProto;
-using quipper::PerfDataProto_MMapEvent;
 using quipper::PerfDataProto_CommEvent;
+using quipper::PerfDataProto_MMapEvent;
 
 namespace perftools {
 namespace {
 
-static const char kKernelPrefix[] = "[kernel.kallsyms]";
+static constexpr char kKernelPrefix[] = "[kernel.kallsyms]";
+// PID value used by perf for synthesized mmap records for the kernel binary
+// and *.ko modules.
+static constexpr uint32 kKernelPid = std::numeric_limits<uint32>::max();
 
 bool HasPrefixString(const string& s, const char* substr) {
   const size_t substr_len = strlen(substr);
@@ -106,7 +110,7 @@ class Normalizer {
 
   // Get buildID using the filename from the mmap. This method should be only
   // called directly for testing.
-  const string* GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
+  string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
 
  private:
   // Using a 32-bit type for the PID values as the max PID value on 64-bit
@@ -126,6 +130,13 @@ class Normalizer {
 
   // Normalize the sample_event in event_proto and call handler_->Sample
   void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& event_proto);
+
+  // Get a memoized fake mapping by specified attributes or add one. Never
+  // returns nullptr. The returned pointer is owned by the normalizer and
+  // bound to its lifetime.
+  const PerfDataHandler::Mapping* GetOrAddFakeMapping(
+      const std::string& comm, const std::string& build_id,
+      uint64 comm_md5_prefix);
 
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
@@ -156,6 +167,30 @@ class Normalizer {
   std::vector<std::unique_ptr<quipper::PerfDataProto_MMapEvent>>
       owned_quipper_mappings_;
 
+  struct FakeMappingKey {
+    string comm;
+    string build_id;
+    uint64 comm_md5_prefix;
+
+    bool operator==(const FakeMappingKey& rhs) const {
+      return (comm == rhs.comm && build_id == rhs.build_id &&
+              comm_md5_prefix == rhs.comm_md5_prefix);
+    }
+
+    struct Hasher {
+      std::size_t operator()(const FakeMappingKey& k) const noexcept {
+        std::size_t h = std::hash<std::string>{}(k.comm);
+        h ^= std::hash<std::string>{}(k.build_id);
+        h ^= std::hash<uint64>{}(k.comm_md5_prefix);
+        return h;
+      }
+    };
+  };
+
+  std::unordered_map<FakeMappingKey, const PerfDataHandler::Mapping*,
+                     FakeMappingKey::Hasher>
+      fake_mappings_;
+
   // The event for a given sample is determined by the id.
   // Map each id to an index in the event_profiles_ vector.
   std::unordered_map<uint64, uint64> id_to_event_index_;
@@ -184,8 +219,10 @@ class Normalizer {
 
   struct {
     int64 samples = 0;
+    int64 samples_with_addr = 0;
     int64 missing_main_mmap = 0;
     int64 missing_sample_mmap = 0;
+    int64 missing_addr_mmap = 0;
 
     int64 callchain_ips = 0;
     int64 missing_callchain_mmap = 0;
@@ -318,6 +355,12 @@ void Normalizer::InvokeHandleSample(
   context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
   stat_.missing_sample_mmap += context.sample_mapping == nullptr;
 
+  if (sample.has_addr()) {
+    ++stat_.samples_with_addr;
+    context.addr_mapping = GetMappingFromPidAndIP(pid, sample.addr(), false);
+    stat_.missing_addr_mmap += context.addr_mapping == nullptr;
+  }
+
   context.main_mapping = GetMainMMapFromPid(pid);
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
@@ -325,19 +368,18 @@ void Normalizer::InvokeHandleSample(
       (event_proto.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
           quipper::PERF_RECORD_MISC_KERNEL) {
     auto comm_it = pid_to_comm_event_.find(pid);
-    auto kernel_it = pid_to_executable_mmap_.find(-1);
+    auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
-      const string* build_id = nullptr;
+      string build_id;
       if (kernel_it != pid_to_executable_mmap_.end()) {
         build_id = kernel_it->second->build_id;
       }
       // The comm_md5_prefix is used for the filename_md5_prefix field in the
       // fake mapping. This allows recovery of the process name (execname) by
       // resolving its md5 prefix when the comm string is nil or empty.
-      fake.reset(
-          new PerfDataHandler::Mapping(&comm_it->second->comm(), build_id, 0, 1,
-                                       0, comm_it->second->comm_md5_prefix()));
-      context.main_mapping = fake.get();
+      context.main_mapping =
+          GetOrAddFakeMapping(comm_it->second->comm(), build_id,
+                              comm_it->second->comm_md5_prefix());
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
       // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.
       context.main_mapping = kernel_it->second;
@@ -389,6 +431,20 @@ void Normalizer::InvokeHandleSample(
   handler_->Sample(context);
 }
 
+const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
+    const std::string& comm, const std::string& build_id,
+    uint64 comm_md5_prefix) {
+  FakeMappingKey key = {comm, build_id, comm_md5_prefix};
+  auto it = fake_mappings_.find(key);
+  if (it != fake_mappings_.end()) {
+    return it->second;
+  }
+  owned_mappings_.emplace_back(
+      new PerfDataHandler::Mapping(comm, build_id, 0, 1, 0, comm_md5_prefix));
+  return fake_mappings_.insert({key, owned_mappings_.back().get()})
+      .first->second;
+}
+
 static void CheckStat(int64 num, int64 denom, const string& desc) {
   const int max_missing_pct = 1;
   if (denom > 0 && num * 100 / denom > max_missing_pct) {
@@ -399,6 +455,8 @@ static void CheckStat(int64 num, int64 denom, const string& desc) {
 void Normalizer::LogStats() {
   CheckStat(stat_.missing_main_mmap, stat_.samples, "missing_main_mmap");
   CheckStat(stat_.missing_sample_mmap, stat_.samples, "missing_sample_mmap");
+  CheckStat(stat_.missing_addr_mmap, stat_.samples_with_addr,
+            "missing_addr_mmap");
   CheckStat(stat_.missing_callchain_mmap, stat_.callchain_ips,
             "missing_callchain_mmap");
   CheckStat(stat_.missing_branch_stack_mmap, stat_.branch_stack_ips,
@@ -406,17 +464,15 @@ void Normalizer::LogStats() {
   CheckStat(stat_.no_event_errors, 1, "unknown event id");
 }
 
-const string* Normalizer::GetBuildId(
-    const quipper::PerfDataProto_MMapEvent* mmap) {
+string Normalizer::GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap) {
   string filename = PerfDataHandler::NameOrMd5Prefix(
       mmap->filename(), mmap->filename_md5_prefix());
-  const string* build_id = nullptr;
   std::unordered_map<string, string>::const_iterator build_id_it =
       filename_to_build_id_.find(filename);
-
   if (build_id_it != filename_to_build_id_.end()) {
-    build_id = &build_id_it->second;
-  } else if (HasPrefixString(filename, kKernelPrefix)) {
+    return build_id_it->second;
+  }
+  if (HasPrefixString(filename, kKernelPrefix)) {
     // The build ID of a kernel non-module filename with its
     // quipper::PERF_RECORD_MISC_CPUMODE_MASK misc bits set to
     // quipper::PERF_RECORD_MISC_KERNEL is used as the kernel build id when no
@@ -424,9 +480,9 @@ const string* Normalizer::GetBuildId(
     // filename /usr/lib/debug/boot/vmlinux-4.16.0-1-amd64 as referenced in the
     // github issue(https://github.com/google/perf_data_converter/issues/36),
     // will be used when [kernel.kallsyms] has no buildid.
-    build_id = &maybe_kernel_build_id_;
+    return maybe_kernel_build_id_;
   }
-  return build_id;
+  return "";
 }
 
 static bool IsVirtualMapping(const string& map_name) {
@@ -450,11 +506,9 @@ void Normalizer::UpdateMapsWithMMapEvent(
     interval_map = it->second.get();
   }
 
-  const string* build_id = GetBuildId(mmap);
-
   PerfDataHandler::Mapping* mapping = new PerfDataHandler::Mapping(
-      &mmap->filename(), build_id, mmap->start(), mmap->start() + mmap->len(),
-      mmap->pgoff(), mmap->filename_md5_prefix());
+      mmap->filename(), GetBuildId(mmap), mmap->start(),
+      mmap->start() + mmap->len(), mmap->pgoff(), mmap->filename_md5_prefix());
   owned_mappings_.emplace_back(mapping);
   if (mapping->start <= (static_cast<uint64>(1) << 63) &&
       mapping->file_offset > (static_cast<uint64>(1) << 63) &&
@@ -495,11 +549,11 @@ void Normalizer::UpdateMapsWithMMapEvent(
                                                       : old_mapping_it->second;
 
   if (old_mapping != nullptr && old_mapping->start == 0x400000 &&
-      (old_mapping->filename == nullptr || old_mapping->filename->empty()) &&
+      old_mapping->filename.empty() &&
       mapping->start - mapping->file_offset == 0x400000) {
     // Hugepages remap the main binary, but the original mapping loses
     // its name, so we have this hack.
-    old_mapping->filename = &mmap->filename();
+    old_mapping->filename = mmap->filename();
   }
 
   if (old_mapping == nullptr && !HasSuffixString(mmap->filename(), ".ko") &&
@@ -528,8 +582,7 @@ void Normalizer::UpdateMapsWithMMapEvent(
     return;
   }
 
-  if (pid == std::numeric_limits<uint32>::max() &&
-      HasPrefixString(mmap->filename(), kKernelPrefix)) {
+  if (pid == kKernelPid && HasPrefixString(mmap->filename(), kKernelPrefix)) {
     pid_to_executable_mmap_[pid] = mapping;
   }
 }
@@ -654,8 +707,7 @@ string PerfDataHandler::NameOrMd5Prefix(string name, uint64_t md5_prefix) {
 }
 
 string PerfDataHandler::MappingFilename(const Mapping* m) {
-  return NameOrMd5Prefix(m->filename != nullptr ? *m->filename : "",
-                         m->filename_md5_prefix);
+  return NameOrMd5Prefix(m->filename, m->filename_md5_prefix);
 }
 
 }  // namespace perftools

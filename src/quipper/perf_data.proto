@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 syntax = "proto2";
-option cc_enable_arenas = true;
 
 package quipper;
+
+option cc_enable_arenas = true;
 
 // Stores information from a perf session generated via running:
 // "perf record"
@@ -17,7 +18,7 @@ message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
   // $kernel/include/uapi/linux/perf_event.h.
-  // Next tag: 46
+  // Next tag: 47
   message PerfEventAttr {
     // Type of the event. Type is an enumeration and can be one of the values
     // described at: $kernel/include/linux/perf_event.h.
@@ -134,6 +135,9 @@ message PerfDataProto {
 
     // Include namespace data.
     optional bool namespaces = 45;
+
+    // Include cgroup data.
+    optional bool cgroup = 46;
 
     // Contains the number of events after which we wake up.
     optional uint32 wakeup_events = 28;
@@ -319,7 +323,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 20
+  // Next tag: 21
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -376,6 +380,9 @@ message PerfDataProto {
 
     // Physical address of the sample.
     optional uint64 physical_addr = 19;
+
+    // Cgroup id.
+    optional uint64 cgroup = 20;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data
@@ -685,6 +692,18 @@ message PerfDataProto {
     optional uint64 time = 2;
   }
 
+  // Next tag: 4
+  message CgroupEvent {
+    // Cgroup ID (file handle).
+    optional uint64 id = 1;
+
+    // Cgroup path.
+    optional string path = 2;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 3;
+  }
+
   // Time members to convert between TSC and perf time.
   // Next tag: 4
   message TimeConvEvent {
@@ -707,7 +726,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 24
+  // Next tag: 25
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -722,7 +741,7 @@ message PerfDataProto {
       ForkEvent exit_event = 9;
       LostEvent lost_event = 6;
       ThrottleEvent throttle_event = 7;
-      ReadEvent read_event = 8 [deprecated=true];
+      ReadEvent read_event = 8 [deprecated = true];
       AuxEvent aux_event = 11;
       ItraceStartEvent itrace_start_event = 13;
       LostSamplesEvent lost_samples_event = 14;
@@ -736,6 +755,7 @@ message PerfDataProto {
       StatConfigEvent stat_config_event = 21;
       StatEvent stat_event = 22;
       StatRoundEvent stat_round_event = 23;
+      CgroupEvent cgroup_event = 24;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

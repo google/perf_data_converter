@@ -132,6 +132,7 @@ TEST(PerfReaderTest, PerfEventAttrEvent) {
       .WithContextSwitch(true)
       .WithWriteBackward(true)
       .WithNamespaces(true)
+      .WithCgroup(true)
       .WriteTo(&input);
 
   //
@@ -150,6 +151,7 @@ TEST(PerfReaderTest, PerfEventAttrEvent) {
     EXPECT_TRUE(attr.context_switch());
     EXPECT_TRUE(attr.write_backward());
     EXPECT_TRUE(attr.namespaces());
+    EXPECT_TRUE(attr.cgroup());
   }
 
   ASSERT_EQ(0, pr.event_types().size());
@@ -171,6 +173,7 @@ TEST(PerfReaderTest, PerfFileAttr) {
       .WithContextSwitch(true)
       .WithWriteBackward(true)
       .WithNamespaces(true)
+      .WithCgroup(true)
       .WriteTo(&input);
 
   // no data
@@ -191,6 +194,7 @@ TEST(PerfReaderTest, PerfFileAttr) {
     EXPECT_TRUE(attr.context_switch());
     EXPECT_TRUE(attr.write_backward());
     EXPECT_TRUE(attr.namespaces());
+    EXPECT_TRUE(attr.cgroup());
   }
 
   ASSERT_EQ(0, pr.event_types().size());

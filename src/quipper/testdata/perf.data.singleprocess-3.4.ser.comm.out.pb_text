@@ -41,6 +41,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 11
   ids: 12
@@ -88,6 +89,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 13
   ids: 14
@@ -135,6 +137,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 15
   ids: 16
@@ -182,6 +185,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 17
   ids: 18
@@ -229,6 +233,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 19
   ids: 20
@@ -276,6 +281,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 21
   ids: 22

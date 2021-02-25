@@ -41,6 +41,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 206
   ids: 207
@@ -90,6 +91,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 210
   ids: 211
@@ -139,6 +141,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
   ids: 214
   ids: 215

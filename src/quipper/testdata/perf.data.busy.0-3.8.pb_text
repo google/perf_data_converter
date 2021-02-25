@@ -37,6 +37,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 894
   ids: 895
@@ -82,6 +87,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 898
   ids: 899
@@ -127,6 +137,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 902
   ids: 903
@@ -172,6 +187,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 906
   ids: 907
@@ -217,6 +237,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 910
   ids: 911
@@ -262,6 +287,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 914
   ids: 915
@@ -58481,4 +58511,34 @@ string_metadata {
     value: "/usr/sbin/perf record -a -e cycles,instructions,cache-references,cache-misses,branches,branch-misses -c 1000000 -o perf.data.busy.0.next -- sleep 0"
     value_md5_prefix: 14689630923096118536
   }
+}
+pmu_mappings {
+  type: 4
+  name: "cpu"
+  name_md5_prefix: 15669287738006486457
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 6
+  name: "uncore_cbox_0"
+  name_md5_prefix: 1137124233652450800
+}
+pmu_mappings {
+  type: 7
+  name: "uncore_cbox_1"
+  name_md5_prefix: 15013062577747304375
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
 }

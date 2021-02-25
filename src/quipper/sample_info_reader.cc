@@ -429,6 +429,13 @@ bool ReadPerfSampleFromData(const event_t& event,
     return false;
   }
 
+  // { u64                   cgroup; } && PERF_SAMPLE_CGROUP
+  if (sample_fields & PERF_SAMPLE_CGROUP &&
+      !reader.ReadUint64(&sample->cgroup)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_CGROUP";
+    return false;
+  }
+
   if (sample_fields & ~(PERF_SAMPLE_MAX - 1)) {
     LOG(WARNING) << "Unrecognized sample fields 0x" << std::hex
                  << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
@@ -688,6 +695,11 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
     WriteData(sample.physical_addr);
   }
 
+  // { u64                   cgroup; } && PERF_SAMPLE_CGROUP
+  if (sample_fields & PERF_SAMPLE_CGROUP) {
+    WriteData(sample.cgroup);
+  }
+
   return GetWrittenSize();
 }
 
@@ -710,6 +722,7 @@ bool SampleInfoReader::IsSupportedEventType(uint32_t type) {
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
     case PERF_RECORD_NAMESPACES:
+    case PERF_RECORD_CGROUP:
       return true;
   }
   return false;
@@ -795,6 +808,7 @@ uint64_t SampleInfoReader::GetSampleFieldsForEventType(uint32_t event_type,
     case PERF_RECORD_SWITCH:
     case PERF_RECORD_SWITCH_CPU_WIDE:
     case PERF_RECORD_NAMESPACES:
+    case PERF_RECORD_CGROUP:
       // See perf_event.h "struct" sample_id and sample_id_all.
       mask = PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_ID |
              PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_IDENTIFIER;

@@ -4,10 +4,14 @@
 
 #include "huge_page_deducer.h"
 
-#include "base/logging.h"
+#include <sys/mman.h>
 
+#include "base/logging.h"
 #include "compat/string.h"
 #include "compat/test.h"
+#include "perf_reader.h"
+#include "perf_serializer.h"
+#include "test_perf_data.h"
 
 namespace quipper {
 namespace {
@@ -650,6 +654,385 @@ TEST(HugePageDeducer, CombineMappings) {
                             "pid: 20 start: 0x7f0000000000 "
                             "pgoff: 0 filename: 'lib2.so', len: 0xb000 }",
                         }));
+}
+
+TEST(HugePageDeducer, CombineFileBackedAndAnonMappings) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // File backed mapping followed by anon with compatible protection.
+  testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x2000,
+                             "/usr/compatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(10))
+      .WithProtFlags(PROT_READ, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(10, 0x5000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(10))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+      .WriteTo(&input);
+
+  // File backed mapping followed by anon with incompatible protection.
+  testing::ExampleMmap2Event(20, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(20))
+      .WithProtFlags(PROT_READ, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(20, 0x5000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(20))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_PRIVATE)
+      .WriteTo(&input);
+
+  // File backed mapping followed by anon with execute protection.
+  testing::ExampleMmap2Event(30, 0x2000, 0x3000, 0x2000,
+                             "/usr/exec_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(30))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(30, 0x5000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(30))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_PRIVATE)
+      .WriteTo(&input);
+
+  // File backed mapping followed by anon with incompatible sharing flags.
+  testing::ExampleMmap2Event(40, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_flags/combinable_file_name",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(40, 0x5000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_SHARED)
+      .WriteTo(&input);
+
+  // Non-combinable file backed mapping followed by anon.
+  testing::ExampleMmap2Event(50, 0x2000, 0x3000, 0x2000,
+                             "/dev/non_combinable_file_name",
+                             testing::SampleInfo().Tid(50))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(50, 0x5000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(50))
+      .WriteTo(&input);
+
+  // File backed mapping followed by non VMA contiguous anon mapping.
+  testing::ExampleMmap2Event(60, 0x2000, 0x3000, 0x2000,
+                             "/usr/non_vma_contiguous_file_name",
+                             testing::SampleInfo().Tid(60))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(60, 0x6000, 0x1000, 0, "//anon",
+                             testing::SampleInfo().Tid(60))
+      .WriteTo(&input);
+
+  // Parse and combine mappings.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  EXPECT_EQ(12, reader.events().size());
+
+  CombineMappings(reader.mutable_events());
+  EXPECT_EQ(11, reader.events().size());
+
+  EXPECT_THAT(
+      reader.events(),
+      Pointwise(Partially(EqualsProto()),
+                {
+                    "mmap_event: { "
+                    "pid: 10 start: 0x2000 len: 0x4000 pgoff: 0x2000 "
+                    "filename: '/usr/compatible_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 20 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 20 start: 0x5000 len: 0x1000 pgoff: 0 "
+                    "filename: '//anon' }",
+                    "mmap_event: { "
+                    "pid: 30 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/exec_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 30 start: 0x5000 len: 0x1000 pgoff: 0 "
+                    "filename: '//anon' }",
+                    "mmap_event: { "
+                    "pid: 40 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_flags/combinable_file_name' "
+                    "}",
+                    "mmap_event: { "
+                    "pid: 40 start: 0x5000 len: 0x1000 pgoff: 0 "
+                    "filename: '//anon' }",
+                    "mmap_event: { "
+                    "pid: 50 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/dev/non_combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 50 start: 0x5000 len: 0x1000 pgoff: 0 "
+                    "filename: '//anon' }",
+                    "mmap_event: { "
+                    "pid: 60 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/non_vma_contiguous_file_name' }",
+                    "mmap_event: { "
+                    "pid: 60 start: 0x6000 len: 0x1000 pgoff: 0 "
+                    "filename: '//anon' }",
+                }));
+
+  // The following WriteToString command fails if the combined mmap events are
+  // not well formed, with the correct size set in the header.
+  std::string output;
+  ASSERT_TRUE(reader.WriteToString(&output));
+}
+
+TEST(HugePageDeducer, CombineAnonAndFileBackedMappings) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // Anon and file backed mappings are not combined even when all address ranges
+  // are contiguous and protections match.
+  testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x2000, "//anon",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(10, 0x5000, 0x1000, 0x5000,
+                             "/usr/compatible_file_name",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+
+  // Parse and combine mappings.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  EXPECT_EQ(2, reader.events().size());
+
+  CombineMappings(reader.mutable_events());
+  EXPECT_EQ(2, reader.events().size());
+
+  EXPECT_THAT(reader.events(),
+              Pointwise(Partially(EqualsProto()),
+                        {
+                            "mmap_event: { "
+                            "pid: 10 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                            "filename: '//anon' }",
+                            "mmap_event: { "
+                            "pid: 10 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                            "filename: '/usr/compatible_file_name' }",
+                        }));
+
+  // The following WriteToString command fails if the combined mmap events are
+  // not well formed, with the correct size set in the header.
+  std::string output;
+  ASSERT_TRUE(reader.WriteToString(&output));
+}
+
+TEST(HugePageDeducer, CombineFileBackedMappings) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // Compatible file backed mappings.
+  testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x2000,
+                             "/usr/compatible_file_name",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(10, 0x5000, 0x1000, 0x5000,
+                             "/usr/compatible_file_name",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+
+  // File backed mappings with compatible protection.
+  testing::ExampleMmap2Event(20, 0x2000, 0x3000, 0x2000,
+                             "/usr/compatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(20))
+      .WithProtFlags(PROT_READ, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(20, 0x5000, 0x1000, 0x5000,
+                             "/usr/compatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(20))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+      .WriteTo(&input);
+
+  // File backed mappings with incompatible protection.
+  testing::ExampleMmap2Event(30, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(30))
+      .WithProtFlags(PROT_READ, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(30, 0x5000, 0x1000, 0x5000,
+                             "/usr/incompatible_prot/combinable_file_name",
+                             testing::SampleInfo().Tid(30))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_PRIVATE)
+      .WriteTo(&input);
+
+  // File backed mappings with incompatible sharing flags.
+  testing::ExampleMmap2Event(40, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_flags/combinable_file_name",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(40, 0x5000, 0x1000, 0x5000,
+                             "/usr/incompatible_flags/combinable_file_name",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_SHARED)
+      .WriteTo(&input);
+
+  // Non-combinable file backed mappings.
+  testing::ExampleMmap2Event(50, 0x2000, 0x3000, 0x2000,
+                             "/dev/non_combinable_file_name",
+                             testing::SampleInfo().Tid(50))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(50, 0x5000, 0x1000, 0x5000,
+                             "/dev/non_combinable_file_name",
+                             testing::SampleInfo().Tid(50))
+      .WriteTo(&input);
+
+  // File backed mappings without VMA contiguous addresses.
+  testing::ExampleMmap2Event(60, 0x2000, 0x3000, 0x2000,
+                             "/usr/non_vma_contiguous_file_name",
+                             testing::SampleInfo().Tid(60))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(60, 0x6000, 0x1000, 0x5000,
+                             "/usr/non_vma_contiguous_file_name",
+                             testing::SampleInfo().Tid(60))
+      .WriteTo(&input);
+
+  // File backed mappings without file contiguous offsets.
+  testing::ExampleMmap2Event(70, 0x2000, 0x3000, 0x2000,
+                             "/usr/non_pgoff_contiguous_file_name",
+                             testing::SampleInfo().Tid(70))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(70, 0x5000, 0x1000, 0x6000,
+                             "/usr/non_pgoff_contiguous_file_name",
+                             testing::SampleInfo().Tid(70))
+      .WriteTo(&input);
+
+  // File backed mappings with incompatible file names.
+  testing::ExampleMmap2Event(80, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_file_name1",
+                             testing::SampleInfo().Tid(80))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(80, 0x5000, 0x1000, 0x5000,
+                             "/usr/incompatible_file_name2",
+                             testing::SampleInfo().Tid(80))
+      .WriteTo(&input);
+
+  // Parse and combine mappings.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  EXPECT_EQ(16, reader.events().size());
+
+  CombineMappings(reader.mutable_events());
+  EXPECT_EQ(14, reader.events().size());
+
+  EXPECT_THAT(
+      reader.events(),
+      Pointwise(Partially(EqualsProto()),
+                {
+                    "mmap_event: { "
+                    "pid: 10 start: 0x2000 len: 0x4000 pgoff: 0x2000 "
+                    "filename: '/usr/compatible_file_name' }",
+                    "mmap_event: { "
+                    "pid: 20 start: 0x2000 len: 0x4000 pgoff: 0x2000 "
+                    "filename: '/usr/compatible_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 30 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 30 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                    "filename: '/usr/incompatible_prot/combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 40 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_flags/combinable_file_name' "
+                    "}",
+                    "mmap_event: { "
+                    "pid: 40 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                    "filename: '/usr/incompatible_flags/combinable_file_name' "
+                    "}",
+                    "mmap_event: { "
+                    "pid: 50 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/dev/non_combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 50 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                    "filename: '/dev/non_combinable_file_name' }",
+                    "mmap_event: { "
+                    "pid: 60 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/non_vma_contiguous_file_name' }",
+                    "mmap_event: { "
+                    "pid: 60 start: 0x6000 len: 0x1000 pgoff: 0x5000 "
+                    "filename: '/usr/non_vma_contiguous_file_name' }",
+                    "mmap_event: { "
+                    "pid: 70 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/non_pgoff_contiguous_file_name' }",
+                    "mmap_event: { "
+                    "pid: 70 start: 0x5000 len: 0x1000 pgoff: 0x6000 "
+                    "filename: '/usr/non_pgoff_contiguous_file_name' }",
+                    "mmap_event: { "
+                    "pid: 80 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_file_name1' }",
+                    "mmap_event: { "
+                    "pid: 80 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                    "filename: '/usr/incompatible_file_name2' }",
+                }));
+
+  // The following WriteToString command fails if the combined mmap events are
+  // not well formed, with the correct size set in the header.
+  std::string output;
+  ASSERT_TRUE(reader.WriteToString(&output));
+}
+
+TEST(HugePageDeducer, CombineAnonMappings) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // Anon mappings are not combined even when all address ranges are contiguous
+  // and protections match.
+  testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x2000, "//anon",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(10, 0x5000, 0x1000, 0x5000, "//anon",
+                             testing::SampleInfo().Tid(10))
+      .WriteTo(&input);
+
+  // Parse and combine mappings.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  EXPECT_EQ(2, reader.events().size());
+
+  CombineMappings(reader.mutable_events());
+  EXPECT_EQ(2, reader.events().size());
+
+  EXPECT_THAT(reader.events(),
+              Pointwise(Partially(EqualsProto()),
+                        {
+                            "mmap_event: { "
+                            "pid: 10 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
+                            "filename: '//anon' }",
+                            "mmap_event: { "
+                            "pid: 10 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
+                            "filename: '//anon' }",
+                        }));
+
+  // The following WriteToString command fails if the combined mmap events are
+  // not well formed, with the correct size set in the header.
+  std::string output;
+  ASSERT_TRUE(reader.WriteToString(&output));
 }
 
 }  // namespace

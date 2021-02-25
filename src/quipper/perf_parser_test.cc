@@ -266,11 +266,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_FALSE(stats.did_remap);
 
   string parsed_perf_data = output_path + test_file + ".parse.out";
-  string parsed_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
-  EXPECT_TRUE(CheckPerfDataAgainstBaseline(
-      parsed_perf_data, parsed_baseline_filename, &difference))
+  EXPECT_TRUE(CheckPerfDataAgainstBaseline(parsed_perf_data, "", &difference))
       << difference;
   EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, parsed_perf_data));
 
@@ -1708,6 +1706,86 @@ TEST(PerfParserTest, PipedTimeConvEvents) {
   EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
   EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
   EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+}
+
+TEST(PerfParserTest, CgroupEvents) {
+  std::stringstream input;
+
+  // PERF_RECORD_CGROUP
+  testing::ExampleCgroupEvent cgroup_event(567, "group1",
+                                           testing::SampleInfo().Tid(1001));
+
+  size_t data_size = cgroup_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  cgroup_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_CGROUP, events[0].event_ptr->header().type());
+  EXPECT_EQ(567, events[0].event_ptr->cgroup_event().id());
+  EXPECT_STREQ("group1", events[0].event_ptr->cgroup_event().path().c_str());
+}
+
+TEST(PerfParserTest, PipedCgroupEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_CGROUP
+  testing::ExampleCgroupEvent(5678, "group2", testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_CGROUP, events[0].event_ptr->header().type());
+  EXPECT_EQ(5678, events[0].event_ptr->cgroup_event().id());
+  EXPECT_STREQ("group2", events[0].event_ptr->cgroup_event().path().c_str());
 }
 
 TEST(PerfParserTest, DsoInfoHasBuildId) {

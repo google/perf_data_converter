@@ -41,6 +41,7 @@ file_attrs {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: false
   }
 }
 events {
@@ -41932,6 +41933,54 @@ events {
     size: 48
   }
   sample_event {
+    ip: 3227588112
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323018798942
+    period: 15749
+    cpu: 0
+  }
+  timestamp: 1323018798942
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222588920
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323018853692
+    period: 55373
+    cpu: 0
+  }
+  timestamp: 1323018853692
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223379372
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323018936067
+    period: 96798
+    cpu: 0
+  }
+  timestamp: 1323018936067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -41956,22 +42005,6 @@ events {
     cpu: 1
   }
   timestamp: 1323018789901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323018798942
-    period: 15749
-    cpu: 0
-  }
-  timestamp: 1323018798942
 }
 events {
   header {
@@ -42076,22 +42109,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222588920
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323018853692
-    period: 55373
-    cpu: 0
-  }
-  timestamp: 1323018853692
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -42100,22 +42117,6 @@ events {
     cpu: 1
   }
   timestamp: 1323018866651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223379372
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323018936067
-    period: 96798
-    cpu: 0
-  }
-  timestamp: 1323018936067
 }
 events {
   header {
@@ -42172,223 +42173,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3223380348
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019102484
-    period: 62925
-    cpu: 1
-  }
-  timestamp: 1323019102484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223216012
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019190359
-    period: 112824
-    cpu: 1
-  }
-  timestamp: 1323019190359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223272904
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019300484
-    period: 151182
-    cpu: 1
-  }
-  timestamp: 1323019300484
-}
-events {
-  header {
-    type: 3
-    misc: 0
-    size: 48
-  }
-  comm_event {
-    pid: 19079
-    tid: 19079
-    comm: "sleep"
-    comm_md5_prefix: 14554142227159335212
-    sample_info {
-      pid: 19079
-      tid: 19079
-      sample_time_ns: 1323019320484
-      cpu: 1
-    }
-  }
-  timestamp: 1323019320484
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 19079
-    tid: 19079
-    start: 3070185472
-    len: 20480
-    pgoff: 0
-    filename: "/bin/sleep"
-    filename_md5_prefix: 12804683419483656963
-    sample_info {
-      pid: 19079
-      tid: 19079
-      sample_time_ns: 1323019348067
-      cpu: 1
-    }
-  }
-  timestamp: 1323019348067
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 19079
-    tid: 19079
-    start: 3070050304
-    len: 135168
-    pgoff: 0
-    filename: "/lib/ld-2.15.so"
-    filename_md5_prefix: 8840861229259973446
-    sample_info {
-      pid: 19079
-      tid: 19079
-      sample_time_ns: 1323019385317
-      cpu: 1
-    }
-  }
-  timestamp: 1323019385317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224419624
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019428234
-    period: 185870
-    cpu: 1
-  }
-  timestamp: 1323019428234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019570734
-    period: 215521
-    cpu: 1
-  }
-  timestamp: 1323019570734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227580896
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019725984
-    period: 241319
-    cpu: 1
-  }
-  timestamp: 1323019725984
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 88
-  }
-  mmap_event {
-    pid: 19079
-    tid: 19079
-    start: 3069054976
-    len: 946176
-    pgoff: 0
-    filename: "/lib/libc-2.15.so"
-    filename_md5_prefix: 1869148975936512297
-    sample_info {
-      pid: 19079
-      tid: 19079
-      sample_time_ns: 1323019792026
-      cpu: 1
-    }
-  }
-  timestamp: 1323019792026
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222353412
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323019894234
-    period: 264153
-    cpu: 1
-  }
-  timestamp: 1323019894234
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 48
-  }
-  sample_event {
-    ip: 3070085382
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323020071401
-    period: 284191
-    cpu: 1
-  }
-  timestamp: 1323020071401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -42397,22 +42181,6 @@ events {
     cpu: 0
   }
   timestamp: 1323020186734
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 48
-  }
-  sample_event {
-    ip: 3069229100
-    pid: 19079
-    tid: 19079
-    sample_time_ns: 1323020258692
-    period: 301504
-    cpu: 1
-  }
-  timestamp: 1323020258692
 }
 events {
   header {
@@ -42485,38 +42253,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3223381664
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323036256359
-    period: 233998
-    cpu: 1
-  }
-  timestamp: 1323036256359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323041193484
-    period: 205007
-    cpu: 1
-  }
-  timestamp: 1323041193484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222854000
     pid: 0
     tid: 0
@@ -42525,70 +42261,6 @@ events {
     cpu: 0
   }
   timestamp: 1323046182609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323051176359
-    period: 181121
-    cpu: 1
-  }
-  timestamp: 1323051176359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323056212942
-    period: 123065
-    cpu: 1
-  }
-  timestamp: 1323056212942
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323078934026
-    period: 94837
-    cpu: 1
-  }
-  timestamp: 1323078934026
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323078982484
-    period: 73681
-    cpu: 1
-  }
-  timestamp: 1323078982484
 }
 events {
   header {
@@ -42677,22 +42349,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323099037484
-    period: 73681
-    cpu: 1
-  }
-  timestamp: 1323099037484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222484088
     pid: 0
     tid: 0
@@ -42701,22 +42357,6 @@ events {
     cpu: 0
   }
   timestamp: 1323116187901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323136199317
-    period: 99398
-    cpu: 1
-  }
-  timestamp: 1323136199317
 }
 events {
   header {
@@ -42741,86 +42381,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226340768
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323136293651
-    period: 99398
-    cpu: 1
-  }
-  timestamp: 1323136293651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323141460234
-    period: 99398
-    cpu: 1
-  }
-  timestamp: 1323141460234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224387392
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323151324484
-    period: 107230
-    cpu: 1
-  }
-  timestamp: 1323151324484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323156401859
-    period: 72881
-    cpu: 1
-  }
-  timestamp: 1323156401859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323170373984
-    period: 43847
-    cpu: 1
-  }
-  timestamp: 1323170373984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -42829,102 +42389,6 @@ events {
     cpu: 0
   }
   timestamp: 1323197383067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323199320234
-    period: 43847
-    cpu: 1
-  }
-  timestamp: 1323199320234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323216208359
-    period: 43847
-    cpu: 1
-  }
-  timestamp: 1323216208359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323216405234
-    period: 43847
-    cpu: 1
-  }
-  timestamp: 1323216405234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323216633776
-    period: 39352
-    cpu: 1
-  }
-  timestamp: 1323216633776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224387392
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323219567984
-    period: 40747
-    cpu: 1
-  }
-  timestamp: 1323219567984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323219797901
-    period: 41242
-    cpu: 1
-  }
-  timestamp: 1323219797901
 }
 events {
   header {
@@ -42965,38 +42429,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323252377859
-    period: 33383
-    cpu: 1
-  }
-  timestamp: 1323252377859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323276372151
-    period: 26155
-    cpu: 1
-  }
-  timestamp: 1323276372151
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222451120
     pid: 0
     tid: 0
@@ -43016,107 +42448,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323296373817
-    period: 23210
-    cpu: 1
-  }
-  timestamp: 1323296373817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323297472609
     period: 63450
     cpu: 0
   }
   timestamp: 1323297472609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323316344859
-    period: 20629
-    cpu: 1
-  }
-  timestamp: 1323316344859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323319868317
-    period: 20629
-    cpu: 1
-  }
-  timestamp: 1323319868317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323319943567
-    period: 20629
-    cpu: 1
-  }
-  timestamp: 1323319943567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222694636
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323320036109
-    period: 18235
-    cpu: 1
-  }
-  timestamp: 1323320036109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323320190109
-    period: 23421
-    cpu: 1
-  }
-  timestamp: 1323320190109
 }
 events {
   header {
@@ -43144,54 +42480,6 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323340216692
-    period: 28474
-    cpu: 1
-  }
-  timestamp: 1323340216692
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223362760
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323340333526
-    period: 30707
-    cpu: 1
-  }
-  timestamp: 1323340333526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323340520817
-    period: 30707
-    cpu: 1
-  }
-  timestamp: 1323340520817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323351735317
     period: 44830
     cpu: 0
@@ -43208,59 +42496,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323353447567
-    period: 35241
-    cpu: 1
-  }
-  timestamp: 1323353447567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224387392
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323356290817
-    period: 36748
-    cpu: 1
-  }
-  timestamp: 1323356290817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323356405901
     period: 44830
     cpu: 0
   }
   timestamp: 1323356405901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323376383651
-    period: 26514
-    cpu: 1
-  }
-  timestamp: 1323376383651
 }
 events {
   header {
@@ -43329,22 +42569,6 @@ events {
 events {
   header {
     type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323396383151
-    period: 23542
-    cpu: 1
-  }
-  timestamp: 1323396383151
-}
-events {
-  header {
-    type: 9
     misc: 2
     size: 48
   }
@@ -43373,22 +42597,6 @@ events {
     cpu: 0
   }
   timestamp: 1323396744359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323396848609
-    period: 23542
-    cpu: 1
-  }
-  timestamp: 1323396848609
 }
 events {
   header {
@@ -43437,38 +42645,6 @@ events {
     cpu: 0
   }
   timestamp: 1323411286276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222662540
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323416333609
-    period: 19868
-    cpu: 1
-  }
-  timestamp: 1323416333609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323416450901
-    period: 19868
-    cpu: 1
-  }
-  timestamp: 1323416450901
 }
 events {
   header {
@@ -43528,187 +42704,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323431638651
-    period: 19868
-    cpu: 1
-  }
-  timestamp: 1323431638651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222667432
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323436347234
-    period: 20474
-    cpu: 1
-  }
-  timestamp: 1323436347234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323440596067
-    period: 20474
-    cpu: 1
-  }
-  timestamp: 1323440596067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323440636359
-    period: 18052
-    cpu: 1
-  }
-  timestamp: 1323440636359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323440642776
     period: 33928
     cpu: 0
   }
   timestamp: 1323440642776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323440749776
-    period: 15930
-    cpu: 1
-  }
-  timestamp: 1323440749776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323440887526
-    period: 25792
-    cpu: 1
-  }
-  timestamp: 1323440887526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323454495484
-    period: 29725
-    cpu: 1
-  }
-  timestamp: 1323454495484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323460953026
-    period: 32772
-    cpu: 1
-  }
-  timestamp: 1323460953026
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 48
-  }
-  sample_event {
-    ip: 3064426400
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323461091984
-    period: 32772
-    cpu: 1
-  }
-  timestamp: 1323461091984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323461219359
-    period: 28835
-    cpu: 1
-  }
-  timestamp: 1323461219359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323461423401
-    period: 31687
-    cpu: 1
-  }
-  timestamp: 1323461423401
 }
 events {
   header {
@@ -43768,22 +42768,6 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323476421984
-    period: 29658
-    cpu: 1
-  }
-  timestamp: 1323476421984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323479707442
     period: 30325
     cpu: 0
@@ -43805,22 +42789,6 @@ events {
     cpu: 0
   }
   timestamp: 1323496304609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323496383109
-    period: 26340
-    cpu: 1
-  }
-  timestamp: 1323496383109
 }
 events {
   header {
@@ -43880,272 +42848,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323516375276
-    period: 23382
-    cpu: 1
-  }
-  timestamp: 1323516375276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323523555401
-    period: 23382
-    cpu: 1
-  }
-  timestamp: 1323523555401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323523634984
-    period: 23382
-    cpu: 1
-  }
-  timestamp: 1323523634984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323523727401
-    period: 20562
-    cpu: 1
-  }
-  timestamp: 1323523727401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223335744
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323523886651
-    period: 25909
-    cpu: 1
-  }
-  timestamp: 1323523886651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223328876
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323524065067
-    period: 31475
-    cpu: 1
-  }
-  timestamp: 1323524065067
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 48
-  }
-  sample_event {
-    ip: 3069755500
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323524237401
-    period: 33765
-    cpu: 1
-  }
-  timestamp: 1323524237401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223271148
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323524420151
-    period: 35400
-    cpu: 1
-  }
-  timestamp: 1323524420151
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223405856
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323524619734
-    period: 37497
-    cpu: 1
-  }
-  timestamp: 1323524619734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224418048
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323524825359
-    period: 39169
-    cpu: 1
-  }
-  timestamp: 1323524825359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223192448
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323525034067
-    period: 40446
-    cpu: 1
-  }
-  timestamp: 1323525034067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223069508
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323525249067
-    period: 41531
-    cpu: 1
-  }
-  timestamp: 1323525249067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223180380
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323525465817
-    period: 42533
-    cpu: 1
-  }
-  timestamp: 1323525465817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223180380
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323525689067
-    period: 43379
-    cpu: 1
-  }
-  timestamp: 1323525689067
-}
-events {
-  header {
-    type: 7
-    misc: 0
-    size: 56
-  }
-  fork_event {
-    pid: 19080
-    ppid: 10220
-    tid: 19080
-    ptid: 10220
-    fork_time_ns: 1323525769442
-    sample_info {
-      pid: 10220
-      tid: 10220
-      sample_time_ns: 1323525774734
-      cpu: 1
-    }
-  }
-  timestamp: 1323525774734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323525851776
     period: 30427
     cpu: 0
   }
   timestamp: 1323525851776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227587932
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323525921734
-    period: 44180
-    cpu: 1
-  }
-  timestamp: 1323525921734
 }
 events {
   header {
@@ -44162,38 +42869,6 @@ events {
     cpu: 0
   }
   timestamp: 1323526033109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227584884
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323526153817
-    period: 44839
-    cpu: 1
-  }
-  timestamp: 1323526153817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227587896
-    pid: 10220
-    tid: 10220
-    sample_time_ns: 1323526395776
-    period: 45323
-    cpu: 1
-  }
-  timestamp: 1323526395776
 }
 events {
   header {
@@ -44226,22 +42901,6 @@ events {
     cpu: 0
   }
   timestamp: 1323526578526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323526661067
-    period: 43749
-    cpu: 1
-  }
-  timestamp: 1323526661067
 }
 events {
   header {
@@ -44373,22 +43032,6 @@ events {
 }
 events {
   header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323528234317
-    period: 43930
-    cpu: 1
-  }
-  timestamp: 1323528234317
-}
-events {
-  header {
     type: 7
     misc: 0
     size: 56
@@ -44431,22 +43074,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3223070700
-    pid: 19081
-    tid: 19081
-    sample_time_ns: 1323528475984
-    period: 43637
-    cpu: 1
-  }
-  timestamp: 1323528475984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222366568
     pid: 19080
     tid: 19080
@@ -44455,22 +43082,6 @@ events {
     cpu: 0
   }
   timestamp: 1323528590359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222357476
-    pid: 19081
-    tid: 19081
-    sample_time_ns: 1323528651151
-    period: 39049
-    cpu: 1
-  }
-  timestamp: 1323528651151
 }
 events {
   header {
@@ -44495,54 +43106,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3224383548
-    pid: 19081
-    tid: 19081
-    sample_time_ns: 1323528850067
-    period: 39224
-    cpu: 1
-  }
-  timestamp: 1323528850067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224419272
-    pid: 19081
-    tid: 19081
-    sample_time_ns: 1323529067234
-    period: 41324
-    cpu: 1
-  }
-  timestamp: 1323529067234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223313252
-    pid: 19081
-    tid: 19081
-    sample_time_ns: 1323529288817
-    period: 42655
-    cpu: 1
-  }
-  timestamp: 1323529288817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3224392324
     pid: 19081
     tid: 19081
@@ -44551,22 +43114,6 @@ events {
     cpu: 0
   }
   timestamp: 1323529524109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323529531942
-    period: 43466
-    cpu: 1
-  }
-  timestamp: 1323529531942
 }
 events {
   header {
@@ -44631,22 +43178,6 @@ events {
     cpu: 0
   }
   timestamp: 1323530384442
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323530461317
-    period: 44148
-    cpu: 1
-  }
-  timestamp: 1323530461317
 }
 events {
   header {
@@ -45092,22 +43623,6 @@ events {
 events {
   header {
     type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323535905067
-    period: 44320
-    cpu: 1
-  }
-  timestamp: 1323535905067
-}
-events {
-  header {
-    type: 9
     misc: 2
     size: 48
   }
@@ -45144,22 +43659,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323536495192
-    period: 40269
-    cpu: 1
-  }
-  timestamp: 1323536495192
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3223185176
     pid: 19081
     tid: 19081
@@ -45168,22 +43667,6 @@ events {
     cpu: 0
   }
   timestamp: 1323536519609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323536653359
-    period: 35468
-    cpu: 1
-  }
-  timestamp: 1323536653359
 }
 events {
   header {
@@ -45296,22 +43779,6 @@ events {
     cpu: 0
   }
   timestamp: 1323538231442
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323538470817
-    period: 32917
-    cpu: 1
-  }
-  timestamp: 1323538470817
 }
 events {
   header {
@@ -45496,22 +43963,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323541432817
-    period: 35286
-    cpu: 1
-  }
-  timestamp: 1323541432817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222299156
     pid: 19081
     tid: 19081
@@ -45520,38 +43971,6 @@ events {
     cpu: 0
   }
   timestamp: 1323541529942
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226332184
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323541537817
-    period: 31483
-    cpu: 1
-  }
-  timestamp: 1323541537817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223381244
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323541598151
-    period: 27881
-    cpu: 1
-  }
-  timestamp: 1323541598151
 }
 events {
   header {
@@ -45576,22 +43995,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226340768
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323541653067
-    period: 32568
-    cpu: 1
-  }
-  timestamp: 1323541653067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3227588080
     pid: 19081
     tid: 19081
@@ -45600,22 +44003,6 @@ events {
     cpu: 0
   }
   timestamp: 1323541694109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223381428
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323541723359
-    period: 44317
-    cpu: 1
-  }
-  timestamp: 1323541723359
 }
 events {
   header {
@@ -45669,54 +44056,6 @@ events {
     cpu: 0
   }
   timestamp: 1323541808317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222353412
-    pid: 19082
-    tid: 19082
-    sample_time_ns: 1323541820567
-    period: 63806
-    cpu: 1
-  }
-  timestamp: 1323541820567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223052500
-    pid: 19082
-    tid: 19082
-    sample_time_ns: 1323541879859
-    period: 83898
-    cpu: 1
-  }
-  timestamp: 1323541879859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224460840
-    pid: 19082
-    tid: 19082
-    sample_time_ns: 1323541963401
-    period: 100405
-    cpu: 1
-  }
-  timestamp: 1323541963401
 }
 events {
   header {
@@ -46066,22 +44405,6 @@ events {
 events {
   header {
     type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323544682234
-    period: 140960
-    cpu: 1
-  }
-  timestamp: 1323544682234
-}
-events {
-  header {
-    type: 9
     misc: 2
     size: 48
   }
@@ -46216,22 +44539,6 @@ events {
     }
   }
   timestamp: 1323546130067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323546225859
-    period: 176042
-    cpu: 1
-  }
-  timestamp: 1323546225859
 }
 events {
   header {
@@ -46928,22 +45235,6 @@ events {
 events {
   header {
     type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323555450817
-    period: 144794
-    cpu: 1
-  }
-  timestamp: 1323555450817
-}
-events {
-  header {
-    type: 9
     misc: 2
     size: 48
   }
@@ -46972,22 +45263,6 @@ events {
     cpu: 0
   }
   timestamp: 1323555943984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 10
-    tid: 10
-    sample_time_ns: 1323556193359
-    period: 114360
-    cpu: 1
-  }
-  timestamp: 1323556193359
 }
 events {
   header {
@@ -47316,22 +45591,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323561178484
-    period: 88477
-    cpu: 1
-  }
-  timestamp: 1323561178484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3223272904
     pid: 10220
     tid: 10220
@@ -47340,22 +45599,6 @@ events {
     cpu: 0
   }
   timestamp: 1323561197734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222575268
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323561217276
-    period: 71619
-    cpu: 1
-  }
-  timestamp: 1323561217276
 }
 events {
   header {
@@ -47892,54 +46135,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323576192984
-    period: 63117
-    cpu: 1
-  }
-  timestamp: 1323576192984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323581280317
-    period: 94477
-    cpu: 1
-  }
-  timestamp: 1323581280317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323586184234
-    period: 94477
-    cpu: 1
-  }
-  timestamp: 1323586184234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -47990,22 +46185,6 @@ events {
     }
   }
   timestamp: 1323598900401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323601176984
-    period: 83249
-    cpu: 1
-  }
-  timestamp: 1323601176984
 }
 events {
   header {
@@ -48113,59 +46292,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323646186651
-    period: 51312
-    cpu: 1
-  }
-  timestamp: 1323646186651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323646191067
     period: 100401
     cpu: 0
   }
   timestamp: 1323646191067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224426428
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323646218984
-    period: 51312
-    cpu: 1
-  }
-  timestamp: 1323646218984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323646400692
-    period: 51312
-    cpu: 1
-  }
-  timestamp: 1323646400692
 }
 events {
   header {
@@ -48190,38 +46321,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323666338067
-    period: 60985
-    cpu: 1
-  }
-  timestamp: 1323666338067
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223273652
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323671254026
-    period: 60985
-    cpu: 1
-  }
-  timestamp: 1323671254026
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -48230,38 +46329,6 @@ events {
     cpu: 0
   }
   timestamp: 1323671292109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226243248
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323681509401
-    period: 53903
-    cpu: 1
-  }
-  timestamp: 1323681509401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323681621192
-    period: 47509
-    cpu: 1
-  }
-  timestamp: 1323681621192
 }
 events {
   header {
@@ -48383,22 +46450,6 @@ events {
 events {
   header {
     type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223291660
-    pid: 2761
-    tid: 19083
-    sample_time_ns: 1323698470192
-    period: 47509
-    cpu: 1
-  }
-  timestamp: 1323698470192
-}
-events {
-  header {
-    type: 9
     misc: 2
     size: 48
   }
@@ -48411,22 +46462,6 @@ events {
     cpu: 0
   }
   timestamp: 1323698478359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323698617234
-    period: 55052
-    cpu: 1
-  }
-  timestamp: 1323698617234
 }
 events {
   header {
@@ -48459,22 +46494,6 @@ events {
     cpu: 0
   }
   timestamp: 1323699074234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323701688401
-    period: 55052
-    cpu: 1
-  }
-  timestamp: 1323701688401
 }
 events {
   header {
@@ -48566,22 +46585,6 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323716587109
-    period: 48578
-    cpu: 1
-  }
-  timestamp: 1323716587109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323717079276
     period: 53584
     cpu: 0
@@ -48603,70 +46606,6 @@ events {
     cpu: 0
   }
   timestamp: 1323717234276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323726307484
-    period: 48578
-    cpu: 1
-  }
-  timestamp: 1323726307484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223374188
-    pid: 58
-    tid: 58
-    sample_time_ns: 1323726410734
-    period: 48578
-    cpu: 1
-  }
-  timestamp: 1323726410734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323726652734
-    period: 42663
-    cpu: 1
-  }
-  timestamp: 1323726652734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323731357401
-    period: 50883
-    cpu: 1
-  }
-  timestamp: 1323731357401
 }
 events {
   header {
@@ -48699,182 +46638,6 @@ events {
     cpu: 0
   }
   timestamp: 1323746336151
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323746416776
-    period: 27831
-    cpu: 1
-  }
-  timestamp: 1323746416776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224440548
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323751371234
-    period: 24739
-    cpu: 1
-  }
-  timestamp: 1323751371234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323756335817
-    period: 19375
-    cpu: 1
-  }
-  timestamp: 1323756335817
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323757304234
-    period: 19375
-    cpu: 1
-  }
-  timestamp: 1323757304234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323757345567
-    period: 17076
-    cpu: 1
-  }
-  timestamp: 1323757345567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323761328901
-    period: 15494
-    cpu: 1
-  }
-  timestamp: 1323761328901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 10
-    tid: 10
-    sample_time_ns: 1323761429317
-    period: 22236
-    cpu: 1
-  }
-  timestamp: 1323761429317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323761544567
-    period: 19632
-    cpu: 1
-  }
-  timestamp: 1323761544567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323766274234
-    period: 23280
-    cpu: 1
-  }
-  timestamp: 1323766274234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323766404609
-    period: 23901
-    cpu: 1
-  }
-  timestamp: 1323766404609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323766469901
-    period: 21073
-    cpu: 1
-  }
-  timestamp: 1323766469901
 }
 events {
   header {
@@ -49027,54 +46790,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323801943734
-    period: 23503
-    cpu: 1
-  }
-  timestamp: 1323801943734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323802072109
-    period: 31528
-    cpu: 1
-  }
-  timestamp: 1323802072109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323802257692
-    period: 31528
-    cpu: 1
-  }
-  timestamp: 1323802257692
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222451120
     pid: 0
     tid: 0
@@ -49091,86 +46806,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323821291192
-    period: 35417
-    cpu: 1
-  }
-  timestamp: 1323821291192
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323821465567
-    period: 33458
-    cpu: 1
-  }
-  timestamp: 1323821465567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226126744
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323822265609
-    period: 33458
-    cpu: 1
-  }
-  timestamp: 1323822265609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323822472526
-    period: 35382
-    cpu: 1
-  }
-  timestamp: 1323822472526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323822605567
-    period: 32340
-    cpu: 1
-  }
-  timestamp: 1323822605567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -49179,22 +46814,6 @@ events {
     cpu: 0
   }
   timestamp: 1323858364984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323858372192
-    period: 33208
-    cpu: 1
-  }
-  timestamp: 1323858372192
 }
 events {
   header {
@@ -49555,22 +47174,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323903590317
-    period: 36816
-    cpu: 1
-  }
-  timestamp: 1323903590317
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3227588112
     pid: 78
     tid: 78
@@ -49603,38 +47206,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323922636276
-    period: 36816
-    cpu: 1
-  }
-  timestamp: 1323922636276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323922813942
-    period: 36816
-    cpu: 1
-  }
-  timestamp: 1323922813942
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -49654,59 +47225,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1323942867567
-    period: 35994
-    cpu: 1
-  }
-  timestamp: 1323942867567
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226243248
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1323943014609
-    period: 35994
-    cpu: 1
-  }
-  timestamp: 1323943014609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1323956393609
     period: 29916
     cpu: 0
   }
   timestamp: 1323956393609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1323959343317
-    period: 35994
-    cpu: 1
-  }
-  timestamp: 1323959343317
 }
 events {
   header {
@@ -49939,22 +47462,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324006274526
-    period: 39284
-    cpu: 1
-  }
-  timestamp: 1324006274526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3227588112
     pid: 78
     tid: 78
@@ -49979,134 +47486,6 @@ events {
     cpu: 0
   }
   timestamp: 1324016635276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324043199734
-    period: 39284
-    cpu: 1
-  }
-  timestamp: 1324043199734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223365856
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324043325734
-    period: 39284
-    cpu: 1
-  }
-  timestamp: 1324043325734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324060537318
-    period: 39284
-    cpu: 1
-  }
-  timestamp: 1324060537318
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324061279901
-    period: 44297
-    cpu: 1
-  }
-  timestamp: 1324061279901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 83
-    tid: 83
-    sample_time_ns: 1324061488901
-    period: 40693
-    cpu: 1
-  }
-  timestamp: 1324061488901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324061664318
-    period: 37324
-    cpu: 1
-  }
-  timestamp: 1324061664318
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3224390020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324063550943
-    period: 38257
-    cpu: 1
-  }
-  timestamp: 1324063550943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324063769484
-    period: 40304
-    cpu: 1
-  }
-  timestamp: 1324063769484
 }
 events {
   header {
@@ -50147,22 +47526,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324091204651
-    period: 33216
-    cpu: 1
-  }
-  timestamp: 1324091204651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222451120
     pid: 0
     tid: 0
@@ -50182,43 +47545,11 @@ events {
     ip: 3222728636
     pid: 0
     tid: 0
-    sample_time_ns: 1324091364359
-    period: 33216
-    cpu: 1
-  }
-  timestamp: 1324091364359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
     sample_time_ns: 1324091466234
     period: 37651
     cpu: 0
   }
   timestamp: 1324091466234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324091539484
-    period: 33216
-    cpu: 1
-  }
-  timestamp: 1324091539484
 }
 events {
   header {
@@ -50403,54 +47734,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324161606734
-    period: 35643
-    cpu: 1
-  }
-  timestamp: 1324161606734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324163845068
-    period: 37565
-    cpu: 1
-  }
-  timestamp: 1324163845068
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324164055901
-    period: 37565
-    cpu: 1
-  }
-  timestamp: 1324164055901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222667440
     pid: 0
     tid: 0
@@ -50470,107 +47753,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324181202818
-    period: 33396
-    cpu: 1
-  }
-  timestamp: 1324181202818
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222481920
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324181367443
-    period: 34163
-    cpu: 1
-  }
-  timestamp: 1324181367443
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227587968
-    pid: 13
-    tid: 13
-    sample_time_ns: 1324181528776
-    period: 31567
-    cpu: 1
-  }
-  timestamp: 1324181528776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324181608859
     period: 22190
     cpu: 0
   }
   timestamp: 1324181608859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324184115359
-    period: 33695
-    cpu: 1
-  }
-  timestamp: 1324184115359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3223366008
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324184267651
-    period: 36019
-    cpu: 1
-  }
-  timestamp: 1324184267651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324184415318
-    period: 31953
-    cpu: 1
-  }
-  timestamp: 1324184415318
 }
 events {
   header {
@@ -50710,22 +47897,6 @@ events {
     ip: 3222451120
     pid: 0
     tid: 0
-    sample_time_ns: 1324201280984
-    period: 34541
-    cpu: 1
-  }
-  timestamp: 1324201280984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
     sample_time_ns: 1324216288193
     period: 29501
     cpu: 0
@@ -50747,70 +47918,6 @@ events {
     cpu: 0
   }
   timestamp: 1324216443359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324221204484
-    period: 33914
-    cpu: 1
-  }
-  timestamp: 1324221204484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324221361109
-    period: 33914
-    cpu: 1
-  }
-  timestamp: 1324221361109
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 13
-    tid: 13
-    sample_time_ns: 1324221512026
-    period: 30069
-    cpu: 1
-  }
-  timestamp: 1324221512026
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324236242609
-    period: 32373
-    cpu: 1
-  }
-  timestamp: 1324236242609
 }
 events {
   header {
@@ -50867,22 +47974,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324262664943
-    period: 35041
-    cpu: 1
-  }
-  timestamp: 1324262664943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3227588080
     pid: 0
     tid: 0
@@ -50907,38 +47998,6 @@ events {
     cpu: 0
   }
   timestamp: 1324276456734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324284500026
-    period: 35041
-    cpu: 1
-  }
-  timestamp: 1324284500026
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324284709818
-    period: 35041
-    cpu: 1
-  }
-  timestamp: 1324284709818
 }
 events {
   header {
@@ -51091,22 +48150,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324301415609
-    period: 32867
-    cpu: 1
-  }
-  timestamp: 1324301415609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3224491548
     pid: 0
     tid: 0
@@ -51187,54 +48230,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324304761984
-    period: 32867
-    cpu: 1
-  }
-  timestamp: 1324304761984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222694804
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324304912776
-    period: 32867
-    cpu: 1
-  }
-  timestamp: 1324304912776
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324305067359
-    period: 29067
-    cpu: 1
-  }
-  timestamp: 1324305067359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3222451120
     pid: 0
     tid: 0
@@ -51259,22 +48254,6 @@ events {
     cpu: 0
   }
   timestamp: 1324356399984
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324363731109
-    period: 31445
-    cpu: 1
-  }
-  timestamp: 1324363731109
 }
 events {
   header {
@@ -51414,75 +48393,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324398600276
-    period: 33884
-    cpu: 1
-  }
-  timestamp: 1324398600276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324398689151
     period: 28695
     cpu: 0
   }
   timestamp: 1324398689151
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324405130859
-    period: 33884
-    cpu: 1
-  }
-  timestamp: 1324405130859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324405310609
-    period: 33884
-    cpu: 1
-  }
-  timestamp: 1324405310609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324405423359
-    period: 29812
-    cpu: 1
-  }
-  timestamp: 1324405423359
 }
 events {
   header {
@@ -51523,70 +48438,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324421281401
-    period: 31295
-    cpu: 1
-  }
-  timestamp: 1324421281401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324421453401
-    period: 33429
-    cpu: 1
-  }
-  timestamp: 1324421453401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324425395234
-    period: 33429
-    cpu: 1
-  }
-  timestamp: 1324425395234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324425568734
-    period: 35443
-    cpu: 1
-  }
-  timestamp: 1324425568734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3226129084
     pid: 0
     tid: 0
@@ -51606,43 +48457,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324456323734
-    period: 31295
-    cpu: 1
-  }
-  timestamp: 1324456323734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324456381401
     period: 25747
     cpu: 0
   }
   timestamp: 1324456381401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324464788026
-    period: 33035
-    cpu: 1
-  }
-  timestamp: 1324464788026
 }
 events {
   header {
@@ -51814,139 +48633,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324525694193
-    period: 33035
-    cpu: 1
-  }
-  timestamp: 1324525694193
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324525778943
-    period: 29029
-    cpu: 1
-  }
-  timestamp: 1324525778943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324525951818
-    period: 29029
-    cpu: 1
-  }
-  timestamp: 1324525951818
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324536388484
     period: 24239
     cpu: 0
   }
   timestamp: 1324536388484
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222451120
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324541280859
-    period: 36341
-    cpu: 1
-  }
-  timestamp: 1324541280859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324546011276
-    period: 35469
-    cpu: 1
-  }
-  timestamp: 1324546011276
-}
-events {
-  header {
-    type: 9
-    misc: 2
-    size: 48
-  }
-  sample_event {
-    ip: 3069130910
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324546133568
-    period: 35469
-    cpu: 1
-  }
-  timestamp: 1324546133568
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324546286276
-    period: 31271
-    cpu: 1
-  }
-  timestamp: 1324546286276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324546484984
-    period: 31463
-    cpu: 1
-  }
-  timestamp: 1324546484984
 }
 events {
   header {
@@ -52011,22 +48702,6 @@ events {
     cpu: 0
   }
   timestamp: 1324556669193
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324565849568
-    period: 33913
-    cpu: 1
-  }
-  timestamp: 1324565849568
 }
 events {
   header {
@@ -52139,118 +48814,6 @@ events {
     cpu: 0
   }
   timestamp: 1324631729943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324646556943
-    period: 35066
-    cpu: 1
-  }
-  timestamp: 1324646556943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324646676859
-    period: 35066
-    cpu: 1
-  }
-  timestamp: 1324646676859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222728020
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324646893151
-    period: 35066
-    cpu: 1
-  }
-  timestamp: 1324646893151
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226113440
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324666288943
-    period: 40022
-    cpu: 1
-  }
-  timestamp: 1324666288943
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324666893234
-    period: 37081
-    cpu: 1
-  }
-  timestamp: 1324666893234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324667053276
-    period: 37081
-    cpu: 1
-  }
-  timestamp: 1324667053276
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324667229318
-    period: 34375
-    cpu: 1
-  }
-  timestamp: 1324667229318
 }
 events {
   header {
@@ -52390,70 +48953,6 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324767252568
-    period: 36778
-    cpu: 1
-  }
-  timestamp: 1324767252568
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3222299156
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324767396901
-    period: 38710
-    cpu: 1
-  }
-  timestamp: 1324767396901
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324787565693
-    period: 38627
-    cpu: 1
-  }
-  timestamp: 1324787565693
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324787772401
-    period: 38627
-    cpu: 1
-  }
-  timestamp: 1324787772401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324798747318
     period: 44496
     cpu: 0
@@ -52550,59 +49049,11 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
-    sample_time_ns: 1324868340234
-    period: 38627
-    cpu: 1
-  }
-  timestamp: 1324868340234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
     sample_time_ns: 1324887730401
     period: 42466
     cpu: 0
   }
   timestamp: 1324887730401
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324887886859
-    period: 39713
-    cpu: 1
-  }
-  timestamp: 1324887886859
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324888093068
-    period: 39713
-    cpu: 1
-  }
-  timestamp: 1324888093068
 }
 events {
   header {
@@ -52757,54 +49208,6 @@ events {
     cpu: 0
   }
   timestamp: 1324906505068
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324908147068
-    period: 37262
-    cpu: 1
-  }
-  timestamp: 1324908147068
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226608324
-    pid: 4466
-    tid: 4466
-    sample_time_ns: 1324908288609
-    period: 37262
-    cpu: 1
-  }
-  timestamp: 1324908288609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324908492318
-    period: 37262
-    cpu: 1
-  }
-  timestamp: 1324908492318
 }
 events {
   header {
@@ -53005,22 +49408,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1324969404193
-    period: 40984
-    cpu: 1
-  }
-  timestamp: 1324969404193
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3224390020
     pid: 0
     tid: 0
@@ -53187,22 +49574,6 @@ events {
   }
   sample_event {
     ip: 3227588080
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325003537234
-    period: 42152
-    cpu: 1
-  }
-  timestamp: 1325003537234
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588080
     pid: 2761
     tid: 2761
     sample_time_ns: 1325003664734
@@ -53210,22 +49581,6 @@ events {
     cpu: 0
   }
   timestamp: 1325003664734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325003777859
-    period: 42152
-    cpu: 1
-  }
-  timestamp: 1325003777859
 }
 events {
   header {
@@ -53317,6 +49672,3764 @@ events {
     ip: 3226129084
     pid: 0
     tid: 0
+    sample_time_ns: 1325015745693
+    period: 44196
+    cpu: 0
+  }
+  timestamp: 1325015745693
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325021412651
+    period: 34145
+    cpu: 0
+  }
+  timestamp: 1325021412651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 78
+    tid: 78
+    sample_time_ns: 1325021587984
+    period: 34145
+    cpu: 0
+  }
+  timestamp: 1325021587984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325021770359
+    period: 30066
+    cpu: 0
+  }
+  timestamp: 1325021770359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325021901109
+    period: 31666
+    cpu: 0
+  }
+  timestamp: 1325021901109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325022239359
+    period: 33138
+    cpu: 0
+  }
+  timestamp: 1325022239359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 19078
+    tid: 19078
+    sample_time_ns: 1325022434776
+    period: 36817
+    cpu: 0
+  }
+  timestamp: 1325022434776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223380348
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019102484
+    period: 62925
+    cpu: 1
+  }
+  timestamp: 1323019102484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223216012
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019190359
+    period: 112824
+    cpu: 1
+  }
+  timestamp: 1323019190359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223272904
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019300484
+    period: 151182
+    cpu: 1
+  }
+  timestamp: 1323019300484
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 19079
+    tid: 19079
+    comm: "sleep"
+    comm_md5_prefix: 14554142227159335212
+    sample_info {
+      pid: 19079
+      tid: 19079
+      sample_time_ns: 1323019320484
+      cpu: 1
+    }
+  }
+  timestamp: 1323019320484
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 80
+  }
+  mmap_event {
+    pid: 19079
+    tid: 19079
+    start: 3070185472
+    len: 20480
+    pgoff: 0
+    filename: "/bin/sleep"
+    filename_md5_prefix: 12804683419483656963
+    sample_info {
+      pid: 19079
+      tid: 19079
+      sample_time_ns: 1323019348067
+      cpu: 1
+    }
+  }
+  timestamp: 1323019348067
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 80
+  }
+  mmap_event {
+    pid: 19079
+    tid: 19079
+    start: 3070050304
+    len: 135168
+    pgoff: 0
+    filename: "/lib/ld-2.15.so"
+    filename_md5_prefix: 8840861229259973446
+    sample_info {
+      pid: 19079
+      tid: 19079
+      sample_time_ns: 1323019385317
+      cpu: 1
+    }
+  }
+  timestamp: 1323019385317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224419624
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019428234
+    period: 185870
+    cpu: 1
+  }
+  timestamp: 1323019428234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019570734
+    period: 215521
+    cpu: 1
+  }
+  timestamp: 1323019570734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227580896
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019725984
+    period: 241319
+    cpu: 1
+  }
+  timestamp: 1323019725984
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 88
+  }
+  mmap_event {
+    pid: 19079
+    tid: 19079
+    start: 3069054976
+    len: 946176
+    pgoff: 0
+    filename: "/lib/libc-2.15.so"
+    filename_md5_prefix: 1869148975936512297
+    sample_info {
+      pid: 19079
+      tid: 19079
+      sample_time_ns: 1323019792026
+      cpu: 1
+    }
+  }
+  timestamp: 1323019792026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222353412
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323019894234
+    period: 264153
+    cpu: 1
+  }
+  timestamp: 1323019894234
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 48
+  }
+  sample_event {
+    ip: 3070085382
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323020071401
+    period: 284191
+    cpu: 1
+  }
+  timestamp: 1323020071401
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 48
+  }
+  sample_event {
+    ip: 3069229100
+    pid: 19079
+    tid: 19079
+    sample_time_ns: 1323020258692
+    period: 301504
+    cpu: 1
+  }
+  timestamp: 1323020258692
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223381664
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323036256359
+    period: 233998
+    cpu: 1
+  }
+  timestamp: 1323036256359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323041193484
+    period: 205007
+    cpu: 1
+  }
+  timestamp: 1323041193484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323051176359
+    period: 181121
+    cpu: 1
+  }
+  timestamp: 1323051176359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323056212942
+    period: 123065
+    cpu: 1
+  }
+  timestamp: 1323056212942
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323078934026
+    period: 94837
+    cpu: 1
+  }
+  timestamp: 1323078934026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323078982484
+    period: 73681
+    cpu: 1
+  }
+  timestamp: 1323078982484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323099037484
+    period: 73681
+    cpu: 1
+  }
+  timestamp: 1323099037484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323136199317
+    period: 99398
+    cpu: 1
+  }
+  timestamp: 1323136199317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226340768
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323136293651
+    period: 99398
+    cpu: 1
+  }
+  timestamp: 1323136293651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323141460234
+    period: 99398
+    cpu: 1
+  }
+  timestamp: 1323141460234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224387392
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323151324484
+    period: 107230
+    cpu: 1
+  }
+  timestamp: 1323151324484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323156401859
+    period: 72881
+    cpu: 1
+  }
+  timestamp: 1323156401859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323170373984
+    period: 43847
+    cpu: 1
+  }
+  timestamp: 1323170373984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323199320234
+    period: 43847
+    cpu: 1
+  }
+  timestamp: 1323199320234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323216208359
+    period: 43847
+    cpu: 1
+  }
+  timestamp: 1323216208359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323216405234
+    period: 43847
+    cpu: 1
+  }
+  timestamp: 1323216405234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323216633776
+    period: 39352
+    cpu: 1
+  }
+  timestamp: 1323216633776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224387392
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323219567984
+    period: 40747
+    cpu: 1
+  }
+  timestamp: 1323219567984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323219797901
+    period: 41242
+    cpu: 1
+  }
+  timestamp: 1323219797901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323252377859
+    period: 33383
+    cpu: 1
+  }
+  timestamp: 1323252377859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323276372151
+    period: 26155
+    cpu: 1
+  }
+  timestamp: 1323276372151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323296373817
+    period: 23210
+    cpu: 1
+  }
+  timestamp: 1323296373817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323316344859
+    period: 20629
+    cpu: 1
+  }
+  timestamp: 1323316344859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323319868317
+    period: 20629
+    cpu: 1
+  }
+  timestamp: 1323319868317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323319943567
+    period: 20629
+    cpu: 1
+  }
+  timestamp: 1323319943567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222694636
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323320036109
+    period: 18235
+    cpu: 1
+  }
+  timestamp: 1323320036109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323320190109
+    period: 23421
+    cpu: 1
+  }
+  timestamp: 1323320190109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323340216692
+    period: 28474
+    cpu: 1
+  }
+  timestamp: 1323340216692
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223362760
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323340333526
+    period: 30707
+    cpu: 1
+  }
+  timestamp: 1323340333526
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323340520817
+    period: 30707
+    cpu: 1
+  }
+  timestamp: 1323340520817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323353447567
+    period: 35241
+    cpu: 1
+  }
+  timestamp: 1323353447567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224387392
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323356290817
+    period: 36748
+    cpu: 1
+  }
+  timestamp: 1323356290817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323376383651
+    period: 26514
+    cpu: 1
+  }
+  timestamp: 1323376383651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323396383151
+    period: 23542
+    cpu: 1
+  }
+  timestamp: 1323396383151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323396848609
+    period: 23542
+    cpu: 1
+  }
+  timestamp: 1323396848609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222662540
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323416333609
+    period: 19868
+    cpu: 1
+  }
+  timestamp: 1323416333609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323416450901
+    period: 19868
+    cpu: 1
+  }
+  timestamp: 1323416450901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323431638651
+    period: 19868
+    cpu: 1
+  }
+  timestamp: 1323431638651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222667432
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323436347234
+    period: 20474
+    cpu: 1
+  }
+  timestamp: 1323436347234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323440596067
+    period: 20474
+    cpu: 1
+  }
+  timestamp: 1323440596067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323440636359
+    period: 18052
+    cpu: 1
+  }
+  timestamp: 1323440636359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323440749776
+    period: 15930
+    cpu: 1
+  }
+  timestamp: 1323440749776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323440887526
+    period: 25792
+    cpu: 1
+  }
+  timestamp: 1323440887526
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323454495484
+    period: 29725
+    cpu: 1
+  }
+  timestamp: 1323454495484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323460953026
+    period: 32772
+    cpu: 1
+  }
+  timestamp: 1323460953026
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 48
+  }
+  sample_event {
+    ip: 3064426400
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323461091984
+    period: 32772
+    cpu: 1
+  }
+  timestamp: 1323461091984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323461219359
+    period: 28835
+    cpu: 1
+  }
+  timestamp: 1323461219359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323461423401
+    period: 31687
+    cpu: 1
+  }
+  timestamp: 1323461423401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323476421984
+    period: 29658
+    cpu: 1
+  }
+  timestamp: 1323476421984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323496383109
+    period: 26340
+    cpu: 1
+  }
+  timestamp: 1323496383109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323516375276
+    period: 23382
+    cpu: 1
+  }
+  timestamp: 1323516375276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323523555401
+    period: 23382
+    cpu: 1
+  }
+  timestamp: 1323523555401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323523634984
+    period: 23382
+    cpu: 1
+  }
+  timestamp: 1323523634984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323523727401
+    period: 20562
+    cpu: 1
+  }
+  timestamp: 1323523727401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223335744
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323523886651
+    period: 25909
+    cpu: 1
+  }
+  timestamp: 1323523886651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223328876
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323524065067
+    period: 31475
+    cpu: 1
+  }
+  timestamp: 1323524065067
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 48
+  }
+  sample_event {
+    ip: 3069755500
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323524237401
+    period: 33765
+    cpu: 1
+  }
+  timestamp: 1323524237401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223271148
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323524420151
+    period: 35400
+    cpu: 1
+  }
+  timestamp: 1323524420151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223405856
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323524619734
+    period: 37497
+    cpu: 1
+  }
+  timestamp: 1323524619734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224418048
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323524825359
+    period: 39169
+    cpu: 1
+  }
+  timestamp: 1323524825359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223192448
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323525034067
+    period: 40446
+    cpu: 1
+  }
+  timestamp: 1323525034067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223069508
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323525249067
+    period: 41531
+    cpu: 1
+  }
+  timestamp: 1323525249067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223180380
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323525465817
+    period: 42533
+    cpu: 1
+  }
+  timestamp: 1323525465817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223180380
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323525689067
+    period: 43379
+    cpu: 1
+  }
+  timestamp: 1323525689067
+}
+events {
+  header {
+    type: 7
+    misc: 0
+    size: 56
+  }
+  fork_event {
+    pid: 19080
+    ppid: 10220
+    tid: 19080
+    ptid: 10220
+    fork_time_ns: 1323525769442
+    sample_info {
+      pid: 10220
+      tid: 10220
+      sample_time_ns: 1323525774734
+      cpu: 1
+    }
+  }
+  timestamp: 1323525774734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227587932
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323525921734
+    period: 44180
+    cpu: 1
+  }
+  timestamp: 1323525921734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227584884
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323526153817
+    period: 44839
+    cpu: 1
+  }
+  timestamp: 1323526153817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227587896
+    pid: 10220
+    tid: 10220
+    sample_time_ns: 1323526395776
+    period: 45323
+    cpu: 1
+  }
+  timestamp: 1323526395776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323526661067
+    period: 43749
+    cpu: 1
+  }
+  timestamp: 1323526661067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323528234317
+    period: 43930
+    cpu: 1
+  }
+  timestamp: 1323528234317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223070700
+    pid: 19081
+    tid: 19081
+    sample_time_ns: 1323528475984
+    period: 43637
+    cpu: 1
+  }
+  timestamp: 1323528475984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222357476
+    pid: 19081
+    tid: 19081
+    sample_time_ns: 1323528651151
+    period: 39049
+    cpu: 1
+  }
+  timestamp: 1323528651151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224383548
+    pid: 19081
+    tid: 19081
+    sample_time_ns: 1323528850067
+    period: 39224
+    cpu: 1
+  }
+  timestamp: 1323528850067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224419272
+    pid: 19081
+    tid: 19081
+    sample_time_ns: 1323529067234
+    period: 41324
+    cpu: 1
+  }
+  timestamp: 1323529067234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223313252
+    pid: 19081
+    tid: 19081
+    sample_time_ns: 1323529288817
+    period: 42655
+    cpu: 1
+  }
+  timestamp: 1323529288817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323529531942
+    period: 43466
+    cpu: 1
+  }
+  timestamp: 1323529531942
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323530461317
+    period: 44148
+    cpu: 1
+  }
+  timestamp: 1323530461317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323535905067
+    period: 44320
+    cpu: 1
+  }
+  timestamp: 1323535905067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323536495192
+    period: 40269
+    cpu: 1
+  }
+  timestamp: 1323536495192
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323536653359
+    period: 35468
+    cpu: 1
+  }
+  timestamp: 1323536653359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323538470817
+    period: 32917
+    cpu: 1
+  }
+  timestamp: 1323538470817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323541432817
+    period: 35286
+    cpu: 1
+  }
+  timestamp: 1323541432817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226332184
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323541537817
+    period: 31483
+    cpu: 1
+  }
+  timestamp: 1323541537817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223381244
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323541598151
+    period: 27881
+    cpu: 1
+  }
+  timestamp: 1323541598151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226340768
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323541653067
+    period: 32568
+    cpu: 1
+  }
+  timestamp: 1323541653067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223381428
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323541723359
+    period: 44317
+    cpu: 1
+  }
+  timestamp: 1323541723359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222353412
+    pid: 19082
+    tid: 19082
+    sample_time_ns: 1323541820567
+    period: 63806
+    cpu: 1
+  }
+  timestamp: 1323541820567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223052500
+    pid: 19082
+    tid: 19082
+    sample_time_ns: 1323541879859
+    period: 83898
+    cpu: 1
+  }
+  timestamp: 1323541879859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224460840
+    pid: 19082
+    tid: 19082
+    sample_time_ns: 1323541963401
+    period: 100405
+    cpu: 1
+  }
+  timestamp: 1323541963401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323544682234
+    period: 140960
+    cpu: 1
+  }
+  timestamp: 1323544682234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323546225859
+    period: 176042
+    cpu: 1
+  }
+  timestamp: 1323546225859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323555450817
+    period: 144794
+    cpu: 1
+  }
+  timestamp: 1323555450817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 10
+    tid: 10
+    sample_time_ns: 1323556193359
+    period: 114360
+    cpu: 1
+  }
+  timestamp: 1323556193359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323561178484
+    period: 88477
+    cpu: 1
+  }
+  timestamp: 1323561178484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222575268
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323561217276
+    period: 71619
+    cpu: 1
+  }
+  timestamp: 1323561217276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323576192984
+    period: 63117
+    cpu: 1
+  }
+  timestamp: 1323576192984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323581280317
+    period: 94477
+    cpu: 1
+  }
+  timestamp: 1323581280317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323586184234
+    period: 94477
+    cpu: 1
+  }
+  timestamp: 1323586184234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323601176984
+    period: 83249
+    cpu: 1
+  }
+  timestamp: 1323601176984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323646186651
+    period: 51312
+    cpu: 1
+  }
+  timestamp: 1323646186651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224426428
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323646218984
+    period: 51312
+    cpu: 1
+  }
+  timestamp: 1323646218984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323646400692
+    period: 51312
+    cpu: 1
+  }
+  timestamp: 1323646400692
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323666338067
+    period: 60985
+    cpu: 1
+  }
+  timestamp: 1323666338067
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223273652
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323671254026
+    period: 60985
+    cpu: 1
+  }
+  timestamp: 1323671254026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226243248
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323681509401
+    period: 53903
+    cpu: 1
+  }
+  timestamp: 1323681509401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323681621192
+    period: 47509
+    cpu: 1
+  }
+  timestamp: 1323681621192
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223291660
+    pid: 2761
+    tid: 19083
+    sample_time_ns: 1323698470192
+    period: 47509
+    cpu: 1
+  }
+  timestamp: 1323698470192
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323698617234
+    period: 55052
+    cpu: 1
+  }
+  timestamp: 1323698617234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323701688401
+    period: 55052
+    cpu: 1
+  }
+  timestamp: 1323701688401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323716587109
+    period: 48578
+    cpu: 1
+  }
+  timestamp: 1323716587109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323726307484
+    period: 48578
+    cpu: 1
+  }
+  timestamp: 1323726307484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223374188
+    pid: 58
+    tid: 58
+    sample_time_ns: 1323726410734
+    period: 48578
+    cpu: 1
+  }
+  timestamp: 1323726410734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323726652734
+    period: 42663
+    cpu: 1
+  }
+  timestamp: 1323726652734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323731357401
+    period: 50883
+    cpu: 1
+  }
+  timestamp: 1323731357401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323746416776
+    period: 27831
+    cpu: 1
+  }
+  timestamp: 1323746416776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224440548
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323751371234
+    period: 24739
+    cpu: 1
+  }
+  timestamp: 1323751371234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323756335817
+    period: 19375
+    cpu: 1
+  }
+  timestamp: 1323756335817
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323757304234
+    period: 19375
+    cpu: 1
+  }
+  timestamp: 1323757304234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323757345567
+    period: 17076
+    cpu: 1
+  }
+  timestamp: 1323757345567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323761328901
+    period: 15494
+    cpu: 1
+  }
+  timestamp: 1323761328901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 10
+    tid: 10
+    sample_time_ns: 1323761429317
+    period: 22236
+    cpu: 1
+  }
+  timestamp: 1323761429317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323761544567
+    period: 19632
+    cpu: 1
+  }
+  timestamp: 1323761544567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323766274234
+    period: 23280
+    cpu: 1
+  }
+  timestamp: 1323766274234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323766404609
+    period: 23901
+    cpu: 1
+  }
+  timestamp: 1323766404609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323766469901
+    period: 21073
+    cpu: 1
+  }
+  timestamp: 1323766469901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323801943734
+    period: 23503
+    cpu: 1
+  }
+  timestamp: 1323801943734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323802072109
+    period: 31528
+    cpu: 1
+  }
+  timestamp: 1323802072109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323802257692
+    period: 31528
+    cpu: 1
+  }
+  timestamp: 1323802257692
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323821291192
+    period: 35417
+    cpu: 1
+  }
+  timestamp: 1323821291192
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323821465567
+    period: 33458
+    cpu: 1
+  }
+  timestamp: 1323821465567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226126744
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323822265609
+    period: 33458
+    cpu: 1
+  }
+  timestamp: 1323822265609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323822472526
+    period: 35382
+    cpu: 1
+  }
+  timestamp: 1323822472526
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323822605567
+    period: 32340
+    cpu: 1
+  }
+  timestamp: 1323822605567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323858372192
+    period: 33208
+    cpu: 1
+  }
+  timestamp: 1323858372192
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323903590317
+    period: 36816
+    cpu: 1
+  }
+  timestamp: 1323903590317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323922636276
+    period: 36816
+    cpu: 1
+  }
+  timestamp: 1323922636276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323922813942
+    period: 36816
+    cpu: 1
+  }
+  timestamp: 1323922813942
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323942867567
+    period: 35994
+    cpu: 1
+  }
+  timestamp: 1323942867567
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226243248
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1323943014609
+    period: 35994
+    cpu: 1
+  }
+  timestamp: 1323943014609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1323959343317
+    period: 35994
+    cpu: 1
+  }
+  timestamp: 1323959343317
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324006274526
+    period: 39284
+    cpu: 1
+  }
+  timestamp: 1324006274526
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324043199734
+    period: 39284
+    cpu: 1
+  }
+  timestamp: 1324043199734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223365856
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324043325734
+    period: 39284
+    cpu: 1
+  }
+  timestamp: 1324043325734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324060537318
+    period: 39284
+    cpu: 1
+  }
+  timestamp: 1324060537318
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324061279901
+    period: 44297
+    cpu: 1
+  }
+  timestamp: 1324061279901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 83
+    tid: 83
+    sample_time_ns: 1324061488901
+    period: 40693
+    cpu: 1
+  }
+  timestamp: 1324061488901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324061664318
+    period: 37324
+    cpu: 1
+  }
+  timestamp: 1324061664318
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3224390020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324063550943
+    period: 38257
+    cpu: 1
+  }
+  timestamp: 1324063550943
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324063769484
+    period: 40304
+    cpu: 1
+  }
+  timestamp: 1324063769484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324091204651
+    period: 33216
+    cpu: 1
+  }
+  timestamp: 1324091204651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324091364359
+    period: 33216
+    cpu: 1
+  }
+  timestamp: 1324091364359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324091539484
+    period: 33216
+    cpu: 1
+  }
+  timestamp: 1324091539484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324161606734
+    period: 35643
+    cpu: 1
+  }
+  timestamp: 1324161606734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324163845068
+    period: 37565
+    cpu: 1
+  }
+  timestamp: 1324163845068
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324164055901
+    period: 37565
+    cpu: 1
+  }
+  timestamp: 1324164055901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324181202818
+    period: 33396
+    cpu: 1
+  }
+  timestamp: 1324181202818
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222481920
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324181367443
+    period: 34163
+    cpu: 1
+  }
+  timestamp: 1324181367443
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227587968
+    pid: 13
+    tid: 13
+    sample_time_ns: 1324181528776
+    period: 31567
+    cpu: 1
+  }
+  timestamp: 1324181528776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324184115359
+    period: 33695
+    cpu: 1
+  }
+  timestamp: 1324184115359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3223366008
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324184267651
+    period: 36019
+    cpu: 1
+  }
+  timestamp: 1324184267651
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324184415318
+    period: 31953
+    cpu: 1
+  }
+  timestamp: 1324184415318
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324201280984
+    period: 34541
+    cpu: 1
+  }
+  timestamp: 1324201280984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324221204484
+    period: 33914
+    cpu: 1
+  }
+  timestamp: 1324221204484
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324221361109
+    period: 33914
+    cpu: 1
+  }
+  timestamp: 1324221361109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 13
+    tid: 13
+    sample_time_ns: 1324221512026
+    period: 30069
+    cpu: 1
+  }
+  timestamp: 1324221512026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324236242609
+    period: 32373
+    cpu: 1
+  }
+  timestamp: 1324236242609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324262664943
+    period: 35041
+    cpu: 1
+  }
+  timestamp: 1324262664943
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324284500026
+    period: 35041
+    cpu: 1
+  }
+  timestamp: 1324284500026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324284709818
+    period: 35041
+    cpu: 1
+  }
+  timestamp: 1324284709818
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324301415609
+    period: 32867
+    cpu: 1
+  }
+  timestamp: 1324301415609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324304761984
+    period: 32867
+    cpu: 1
+  }
+  timestamp: 1324304761984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222694804
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324304912776
+    period: 32867
+    cpu: 1
+  }
+  timestamp: 1324304912776
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324305067359
+    period: 29067
+    cpu: 1
+  }
+  timestamp: 1324305067359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324363731109
+    period: 31445
+    cpu: 1
+  }
+  timestamp: 1324363731109
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324398600276
+    period: 33884
+    cpu: 1
+  }
+  timestamp: 1324398600276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324405130859
+    period: 33884
+    cpu: 1
+  }
+  timestamp: 1324405130859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324405310609
+    period: 33884
+    cpu: 1
+  }
+  timestamp: 1324405310609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324405423359
+    period: 29812
+    cpu: 1
+  }
+  timestamp: 1324405423359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324421281401
+    period: 31295
+    cpu: 1
+  }
+  timestamp: 1324421281401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324421453401
+    period: 33429
+    cpu: 1
+  }
+  timestamp: 1324421453401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324425395234
+    period: 33429
+    cpu: 1
+  }
+  timestamp: 1324425395234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324425568734
+    period: 35443
+    cpu: 1
+  }
+  timestamp: 1324425568734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324456323734
+    period: 31295
+    cpu: 1
+  }
+  timestamp: 1324456323734
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324464788026
+    period: 33035
+    cpu: 1
+  }
+  timestamp: 1324464788026
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324525694193
+    period: 33035
+    cpu: 1
+  }
+  timestamp: 1324525694193
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728636
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324525778943
+    period: 29029
+    cpu: 1
+  }
+  timestamp: 1324525778943
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324525951818
+    period: 29029
+    cpu: 1
+  }
+  timestamp: 1324525951818
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222451120
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324541280859
+    period: 36341
+    cpu: 1
+  }
+  timestamp: 1324541280859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324546011276
+    period: 35469
+    cpu: 1
+  }
+  timestamp: 1324546011276
+}
+events {
+  header {
+    type: 9
+    misc: 2
+    size: 48
+  }
+  sample_event {
+    ip: 3069130910
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324546133568
+    period: 35469
+    cpu: 1
+  }
+  timestamp: 1324546133568
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324546286276
+    period: 31271
+    cpu: 1
+  }
+  timestamp: 1324546286276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324546484984
+    period: 31463
+    cpu: 1
+  }
+  timestamp: 1324546484984
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324565849568
+    period: 33913
+    cpu: 1
+  }
+  timestamp: 1324565849568
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324646556943
+    period: 35066
+    cpu: 1
+  }
+  timestamp: 1324646556943
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324646676859
+    period: 35066
+    cpu: 1
+  }
+  timestamp: 1324646676859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222728020
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324646893151
+    period: 35066
+    cpu: 1
+  }
+  timestamp: 1324646893151
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226113440
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324666288943
+    period: 40022
+    cpu: 1
+  }
+  timestamp: 1324666288943
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324666893234
+    period: 37081
+    cpu: 1
+  }
+  timestamp: 1324666893234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324667053276
+    period: 37081
+    cpu: 1
+  }
+  timestamp: 1324667053276
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324667229318
+    period: 34375
+    cpu: 1
+  }
+  timestamp: 1324667229318
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324767252568
+    period: 36778
+    cpu: 1
+  }
+  timestamp: 1324767252568
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3222299156
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324767396901
+    period: 38710
+    cpu: 1
+  }
+  timestamp: 1324767396901
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324787565693
+    period: 38627
+    cpu: 1
+  }
+  timestamp: 1324787565693
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324787772401
+    period: 38627
+    cpu: 1
+  }
+  timestamp: 1324787772401
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324868340234
+    period: 38627
+    cpu: 1
+  }
+  timestamp: 1324868340234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324887886859
+    period: 39713
+    cpu: 1
+  }
+  timestamp: 1324887886859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324888093068
+    period: 39713
+    cpu: 1
+  }
+  timestamp: 1324888093068
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324908147068
+    period: 37262
+    cpu: 1
+  }
+  timestamp: 1324908147068
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226608324
+    pid: 4466
+    tid: 4466
+    sample_time_ns: 1324908288609
+    period: 37262
+    cpu: 1
+  }
+  timestamp: 1324908288609
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324908492318
+    period: 37262
+    cpu: 1
+  }
+  timestamp: 1324908492318
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
+    sample_time_ns: 1324969404193
+    period: 40984
+    cpu: 1
+  }
+  timestamp: 1324969404193
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588080
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325003537234
+    period: 42152
+    cpu: 1
+  }
+  timestamp: 1325003537234
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3227588112
+    pid: 0
+    tid: 0
+    sample_time_ns: 1325003777859
+    period: 42152
+    cpu: 1
+  }
+  timestamp: 1325003777859
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 3226129084
+    pid: 0
+    tid: 0
     sample_time_ns: 1325008525568
     period: 42152
     cpu: 1
@@ -53338,22 +53451,6 @@ events {
     cpu: 1
   }
   timestamp: 1325008719734
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325015745693
-    period: 44196
-    cpu: 0
-  }
-  timestamp: 1325015745693
 }
 events {
   header {
@@ -53426,22 +53523,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325021412651
-    period: 34145
-    cpu: 0
-  }
-  timestamp: 1325021412651
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3223213312
     pid: 19079
     tid: 19079
@@ -53450,22 +53531,6 @@ events {
     cpu: 1
   }
   timestamp: 1325021461526
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 78
-    tid: 78
-    sample_time_ns: 1325021587984
-    period: 34145
-    cpu: 0
-  }
-  timestamp: 1325021587984
 }
 events {
   header {
@@ -53490,22 +53555,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3227588112
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325021770359
-    period: 30066
-    cpu: 0
-  }
-  timestamp: 1325021770359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3223272904
     pid: 19079
     tid: 19079
@@ -53514,22 +53563,6 @@ events {
     cpu: 1
   }
   timestamp: 1325021852568
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3226129084
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325021901109
-    period: 31666
-    cpu: 0
-  }
-  timestamp: 1325021901109
 }
 events {
   header {
@@ -53596,22 +53629,6 @@ events {
     size: 48
   }
   sample_event {
-    ip: 3222728636
-    pid: 0
-    tid: 0
-    sample_time_ns: 1325022239359
-    period: 33138
-    cpu: 0
-  }
-  timestamp: 1325022239359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
     ip: 3227588112
     pid: 0
     tid: 0
@@ -53620,22 +53637,6 @@ events {
     cpu: 1
   }
   timestamp: 1325022307609
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 3227588112
-    pid: 19078
-    tid: 19078
-    sample_time_ns: 1325022434776
-    period: 36817
-    cpu: 0
-  }
-  timestamp: 1325022434776
 }
 timestamp_sec: 0
 stats {

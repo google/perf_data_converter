@@ -83,9 +83,12 @@ cc_test(
         "//src/testdata:perf-cros-kernel-3_18-mapping.textproto",
         "//src/testdata:perf-include-comm-md5-prefix.textproto",
         "//src/testdata:perf-java-classes-jsa.textproto",
+        "//src/testdata:perf-kernel-sample-before-mmap.textproto",
         "//src/testdata:perf-non-exec-comm-events.textproto",
         "//src/testdata:perf-overlapping-kernel-mapping.textproto",
         "//src/testdata:perf-unmapped-callchain-ip.textproto",
+        "//src/testdata:profile-with-data-addresses-callchain.textproto",
+        "//src/testdata:profile-with-data-addresses-flat.textproto",
         "//src/testdata:single-event-multi-process.perf.data",
         "//src/testdata:single-event-multi-process-single-ip.textproto",
         "//src/testdata:single-event-single-process.perf.data",
@@ -144,7 +147,7 @@ cc_test(
     srcs = ["perf_to_profile_lib_test.cc"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
-        "//src/testdata:multi-event-single-process.perf_data.pb.data",
+        "//src/testdata:multi-event-single-process.perf_data.pb",
     ],
     deps = [
         ":perf_to_profile_lib",

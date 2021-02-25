@@ -80,7 +80,8 @@ bool PerfDataToProtoRepresentation(const std::string& filename,
                                    std::string* output_text,
                                    std::string* output_data) {
   PerfDataProto perf_data_proto;
-  if (!SerializeFromFile(filename, &perf_data_proto)) {
+  quipper::PerfParserOptions options = quipper::GetMinimalProcessingOptions();
+  if (!SerializeFromFileWithOptions(filename, options, &perf_data_proto)) {
     return false;
   }
   // Reset the timestamp field since it causes reproducability issues when
@@ -246,7 +247,6 @@ bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
   std::string protobuf_representation, baseline;
   if (!ReadExistingProtobufText(golden_path, &baseline)) {
     LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
-    return false;
   }
   if (UseProtobufDataFormat) {
     if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
@@ -260,7 +260,8 @@ bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
     }
   } else {
     PerfDataProto actual, expected;
-    if (!SerializeFromFile(perfdata_filepath, &actual)) {
+    PerfParserOptions options = GetMinimalProcessingOptions();
+    if (!SerializeFromFileWithOptions(perfdata_filepath, options, &actual)) {
       LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
       return false;
     }
@@ -270,7 +271,6 @@ bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
 
     if (!TextFormat::ParseFromString(baseline, &expected)) {
       LOG(ERROR) << "Failed to parse proto from golden text proto.";
-      return false;
     }
     matches_baseline = EqualsProto(actual, expected, difference);
     if (!matches_baseline) {
@@ -296,6 +296,21 @@ bool ComparePerfBuildIDLists(const std::string& file1,
 PerfParserOptions GetTestOptions() {
   PerfParserOptions options;
   options.sample_mapping_percentage_threshold = 100.0f;
+  return options;
+}
+
+PerfParserOptions GetMinimalProcessingOptions() {
+  // Explicitly set the most permissive options and disable any heuristic based
+  // transformations, regardless of the default option values.
+  PerfParserOptions options;
+  options.do_remap = false;
+  options.discard_unused_events = false;
+  options.sample_mapping_percentage_threshold = 0.f;
+  options.sort_events_by_time = false;
+  options.read_missing_buildids = false;
+  options.deduce_huge_page_mappings = false;
+  options.combine_mappings = false;
+  options.allow_unaligned_jit_mappings = true;
   return options;
 }
 

@@ -1,0 +1,169 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0x00000004
+    size: 0x00000060
+    config: 0x00000000000083d0
+    sample_period: 0x00000000000def3a
+    sample_type: 0x000000000000802f
+    read_format: 0x0000000000000004
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0x00000002
+    mmap_data: true
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0x00000000
+    bp_type: 0x00000000
+    bp_addr: 0x0000000000000000
+    bp_len: 0x0000000000000000
+    branch_sample_type: 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user: 0x00000000
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+  ids: 8
+  ids: 9
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 128
+  }
+  mmap_event {
+    pid: 100
+    tid: 100
+    start: 0x100000
+    len: 0x20000
+    pgoff: 0
+    filename: "/foo/bar"
+    filename_md5_prefix: 0x1df481b1ec67d4d8
+    sample_info {
+      pid: 100
+      tid: 100
+      sample_time_ns: 1454598614838
+    }
+    maj: 179
+    min: 1
+    ino: 266535
+    ino_generation: 831593735
+    prot: 5
+    flags: 6146
+  }
+  timestamp: 1454598614838
+}
+events {
+  header {
+    type: 10
+    misc: 8194
+    size: 128
+  }
+  mmap_event {
+    pid: 100
+    tid: 100
+    start: 0x200000
+    len: 0x10000
+    pgoff: 0x20000
+    filename: "/foo/bar"
+    filename_md5_prefix: 0x1df481b1ec67d4d8
+    sample_info {
+      pid: 100
+      tid: 100
+      sample_time_ns: 1454598622453
+    }
+    maj: 179
+    min: 1
+    ino: 266535
+    ino_generation: 831593735
+    prot: 3
+    flags: 6146
+  }
+  timestamp: 1454598622453
+}
+events {
+  header {
+    type: 9
+    misc: 16386
+    size: 48
+  }
+  sample_event {
+    ip: 0x100100
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731567797
+    addr: 0x200100
+    callchain: 0xfffffffffffffe00
+    callchain: 0x100100
+    callchain: 0x101000
+    callchain: 0x102000
+    callchain: 0x103000
+    data_src: 84410401
+  }
+  timestamp: 1454731567797
+}
+events {
+  header {
+    type: 9
+    misc: 16386
+    size: 48
+  }
+  sample_event {
+    ip: 0x100200
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731568254
+    addr: 0x200200
+    callchain: 0xfffffffffffffe00
+    callchain: 0x100200
+    callchain: 0x101000
+    callchain: 0x102000
+    callchain: 0x103000
+    data_src: 84410401
+  }
+  timestamp: 1454731568254
+}
+events {
+  header {
+    type: 9
+    misc: 16386
+    size: 48
+  }
+  sample_event {
+    ip: 0x100300
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731569638
+    addr: 0x200300
+    callchain: 0xfffffffffffffe00
+    callchain: 0x100300
+    callchain: 0x102000
+    callchain: 0x103000
+    data_src: 84410401
+  }
+  timestamp: 1454731569638
+}
+timestamp_sec: 0
+metadata_mask: 103890940

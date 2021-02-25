@@ -41,6 +41,7 @@ file_attrs {
     context_switch: true
     write_backward: false
     namespaces: true
+    cgroup: false
   }
 }
 events {

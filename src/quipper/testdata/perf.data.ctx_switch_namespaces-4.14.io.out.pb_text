@@ -41,6 +41,7 @@ file_attrs {
     context_switch: true
     write_backward: false
     namespaces: true
+    cgroup: false
   }
 }
 events {
@@ -584,14 +585,6 @@ events {
 }
 events {
   header {
-    type: 68
-    misc: 0
-    size: 8
-  }
-  timestamp: 0
-}
-events {
-  header {
     type: 9
     misc: 1
     size: 40
@@ -989,6 +982,14 @@ events {
     }
   }
   timestamp: 1056482248919811
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
 }
 timestamp_sec: 0
 stats {

@@ -372,6 +372,9 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
         ByteSwap(&event->stat_config.data[i].val);
       }
       return true;
+    case PERF_RECORD_CGROUP:
+      ByteSwap(&event->cgroup.id);
+      return true;
     // The below supported perf events either have no variable payload fields or
     // don't require byteswapping of the variable payload fields.
     case PERF_RECORD_MMAP:
@@ -1753,7 +1756,7 @@ bool PerfReader::ReadAuxtraceTraceData(DataReader* data,
   if (size > remaining_size) {
     LOG(ERROR)
         << "Size " << size
-        << " of the PERF_RECORD_AUXTRACE trace data should be at most the "
+        << " of the PERF_RECORD_AUXTRACE trace data should be at most the"
         << " remaining size " << remaining_size << " of the perf.data input";
     return false;
   }

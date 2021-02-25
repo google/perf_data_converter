@@ -5,6 +5,8 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_TEST_PERF_DATA_H_
 #define CHROMIUMOS_WIDE_PROFILING_TEST_PERF_DATA_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 #include <ostream>  
 #include <vector>
@@ -110,7 +112,8 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
         use_clockid_(false),
         context_switch_(false),
         write_backward_(false),
-        namespaces_(false) {}
+        namespaces_(false),
+        cgroup_(false) {}
   SelfT& WithConfig(u64 config) {
     config_ = config;
     return *this;
@@ -148,6 +151,10 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
     namespaces_ = namespaces;
     return *this;
   }
+  SelfT& WithCgroup(bool cgroup) {
+    cgroup_ = cgroup;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -161,6 +168,7 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
   bool context_switch_;
   bool write_backward_;
   bool namespaces_;
+  bool cgroup_;
 };
 
 class AttrIdsSection : public StreamWriteable {
@@ -199,7 +207,8 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
         use_clockid_(false),
         context_switch_(false),
         write_backward_(false),
-        namespaces_(false) {}
+        namespaces_(false),
+        cgroup_(false) {}
   SelfT& WithAttrSize(u32 size) {
     attr_size_ = size;
     return *this;
@@ -232,6 +241,10 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
     namespaces_ = namespaces;
     return *this;
   }
+  SelfT& WithCgroup(bool cgroup) {
+    cgroup_ = cgroup;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -245,6 +258,7 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
   bool context_switch_;
   bool write_backward_;
   bool namespaces_;
+  bool cgroup_;
 };
 
 // Produces a struct perf_file_attr with a perf_event_attr describing a
@@ -352,6 +366,8 @@ class ExampleMmap2Event : public StreamWriteable {
         maj_(6),
         min_(7),
         ino_(8),
+        prot_(PROT_READ | PROT_WRITE),
+        flags_(MAP_PRIVATE),
         filename_(filename),
         sample_id_(sample_id) {}
   size_t GetSize() const;
@@ -363,6 +379,11 @@ class ExampleMmap2Event : public StreamWriteable {
     maj_ = maj;
     min_ = min;
     ino_ = ino;
+    return *this;
+  }
+  SelfT& WithProtFlags(u32 prot, u32 flags) {
+    prot_ = prot;
+    flags_ = flags;
     return *this;
   }
 
@@ -378,6 +399,8 @@ class ExampleMmap2Event : public StreamWriteable {
   u32 maj_;
   u32 min_;
   u64 ino_;
+  u32 prot_;
+  u32 flags_;
   const string filename_;
   const SampleInfo sample_id_;
 };
@@ -745,6 +768,20 @@ class ExampleTimeConvEvent : public StreamWriteable {
   const u64 time_shift_;
   const u64 time_mult_;
   const u64 time_zero_;
+};
+
+// Produces PERF_RECORD_CGROUP event.
+class ExampleCgroupEvent : public StreamWriteable {
+ public:
+  ExampleCgroupEvent(u64 id, string path, const SampleInfo& sample_id)
+      : id_(id), path_(path), sample_id_(sample_id) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 id_;
+  const string path_;
+  const SampleInfo sample_id_;
 };
 
 }  // namespace testing

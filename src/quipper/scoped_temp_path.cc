@@ -35,7 +35,7 @@ int FileDeletionCallback(const char* path, const struct stat* sb,
 // direct access to the char data. That is, string::data() returns
 // (const char *), and there is no non-const overload. (This appears to be an
 // oversight of the standard since C++11.)
-std::vector<char> MakeTempfileTemplate(string path_template) {
+std::vector<char> MakeTempfileTemplate(std::string path_template) {
   path_template += "XXXXXX";
   path_template.push_back('\0');
   return std::vector<char>(path_template.begin(), path_template.end());
@@ -47,20 +47,20 @@ namespace quipper {
 
 ScopedTempFile::ScopedTempFile() : ScopedTempFile(kTempPathTemplatePrefix) {}
 
-ScopedTempFile::ScopedTempFile(const string prefix) {
+ScopedTempFile::ScopedTempFile(const std::string prefix) {
   std::vector<char> filename = MakeTempfileTemplate(prefix);
   int fd = mkstemp(filename.data());
   if (fd == -1) return;
   close(fd);
-  path_ = string(filename.data());
+  path_ = std::string(filename.data());
 }
 
 ScopedTempDir::ScopedTempDir() : ScopedTempDir(kTempPathTemplatePrefix) {}
 
-ScopedTempDir::ScopedTempDir(const string prefix) {
+ScopedTempDir::ScopedTempDir(const std::string prefix) {
   std::vector<char> dirname = MakeTempfileTemplate(prefix);
   if (!mkdtemp(dirname.data())) return;
-  path_ = string(dirname.data()) + "/";
+  path_ = std::string(dirname.data()) + "/";
 }
 
 ScopedTempPath::~ScopedTempPath() {

@@ -105,7 +105,7 @@ TEST(PerfToProfileTest, RawPerfDataStringToProfiles) {
 
 TEST(PerfToProfileTest, PerfDataProtoStringToProfiles) {
   std::string perf_data_proto_path(
-      GetResource("multi-event-single-process.perf_data.pb.data"));
+      GetResource("multi-event-single-process.perf_data.pb"));
   const auto profiles =
       StringToProfiles(ReadFileToString(perf_data_proto_path));
   EXPECT_EQ(profiles.size(), 1);

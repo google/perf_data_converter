@@ -87,6 +87,14 @@ class TestPerfDataHandler : public PerfDataHandler {
 
   // Callbacks for PerfDataHandler
   void Sample(const SampleContext& sample) override {
+    if (sample.addr_mapping != nullptr) {
+      const Mapping* m = sample.addr_mapping;
+      _seen_addr_mappings.push_back(std::unique_ptr<Mapping>(
+          new Mapping(m->filename, m->build_id, m->start, m->limit,
+                      m->file_offset, m->filename_md5_prefix)));
+    } else {
+      _seen_addr_mappings.push_back(nullptr);
+    }
     EXPECT_EQ(_expected_branch_stack.size(), sample.branch_stack.size());
     for (int i = 0; i < sample.branch_stack.size(); i++) {
       CheckBranchEquality(_expected_branch_stack[i], sample.branch_stack[i]);
@@ -94,22 +102,17 @@ class TestPerfDataHandler : public PerfDataHandler {
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
-    const string* actual_build_id = mmap.mapping->build_id;
-    const string* actual_filename = mmap.mapping->filename;
+    string actual_build_id = mmap.mapping->build_id;
+    string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
-        _expected_filename_to_build_id.find(*actual_filename);
+        _expected_filename_to_build_id.find(actual_filename);
     if (expected_build_id_it != _expected_filename_to_build_id.end()) {
-      EXPECT_TRUE(actual_build_id != nullptr)
-          << "Expected build id " << expected_build_id_it->second
-          << " for the filename " << *actual_filename;
-      if (actual_build_id != nullptr) {
-        EXPECT_EQ(expected_build_id_it->second, *actual_build_id);
-        _seen_filenames.insert(*actual_filename);
-      }
+      EXPECT_EQ(actual_build_id, expected_build_id_it->second)
+          << "Build ID mismatch for the filename " << actual_filename;
+      _seen_filenames.insert(actual_filename);
     } else {
-      EXPECT_TRUE(actual_build_id == nullptr)
-          << "Actual build id " << *actual_build_id << " for the filename "
-          << *actual_filename;
+      EXPECT_EQ(actual_build_id, "")
+          << "Unexpected build ID for the filename " << actual_filename;
     }
   }
 
@@ -119,6 +122,10 @@ class TestPerfDataHandler : public PerfDataHandler {
       EXPECT_TRUE(_expected_filename_to_build_id.find(filename) !=
                   _expected_filename_to_build_id.end());
     }
+  }
+
+  const std::vector<std::unique_ptr<Mapping>>& SeenAddrMappings() const {
+    return _seen_addr_mappings;
   }
 
  private:
@@ -137,6 +144,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   std::vector<BranchStackEntry> _expected_branch_stack;
   std::unordered_map<string, string> _expected_filename_to_build_id;
   std::unordered_set<string> _seen_filenames;
+  std::vector<std::unique_ptr<Mapping>> _seen_addr_mappings;
 };
 
 TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
@@ -265,6 +273,65 @@ TEST(PerfDataHandlerTest, SampleBranchStackMatches) {
   TestPerfDataHandler handler(branch_stack,
                               std::unordered_map<string, string>());
   PerfDataHandler::Process(proto, &handler);
+}
+
+TEST(PerfDataHandlerTest, AddressMappingIsSet) {
+  quipper::PerfDataProto proto;
+
+  // File attrs are required for sample event processing.
+  uint64 file_attr_id = 0;
+  auto* file_attr = proto.add_file_attrs();
+  file_attr->add_ids(file_attr_id);
+
+  // Add a couple of mapping events, one includes the data address.
+  auto mmap_event = proto.add_events()->mutable_mmap_event();
+  mmap_event->set_filename("/foo/bar");
+  mmap_event->set_pid(100);
+  mmap_event->set_tid(100);
+  mmap_event->set_start(0x1000);
+  mmap_event->set_len(0x1000);
+  mmap_event->set_pgoff(0);
+
+  mmap_event = proto.add_events()->mutable_mmap_event();
+  mmap_event->set_filename("/foo/baz");
+  mmap_event->set_pid(100);
+  mmap_event->set_tid(100);
+  mmap_event->set_start(0x3000);
+  mmap_event->set_len(0x1000);
+  mmap_event->set_pgoff(0x1000);
+
+  // Add sample events without and with data addresses.
+  auto* sample_event = proto.add_events()->mutable_sample_event();
+  sample_event->set_ip(123);
+  sample_event->set_pid(100);
+  sample_event->set_tid(100);
+  // This event has no data address.
+  sample_event->set_sample_time_ns(456);
+  sample_event->set_period(1);
+  sample_event->set_id(file_attr_id);
+
+  sample_event = proto.add_events()->mutable_sample_event();
+  sample_event->set_ip(300);
+  sample_event->set_pid(100);
+  sample_event->set_tid(100);
+  sample_event->set_addr(0x3100);
+  sample_event->set_sample_time_ns(567);
+  sample_event->set_period(1);
+  sample_event->set_id(file_attr_id);
+
+  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                              std::unordered_map<string, string>{});
+  PerfDataHandler::Process(proto, &handler);
+  auto& addr_mappings = handler.SeenAddrMappings();
+  // We expect two elements, one nullptr and the other with /foo/baz info.
+  EXPECT_EQ(2u, addr_mappings.size());
+  EXPECT_EQ(nullptr, addr_mappings[0]);
+  const PerfDataHandler::Mapping* mapping = addr_mappings[1].get();
+  ASSERT_TRUE(mapping != nullptr);
+  EXPECT_EQ("/foo/baz", mapping->filename);
+  EXPECT_EQ(0x3000, mapping->start);
+  EXPECT_EQ(0x4000, mapping->limit);
+  EXPECT_EQ(0x1000, mapping->file_offset);
 }
 
 }  // namespace perftools

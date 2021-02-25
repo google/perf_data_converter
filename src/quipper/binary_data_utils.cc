@@ -42,7 +42,7 @@ static uint64_t Md5Prefix(const unsigned char* data,
   return digest_prefix;
 }
 
-uint64_t Md5Prefix(const string& input) {
+uint64_t Md5Prefix(const std::string& input) {
   auto data = reinterpret_cast<const unsigned char*>(input.data());
   return Md5Prefix(data, input.size());
 }
@@ -52,11 +52,11 @@ uint64_t Md5Prefix(const std::vector<char>& input) {
   return Md5Prefix(data, input.size());
 }
 
-string RawDataToHexString(const u8* array, size_t length) {
+std::string RawDataToHexString(const u8* array, size_t length) {
   // Convert the bytes to hex digits one at a time.
   // There will be kNumHexDigitsInByte hex digits, and 1 char for NUL.
   char buffer[kNumHexDigitsInByte + 1];
-  string result = "";
+  std::string result = "";
   for (size_t i = 0; i < length; ++i) {
     snprintf(buffer, sizeof(buffer), "%02x", array[i]);
     result += buffer;
@@ -64,19 +64,20 @@ string RawDataToHexString(const u8* array, size_t length) {
   return result;
 }
 
-string RawDataToHexString(const string& str) {
+std::string RawDataToHexString(const std::string& str) {
   return RawDataToHexString(reinterpret_cast<const u8*>(str.data()),
                             str.size());
 }
 
-bool HexStringToRawData(const string& str, u8* array, size_t length) {
+bool HexStringToRawData(const std::string& str, u8* array, size_t length) {
   const int kHexRadix = 16;
   char* err;
   // Loop through kNumHexDigitsInByte characters at a time (to get one byte)
   // Stop when there are no more characters, or the array has been filled.
   for (size_t i = 0; (i + 1) * kNumHexDigitsInByte <= str.size() && i < length;
        ++i) {
-    string one_byte = str.substr(i * kNumHexDigitsInByte, kNumHexDigitsInByte);
+    std::string one_byte =
+        str.substr(i * kNumHexDigitsInByte, kNumHexDigitsInByte);
     array[i] = strtol(one_byte.c_str(), &err, kHexRadix);
     if (*err) return false;
   }

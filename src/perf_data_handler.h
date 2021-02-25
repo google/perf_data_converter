@@ -31,7 +31,7 @@ class PerfDataHandler {
  public:
   struct Mapping {
    public:
-    Mapping(const std::string* filename, const std::string* build_id,
+    Mapping(const std::string& filename, const std::string& build_id,
             uint64 start, uint64 limit, uint64 file_offset,
             uint64 filename_md5_prefix)
         : filename(filename),
@@ -41,10 +41,8 @@ class PerfDataHandler {
           file_offset(file_offset),
           filename_md5_prefix(filename_md5_prefix) {}
 
-    // filename and build_id are pointers into the provided
-    // PerfDataProto and may be nullptr.
-    const std::string* filename;
-    const std::string* build_id;
+    std::string filename;  // Empty if missing.
+    std::string build_id;  // Empty if missing.
     uint64 start;
     uint64 limit;  // limit=ceiling.
     uint64 file_offset;
@@ -84,12 +82,13 @@ class PerfDataHandler {
   };
 
   struct SampleContext {
-    SampleContext(const quipper::PerfDataProto::EventHeader &h,
-                  const quipper::PerfDataProto::SampleEvent &s)
+    SampleContext(const quipper::PerfDataProto::EventHeader& h,
+                  const quipper::PerfDataProto::SampleEvent& s)
         : header(h),
           sample(s),
           main_mapping(nullptr),
           sample_mapping(nullptr),
+          addr_mapping(nullptr),
           file_attrs_index(-1) {}
 
     // The event's header.
@@ -100,6 +99,8 @@ class PerfDataHandler {
     const Mapping* main_mapping;
     // The mapping in which event.ip is found.
     const Mapping* sample_mapping;
+    // The mapping in which event.addr is found.
+    const Mapping* addr_mapping;
     // Locations corresponding to event.callchain.
     std::vector<Location> callchain;
     // Locations corresponding to entries in event.branch_stack.
