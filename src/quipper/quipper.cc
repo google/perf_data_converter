@@ -7,9 +7,7 @@
 
 #include <gflags/gflags.h>
 #include <gflags/gflags_declare.h>
-
 #include "base/logging.h"
-
 #include "compat/string.h"
 #include "file_utils.h"
 #include "perf_protobuf_io.h"
