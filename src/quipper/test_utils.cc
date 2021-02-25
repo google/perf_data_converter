@@ -11,7 +11,6 @@
 #include <sstream>
 
 #include "base/logging.h"
-
 #include "compat/proto.h"
 #include "file_reader.h"
 #include "file_utils.h"
@@ -207,7 +206,8 @@ bool MaybeWriteGolden(const std::string& protobuf_representation,
     return false;
   }
   std::string new_golden_path =
-      std::string(FLAGS_new_golden_file_path) + "/" + golden_filename;
+      std::string(FLAGS_new_golden_file_path) + "/" +
+      golden_filename;
   LOG(INFO) << "Writing new golden file: " << new_golden_path;
   if (!BufferToFile(new_golden_path, protobuf_representation)) {
     LOG(ERROR) << "Failed to write new golden file: " << new_golden_path;
