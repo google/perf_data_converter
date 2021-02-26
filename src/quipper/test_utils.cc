@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <gflags/gflags.h>
 #include "base/logging.h"
 #include "compat/proto.h"
 #include "file_reader.h"
@@ -23,6 +24,10 @@ using quipper::SplitString;
 using quipper::TextFormat;
 
 namespace {
+
+// When not empty, failing tests are written in this folder.
+DEFINE_string(new_golden_file_path, "",
+              "Folder where to save new golden files");
 
 // Newline character.
 const char kNewLineDelimiter = '\n';
@@ -40,10 +45,6 @@ enum PerfDataType {
   kPerfDataNormal,  // Perf data is in normal format.
   kPerfDataPiped,   // Perf data is in piped format.
 };
-
-// Folder where to save new golden files. When not empty, new golden files for
-// failing tests are written in this folder.
-constexpr char FLAGS_new_golden_file_path[] = "";
 
 // The piped commands above produce comma-separated lines with the following
 // fields:

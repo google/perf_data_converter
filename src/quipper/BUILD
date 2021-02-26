@@ -431,6 +431,7 @@ cc_library(
         ":run_command",
         ":string_utils",
         ":base",
+        "@com_github_gflags_gflags//:gflags",
     ],
     copts = ["-DGITHUB_BAZEL"]
 )
