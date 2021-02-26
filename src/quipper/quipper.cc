@@ -61,7 +61,6 @@ bool RecordPerf(int perf_duration, const std::vector<string>& perf_args,
   return true;
 }
 
-
 }  // namespace
 
 // Usage is:
