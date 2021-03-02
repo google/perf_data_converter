@@ -1,0 +1,274 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0
+    size: 0x00000060
+    config: 0
+    sample_period: 0x00000000000f4243
+    sample_type: 0x0000000000200087
+    read_format: 0
+    disabled: true
+    inherit: false
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: true
+  }
+}
+# Comm events.
+events: {
+  header: {
+    type: 3
+  }
+  comm_event: {
+    pid: 2
+    tid: 2
+    comm: "pid_2"
+  }
+}
+events: {
+  header: {
+    type: 3
+  }
+  comm_event: {
+    pid: 2
+    tid: 3
+    comm: "tid_3"
+  }
+}
+events: {
+  header: {
+    type: 3
+  }
+  comm_event: {
+    pid: 2
+    tid: 4
+    # Should recognize the MD5 prefix as 0.
+  }
+}
+events: {
+  header: {
+    type: 3
+  }
+  comm_event: {
+    pid: 5
+    tid: 5
+    comm_md5_prefix: 0x1234567812345678
+  }
+}
+# Cgroup events.
+events: {
+  header: {
+    type: 19
+  }
+  cgroup_event: {
+    id: 1
+    path: "/"
+  }
+}
+events: {
+  header: {
+    type: 19
+  }
+  cgroup_event: {
+    id: 11
+    path: "/abc"
+  }
+}
+events: {
+  header: {
+    type: 19
+  }
+  cgroup_event: {
+    id: 23
+    path: "/XYZ"
+  }
+}
+# Sample events. Have a unique number of samples per PID to verify that the
+# attribution across processes is done properly.
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 2
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 1
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 3
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 11
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 3
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 11
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 4
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 11
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 4
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 11
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 2
+    tid: 4
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 11
+  }
+  timestamp: 100
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 5
+    tid: 5
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 23
+  }
+  timestamp: 200
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 5
+    tid: 5
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 23
+  }
+  timestamp: 200
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 5
+    tid: 5
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 23
+  }
+  timestamp: 200
+}
+events: {
+  header: {
+    type: 9
+    misc: 1
+  }
+  sample_event: {
+    ip: 123
+    pid: 5
+    tid: 5
+    sample_time_ns: 100
+    cpu: 1
+    cgroup: 23
+  }
+  timestamp: 200
+}
+metadata_mask: 0x0000000000113dfc
+event_types {
+  id: 0
+  name: "cycles"
+}
