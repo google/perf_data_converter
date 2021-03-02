@@ -89,7 +89,8 @@ class PerfDataHandler {
           main_mapping(nullptr),
           sample_mapping(nullptr),
           addr_mapping(nullptr),
-          file_attrs_index(-1) {}
+          file_attrs_index(-1),
+          cgroup(nullptr) {}
 
     // The event's header.
     const quipper::PerfDataProto::EventHeader &header;
@@ -108,6 +109,8 @@ class PerfDataHandler {
     // An index into PerfDataProto.file_attrs or -1 if
     // unavailable.
     int64 file_attrs_index;
+    // Cgroup pathname
+    const std::string* cgroup;
   };
 
   struct CommContext {

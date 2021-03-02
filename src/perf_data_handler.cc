@@ -217,6 +217,9 @@ class Normalizer {
   // when no buildid found for the filename [kernel.kallsyms] .
   string maybe_kernel_build_id_;
 
+  // map from cgroup id to pathname.
+  std::unordered_map<uint64, const string> cgroup_map_;
+
   struct {
     int64 samples = 0;
     int64 samples_with_addr = 0;
@@ -311,6 +314,9 @@ void Normalizer::Normalize() {
       handler_->Comm(comm_context);
     } else if (event_proto.has_fork_event()) {
       UpdateMapsWithForkEvent(event_proto.fork_event());
+    } else if (event_proto.has_cgroup_event()) {
+      const auto& cgroup = event_proto.cgroup_event();
+      cgroup_map_.insert({cgroup.id(), cgroup.path()});
     } else if (event_proto.has_lost_event()) {
       stat_.samples += event_proto.lost_event().lost();
       stat_.missing_main_mmap += event_proto.lost_event().lost();
@@ -428,6 +434,12 @@ void Normalizer::InvokeHandleSample(
     context.branch_stack[i].cycles = entry.cycles();
   }
 
+  if (sample.has_cgroup()) {
+    auto cgrp_it = cgroup_map_.find(sample.cgroup());
+    if (cgrp_it != cgroup_map_.end()) {
+      context.cgroup = &cgrp_it->second;
+    }
+  }
   handler_->Sample(context);
 }
 

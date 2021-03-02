@@ -48,6 +48,9 @@ enum SampleLabels {
   // sample's thread's command (that is, thread name, or
   // /proc/[pid]/task/[tid]/comm). If no command is known, no label is added.
   kThreadCommLabel = 64,
+  // Adds a label with CgroupLabelKey and number value set to the cgroup id.
+  // If the sample doesn't have a cgroup ID, no label is added.
+  kCgroupLabel = 128,
 };
 
 // Sample label key names.
@@ -58,6 +61,7 @@ const char ExecutionModeLabelKey[] = "execution_mode";
 const char CommLabelKey[] = "comm";
 const char ThreadTypeLabelKey[] = "thread_type";
 const char ThreadCommLabelKey[] = "thread_comm";
+const char CgroupLabelKey[] = "cgroup";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";

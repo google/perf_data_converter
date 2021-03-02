@@ -79,6 +79,7 @@ cc_test(
         "//src/testdata:multi-event-single-process.perf.data",
         "//src/testdata:perf-callchain-non-pebs.textproto",
         "//src/testdata:perf-callchain-pebs.textproto",
+        "//src/testdata:perf-cgroup-events.textproto",
         "//src/testdata:perf-comm-and-task-comm.textproto",
         "//src/testdata:perf-cros-kernel-3_18-mapping.textproto",
         "//src/testdata:perf-include-comm-md5-prefix.textproto",

@@ -607,6 +607,49 @@ TEST_F(PerfDataConverterTest, PerfInfoSavedInComment) {
   EXPECT_THAT(comments, Contains(want_command));
 }
 
+TEST_F(PerfDataConverterTest, ConvertsCgroup) {
+  const string ascii_pb(
+      GetContents(GetResource("perf-cgroup-events.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCgroupLabel);
+  ASSERT_EQ(pps.size(), 2);
+
+  const int val_idx = 0;
+  int total_samples = 0;
+  std::unordered_map<std::string, uint64> counts_by_cgroup;
+  for (const auto& pp : pps) {
+    const auto& p = pp->data;
+    EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
+    for (const auto& sample : p.sample()) {
+      total_samples += sample.value(val_idx);
+      for (const auto& label : sample.label()) {
+        if (p.string_table(label.key()) == CgroupLabelKey) {
+          counts_by_cgroup[p.string_table(label.str())] +=
+              sample.value(val_idx);
+        }
+      }
+    }
+  }
+  EXPECT_EQ(total_samples, 10);
+
+  const std::unordered_map<std::string, uint64> expected_counts{
+      {"/", 1},
+      {"/abc", 5},
+      {"/XYZ", 4},
+  };
+  EXPECT_EQ(expected_counts.size(), counts_by_cgroup.size());
+  for (const auto& expected_count : expected_counts) {
+    EXPECT_EQ(expected_count.second, counts_by_cgroup[expected_count.first])
+        << "Different counts for cgroup: " << expected_count.first << std::endl
+        << "Expected: " << expected_count.second << std::endl
+        << "Actual: " << expected_count.first << std::endl;
+  }
+}
+
 }  // namespace perftools
 
 int main(int argc, char** argv) {

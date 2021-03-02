@@ -106,6 +106,8 @@ struct SampleKey {
   uint64 thread_type = 0;
   // The index of the sample's thread command in the profile's string table.
   uint64 thread_comm = 0;
+  // The index of the sample's cgroup name in the profiles's string table.
+  uint64 cgroup = 0;
   LocationIdVector stack;
 };
 
@@ -114,7 +116,8 @@ struct SampleKeyEqualityTester {
     return ((a.pid == b.pid) && (a.tid == b.tid) && (a.time_ns == b.time_ns) &&
             (a.exec_mode == b.exec_mode) && (a.comm == b.comm) &&
             (a.thread_type == b.thread_type) &&
-            (a.thread_comm == b.thread_comm) && (a.stack == b.stack));
+            (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
+            (a.stack == b.stack));
   }
 };
 
@@ -128,6 +131,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64>()(k.comm);
     hash ^= std::hash<uint64>()(k.thread_type);
     hash ^= std::hash<uint64>()(k.thread_comm);
+    hash ^= std::hash<uint64>()(k.cgroup);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64>()(id);
     }
@@ -262,6 +266,9 @@ class PerfDataConverter : public PerfDataHandler {
   bool IncludeThreadCommLabels() const {
     return (sample_labels_ & kThreadCommLabel);
   }
+  // Returns whether cgroup labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeCgroupLabels() const { return (sample_labels_ & kCgroupLabel); }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
@@ -328,6 +335,9 @@ SampleKey PerfDataConverter::MakeSampleKey(
     Tid tid = sample.sample.tid();
     const string& comm = per_pid_[pid].tid_to_comm_map[tid];
     sample_key.thread_comm = UTF8StringId(comm, builder);
+  }
+  if (IncludeCgroupLabels() && sample.cgroup) {
+    sample_key.cgroup = UTF8StringId(*sample.cgroup, builder);
   }
   return sample_key;
 }
@@ -502,6 +512,11 @@ void PerfDataConverter::AddOrUpdateSample(
       auto* label = sample->add_label();
       label->set_key(builder->StringId(ThreadCommLabelKey));
       label->set_str(sample_key.thread_comm);
+    }
+    if (IncludeCgroupLabels() && sample_key.cgroup != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(CgroupLabelKey));
+      label->set_str(sample_key.cgroup);
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
