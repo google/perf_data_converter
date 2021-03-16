@@ -886,6 +886,18 @@ TEST(HugePageDeducer, CombineFileBackedMappings) {
       .WithProtFlags(PROT_READ | PROT_WRITE, MAP_SHARED)
       .WriteTo(&input);
 
+  // File backed mappings with exec protection and incompatible sharing flags.
+  testing::ExampleMmap2Event(45, 0x2000, 0x3000, 0x2000,
+                             "/usr/incompatible_flags/exec_prot_mapping",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_PRIVATE)
+      .WriteTo(&input);
+  testing::ExampleMmap2Event(45, 0x5000, 0x1000, 0x5000,
+                             "/usr/incompatible_flags/exec_prot_mapping",
+                             testing::SampleInfo().Tid(40))
+      .WithProtFlags(PROT_READ | PROT_EXEC, MAP_SHARED)
+      .WriteTo(&input);
+
   // Non-combinable file backed mappings.
   testing::ExampleMmap2Event(50, 0x2000, 0x3000, 0x2000,
                              "/dev/non_combinable_file_name",
@@ -929,10 +941,10 @@ TEST(HugePageDeducer, CombineFileBackedMappings) {
   // Parse and combine mappings.
   PerfReader reader;
   ASSERT_TRUE(reader.ReadFromString(input.str()));
-  EXPECT_EQ(16, reader.events().size());
+  EXPECT_EQ(18, reader.events().size());
 
   CombineMappings(reader.mutable_events());
-  EXPECT_EQ(14, reader.events().size());
+  EXPECT_EQ(15, reader.events().size());
 
   EXPECT_THAT(
       reader.events(),
@@ -957,6 +969,10 @@ TEST(HugePageDeducer, CombineFileBackedMappings) {
                     "mmap_event: { "
                     "pid: 40 start: 0x5000 len: 0x1000 pgoff: 0x5000 "
                     "filename: '/usr/incompatible_flags/combinable_file_name' "
+                    "}",
+                    "mmap_event: { "
+                    "pid: 45 start: 0x2000 len: 0x4000 pgoff: 0x2000 "
+                    "filename: '/usr/incompatible_flags/exec_prot_mapping' "
                     "}",
                     "mmap_event: { "
                     "pid: 50 start: 0x2000 len: 0x3000 pgoff: 0x2000 "
