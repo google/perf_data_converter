@@ -99,7 +99,10 @@ bool IsEquivalentFile(const MMapEvent& a, const MMapEvent& b) {
 bool IsEquivalentProtection(const MMapEvent& a, const MMapEvent& b) {
   constexpr uint32_t ro_prot = PROT_READ;
   constexpr uint32_t rw_prot = PROT_READ | PROT_WRITE;
-  return a.flags() == b.flags() &&
+  // Don't match sharing flags for executable mappings, because some uses of
+  // hugepage text, e.g. the hugetlbfs flavor, don't preserve the sharing flags
+  // of the original file backed mapping.
+  return (a.flags() == b.flags() || HasExecuteProtection(a)) &&
          (a.prot() == b.prot() ||
           (a.prot() == ro_prot && b.prot() == rw_prot) ||
           (a.prot() == rw_prot && b.prot() == ro_prot));
@@ -397,9 +400,6 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
       }
     }
 
-    // Don't use IsEquivalentFile(); we don't want to combine //anon with
-    // files if DeduceHugepages didn't already fix up the mappings.
-    //
     // TODO(b/169891636):  For hugetlbfs-backed files, We should verify that the
     // build IDs match as well.
     should_merge = should_merge && IsCombinableFile(*mmap) &&
