@@ -91,7 +91,7 @@ TEST(PerfDataUtilsTest, GetSampleIdFromNonSampleEvent) {
 }
 
 TEST(PerfDataUtilsTest, GetEventDataSize) {
-  string filename = "/usr/lib/foo.so";
+  std::string filename = "/usr/lib/foo.so";
   size_t event_size = offsetof(struct mmap_event, filename) +
                       GetUint64AlignedStringLength(filename.size());
   malloced_unique_ptr<event_t> event_ptr(CallocMemoryForEvent(event_size));
@@ -127,7 +127,7 @@ TEST(PerfDataUtilsTest, GetEventDataSizeForUnsupportedEvent) {
 }
 
 TEST(PerfDataUtilsTest, GetEventDataSizeWithProto) {
-  string filename = "/usr/lib/foo.so";
+  std::string filename = "/usr/lib/foo.so";
   size_t event_size = offsetof(struct mmap_event, filename) +
                       GetUint64AlignedStringLength(filename.size());
   PerfDataProto_PerfEvent event;

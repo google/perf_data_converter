@@ -10,7 +10,7 @@
 namespace quipper {
 
 TEST(PerfBuildIdTest, PerfizeBuildID) {
-  string build_id_string = "f";
+  std::string build_id_string = "f";
   PerfizeBuildIDString(&build_id_string);
   EXPECT_EQ("f000000000000000000000000000000000000000", build_id_string);
   PerfizeBuildIDString(&build_id_string);
@@ -24,7 +24,7 @@ TEST(PerfBuildIdTest, PerfizeBuildID) {
 }
 
 TEST(PerfBuildIdTest, UnperfizeBuildID) {
-  string build_id_string = "f000000000000000000000000000000000000000";
+  std::string build_id_string = "f000000000000000000000000000000000000000";
   TrimZeroesFromBuildIDString(&build_id_string);
   EXPECT_EQ("f0000000", build_id_string);
   TrimZeroesFromBuildIDString(&build_id_string);

@@ -25,7 +25,7 @@ using ::testing::proto::Partially;
 // testcases can encode "maps" entries similar to /proc/self/maps in a tabular
 // one-line-per-entry.
 void AddMmap(uint32_t pid, uint64_t mmap_start, uint64_t length, uint64_t pgoff,
-             const string& file, RepeatedPtrField<PerfEvent>* events) {
+             const std::string& file, RepeatedPtrField<PerfEvent>* events) {
   MMapEvent* ev = events->Add()->mutable_mmap_event();
   ev->set_pid(pid);
   ev->set_start(mmap_start);
@@ -36,7 +36,7 @@ void AddMmap(uint32_t pid, uint64_t mmap_start, uint64_t length, uint64_t pgoff,
 
 // AddMmapWithoutPid is similar to AddMmap function but ignores pid.
 void AddMmapWithoutPid(uint64_t mmap_start, uint64_t length, uint64_t pgoff,
-                       const string& file,
+                       const std::string& file,
                        RepeatedPtrField<PerfEvent>* events) {
   MMapEvent* ev = events->Add()->mutable_mmap_event();
   ev->set_start(mmap_start);
@@ -142,7 +142,7 @@ class HugepageTextStyleDependent
     : public ::testing::TestWithParam<HugepageTextStyle> {
  protected:
   void AddHugepageTextMmap(uint32_t pid, uint64_t mmap_start, uint64_t length,
-                           uint64_t pgoff, string file,
+                           uint64_t pgoff, std::string file,
                            RepeatedPtrField<PerfEvent>* events) {
     // Various hugepage implementations and perf versions result in various
     // quirks in how hugepages are reported.

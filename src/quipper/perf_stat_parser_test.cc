@@ -73,7 +73,7 @@ TEST(PerfStatParserTest, ValidInputParsesCorrectly) {
   // Test file input
   ScopedTempFile input;
   ASSERT_FALSE(input.path().empty());
-  ASSERT_TRUE(BufferToFile(input.path(), string(kSmallInput)));
+  ASSERT_TRUE(BufferToFile(input.path(), std::string(kSmallInput)));
   PerfStatProto proto2;
   ASSERT_TRUE(ParsePerfStatFileToProto(input.path(), &proto2));
 

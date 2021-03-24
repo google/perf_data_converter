@@ -58,7 +58,7 @@ TEST(PerfReaderTest, PipedData_FailIncompleteEventHeader) {
   input.write(reinterpret_cast<const char*>(&event_type), sizeof(event_type));
 
   // Incomplete data at the end:
-  input << string(sizeof(struct perf_event_header) - 1, '\0');
+  input << std::string(sizeof(struct perf_event_header) - 1, '\0');
 
   //
   // Parse input.
@@ -107,7 +107,7 @@ TEST(PerfReaderTest, PipedData_FailIncompleteEventData) {
   input.write(reinterpret_cast<const char*>(&incomplete_event_header),
               sizeof(incomplete_event_header));
   // Incomplete event:
-  input << string(3, '\0');
+  input << std::string(3, '\0');
 
   //
   // Parse input.
@@ -203,7 +203,7 @@ TEST(PerfReaderTest, PerfFileAttr) {
 TEST(PerfReaderTest, CorruptedFiles) {
   for (const char* test_file :
        perf_test_files::GetCorruptedPerfPipedDataFiles()) {
-    string input_perf_data = GetTestInputFilePath(test_file);
+    std::string input_perf_data = GetTestInputFilePath(test_file);
     LOG(INFO) << "Testing " << input_perf_data;
     ASSERT_TRUE(FileExists(input_perf_data)) << "Test file does not exist!";
     PerfReader pr;
@@ -456,7 +456,7 @@ TEST(PerfReaderTest, ReadsTracingMetadataEvent) {
   // data
 
   const char raw_data[] = "\x17\x08\x44tracing0.5BLAHBLAHBLAH....";
-  const string trace_metadata(raw_data, sizeof(raw_data) - 1);
+  const std::string trace_metadata(raw_data, sizeof(raw_data) - 1);
 
   const tracing_data_event trace_event = {
       .header =
@@ -496,7 +496,7 @@ TEST(PerfReaderTest, FailsToReadTracingMetadataEventWithInvalidTraceSize) {
   // data
 
   const char raw_data[] = "\x17\x08\x44tracing0.5BLAHBLAHBLAH....";
-  const string trace_metadata(raw_data, sizeof(raw_data) - 1);
+  const std::string trace_metadata(raw_data, sizeof(raw_data) - 1);
 
   const tracing_data_event trace_event = {
       .header =
@@ -1931,7 +1931,7 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
     EXPECT_EQ(PERF_RECORD_MMAP, event.header().type());
     EXPECT_EQ(1234, event.mmap_event().pid());
     EXPECT_EQ(1234, event.mmap_event().tid());
-    EXPECT_EQ(string("/usr/lib/foo.so"), event.mmap_event().filename());
+    EXPECT_EQ(std::string("/usr/lib/foo.so"), event.mmap_event().filename());
     EXPECT_EQ(0x0000000000810000, event.mmap_event().start());
     EXPECT_EQ(0x10000, event.mmap_event().len());
     EXPECT_EQ(0x2000, event.mmap_event().pgoff());

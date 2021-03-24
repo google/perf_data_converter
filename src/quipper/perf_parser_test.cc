@@ -50,15 +50,15 @@ void CheckChronologicalOrderOfEvents(const PerfReader &reader) {
   }
 }
 
-void CheckNoDuplicates(const std::vector<string> &list) {
-  std::set<string> list_as_set(list.begin(), list.end());
+void CheckNoDuplicates(const std::vector<std::string> &list) {
+  std::set<std::string> list_as_set(list.begin(), list.end());
   if (list.size() != list_as_set.size())
     ADD_FAILURE() << "Given list has at least one duplicate";
 }
 
 void CreateFilenameToBuildIDMap(
-    const std::vector<string> &filenames, unsigned int seed,
-    std::map<string, string> *filenames_to_build_ids) {
+    const std::vector<std::string> &filenames, unsigned int seed,
+    std::map<std::string, std::string> *filenames_to_build_ids) {
   srand(seed);
   // Only use every other filename, so that half the filenames are unused.
   for (size_t i = 0; i < filenames.size(); i += 2) {
@@ -74,16 +74,16 @@ void CreateFilenameToBuildIDMap(
 // new build IDs for the MMAP'd files in the perf data and check that they have
 // been correctly injected.
 void CheckFilenameAndBuildIDMethods(PerfReader *reader,
-                                    const string &output_perf_data_prefix,
+                                    const std::string &output_perf_data_prefix,
                                     unsigned int seed) {
   // Check filenames.
-  std::vector<string> filenames;
+  std::vector<std::string> filenames;
   reader->GetFilenames(&filenames);
 
   ASSERT_FALSE(filenames.empty());
   CheckNoDuplicates(filenames);
 
-  std::set<string> filename_set;
+  std::set<std::string> filename_set;
   reader->GetFilenamesAsSet(&filename_set);
 
   // Make sure all MMAP filenames are in the set.
@@ -96,40 +96,40 @@ void CheckFilenameAndBuildIDMethods(PerfReader *reader,
     }
   }
 
-  std::map<string, string> expected_map;
+  std::map<std::string, std::string> expected_map;
   reader->GetFilenamesToBuildIDs(&expected_map);
 
   // Inject some made up build ids.
-  std::map<string, string> filenames_to_build_ids;
+  std::map<std::string, std::string> filenames_to_build_ids;
   CreateFilenameToBuildIDMap(filenames, seed, &filenames_to_build_ids);
   ASSERT_TRUE(reader->InjectBuildIDs(filenames_to_build_ids));
 
   // Reader should now correctly populate the filenames to build ids map.
-  std::map<string, string>::const_iterator it;
+  std::map<std::string, std::string>::const_iterator it;
   for (it = filenames_to_build_ids.begin(); it != filenames_to_build_ids.end();
        ++it) {
     expected_map[it->first] = it->second;
   }
-  std::map<string, string> reader_map;
+  std::map<std::string, std::string> reader_map;
   reader->GetFilenamesToBuildIDs(&reader_map);
   ASSERT_EQ(expected_map, reader_map);
 
-  string output_perf_data1 = output_perf_data_prefix + ".parse.inject.out";
+  std::string output_perf_data1 = output_perf_data_prefix + ".parse.inject.out";
   ASSERT_TRUE(reader->WriteFile(output_perf_data1));
 
   // Perf should find the same build ids.
-  std::map<string, string> perf_build_id_map;
+  std::map<std::string, std::string> perf_build_id_map;
   ASSERT_TRUE(GetPerfBuildIDMap(output_perf_data1, &perf_build_id_map));
   ASSERT_EQ(expected_map, perf_build_id_map);
 
-  std::map<string, string> build_id_localizer;
+  std::map<std::string, std::string> build_id_localizer;
   // Only localize the first half of the files which have build ids.
   for (size_t j = 0; j < filenames.size() / 2; ++j) {
-    string old_filename = filenames[j];
+    std::string old_filename = filenames[j];
     if (expected_map.find(old_filename) == expected_map.end()) continue;
-    string build_id = expected_map[old_filename];
+    std::string build_id = expected_map[old_filename];
 
-    string new_filename = old_filename + ".local";
+    std::string new_filename = old_filename + ".local";
     filenames[j] = new_filename;
     build_id_localizer[build_id] = new_filename;
     expected_map[new_filename] = build_id;
@@ -138,7 +138,7 @@ void CheckFilenameAndBuildIDMethods(PerfReader *reader,
   reader->Localize(build_id_localizer);
 
   // Filenames should be the same.
-  std::vector<string> new_filenames;
+  std::vector<std::string> new_filenames;
   reader->GetFilenames(&new_filenames);
   std::sort(filenames.begin(), filenames.end());
   ASSERT_EQ(filenames, new_filenames);
@@ -148,23 +148,24 @@ void CheckFilenameAndBuildIDMethods(PerfReader *reader,
   reader->GetFilenamesToBuildIDs(&reader_map);
   ASSERT_EQ(expected_map, reader_map);
 
-  string output_perf_data2 = output_perf_data_prefix + ".parse.localize.out";
+  std::string output_perf_data2 =
+      output_perf_data_prefix + ".parse.localize.out";
   ASSERT_TRUE(reader->WriteFile(output_perf_data2));
 
   perf_build_id_map.clear();
   ASSERT_TRUE(GetPerfBuildIDMap(output_perf_data2, &perf_build_id_map));
   EXPECT_EQ(expected_map, perf_build_id_map);
 
-  std::map<string, string> filename_localizer;
+  std::map<std::string, std::string> filename_localizer;
   // Only localize every third filename.
   for (size_t j = 0; j < filenames.size(); j += 3) {
-    string old_filename = filenames[j];
-    string new_filename = old_filename + ".local2";
+    std::string old_filename = filenames[j];
+    std::string new_filename = old_filename + ".local2";
     filenames[j] = new_filename;
     filename_localizer[old_filename] = new_filename;
 
     if (expected_map.find(old_filename) != expected_map.end()) {
-      string build_id = expected_map[old_filename];
+      std::string build_id = expected_map[old_filename];
       expected_map[new_filename] = build_id;
       expected_map.erase(old_filename);
     }
@@ -182,7 +183,8 @@ void CheckFilenameAndBuildIDMethods(PerfReader *reader,
   reader->GetFilenamesToBuildIDs(&reader_map);
   EXPECT_EQ(expected_map, reader_map);
 
-  string output_perf_data3 = output_perf_data_prefix + ".parse.localize2.out";
+  std::string output_perf_data3 =
+      output_perf_data_prefix + ".parse.localize2.out";
   ASSERT_TRUE(reader->WriteFile(output_perf_data3));
 
   perf_build_id_map.clear();
@@ -207,7 +209,8 @@ void CheckKernelHasZeroPgoff(const PerfReader &reader) {
   for (const auto &event : reader.events()) {
     if ((event.header().type() == PERF_RECORD_MMAP ||
          event.header().type() == PERF_RECORD_MMAP2) &&
-        event.mmap_event().filename().find("kernel.kallsyms") != string::npos) {
+        event.mmap_event().filename().find("kernel.kallsyms") !=
+            std::string::npos) {
       EXPECT_EQ(0, event.mmap_event().pgoff())
           << "remapped kernel offset must be zero";
     }
@@ -230,21 +233,21 @@ class PerfPipedDataFiles : public ::testing::TestWithParam<const char *> {};
 TEST_P(PerfDataFiles, NormalPerfData) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
+  std::string output_path = output_dir.path();
 
   int seed = 0;
-  string test_file = GetParam();
-  string input_perf_data = GetTestInputFilePath(test_file);
+  std::string test_file = GetParam();
+  std::string input_perf_data = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing " << input_perf_data;
 
   PerfReader reader;
   ASSERT_TRUE(reader.ReadFile(input_perf_data));
 
   // Test the PerfReader stage of the processing before continuing.
-  string pr_output_perf_data = output_path + test_file + ".pr.out";
-  string pr_baseline_filename = test_file + ".io.out";
+  std::string pr_output_perf_data = output_path + test_file + ".pr.out";
+  std::string pr_baseline_filename = test_file + ".io.out";
   ASSERT_TRUE(reader.WriteFile(pr_output_perf_data));
-  string difference;
+  std::string difference;
   EXPECT_TRUE(CheckPerfDataAgainstBaseline(pr_output_perf_data,
                                            pr_baseline_filename, &difference))
       << difference;
@@ -265,7 +268,7 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   EXPECT_GT(stats.num_sample_events_mapped, 0U);
   EXPECT_FALSE(stats.did_remap);
 
-  string parsed_perf_data = output_path + test_file + ".parse.out";
+  std::string parsed_perf_data = output_path + test_file + ".parse.out";
   ASSERT_TRUE(reader.WriteFile(parsed_perf_data));
 
   EXPECT_TRUE(CheckPerfDataAgainstBaseline(parsed_perf_data, "", &difference))
@@ -288,7 +291,7 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   CheckKernelHasZeroPgoff(reader);
 
   // Remapped addresses should not match the original addresses.
-  string remapped_perf_data = output_path + test_file + ".parse.remap.out";
+  std::string remapped_perf_data = output_path + test_file + ".parse.remap.out";
   ASSERT_TRUE(reader.WriteFile(remapped_perf_data));
   EXPECT_TRUE(CheckPerfDataAgainstBaseline(remapped_perf_data, "", &difference))
       << difference;
@@ -315,7 +318,8 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   ASSERT_EQ(stats.num_sample_events_mapped,
             remap_stats.num_sample_events_mapped);
 
-  string remapped_perf_data2 = output_path + test_file + ".parse.remap2.out";
+  std::string remapped_perf_data2 =
+      output_path + test_file + ".parse.remap2.out";
   ASSERT_TRUE(remap_reader.WriteFile(remapped_perf_data2));
 
   // No need to call CheckPerfDataAgainstBaseline again. Just compare
@@ -336,20 +340,20 @@ TEST_P(PerfDataFiles, NormalPerfData) {
 TEST_P(PerfPipedDataFiles, PipedModePerfData) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
+  std::string output_path = output_dir.path();
 
   int seed = 0;
-  const string test_file = GetParam();
-  string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  std::string input_perf_data = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing " << input_perf_data;
-  string output_perf_data = output_path + test_file + ".pr.out";
+  std::string output_perf_data = output_path + test_file + ".pr.out";
 
   PerfReader reader;
   ASSERT_TRUE(reader.ReadFile(input_perf_data));
 
   // Check results from the PerfReader stage.
   ASSERT_TRUE(reader.WriteFile(output_perf_data));
-  string difference;
+  std::string difference;
   EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
       << difference;
 
@@ -1143,7 +1147,7 @@ TEST(PerfParserTest, PipedAuxtraceInfoEvents) {
 
 TEST(PerfSerializerTest, AuxtraceErrorEvents) {
   std::stringstream input;
-  string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
+  std::string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
 
   // PERF_RECORD_AUXTRACE_INFO
   testing::ExampleAuxtraceErrorEvent auxtrace_error_event(
@@ -1205,7 +1209,7 @@ TEST(PerfSerializerTest, PipedAuxtraceErrorEvents) {
                                               /*sample_id_all=*/true)
       .WriteTo(&input);
 
-  string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
+  std::string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
 
   // PERF_RECORD_AUXTRACE_ERROR
   testing::ExampleAuxtraceErrorEvent(1, 9876, 10, 4365, 4365, 86758,
@@ -1857,7 +1861,7 @@ TEST(PerfParserTest, DsoInfoHasBuildId) {
   // becomes: 0x1000, 0x2000, 0
 
   // PERF_RECORD_HEADER_BUILDID                                // N/A
-  string build_id_filename("/usr/lib/foo.so\0", 2 * sizeof(u64));
+  std::string build_id_filename("/usr/lib/foo.so\0", 2 * sizeof(u64));
   ASSERT_EQ(0, build_id_filename.size() % sizeof(u64)) << "Sanity check";
   const size_t event_size =
       sizeof(struct build_id_event) + build_id_filename.size();
@@ -1919,7 +1923,7 @@ bool HaveCapability(cap_value_t capability) {
 
 class RunInMountNamespaceThread : public quipper::Thread {
  public:
-  explicit RunInMountNamespaceThread(string tmpdir, string mntdir)
+  explicit RunInMountNamespaceThread(std::string tmpdir, std::string mntdir)
       : quipper::Thread("MntNamespace"),
         tmpdir_(std::move(tmpdir)),
         mntdir_(std::move(mntdir)) {}
@@ -1945,8 +1949,8 @@ class RunInMountNamespaceThread : public quipper::Thread {
 
   Notification ready;
   Notification exit;
-  string tmpdir_;
-  string mntdir_;
+  std::string tmpdir_;
+  std::string mntdir_;
 };
 
 // Root task <pid>/<pid> Filesystem:
@@ -1973,8 +1977,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace) {
   const pid_t pid = getpid();
   const pid_t tid = thread.tid();
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xbe\xef");
@@ -2042,7 +2046,7 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace) {
 
 class RunInMountNamespaceProcess {
  public:
-  RunInMountNamespaceProcess(string tmpdir, string mntdir)
+  RunInMountNamespaceProcess(std::string tmpdir, std::string mntdir)
       : pid_(0), tmpdir_(std::move(tmpdir)), mntdir_(std::move(mntdir)) {}
 
   void Start() {
@@ -2083,8 +2087,8 @@ class RunInMountNamespaceProcess {
 
  private:
   pid_t pid_;
-  string tmpdir_;
-  string mntdir_;
+  std::string tmpdir_;
+  std::string mntdir_;
 };
 
 // Root task <pid>/<pid> Filesystem:
@@ -2111,8 +2115,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_TriesOwningProcess) {
   const pid_t pid = process.pid();
   const pid_t tid = pid + 1;
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xbe\xef");
@@ -2194,8 +2198,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_TriesRootFs) {
   const pid_t pid = getpid();
   const pid_t tid = thread.tid();
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xbe\xef");
@@ -2279,8 +2283,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_TriesRootFsRejectsInode) {
   const pid_t pid = getpid();
   const pid_t tid = thread.tid();
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xbe\xef");
@@ -2368,8 +2372,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_TriesRootFsNoInodeToReject) {
   const pid_t pid = getpid();
   const pid_t tid = thread.tid();
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xf0\x0d");
@@ -2465,8 +2469,8 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_DifferentDevOrIno) {
   const pid_t pid = getpid();
   const pid_t tid = thread.tid();
 
-  const string tmpfile = tmpdir.path() + "file_in_namespace";
-  const string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
+  const std::string tmpfile = tmpdir.path() + "file_in_namespace";
+  const std::string tmpfile_in_ns = mntdir.path() + "file_in_namespace";
   InitializeLibelf();
   testing::WriteElfWithBuildid(tmpfile, ".note.gnu.build-id",
                                "\xde\xad\xf0\x0d");
@@ -2556,10 +2560,10 @@ TEST(PerfParserTest, ReadsBuildidsInMountNamespace_DifferentDevOrIno) {
 
 TEST(PerfParserTest, OverwriteBuildidIfAlreadyKnown) {
   ScopedTempDir tmpdir("/tmp/quipper_tmp.");
-  const string known_file = tmpdir.path() + "buildid_already_known";
-  const string known_file_to_overwrite =
+  const std::string known_file = tmpdir.path() + "buildid_already_known";
+  const std::string known_file_to_overwrite =
       tmpdir.path() + "buildid_already_known_overwrite";
-  const string unknown_file = tmpdir.path() + "buildid_not_known";
+  const std::string unknown_file = tmpdir.path() + "buildid_not_known";
   InitializeLibelf();
   testing::WriteElfWithBuildid(known_file_to_overwrite, ".note.gnu.build-id",
                                "\xf0\x01\x57\xea");
@@ -2594,7 +2598,7 @@ TEST(PerfParserTest, OverwriteBuildidIfAlreadyKnown) {
 
   // PERF_RECORD_HEADER_BUILDID                                // N/A
   {
-    string build_id_filename(known_file);
+    std::string build_id_filename(known_file);
     build_id_filename.resize(Align<u64>(known_file.size()));  // null-pad
     const size_t event_size =
         sizeof(struct build_id_event) + build_id_filename.size();
@@ -2614,7 +2618,7 @@ TEST(PerfParserTest, OverwriteBuildidIfAlreadyKnown) {
 
   // PERF_RECORD_HEADER_BUILDID                                // N/A
   {
-    string build_id_filename(known_file_to_overwrite);
+    std::string build_id_filename(known_file_to_overwrite);
     // null-pad
     build_id_filename.resize(Align<u64>(known_file_to_overwrite.size()));
     const size_t event_size =
@@ -2675,7 +2679,7 @@ TEST(PerfParserTest, OverwriteBuildidIfAlreadyKnown) {
 
 TEST(PerfParserTest, OnlyReadsBuildidIfSampled) {
   ScopedTempDir tmpdir("/tmp/quipper_tmp.");
-  const string unknown_file = tmpdir.path() + "buildid_not_known";
+  const std::string unknown_file = tmpdir.path() + "buildid_not_known";
   InitializeLibelf();
   testing::WriteElfWithBuildid(unknown_file, ".note.gnu.build-id",
                                "\xc0\x01\xd0\x0d");
@@ -2727,7 +2731,7 @@ TEST(PerfParserTest, OnlyReadsBuildidIfSampled) {
   EXPECT_EQ("", events[1].dso_and_offset.dso_name());
   EXPECT_EQ("", events[1].dso_and_offset.build_id());
 
-  std::map<string, string> filenames_to_build_ids;
+  std::map<std::string, std::string> filenames_to_build_ids;
   reader.GetFilenamesToBuildIDs(&filenames_to_build_ids);
   auto it = filenames_to_build_ids.find(unknown_file);
   EXPECT_EQ(filenames_to_build_ids.end(), it) << it->first << " " << it->second;
@@ -3115,7 +3119,7 @@ TEST(PerfParserTest, Regression62446346_Perf3_12_0_14) {
 
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
-  string difference;
+  std::string difference;
   EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
       << difference;
   EXPECT_EQ(1, parser.parsed_events().size());
@@ -3194,7 +3198,7 @@ TEST(PerfParserTest, DiscontiguousMappings) {
   PerfDataProto actual;
   CopyActualEvents(parser.parsed_events(), &actual);
 
-  string difference;
+  std::string difference;
   EXPECT_TRUE(PartiallyEqualsProto(actual, expected, &difference))
       << difference;
   EXPECT_EQ(3, parser.parsed_events().size());
