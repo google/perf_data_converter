@@ -26,7 +26,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     return 0;
   }
 
-  string raw_output;
+  std::string raw_output;
   pr.WriteToString(&raw_output);
 
   quipper::PerfDataProto proto_output;

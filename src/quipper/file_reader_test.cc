@@ -68,7 +68,7 @@ TEST(FileReaderTest, ReadDataBeyondMaxSize) {
 
 // Read in all data from the input file at once.
 TEST(FileReaderTest, ReadSingleChunk) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), kInputData));
@@ -80,12 +80,12 @@ TEST(FileReaderTest, ReadSingleChunk) {
   EXPECT_EQ(output.size(), reader.Tell());
   // Compare input and output data, converting the latter to a string for
   // clarity of error messages.
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test the ReadDataValue() function, which is a wrapper around ReadData().
 TEST(FileReaderTest, ReadDataValue) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), kInputData));
@@ -96,13 +96,13 @@ TEST(FileReaderTest, ReadDataValue) {
   EXPECT_TRUE(reader.ReadDataValue(output.size(), "data", output.data()));
   EXPECT_EQ(output.size(), reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Read in all data from the input file in multiple chunks, in order.
 TEST(FileReaderTest, ReadMultipleChunks) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), kInputData));
@@ -119,13 +119,13 @@ TEST(FileReaderTest, ReadMultipleChunks) {
   EXPECT_TRUE(reader.ReadData(6, output.data() + reader.Tell()));
   EXPECT_EQ(26, reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Read in all data from the input file in multiple chunks, but not in order.
 TEST(FileReaderTest, ReadWithJumps) {
   // This string contains four parts, each 10 characters long.
-  const string kInputData =
+  const std::string kInputData =
       "0:abcdefg;"
       "1:hijklmn;"
       "2:opqrstu;"
@@ -142,23 +142,23 @@ TEST(FileReaderTest, ReadWithJumps) {
   EXPECT_TRUE(reader.SeekSet(10));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(20, reader.Tell());
-  EXPECT_EQ("1:hijklmn;", string(output.begin(), output.end()));
+  EXPECT_EQ("1:hijklmn;", std::string(output.begin(), output.end()));
 
   EXPECT_TRUE(reader.SeekSet(30));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(40, reader.Tell());
-  EXPECT_EQ("3:vwxyzABC", string(output.begin(), output.end()));
+  EXPECT_EQ("3:vwxyzABC", std::string(output.begin(), output.end()));
 
   EXPECT_TRUE(reader.SeekSet(0));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(10, reader.Tell());
-  EXPECT_EQ("0:abcdefg;", string(output.begin(), output.end()));
+  EXPECT_EQ("0:abcdefg;", std::string(output.begin(), output.end()));
 }
 
 // Test reading past the end of the file.
 TEST(FileReaderTest, ReadPastEndOfData) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), kInputData));
@@ -186,27 +186,27 @@ TEST(FileReaderTest, ReadPastEndOfData) {
   EXPECT_TRUE(reader.ReadData(13, output.data() + reader.Tell()));
   EXPECT_EQ(26, reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test string reads.
 TEST(FileReaderTest, ReadString) {
   // Construct an input string.
-  string input_string("The quick brown fox jumps over the lazy dog.");
+  std::string input_string("The quick brown fox jumps over the lazy dog.");
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), input_string));
 
   // Read the full string.
   FileReader full_reader(input_file.path());
-  string full_reader_output;
+  std::string full_reader_output;
   EXPECT_TRUE(full_reader.ReadString(input_string.size(), &full_reader_output));
   EXPECT_EQ(input_string.size(), full_reader.Tell());
   EXPECT_EQ(input_string, full_reader_output);
 
   // Read the first half of the string.
   FileReader half_reader(input_file.path());
-  string half_reader_output;
+  std::string half_reader_output;
   EXPECT_TRUE(
       half_reader.ReadString(input_string.size() / 2, &half_reader_output));
   EXPECT_EQ(input_string.size() / 2, half_reader.Tell());
@@ -215,7 +215,7 @@ TEST(FileReaderTest, ReadString) {
 
   // Attempt to read past the end of the string.
   FileReader past_end_reader(input_file.path());
-  string past_end_reader_output = "previous string value";
+  std::string past_end_reader_output = "previous string value";
   EXPECT_FALSE(past_end_reader.ReadString(input_string.size() + 1,
                                           &past_end_reader_output));
   EXPECT_EQ("previous string value", past_end_reader_output);
@@ -223,7 +223,8 @@ TEST(FileReaderTest, ReadString) {
   // Create a string with some extra padding behind it. The padding should be
   // all zeroes. Read from this string, with a size that encompasses the
   // padding.
-  string input_string_with_padding(input_string.begin(), input_string.end());
+  std::string input_string_with_padding(input_string.begin(),
+                                        input_string.end());
   input_string_with_padding.resize(input_string.size() + 10, '\0');
 
   ScopedTempFile input_file_padded;
@@ -232,7 +233,7 @@ TEST(FileReaderTest, ReadString) {
 
   // Read everything including the padding.
   FileReader padding_reader(input_file_padded.path());
-  string padding_reader_output;
+  std::string padding_reader_output;
   EXPECT_TRUE(padding_reader.ReadString(input_string_with_padding.size(),
                                         &padding_reader_output));
   // The reader should have read past the padding too.
@@ -244,14 +245,14 @@ TEST(FileReaderTest, ReadString) {
 // Make sure that the reader can handle integer overflow.
 TEST(FileReaderTest, ReadStringBeyondMaxSize) {
   // Construct an input string.
-  string input_string("The quick brown fox jumps over the lazy dog.");
+  std::string input_string("The quick brown fox jumps over the lazy dog.");
 
   ScopedTempFile input_file;
   ASSERT_TRUE(BufferToFile(input_file.path(), input_string));
 
   FileReader reader(input_file.path());
   EXPECT_TRUE(reader.SeekSet(5));
-  string output;
+  std::string output;
   EXPECT_FALSE(reader.ReadString(SIZE_MAX, &output));
 }
 

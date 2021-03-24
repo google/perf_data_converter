@@ -45,7 +45,7 @@ TEST_F(PerfRecorderTest, RecordToProtobuf) {
   // Read perf data using the PerfReader class.
   // Dump it to a string and convert to a protobuf.
   // Read the protobuf, and reconstruct the perf data.
-  string output_string;
+  std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "record"}, 0.2, &output_string));
 
@@ -71,7 +71,7 @@ TEST_F(PerfRecorderTest, RecordToProtobuf) {
 
 TEST_F(PerfRecorderTest, StatToProtobuf) {
   // Run perf stat and verify output.
-  string output_string;
+  std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "stat"}, 0.2, &output_string));
 
@@ -85,7 +85,7 @@ TEST_F(PerfRecorderTest, MemRecordToProtobuf) {
   if (!IsPerfMemRecordAvailable()) return;
 
   // Run perf mem record and verify output.
-  string output_string;
+  std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "mem", "record"}, 0.2, &output_string));
 
@@ -95,7 +95,7 @@ TEST_F(PerfRecorderTest, MemRecordToProtobuf) {
 }
 
 TEST_F(PerfRecorderTest, StatSingleEvent) {
-  string output_string;
+  std::string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "stat", "-a", "-e", "cpu-clock"}, 0.2, &output_string));
 
@@ -104,8 +104,8 @@ TEST_F(PerfRecorderTest, StatSingleEvent) {
   quipper::PerfStatProto stat;
   ASSERT_TRUE(stat.ParseFromString(output_string));
   // Replace the placeholder "perf" with the actual perf path.
-  string expected_command_line =
-      string("sudo ") + GetPerfPath() + " stat -a -e cpu-clock -v -- sleep 0.2";
+  std::string expected_command_line = std::string("sudo ") + GetPerfPath() +
+                                      " stat -a -e cpu-clock -v -- sleep 0.2";
   EXPECT_EQ(expected_command_line, stat.command_line());
 
   // Make sure the event counter was read.
@@ -119,7 +119,7 @@ TEST_F(PerfRecorderTest, StatSingleEvent) {
 }
 
 TEST_F(PerfRecorderTest, StatMultipleEvents) {
-  string output_string;
+  std::string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "stat", "-a", "-e", "cpu-clock", "-e", "context-switches", "-e",
        "major-faults", "-e", "page-faults"},
@@ -130,14 +130,14 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
   quipper::PerfStatProto stat;
   ASSERT_TRUE(stat.ParseFromString(output_string));
   // Replace the placeholder "perf" with the actual perf path.
-  string command_line = string("sudo ") + GetPerfPath() +
-                        " stat -a "
-                        "-e cpu-clock "
-                        "-e context-switches "
-                        "-e major-faults "
-                        "-e page-faults "
-                        "-v "
-                        "-- sleep 0.2";
+  std::string command_line = std::string("sudo ") + GetPerfPath() +
+                             " stat -a "
+                             "-e cpu-clock "
+                             "-e context-switches "
+                             "-e major-faults "
+                             "-e page-faults "
+                             "-v "
+                             "-- sleep 0.2";
   EXPECT_TRUE(stat.has_command_line());
   EXPECT_EQ(command_line, stat.command_line());
 
@@ -174,7 +174,7 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
 }
 
 TEST_F(PerfRecorderTest, DontAllowCommands) {
-  string output_string;
+  std::string output_string;
   EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "record", "--", "sh", "-c", "echo 'malicious'"}, 0.2,
       &output_string));
@@ -184,7 +184,7 @@ TEST_F(PerfRecorderTest, DontAllowCommands) {
 }
 
 TEST(PerfRecorderNoPerfTest, FailsIfPerfDoesntExist) {
-  string output_string;
+  std::string output_string;
   PerfRecorder perf_recorder({"sudo", "/doesnt-exist/usr/not-bin/not-perf"});
   EXPECT_FALSE(perf_recorder.RunCommandAndGetSerializedOutput(
       {"perf", "record"}, 0.2, &output_string));

@@ -60,7 +60,7 @@ TEST(BufferReaderTest, ReadDataBeyondMaxSize) {
 
 // Read in all data from the input buffer at once.
 TEST(BufferReaderTest, ReadSingleChunk) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   BufferReader reader(kInputData.data(), kInputData.size());
 
   std::vector<uint8_t> output(kInputData.size());
@@ -68,25 +68,25 @@ TEST(BufferReaderTest, ReadSingleChunk) {
   EXPECT_EQ(output.size(), reader.Tell());
   // Compare input and output data, converting the latter to a string for
   // clarity of error messages.
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test the ReadDataValue() function, which is a wrapper around ReadData().
 TEST(BufferReaderTest, ReadDataValue) {
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   BufferReader reader(kInputData.data(), kInputData.size());
 
   std::vector<uint8_t> output(kInputData.size());
   EXPECT_TRUE(reader.ReadDataValue(output.size(), "data", output.data()));
   EXPECT_EQ(output.size(), reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Read in all data from the input buffer in multiple chunks, in order.
 TEST(BufferReaderTest, ReadMultipleChunks) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   BufferReader reader(kInputData.data(), kInputData.size());
 
   // Make sure the cursor is updated after each read.
@@ -100,13 +100,13 @@ TEST(BufferReaderTest, ReadMultipleChunks) {
   EXPECT_TRUE(reader.ReadData(6, output.data() + reader.Tell()));
   EXPECT_EQ(26, reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Read in all data from the input buffer in multiple chunks, but not in order.
 TEST(BufferReaderTest, ReadWithJumps) {
   // This string contains four parts, each 10 characters long.
-  const string kInputData =
+  const std::string kInputData =
       "0:abcdefg;"
       "1:hijklmn;"
       "2:opqrstu;"
@@ -120,28 +120,28 @@ TEST(BufferReaderTest, ReadWithJumps) {
   EXPECT_TRUE(reader.SeekSet(20));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(30, reader.Tell());
-  EXPECT_EQ("2:opqrstu;", string(output.begin(), output.end()));
+  EXPECT_EQ("2:opqrstu;", std::string(output.begin(), output.end()));
 
   EXPECT_TRUE(reader.SeekSet(10));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(20, reader.Tell());
-  EXPECT_EQ("1:hijklmn;", string(output.begin(), output.end()));
+  EXPECT_EQ("1:hijklmn;", std::string(output.begin(), output.end()));
 
   EXPECT_TRUE(reader.SeekSet(30));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(40, reader.Tell());
-  EXPECT_EQ("3:vwxyzABC", string(output.begin(), output.end()));
+  EXPECT_EQ("3:vwxyzABC", std::string(output.begin(), output.end()));
 
   EXPECT_TRUE(reader.SeekSet(0));
   EXPECT_TRUE(reader.ReadData(10, output.data()));
   EXPECT_EQ(10, reader.Tell());
-  EXPECT_EQ("0:abcdefg;", string(output.begin(), output.end()));
+  EXPECT_EQ("0:abcdefg;", std::string(output.begin(), output.end()));
 }
 
 // Test reading past the end of the buffer.
 TEST(BufferReaderTest, ReadPastEndOfData) {
   // This string is 26 characters long.
-  const string kInputData = "abcdefghijklmnopqrstuvwxyz";
+  const std::string kInputData = "abcdefghijklmnopqrstuvwxyz";
   BufferReader reader(kInputData.data(), kInputData.size());
 
   // Must not be able to read past the end of the buffer.
@@ -166,24 +166,24 @@ TEST(BufferReaderTest, ReadPastEndOfData) {
   EXPECT_TRUE(reader.ReadData(13, output.data() + reader.Tell()));
   EXPECT_EQ(26, reader.Tell());
 
-  EXPECT_EQ(kInputData, string(output.begin(), output.end()));
+  EXPECT_EQ(kInputData, std::string(output.begin(), output.end()));
 }
 
 // Test string reads.
 TEST(BufferReaderTest, ReadString) {
   // Construct an input string.
-  string input("The quick brown fox jumps over the lazy dog.");
+  std::string input("The quick brown fox jumps over the lazy dog.");
 
   // Read the full string.
   BufferReader full_reader(input.data(), input.size());
-  string full_reader_output;
+  std::string full_reader_output;
   EXPECT_TRUE(full_reader.ReadString(input.size(), &full_reader_output));
   EXPECT_EQ(input.size(), full_reader.Tell());
   EXPECT_EQ(input, full_reader_output);
 
   // Read the full string plus the null pointer.
   BufferReader full_null_reader(input.data(), input.size() + 1);
-  string full_null_reader_output;
+  std::string full_null_reader_output;
   EXPECT_TRUE(
       full_null_reader.ReadString(input.size() + 1, &full_null_reader_output));
   EXPECT_EQ(input.size() + 1, full_null_reader.Tell());
@@ -191,14 +191,14 @@ TEST(BufferReaderTest, ReadString) {
 
   // Read the first half of the string.
   BufferReader half_reader(input.data(), input.size() / 2);
-  string half_reader_output;
+  std::string half_reader_output;
   EXPECT_TRUE(half_reader.ReadString(input.size() / 2, &half_reader_output));
   EXPECT_EQ(input.size() / 2, half_reader.Tell());
   EXPECT_EQ(input.substr(0, input.size() / 2), half_reader_output);
 
   // Attempt to read past the end of the string.
   BufferReader past_end_reader(input.data(), input.size());
-  string past_end_reader_output;
+  std::string past_end_reader_output;
   EXPECT_FALSE(
       past_end_reader.ReadString(input.size() + 2, &past_end_reader_output));
 
@@ -209,7 +209,7 @@ TEST(BufferReaderTest, ReadString) {
   input_vector.resize(input.size() + 10, '\0');
 
   BufferReader vector_reader(input_vector.data(), input_vector.size());
-  string vector_reader_output;
+  std::string vector_reader_output;
   EXPECT_TRUE(
       vector_reader.ReadString(input_vector.size(), &vector_reader_output));
   // The reader should have read past the padding too.
@@ -220,7 +220,7 @@ TEST(BufferReaderTest, ReadString) {
 // Make sure that the reader can handle integer overflow.
 TEST(BufferReaderTest, ReadStringBeyondMaxSize) {
   // Construct an input string.
-  string input("The quick brown fox jumps over the lazy dog.");
+  std::string input("The quick brown fox jumps over the lazy dog.");
 
   BufferReader reader(input.data(), input.size());
 
@@ -229,20 +229,20 @@ TEST(BufferReaderTest, ReadStringBeyondMaxSize) {
   EXPECT_FALSE(reader.ReadString(SIZE_MAX, nullptr));
 }
 
-string MakeStringWithNullsForSpaces(string str) {
+std::string MakeStringWithNullsForSpaces(std::string str) {
   std::replace(str.begin(), str.end(), ' ', '\0');
   return str;
 }
 
 TEST(BufferReaderTest, ReadDataString) {
   // Construct an input string.
-  string input = MakeStringWithNullsForSpaces(
+  std::string input = MakeStringWithNullsForSpaces(
       "The quick brown fox jumps over the lazy dog.");
 
   BufferReader reader(input.data(), input.size());
 
-  string expected_out;
-  string out;
+  std::string expected_out;
+  std::string out;
   out.resize(5);
   EXPECT_TRUE(reader.ReadDataString(10, &out));
   expected_out = MakeStringWithNullsForSpaces("The quick ");

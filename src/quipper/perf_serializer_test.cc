@@ -30,7 +30,7 @@
 namespace {
 
 // Returns a string representation of an unsigned integer |value|.
-string UintToString(uint64_t value) {
+std::string UintToString(uint64_t value) {
   std::stringstream ss;
   ss << value;
   return ss.str();
@@ -99,8 +99,9 @@ void CheckChronologicalOrderOfSerializedEvents(const PerfDataProto& proto) {
   }
 }
 
-void SerializeAndDeserialize(const string& input, const string& output,
-                             bool do_remap, bool discard_unused_events) {
+void SerializeAndDeserialize(const std::string& input,
+                             const std::string& output, bool do_remap,
+                             bool discard_unused_events) {
   PerfDataProto perf_data_proto;
   PerfParserOptions options;
   options.do_remap = do_remap;
@@ -134,7 +135,8 @@ void SerializeAndDeserialize(const string& input, const string& output,
   ASSERT_TRUE(reader.WriteFile(output));
 }
 
-void SerializeToFileAndBack(const string& input, const string& output) {
+void SerializeToFileAndBack(const std::string& input,
+                            const std::string& output) {
   struct timeval pre_serialize_time;
   gettimeofday(&pre_serialize_time, NULL);
 
@@ -168,10 +170,10 @@ void SerializeToFileAndBack(const string& input, const string& output) {
   // Now store the protobuf into a file.
   ScopedTempFile input_file;
   EXPECT_FALSE(input_file.path().empty());
-  string input_filename = input_file.path();
+  std::string input_filename = input_file.path();
   ScopedTempFile output_file;
   EXPECT_FALSE(output_file.path().empty());
-  string output_filename = output_file.path();
+  std::string output_filename = output_file.path();
 
   EXPECT_TRUE(WriteProtobufToFile(input_perf_data_proto, input_filename));
 
@@ -194,7 +196,7 @@ void SerializeToFileAndBack(const string& input, const string& output) {
 TEST_P(SerializePerfDataFiles, Test1Cycle) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
+  std::string output_path = output_dir.path();
 
   // Read perf data using the PerfReader class.
   // Dump it to a protobuf.
@@ -203,10 +205,11 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
         output_perf_reader2;
     PerfDataProto perf_data_proto, perf_data_proto1;
 
-    const string test_file = GetParam();
-    const string input_perf_data = GetTestInputFilePath(test_file);
-    const string output_perf_data = output_path + test_file + ".serialized.out";
-    const string output_perf_data1 =
+    const std::string test_file = GetParam();
+    const std::string input_perf_data = GetTestInputFilePath(test_file);
+    const std::string output_perf_data =
+        output_path + test_file + ".serialized.out";
+    const std::string output_perf_data1 =
         output_path + test_file + ".serialized.1.out";
 
     LOG(INFO) << "Testing " << input_perf_data;
@@ -228,7 +231,7 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
 
     ASSERT_TRUE(CompareFileContents(output_perf_data, output_perf_data1));
 
-    string output_perf_data2 = output_path + test_file + ".io.out";
+    std::string output_perf_data2 = output_path + test_file + ".io.out";
     SerializeToFileAndBack(input_perf_data, output_perf_data2);
     output_perf_reader2.ReadFile(output_perf_data2);
 
@@ -246,7 +249,7 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
     ASSERT_EQ(output_perf_reader2.events().size(),
               input_perf_reader.events().size());
 
-    string difference;
+    std::string difference;
     EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
         << difference;
     EXPECT_TRUE(ComparePerfBuildIDLists(input_perf_data, output_perf_data));
@@ -259,21 +262,22 @@ TEST_P(SerializePerfDataFiles, Test1Cycle) {
 TEST_P(SerializeAllPerfDataFiles, TestRemap) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  const string output_path = output_dir.path();
+  const std::string output_path = output_dir.path();
 
   // Read perf data using the PerfReader class with address remapping.
   // Dump it to a protobuf.
   // Read the protobuf, and reconstruct the perf data.
-  const string test_file = GetParam();
-  const string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing " << input_perf_data;
-  const string output_perf_data = output_path + test_file + ".ser.remap.out";
+  const std::string output_perf_data =
+      output_path + test_file + ".ser.remap.out";
   SerializeAndDeserialize(input_perf_data, output_perf_data, true, true);
 }
 
 TEST_P(SerializePerfDataFiles, TestGetEventSize) {
-  const string test_file = GetParam();
-  const string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
 
   PerfDataProto perf_data_proto;
   EXPECT_TRUE(SerializeFromFile(input_perf_data, &perf_data_proto));
@@ -294,8 +298,8 @@ TEST_P(SerializePerfDataFiles, TestGetEventSize) {
 }
 
 TEST_P(SerializePerfDataFiles, TestDeserializeWithZeroEventSize) {
-  const string test_file = GetParam();
-  const string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
 
   PerfDataProto perf_data_proto;
   EXPECT_TRUE(SerializeFromFile(input_perf_data, &perf_data_proto));
@@ -307,20 +311,20 @@ TEST_P(SerializePerfDataFiles, TestDeserializeWithZeroEventSize) {
 
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
-  const string output_perf_data = output_path + test_file + ".ser.out";
+  std::string output_path = output_dir.path();
+  const std::string output_perf_data = output_path + test_file + ".ser.out";
   EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
 }
 
 TEST_P(SerializePerfDataFiles, TestCommMd5s) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
+  std::string output_path = output_dir.path();
 
   // Replace command strings with their Md5sums.  Test size adjustment for
   // command strings.
-  const string test_file = GetParam();
-  const string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing COMM Md5sum for " << input_perf_data;
 
   PerfDataProto perf_data_proto;
@@ -342,7 +346,8 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
     if (event.header().type() != PERF_RECORD_COMM) continue;
     CHECK(event.has_comm_event());
 
-    string comm_md5_string = UintToString(event.comm_event().comm_md5_prefix());
+    std::string comm_md5_string =
+        UintToString(event.comm_event().comm_md5_prefix());
     // Make sure it fits in the comm string array, accounting for the null
     // terminator.
     struct comm_event dummy;
@@ -357,8 +362,9 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
     event.mutable_header()->set_size(event.header().size() + string_len_diff);
     }
 
-    const string output_perf_data = output_path + test_file + ".ser.comm.out";
-    string difference;
+    const std::string output_perf_data =
+        output_path + test_file + ".ser.comm.out";
+    std::string difference;
     EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
     EXPECT_TRUE(CheckPerfDataAgainstBaseline(output_perf_data, "", &difference))
         << difference;
@@ -367,12 +373,12 @@ TEST_P(SerializePerfDataFiles, TestCommMd5s) {
 TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
-  string output_path = output_dir.path();
+  std::string output_path = output_dir.path();
 
   // Replace MMAP filename strings with their Md5sums.  Test size adjustment for
   // MMAP filename strings.
-  const string test_file = GetParam();
-  const string input_perf_data = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing MMAP Md5sum for " << input_perf_data;
 
   PerfDataProto perf_data_proto;
@@ -394,7 +400,7 @@ TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
     if (event.header().type() != PERF_RECORD_MMAP) continue;
     ASSERT_TRUE(event.has_mmap_event());
 
-    string filename_md5_string =
+    std::string filename_md5_string =
         UintToString(event.mmap_event().filename_md5_prefix());
     struct mmap_event dummy;
     // Make sure the Md5 prefix string can fit in the filename buffer,
@@ -411,19 +417,20 @@ TEST_P(SerializePerfDataFiles, TestMmapMd5s) {
     event.mutable_header()->set_size(event.header().size() + string_len_diff);
     }
 
-    const string output_perf_data = output_path + test_file + ".ser.mmap.out";
+    const std::string output_perf_data =
+        output_path + test_file + ".ser.mmap.out";
     // Make sure the data can be deserialized after replacing the filenames with
     // Md5sum prefixes.  No need to check the output.
     EXPECT_TRUE(DeserializeToFile(perf_data_proto, output_perf_data));
 }
 
 TEST_P(SerializePerfDataProtoFiles, TestProtoFiles) {
-  const string test_file = GetParam();
-  string perf_data_proto_file = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  std::string perf_data_proto_file = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing " << perf_data_proto_file;
   std::vector<char> data;
   ASSERT_TRUE(FileToBuffer(perf_data_proto_file, &data));
-  string text(data.begin(), data.end());
+  std::string text(data.begin(), data.end());
 
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(TextFormat::ParseFromString(text, &perf_data_proto));
@@ -434,8 +441,8 @@ TEST_P(SerializePerfDataProtoFiles, TestProtoFiles) {
 }
 
 TEST_P(SerializePerfDataFiles, TestBuildIDs) {
-  const string test_file = GetParam();
-  string perf_data_file = GetTestInputFilePath(test_file);
+  const std::string test_file = GetParam();
+  std::string perf_data_file = GetTestInputFilePath(test_file);
   LOG(INFO) << "Testing " << perf_data_file;
 
   // Serialize into a protobuf.
@@ -483,7 +490,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTraceMetadata) {
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto));
 
-  const string& tracing_metadata_str = tracing_metadata.data().value();
+  const std::string& tracing_metadata_str = tracing_metadata.data().value();
   const auto& tracing_data = perf_data_proto.tracing_data();
   EXPECT_EQ(tracing_metadata_str, tracing_data.tracing_data());
 
@@ -740,7 +747,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
       .WriteTo(&input);
 
   // string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
-  string auxtrace_error_msg =
+  std::string auxtrace_error_msg =
       "000001111122222333334444455555666667777788888999990000011111222";
 
   // PERF_RECORD_AUXTRACE_ERROR
@@ -782,7 +789,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
   PerfDataProto perf_data_proto_2;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
 
-  string difference;
+  std::string difference;
   bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
   EXPECT_TRUE(matches) << difference;
 }
@@ -898,7 +905,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesStatConfigEvents) {
   PerfDataProto perf_data_proto_2;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
 
-  string difference;
+  std::string difference;
   bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
   EXPECT_TRUE(matches) << difference;
 }
@@ -949,7 +956,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesStatEvents) {
   PerfDataProto perf_data_proto_2;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
 
-  string difference;
+  std::string difference;
   bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
   EXPECT_TRUE(matches) << difference;
 }
@@ -997,7 +1004,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesStatRoundEvents) {
   PerfDataProto perf_data_proto_2;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto_2));
 
-  string difference;
+  std::string difference;
   bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
   EXPECT_TRUE(matches) << difference;
 }
@@ -1056,7 +1063,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesBuildIDs) {
   PerfReader reader;
   ASSERT_TRUE(reader.ReadFromString(input.str()));
 
-  std::map<string, string> build_id_map;
+  std::map<std::string, std::string> build_id_map;
   build_id_map["file1"] = "0123456789abcdef0123456789abcdef01234567";
   build_id_map["file2"] = "0123456789abcdef0123456789abcdef01230000";
   build_id_map["file3"] = "0123456789abcdef0123456789abcdef00000000";
@@ -1133,39 +1140,39 @@ TEST(PerfSerializerTest, SerializesAndDeserializesBuildIDs) {
   }
 
   // All trimmed build IDs should be padded to the full 20 byte length.
-  EXPECT_EQ(string("file1"), raw_build_ids[0]->filename);
+  EXPECT_EQ(std::string("file1"), raw_build_ids[0]->filename);
   EXPECT_EQ("0123456789abcdef0123456789abcdef01234567",
             RawDataToHexString(raw_build_ids[0]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file2"), raw_build_ids[1]->filename);
+  EXPECT_EQ(std::string("file2"), raw_build_ids[1]->filename);
   EXPECT_EQ("0123456789abcdef0123456789abcdef01230000",
             RawDataToHexString(raw_build_ids[1]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file3"), raw_build_ids[2]->filename);
+  EXPECT_EQ(std::string("file3"), raw_build_ids[2]->filename);
   EXPECT_EQ("0123456789abcdef0123456789abcdef00000000",
             RawDataToHexString(raw_build_ids[2]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file4"), raw_build_ids[3]->filename);
+  EXPECT_EQ(std::string("file4"), raw_build_ids[3]->filename);
   EXPECT_EQ("0123456789abcdef0123456789abcdef00000000",
             RawDataToHexString(raw_build_ids[3]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file5"), raw_build_ids[4]->filename);
+  EXPECT_EQ(std::string("file5"), raw_build_ids[4]->filename);
   EXPECT_EQ("0123456789abcdef0123456789abcdef00000000",
             RawDataToHexString(raw_build_ids[4]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file6"), raw_build_ids[5]->filename);
+  EXPECT_EQ(std::string("file6"), raw_build_ids[5]->filename);
   EXPECT_EQ("0123456789abcdef0123456789ab000000000000",
             RawDataToHexString(raw_build_ids[5]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file7"), raw_build_ids[6]->filename);
+  EXPECT_EQ(std::string("file7"), raw_build_ids[6]->filename);
   EXPECT_EQ("0123456789abcdef012345670000000000000000",
             RawDataToHexString(raw_build_ids[6]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file8"), raw_build_ids[7]->filename);
+  EXPECT_EQ(std::string("file8"), raw_build_ids[7]->filename);
   EXPECT_EQ("0123456789abcdef012345670000000000000000",
             RawDataToHexString(raw_build_ids[7]->build_id, kBuildIDArraySize));
 
-  EXPECT_EQ(string("file9"), raw_build_ids[8]->filename);
+  EXPECT_EQ(std::string("file9"), raw_build_ids[8]->filename);
   EXPECT_EQ("0000000000000000000000000000000000000000",
             RawDataToHexString(raw_build_ids[8]->build_id, kBuildIDArraySize));
 }

@@ -269,7 +269,8 @@ void ExampleMmapEvent::WriteToWithEventSize(std::ostream* out,
              offsetof(struct mmap_event, filename));
   const size_t filename_aligned_length =
       GetUint64AlignedStringLength(filename_.size());
-  *out << filename_ << string(filename_aligned_length - filename_.size(), '\0');
+  *out << filename_
+       << std::string(filename_aligned_length - filename_.size(), '\0');
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_mmap_offset;
@@ -313,7 +314,8 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   const size_t pre_mmap_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),
              offsetof(struct mmap2_event, filename));
-  *out << filename_ << string(filename_aligned_length - filename_.size(), '\0');
+  *out << filename_
+       << std::string(filename_aligned_length - filename_.size(), '\0');
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_mmap_offset;
@@ -460,7 +462,7 @@ void ExampleStringMetadataEvent::WriteTo(std::ostream* out) const {
 static const char kTraceMetadataValue[] =
     "\x17\x08\x44tracing0.5BLAHBLAHBLAH....";
 
-const string ExampleTracingMetadata::Data::kTraceMetadata(
+const std::string ExampleTracingMetadata::Data::kTraceMetadata(
     kTraceMetadataValue, sizeof(kTraceMetadataValue) - 1);
 
 void ExampleTracingMetadata::Data::WriteTo(std::ostream* out) const {
@@ -615,7 +617,7 @@ void ExampleAuxtraceErrorEvent::WriteTo(std::ostream* out) const {
   const size_t pre_auxtrace_error_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),
              offsetof(struct auxtrace_error_event, msg));
-  *out << msg_ << string(msg_aligned_length - msg_.size(), '\0');
+  *out << msg_ << std::string(msg_aligned_length - msg_.size(), '\0');
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_auxtrace_error_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
@@ -781,7 +783,7 @@ void ExampleCgroupEvent::WriteTo(std::ostream* out) const {
   const size_t pre_cgroup_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),
              offsetof(struct cgroup_event, path));
-  *out << path_ << string(path_aligned_length - path_.size(), '\0');
+  *out << path_ << std::string(path_aligned_length - path_.size(), '\0');
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_cgroup_offset;
