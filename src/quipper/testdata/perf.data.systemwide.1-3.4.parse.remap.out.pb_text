@@ -15728,7 +15728,7 @@ events {
     pid: 1659
     tid: 1659
     start: 2135461888
-    len: 13148160
+    len: 13000704
     pgoff: 0
     filename: "/opt/google/chrome/pepper/libnetflixidd.so"
     filename_md5_prefix: 11615757436461169807
@@ -15746,16 +15746,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 120
   }
   mmap_event {
     pid: 1659
     tid: 1659
-    start: 2148610048
-    len: 454656
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2148462592
+    len: 602112
+    pgoff: 13000704
+    filename: "/opt/google/chrome/pepper/libnetflixidd.so"
+    filename_md5_prefix: 11615757436461169807
     sample_info {
       pid: 0
       tid: 0
@@ -15896,7 +15896,7 @@ events {
     pid: 1659
     tid: 1659
     start: 2180481024
-    len: 2723840
+    len: 2711552
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -15914,16 +15914,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 1659
     tid: 1659
-    start: 2183204864
-    len: 704512
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2183192576
+    len: 716800
+    pgoff: 2711552
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0
@@ -18050,7 +18050,7 @@ events {
     pid: 1741
     tid: 1741
     start: 2135461888
-    len: 13148160
+    len: 13000704
     pgoff: 0
     filename: "/opt/google/chrome/pepper/libnetflixidd.so"
     filename_md5_prefix: 11615757436461169807
@@ -18068,16 +18068,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 120
   }
   mmap_event {
     pid: 1741
     tid: 1741
-    start: 2148610048
-    len: 454656
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2148462592
+    len: 602112
+    pgoff: 13000704
+    filename: "/opt/google/chrome/pepper/libnetflixidd.so"
+    filename_md5_prefix: 11615757436461169807
     sample_info {
       pid: 0
       tid: 0
@@ -18218,7 +18218,7 @@ events {
     pid: 1741
     tid: 1741
     start: 2180481024
-    len: 2723840
+    len: 2711552
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -18236,16 +18236,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 1741
     tid: 1741
-    start: 2183204864
-    len: 704512
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2183192576
+    len: 716800
+    pgoff: 2711552
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0
@@ -23276,7 +23276,7 @@ events {
     pid: 2046
     tid: 2046
     start: 2137530368
-    len: 13148160
+    len: 13000704
     pgoff: 0
     filename: "/opt/google/chrome/pepper/libnetflixidd.so"
     filename_md5_prefix: 11615757436461169807
@@ -23294,16 +23294,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 120
   }
   mmap_event {
     pid: 2046
     tid: 2046
-    start: 2150678528
-    len: 454656
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2150531072
+    len: 602112
+    pgoff: 13000704
+    filename: "/opt/google/chrome/pepper/libnetflixidd.so"
+    filename_md5_prefix: 11615757436461169807
     sample_info {
       pid: 0
       tid: 0
@@ -23444,7 +23444,7 @@ events {
     pid: 2046
     tid: 2046
     start: 2182549504
-    len: 2723840
+    len: 2711552
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -23462,16 +23462,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 2046
     tid: 2046
-    start: 2185273344
-    len: 704512
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2185261056
+    len: 716800
+    pgoff: 2711552
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0

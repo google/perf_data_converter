@@ -15161,33 +15161,10 @@ events {
     pid: 4681
     tid: 4681
     start: 139845689630720
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 72
-  }
-  mmap_event {
-    pid: 4681
-    tid: 4681
-    start: 139845689737216
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -17317,33 +17294,10 @@ events {
     pid: 6726
     tid: 6726
     start: 139845689630720
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 72
-  }
-  mmap_event {
-    pid: 6726
-    tid: 6726
-    start: 139845689737216
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -22439,33 +22393,10 @@ events {
     pid: 6842
     tid: 6842
     start: 139845689630720
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 72
-  }
-  mmap_event {
-    pid: 6842
-    tid: 6842
-    start: 139845689737216
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -128274,7 +128205,7 @@ events {
 timestamp_sec: 0
 stats {
   num_sample_events: 513
-  num_mmap_events: 1645
+  num_mmap_events: 1642
   num_fork_events: 2
   num_exit_events: 6
   num_sample_events_mapped: 406

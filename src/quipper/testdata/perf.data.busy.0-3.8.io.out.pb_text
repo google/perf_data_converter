@@ -57933,6 +57933,179 @@ events {
 }
 events {
   header {
+    type: 3
+    misc: 0
+    size: 56
+  }
+  comm_event {
+    pid: 12358
+    tid: 12358
+    comm: "ls"
+    comm_md5_prefix: 4952372609729803507
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918094157
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918094157
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 80
+  }
+  mmap_event {
+    pid: 12358
+    tid: 12358
+    start: 140559542747136
+    len: 126976
+    pgoff: 0
+    filename: "/bin/ls"
+    filename_md5_prefix: 1739238619253378197
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918104801
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918104801
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 96
+  }
+  mmap_event {
+    pid: 12358
+    tid: 12358
+    start: 140559540502528
+    len: 2244608
+    pgoff: 0
+    filename: "/lib64/ld-2.15.so"
+    filename_md5_prefix: 1323517811832655594
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918116253
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918116253
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 80
+  }
+  mmap_event {
+    pid: 12358
+    tid: 12358
+    start: 140736194134016
+    len: 8192
+    pgoff: 140736194134016
+    filename: "[vdso]"
+    filename_md5_prefix: 2667416218816914640
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918128452
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918128452
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 96
+  }
+  mmap_event {
+    pid: 12358
+    tid: 12358
+    start: 140559538368512
+    len: 2134016
+    pgoff: 0
+    filename: "/lib64/librt-2.15.so"
+    filename_md5_prefix: 9529828695019891150
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918226435
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918226435
+}
+events {
+  header {
+    type: 1
+    misc: 2
+    size: 96
+  }
+  mmap_event {
+    pid: 12358
+    tid: 12358
+    start: 140559534530560
+    len: 3837952
+    pgoff: 0
+    filename: "/lib64/libc-2.15.so"
+    filename_md5_prefix: 9148960704138262540
+    sample_info {
+      pid: 12358
+      tid: 12358
+      sample_time_ns: 2267356918263359
+      id: 894
+      cpu: 0
+    }
+  }
+  timestamp: 2267356918263359
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072481441779
+    pid: 12358
+    tid: 12358
+    sample_time_ns: 2267356918277004
+    id: 894
+    cpu: 0
+  }
+  timestamp: 2267356918277004
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072481095834
+    pid: 12285
+    tid: 12285
+    sample_time_ns: 2267356918297001
+    id: 895
+    cpu: 1
+  }
+  timestamp: 2267356918297001
+}
+events {
+  header {
     type: 4
     misc: 0
     size: 64
@@ -57974,6 +58147,88 @@ events {
     }
   }
   timestamp: 2267356917566435
+}
+events {
+  header {
+    type: 7
+    misc: 0
+    size: 64
+  }
+  fork_event {
+    pid: 12358
+    ppid: 468
+    tid: 12358
+    ptid: 468
+    fork_time_ns: 2267356917833883
+    sample_info {
+      pid: 468
+      tid: 468
+      sample_time_ns: 2267356917834634
+      id: 896
+      cpu: 2
+    }
+  }
+  timestamp: 2267356917834634
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072481467082
+    pid: 12290
+    tid: 12290
+    sample_time_ns: 2267356918224196
+    id: 896
+    cpu: 2
+  }
+  timestamp: 2267356918224196
+}
+events {
+  header {
+    type: 4
+    misc: 0
+    size: 64
+  }
+  exit_event {
+    pid: 12290
+    ppid: 12290
+    tid: 12290
+    ptid: 12290
+    fork_time_ns: 2267356918258942
+    sample_info {
+      pid: 12290
+      tid: 12290
+      sample_time_ns: 2267356918259597
+      id: 896
+      cpu: 2
+    }
+  }
+  timestamp: 2267356918259597
+}
+events {
+  header {
+    type: 4
+    misc: 0
+    size: 64
+  }
+  exit_event {
+    pid: 12290
+    ppid: 12290
+    tid: 12290
+    ptid: 12290
+    fork_time_ns: 2267356918260626
+    sample_info {
+      pid: 12290
+      tid: 12290
+      sample_time_ns: 2267356918261073
+      id: 896
+      cpu: 2
+    }
+  }
+  timestamp: 2267356918261073
 }
 events {
   header {
@@ -58070,28 +58325,6 @@ events {
 }
 events {
   header {
-    type: 7
-    misc: 0
-    size: 64
-  }
-  fork_event {
-    pid: 12358
-    ppid: 468
-    tid: 12358
-    ptid: 468
-    fork_time_ns: 2267356917833883
-    sample_info {
-      pid: 468
-      tid: 468
-      sample_time_ns: 2267356917834634
-      id: 896
-      cpu: 2
-    }
-  }
-  timestamp: 2267356917834634
-}
-events {
-  header {
     type: 1
     misc: 2
     size: 96
@@ -58129,239 +58362,6 @@ events {
     cpu: 3
   }
   timestamp: 2267356917992947
-}
-events {
-  header {
-    type: 3
-    misc: 0
-    size: 56
-  }
-  comm_event {
-    pid: 12358
-    tid: 12358
-    comm: "ls"
-    comm_md5_prefix: 4952372609729803507
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918094157
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918094157
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 12358
-    tid: 12358
-    start: 140559542747136
-    len: 126976
-    pgoff: 0
-    filename: "/bin/ls"
-    filename_md5_prefix: 1739238619253378197
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918104801
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918104801
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 96
-  }
-  mmap_event {
-    pid: 12358
-    tid: 12358
-    start: 140559540502528
-    len: 2244608
-    pgoff: 0
-    filename: "/lib64/ld-2.15.so"
-    filename_md5_prefix: 1323517811832655594
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918116253
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918116253
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 12358
-    tid: 12358
-    start: 140736194134016
-    len: 8192
-    pgoff: 140736194134016
-    filename: "[vdso]"
-    filename_md5_prefix: 2667416218816914640
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918128452
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918128452
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 18446744072481467082
-    pid: 12290
-    tid: 12290
-    sample_time_ns: 2267356918224196
-    id: 896
-    cpu: 2
-  }
-  timestamp: 2267356918224196
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 96
-  }
-  mmap_event {
-    pid: 12358
-    tid: 12358
-    start: 140559538368512
-    len: 2134016
-    pgoff: 0
-    filename: "/lib64/librt-2.15.so"
-    filename_md5_prefix: 9529828695019891150
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918226435
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918226435
-}
-events {
-  header {
-    type: 4
-    misc: 0
-    size: 64
-  }
-  exit_event {
-    pid: 12290
-    ppid: 12290
-    tid: 12290
-    ptid: 12290
-    fork_time_ns: 2267356918258942
-    sample_info {
-      pid: 12290
-      tid: 12290
-      sample_time_ns: 2267356918259597
-      id: 896
-      cpu: 2
-    }
-  }
-  timestamp: 2267356918259597
-}
-events {
-  header {
-    type: 4
-    misc: 0
-    size: 64
-  }
-  exit_event {
-    pid: 12290
-    ppid: 12290
-    tid: 12290
-    ptid: 12290
-    fork_time_ns: 2267356918260626
-    sample_info {
-      pid: 12290
-      tid: 12290
-      sample_time_ns: 2267356918261073
-      id: 896
-      cpu: 2
-    }
-  }
-  timestamp: 2267356918261073
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 96
-  }
-  mmap_event {
-    pid: 12358
-    tid: 12358
-    start: 140559534530560
-    len: 3837952
-    pgoff: 0
-    filename: "/lib64/libc-2.15.so"
-    filename_md5_prefix: 9148960704138262540
-    sample_info {
-      pid: 12358
-      tid: 12358
-      sample_time_ns: 2267356918263359
-      id: 894
-      cpu: 0
-    }
-  }
-  timestamp: 2267356918263359
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 18446744072481441779
-    pid: 12358
-    tid: 12358
-    sample_time_ns: 2267356918277004
-    id: 894
-    cpu: 0
-  }
-  timestamp: 2267356918277004
-}
-events {
-  header {
-    type: 9
-    misc: 1
-    size: 48
-  }
-  sample_event {
-    ip: 18446744072481095834
-    pid: 12285
-    tid: 12285
-    sample_time_ns: 2267356918297001
-    id: 895
-    cpu: 1
-  }
-  timestamp: 2267356918297001
 }
 timestamp_sec: 0
 stats {
