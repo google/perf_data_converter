@@ -323,7 +323,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 21
+  // Next tag: 22
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -352,7 +352,11 @@ message PerfDataProto {
     // The CPU where the event was recorded.
     optional uint32 cpu = 9;
 
+    // The raw data for the event.
+    optional bytes raw = 21;
+
     // The raw size of the event in bytes.
+    // NOTE: This field predates 'raw' and is here for backwards compatibility.
     optional uint32 raw_size = 10;
 
     // The read field.

@@ -551,7 +551,11 @@ bool PerfSerializer::SerializeSampleEvent(
     sample->set_stream_id(sample_info.stream_id);
   if (sample_type & PERF_SAMPLE_CPU) sample->set_cpu(sample_info.cpu);
   if (sample_type & PERF_SAMPLE_PERIOD) sample->set_period(sample_info.period);
-  if (sample_type & PERF_SAMPLE_RAW) sample->set_raw_size(sample_info.raw_size);
+  if (sample_type & PERF_SAMPLE_RAW) {
+    sample->set_raw(sample_info.raw_data, sample_info.raw_size);
+    // We still set raw_size for backwards compatibility.
+    sample->set_raw_size(sample_info.raw_size);
+  }
   if (sample_type & PERF_SAMPLE_READ) {
     const SampleInfoReader* reader = GetSampleInfoReaderForEvent(event);
     if (reader) {
@@ -1605,7 +1609,13 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
     for (size_t i = 0; i < callchain_size; ++i)
       sample_info->callchain->ips[i] = sample.callchain(i);
   }
-  if (sample.raw_size() > 0) {
+  if (!sample.raw().empty()) {
+    sample_info->raw_size = sample.raw().size();
+    sample_info->raw_data = new uint8_t[sample.raw().size()];
+    sample.raw().copy(reinterpret_cast<char*>(sample_info->raw_data),
+                      sample_info->raw_size);
+  } else if (sample.raw_size() > 0) {
+    // This is here for backwards compatibility.
     sample_info->raw_size = sample.raw_size();
     sample_info->raw_data = new uint8_t[sample.raw_size()];
     memset(sample_info->raw_data, 0, sample.raw_size());
