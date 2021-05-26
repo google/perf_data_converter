@@ -352,11 +352,11 @@ message PerfDataProto {
     // The CPU where the event was recorded.
     optional uint32 cpu = 9;
 
-    // The raw data for the event.
+    // The raw data for the event. Historically, the raw data itself was not
+    // stored in the perf_data.proto and so it's possible that only raw_size is
+    // set in which case the reader should assume all-zero raw data of the
+    // specified size. If raw field is present, then len(raw) == raw_size.
     optional bytes raw = 21;
-
-    // The raw size of the event in bytes.
-    // NOTE: This field predates 'raw' and is here for backwards compatibility.
     optional uint32 raw_size = 10;
 
     // The read field.
