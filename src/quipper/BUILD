@@ -274,11 +274,12 @@ cc_library(
     srcs = ["conversion_utils.cc"],
     hdrs = ["conversion_utils.h"],
     deps = [
+        ":compat",
         ":file_utils",
-        ":perf_data_cc_proto",
         ":perf_parser",
         ":perf_protobuf_io",
         ":perf_reader",
+        ":base:logging",
     ],
 )
 

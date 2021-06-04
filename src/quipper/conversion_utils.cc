@@ -55,12 +55,18 @@ bool ReadInput(const FormatAndFile& input, PerfReader* reader,
     return reader->ReadFile(input.filename);
   }
 
-  if (format == kProtoTextFormat) {
+  if (format == kProtoTextFormat || format == kProtoBinaryFormat) {
     PerfDataProto perf_data_proto;
     std::vector<char> data;
     if (!FileToBuffer(input.filename, &data)) return false;
-    std::string text(data.begin(), data.end());
-    if (!TextFormat::ParseFromString(text, &perf_data_proto)) return false;
+    if (format == kProtoTextFormat) {
+      std::string text(data.begin(), data.end());
+      if (!TextFormat::ParseFromString(text, &perf_data_proto)) return false;
+    } else {
+      if (!perf_data_proto.ParseFromArray(data.data(), data.size())) {
+        return false;
+      }
+    }
 
     return reader->Deserialize(perf_data_proto);
   }
@@ -85,7 +91,8 @@ bool WriteOutput(const FormatAndFile& output, const PerfParserOptions& options,
     return reader->WriteFile(output.filename);
   }
 
-  if (output.format == kProtoTextFormat) {
+  if (output.format == kProtoTextFormat ||
+      output.format == kProtoBinaryFormat) {
     PerfDataProto perf_data_proto;
     reader->Serialize(&perf_data_proto);
 
@@ -95,8 +102,13 @@ bool WriteOutput(const FormatAndFile& output, const PerfParserOptions& options,
     // Reset the timestamp field since it causes reproducability issues when
     // testing.
     perf_data_proto.set_timestamp_sec(0);
-    if (!TextFormat::PrintToString(perf_data_proto, &output_string))
-      return false;
+
+    if (output.format == kProtoTextFormat) {
+      if (!TextFormat::PrintToString(perf_data_proto, &output_string))
+        return false;
+    } else {
+      output_string = perf_data_proto.SerializeAsString();
+    }
     std::vector<char> data(output_string.begin(), output_string.end());
     return BufferToFile(output.filename, data);
   }
@@ -108,10 +120,13 @@ bool WriteOutput(const FormatAndFile& output, const PerfParserOptions& options,
 }  // namespace
 
 // Format string for perf.data.
-const char kPerfFormat[] = "perf";
+constexpr char kPerfFormat[] = "perf";
 
 // Format string for protobuf text format.
-const char kProtoTextFormat[] = "text";
+constexpr char kProtoTextFormat[] = "text";
+
+// Format string for protobuf binary format.
+constexpr char kProtoBinaryFormat[] = "proto";
 
 bool ConvertFile(const FormatAndFile& input, const FormatAndFile& output) {
   PerfReader reader;
