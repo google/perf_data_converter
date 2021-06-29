@@ -279,7 +279,6 @@ cc_library(
         ":perf_parser",
         ":perf_protobuf_io",
         ":perf_reader",
-        ":base:logging",
     ],
 )
 
