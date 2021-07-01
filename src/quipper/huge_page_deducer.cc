@@ -99,10 +99,18 @@ bool IsEquivalentFile(const MMapEvent& a, const MMapEvent& b) {
 bool IsEquivalentProtection(const MMapEvent& a, const MMapEvent& b) {
   constexpr uint32_t ro_prot = PROT_READ;
   constexpr uint32_t rw_prot = PROT_READ | PROT_WRITE;
+  // The flags have multiple bits of information, but we compare only the map
+  // type, i.e. shared or private.
+  uint32_t a_type = a.flags();
+  uint32_t b_type = b.flags();
+#ifdef MAP_TYPE
+  a_type &= MAP_TYPE;
+  b_type &= MAP_TYPE;
+#endif
   // Don't match sharing flags for executable mappings, because some uses of
   // hugepage text, e.g. the hugetlbfs flavor, don't preserve the sharing flags
   // of the original file backed mapping.
-  return (a.flags() == b.flags() || HasExecuteProtection(a)) &&
+  return (a_type == b_type || HasExecuteProtection(a)) &&
          (a.prot() == b.prot() ||
           (a.prot() == ro_prot && b.prot() == rw_prot) ||
           (a.prot() == rw_prot && b.prot() == ro_prot));

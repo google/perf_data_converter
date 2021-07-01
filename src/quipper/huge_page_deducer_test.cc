@@ -668,14 +668,15 @@ TEST(HugePageDeducer, CombineFileBackedAndAnonMappings) {
       .WriteTo(&input);
 
   // File backed mapping followed by anon with compatible protection.
+  // Flag bits outside the MAP_TYPE mask are not relevant.
   testing::ExampleMmap2Event(10, 0x2000, 0x3000, 0x2000,
                              "/usr/compatible_prot/combinable_file_name",
                              testing::SampleInfo().Tid(10))
-      .WithProtFlags(PROT_READ, MAP_PRIVATE)
+      .WithProtFlags(PROT_READ, MAP_PRIVATE | 0x1800)
       .WriteTo(&input);
   testing::ExampleMmap2Event(10, 0x5000, 0x1000, 0, "//anon",
                              testing::SampleInfo().Tid(10))
-      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+      .WithProtFlags(PROT_READ | PROT_WRITE, MAP_PRIVATE | 0x1000)
       .WriteTo(&input);
 
   // File backed mapping followed by anon with incompatible protection.
