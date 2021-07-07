@@ -18,8 +18,8 @@ http_archive(
 # rules_python is a dependency for protobuf.
 http_archive(
     name = "rules_python",
-    urls = ["https://github.com/bazelbuild/rules_python/archive/master.tar.gz"],
-    strip_prefix = "rules_python-master",
+    urls = ["https://github.com/bazelbuild/rules_python/archive/main.tar.gz"],
+    strip_prefix = "rules_python-main",
 )
 
 # proto_library, cc_proto_library, and java_proto_library rules implicitly
