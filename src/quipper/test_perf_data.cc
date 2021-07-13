@@ -302,14 +302,27 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
       .start = start_,
       .len = len_,
       .pgoff = pgoff_,
-      .maj = maj_,
-      .min = min_,
-      .ino = ino_,
-      .ino_generation = 9,
       .prot = prot_,
       .flags = flags_,
       // .filename = ..., written separately
   };
+
+  // Compilers handle unnamed union/struct initializers differently.
+  // So it'd be safer to assign them after the initialization.
+  event.maj = maj_;
+  event.min = min_;
+  event.ino = ino_;
+  event.ino_generation = 9;
+
+  if (misc_ & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+    memcpy(event.build_id, build_id_, build_id_size_);
+    if (build_id_size_ < sizeof(event.build_id))
+      memset(&event.build_id[build_id_size_], 0,
+             sizeof(event.build_id) - build_id_size_);
+    event.build_id_size = build_id_size_;
+    event.__reserved1 = 0;
+    event.__reserved2 = 0;
+  }
 
   const size_t pre_mmap_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),

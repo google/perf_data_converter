@@ -96,20 +96,34 @@ struct mmap_event {
   char filename[PATH_MAX];
 };
 
+// It needs the "C" linkage to keep the compatibility with C unnamed
+// struct/union fields.
+extern "C" {
 struct mmap2_event {
   struct perf_event_header header;
   u32 pid, tid;
   u64 start;
   u64 len;
   u64 pgoff;
-  u32 maj;
-  u32 min;
-  u64 ino;
-  u64 ino_generation;
+  union {
+    struct {
+      u32 maj;
+      u32 min;
+      u64 ino;
+      u64 ino_generation;
+    };
+    struct {
+      u8 build_id_size;
+      u8 __reserved1;
+      u16 __reserved2;
+      u8 build_id[20];
+    };
+  };
   u32 prot;
   u32 flags;
   char filename[PATH_MAX];
 };
+}
 
 // The max size is 16 for comm name in Linux perf. However, to support comm name
 // from Android simpleperf that is longer than 16, the max size is increased.

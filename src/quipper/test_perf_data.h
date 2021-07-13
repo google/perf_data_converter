@@ -386,6 +386,11 @@ class ExampleMmap2Event : public StreamWriteable {
     flags_ = flags;
     return *this;
   }
+  SelfT& WithBuildId(u8* build_id, u8 size) {
+    memcpy(build_id_, build_id, size);
+    build_id_size_ = size;
+    return *this;
+  }
 
   void WriteTo(std::ostream* out) const override;
 
@@ -401,6 +406,8 @@ class ExampleMmap2Event : public StreamWriteable {
   u64 ino_;
   u32 prot_;
   u32 flags_;
+  u8 build_id_[20];
+  u8 build_id_size_;
   const string filename_;
   const SampleInfo sample_id_;
 };

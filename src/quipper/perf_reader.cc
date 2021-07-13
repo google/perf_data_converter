@@ -1110,22 +1110,44 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
     return false;
   }
 
-  // A buggy version of perf emits zero-length MMAP records for the kernel when
-  // run as non-root on a system with the kernel.kptr_restrict > 0 sysctl. Since
-  // kptr_restrict replaces the symbol map addresses with 0, perf thinks all
-  // kernel symbols are zero-length and synthesizes a zero-length MMAP to cover
-  // all kernel symbols. These MMAPs are clearly wrong, making it impossible to
-  // map samples to the kernel. Non-kernel MMAPs, however, are still valid, and
-  // thus the perf.data can still be used to profile userspace code. Thus, we'll
-  // ignore zero-length kernel MMAPs.
   if (event->header.type == PERF_RECORD_MMAP ||
       event->header.type == PERF_RECORD_MMAP2) {
     if (proto_->file_attrs(0).has_attr() &&
         proto_->file_attrs(0).attr().exclude_kernel() &&
         event->header.misc & PERF_RECORD_MISC_KERNEL && event->mmap.len == 0) {
+      // A buggy version of perf emits zero-length MMAP records for the kernel
+      // when run as non-root on a system with the kernel.kptr_restrict > 0
+      // sysctl. Since kptr_restrict replaces the symbol map addresses with 0,
+      // perf thinks all kernel symbols are zero-length and synthesizes a
+      // zero-length MMAP to cover all kernel symbols. These MMAPs are clearly
+      // wrong, making it impossible to map samples to the kernel. Non-kernel
+      // MMAPs, however, are still valid, and thus the perf.data can still be
+      // used to profile userspace code. Thus, we'll ignore zero-length kernel
+      // MMAPs.
       LOG(WARNING) << "Skipping zero length kernel mmap event from a perf.data "
                    << "collected in userspace";
       return true;
+    }
+
+    if (event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+      // This is only available in the MMAP2
+      std::string filename(event->mmap2.filename);
+
+      if (filenames_with_build_id_.find(filename) ==
+          filenames_with_build_id_.end()) {
+        // Serialize a build-id event for a new filename
+        std::string build_id_str = RawDataToHexString(
+            event->mmap2.build_id, event->mmap2.build_id_size);
+        malloced_unique_ptr<build_id_event> build_id_event = CreateBuildIDEvent(
+            build_id_str, event->mmap2.filename, event->header.misc);
+        if (!serializer_.SerializeBuildIDEvent(build_id_event,
+                                               proto_->add_build_ids())) {
+          LOG(ERROR) << "Could not serialize build ID event in MMAP2 for "
+                     << filename << " with ID " << event->mmap2.build_id;
+          return false;
+        }
+        filenames_with_build_id_.insert(std::move(filename));
+      }
     }
   }
 

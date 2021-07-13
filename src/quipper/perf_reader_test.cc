@@ -1196,16 +1196,18 @@ TEST(PerfReaderTest, ReadsAndWritesMmap2Events) {
       .start = 0x1d000,
       .len = 0x1000,
       .pgoff = 0x2000,
-      .maj = 6,
-      .min = 7,
-      .ino = 8,
-      .ino_generation = 9,
       .prot = 1 | 2,  // == PROT_READ | PROT_WRITE
       .flags = 2,     // == MAP_PRIVATE
                       // .filename = ..., // written separately
   };
   const char mmap_filename[10 + 6] = "/dev/zero";
   const size_t pre_mmap_offset = input.tellp();
+  // Compilers handle unnamed union/struct initializers differently.
+  // So it'd be safer to assign them after the initialization
+  written_mmap_event.maj = 6;
+  written_mmap_event.min = 7;
+  written_mmap_event.ino = 8;
+  written_mmap_event.ino_generation = 9;
   input.write(reinterpret_cast<const char*>(&written_mmap_event),
               offsetof(struct mmap2_event, filename));
   input.write(mmap_filename, 10 + 6);
@@ -2218,6 +2220,66 @@ TEST(PerfReaderTest, ReadSkipsInvalidKernelMMapEventFromUserspaceProfile) {
 
   // Verify the mmap event got skipped.
   ASSERT_EQ(0, pr.events().size());
+}
+
+TEST(PerfReaderTest, MMap2EventWithBuildId) {
+  std::stringstream input;
+  // check whether it can handle NUL byte in the build-id
+  std::vector<u8> build_id = {0x0,  0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                              0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+
+  // PERF_RECORD_MMAP2
+  testing::ExampleMmap2Event mmap_event(1001, 0x1c1000, 0x1000, 0,
+                                        "/usr/lib/foo.so",
+                                        testing::SampleInfo().Tid(1001));
+  mmap_event.WithMisc(PERF_RECORD_MISC_MMAP_BUILD_ID);
+  mmap_event.WithDeviceInfo(8, 9, 10);  // dummy
+  mmap_event.WithBuildId(build_id.data(), build_id.size());
+
+  const size_t data_size = mmap_event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  mmap_event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+  // no metadata
+
+  //
+  // Parse input.
+  //
+
+  PerfReader pr;
+  EXPECT_TRUE(pr.ReadFromString(input.str()));
+
+  // processing MMAP2 w/ build-id should create a build-id record
+  ASSERT_EQ(pr.build_ids().size(), 1);
+  const auto& build_id2 = pr.build_ids().at(0);
+
+  ASSERT_EQ(build_id.size(), build_id2.build_id_hash().size());
+  ASSERT_EQ(memcmp(build_id.data(), build_id2.build_id_hash().c_str(),
+                   build_id.size()),
+            0);
+
+  ASSERT_EQ(pr.events().size(), 1);
+  ASSERT_TRUE(pr.events().at(0).header().misc() &
+              PERF_RECORD_MISC_MMAP_BUILD_ID);
+
+  const auto& mmap2 = pr.events().at(0).mmap_event();
+  // it clears all device info when build-id is set
+  ASSERT_EQ(mmap2.maj(), 0);
+  ASSERT_EQ(mmap2.min(), 0);
+  ASSERT_EQ(mmap2.ino(), 0);
+  ASSERT_EQ(mmap2.ino_generation(), 0);
 }
 
 }  // namespace quipper

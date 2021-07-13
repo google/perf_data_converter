@@ -662,10 +662,12 @@ bool PerfSerializer::SerializeMMap2Event(
   sample->set_start(mmap.start);
   sample->set_len(mmap.len);
   sample->set_pgoff(mmap.pgoff);
-  sample->set_maj(mmap.maj);
-  sample->set_min(mmap.min);
-  sample->set_ino(mmap.ino);
-  sample->set_ino_generation(mmap.ino_generation);
+  if (!(event.header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID)) {
+    sample->set_maj(mmap.maj);
+    sample->set_min(mmap.min);
+    sample->set_ino(mmap.ino);
+    sample->set_ino_generation(mmap.ino_generation);
+  }
   sample->set_prot(mmap.prot);
   sample->set_flags(mmap.flags);
   sample->set_filename(mmap.filename);

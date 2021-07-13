@@ -331,7 +331,11 @@ class PerfReader {
   // file header, which may differ from the input file header, if any.
   struct perf_file_header out_header_;
 
-  DISALLOW_COPY_AND_ASSIGN(PerfReader);
+  // For build-id embedded in MMAP2 records
+  std::unordered_set<std::string> filenames_with_build_id_;
+
+  PerfReader(const PerfReader&) = delete;
+  PerfReader& operator=(const PerfReader&) = delete;
 };
 
 }  // namespace quipper
