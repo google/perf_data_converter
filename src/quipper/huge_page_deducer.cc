@@ -68,16 +68,17 @@ bool IsHugePage(const MMapEvent& mmap) {
 }
 
 // IsFileContiguous returns true if the mmap offset of |a| is immediately
-// followed by |b|, or if |a| doesn't have execute protection and |b| is an
-// anonymous mapping, and therefore the file offset is meaningless for it. We
-// don't combine anonymous mappings followed by file backed mappings, since they
-// don't correspond to any known segment splitting scenarios that we handle.
+// followed by |b|, or if |a| is file backed and |b| is an anonymous mapping,
+// and therefore the file offset is meaningless for it. We don't combine
+// anonymous mappings followed by file backed mappings, since they don't
+// correspond to any known segment splitting scenarios that we handle.
 bool IsFileContiguous(const MMapEvent& a, const MMapEvent& b) {
   // Huge page mappings are identified by DeduceHugePages and their backing
   // file names and file offsets are adjusted at that point, so they fall under
   // the first condition below. Data segments that include initialized and
   // uninitialized data are split into contiguous file backed and anonymous
-  // mappings, and they are captured by the second condition below.
+  // mappings, and they are captured by the last condition below. We explicitly
+  // disallow the execute protection for this case to make the test more narrow.
   return ((a.pgoff() + a.len()) == b.pgoff() && !IsAnon(a)) ||
          (!HasExecuteProtection(a) && !IsAnon(a) && IsAnon(b));
 }
