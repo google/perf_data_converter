@@ -236,10 +236,12 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->mmap2.start);
       ByteSwap(&event->mmap2.len);
       ByteSwap(&event->mmap2.pgoff);
-      ByteSwap(&event->mmap2.maj);
-      ByteSwap(&event->mmap2.min);
-      ByteSwap(&event->mmap2.ino);
-      ByteSwap(&event->mmap2.ino_generation);
+      if (!(event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID)) {
+        ByteSwap(&event->mmap2.maj);
+        ByteSwap(&event->mmap2.min);
+        ByteSwap(&event->mmap2.ino);
+        ByteSwap(&event->mmap2.ino_generation);
+      }
       ByteSwap(&event->mmap2.prot);
       ByteSwap(&event->mmap2.flags);
       return true;
@@ -1136,6 +1138,11 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
       if (filenames_with_build_id_.find(filename) ==
           filenames_with_build_id_.end()) {
         // Serialize a build-id event for a new filename
+        if (event->mmap2.build_id_size > kMaxBuildIdSize) {
+          LOG(ERROR) << "Build-id size is too big: "
+                     << event->mmap2.build_id_size;
+          return false;
+        }
         std::string build_id_str = RawDataToHexString(
             event->mmap2.build_id, event->mmap2.build_id_size);
         malloced_unique_ptr<build_id_event> build_id_event = CreateBuildIDEvent(

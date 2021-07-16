@@ -96,6 +96,8 @@ struct mmap_event {
   char filename[PATH_MAX];
 };
 
+const u8 kMaxBuildIdSize = 20;
+
 // It needs the "C" linkage to keep the compatibility with C unnamed
 // struct/union fields.
 extern "C" {
@@ -116,7 +118,7 @@ struct mmap2_event {
       u8 build_id_size;
       u8 __reserved1;
       u16 __reserved2;
-      u8 build_id[20];
+      u8 build_id[kMaxBuildIdSize];
     };
   };
   u32 prot;

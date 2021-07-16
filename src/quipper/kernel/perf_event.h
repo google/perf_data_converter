@@ -754,10 +754,20 @@ enum perf_event_type {
    *	u64				addr;
    *	u64				len;
    *	u64				pgoff;
-   *	u32				maj;
-   *	u32				min;
-   *	u64				ino;
-   *	u64				ino_generation;
+   *	union {
+   *		struct {
+   *			u32		maj;
+   *			u32		min;
+   *			u64		ino;
+   *			u64		ino_generation;
+   *		};
+   *		struct {
+   *			u8		build_id_size;
+   *			u8		__reserved_1;
+   *			u16		__reserved_2;
+   *			u8		build_id[20];
+   *		};
+   *	};
    *	u32				prot, flags;
    *	char				filename[];
    * 	struct sample_id		sample_id;
