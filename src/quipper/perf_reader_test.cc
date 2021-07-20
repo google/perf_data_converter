@@ -24,6 +24,7 @@
 
 namespace quipper {
 
+using PerfBuildID = PerfDataProto_PerfBuildID;
 using PerfEvent = PerfDataProto_PerfEvent;
 using SampleEvent = PerfDataProto_SampleEvent;
 using SampleInfo = PerfDataProto_SampleInfo;
@@ -1845,6 +1846,7 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
   // data
   // Do this before header to compute the total data size.
   std::stringstream input_data;
+  std::vector<u8> build_id{0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x12, 0x34};
   testing::ExampleMmapEvent(
       1234, 0x0000000000810000, 0x10000, 0x2000, "/usr/lib/foo.so",
       testing::SampleInfo().Tid(bswap_32(1234), bswap_32(1235)))
@@ -1863,6 +1865,19 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
   testing::ExamplePerfSampleEvent(testing::SampleInfo()
                                       .Ip(bswap_64(0x000000000081ff00))
                                       .Tid(bswap_32(1236), bswap_32(1237)))
+      .WithCrossEndianness(true)
+      .WriteTo(&input_data);
+  testing::ExampleMmap2Event(
+      1234, 1235, 0x0000000000c00000, 0x10000, 0x1000, "/usr/lib/bar.so",
+      testing::SampleInfo().Tid(bswap_32(1234), bswap_32(1235)))
+      .WithDeviceInfo(8, 1, 9876)
+      .WithCrossEndianness(true)
+      .WriteTo(&input_data);
+  testing::ExampleMmap2Event(
+      1234, 1235, 0x0000000000d00000, 0x20000, 0, "/usr/lib/baz.so",
+      testing::SampleInfo().Tid(bswap_32(1234), bswap_32(1235)))
+      .WithMisc(PERF_RECORD_MISC_MMAP_BUILD_ID)
+      .WithBuildId(build_id.data(), build_id.size())
       .WithCrossEndianness(true)
       .WriteTo(&input_data);
 
@@ -1926,7 +1941,7 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
   EXPECT_TRUE(pr.attrs().Get(0).attr().sample_id_all());
 
   // Verify perf events.
-  ASSERT_EQ(4, pr.events().size());
+  ASSERT_EQ(6, pr.events().size());
 
   {
     const PerfEvent& event = pr.events().Get(0);
@@ -1967,6 +1982,47 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
     EXPECT_EQ(0x000000000081ff00, sample_info.ip());
     EXPECT_EQ(1236, sample_info.pid());
     EXPECT_EQ(1237, sample_info.tid());
+  }
+
+  {
+    const PerfEvent& event = pr.events().Get(4);
+    EXPECT_EQ(PERF_RECORD_MMAP2, event.header().type());
+    EXPECT_EQ(0, event.header().misc());
+    EXPECT_EQ(1234, event.mmap_event().pid());
+    EXPECT_EQ(1235, event.mmap_event().tid());
+    EXPECT_EQ(std::string("/usr/lib/bar.so"), event.mmap_event().filename());
+    EXPECT_EQ(0x0000000000c00000, event.mmap_event().start());
+    EXPECT_EQ(0x10000, event.mmap_event().len());
+    EXPECT_EQ(0x1000, event.mmap_event().pgoff());
+    EXPECT_EQ(8, event.mmap_event().maj());
+    EXPECT_EQ(1, event.mmap_event().min());
+    EXPECT_EQ(9876, event.mmap_event().ino());
+  }
+
+  {
+    const PerfEvent& event = pr.events().Get(5);
+    EXPECT_EQ(PERF_RECORD_MMAP2, event.header().type());
+    EXPECT_EQ(PERF_RECORD_MISC_MMAP_BUILD_ID, event.header().misc());
+    EXPECT_EQ(1234, event.mmap_event().pid());
+    EXPECT_EQ(1235, event.mmap_event().tid());
+    EXPECT_EQ(std::string("/usr/lib/baz.so"), event.mmap_event().filename());
+    EXPECT_EQ(0x0000000000d00000, event.mmap_event().start());
+    EXPECT_EQ(0x20000, event.mmap_event().len());
+    EXPECT_EQ(0, event.mmap_event().pgoff());
+    // below fields should be zero when a build-id is given
+    EXPECT_EQ(0, event.mmap_event().maj());
+    EXPECT_EQ(0, event.mmap_event().min());
+    EXPECT_EQ(0, event.mmap_event().ino());
+  }
+
+  // Verify perf build id.
+  EXPECT_EQ(1, pr.build_ids().size());
+
+  {
+    const PerfBuildID& buildId = pr.build_ids().Get(0);
+    EXPECT_EQ(std::string("/usr/lib/baz.so"), buildId.filename());
+    EXPECT_EQ(std::string(build_id.begin(), build_id.end()),
+              buildId.build_id_hash());
   }
 }
 

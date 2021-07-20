@@ -293,26 +293,26 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   struct mmap2_event event = {
       .header =
           {
-              .type = PERF_RECORD_MMAP2,
-              .misc = misc_,
-              .size = static_cast<u16>(event_size),
+              .type = MaybeSwap32(PERF_RECORD_MMAP2),
+              .misc = MaybeSwap16(misc_),
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
           },
-      .pid = pid_,
-      .tid = tid_,
-      .start = start_,
-      .len = len_,
-      .pgoff = pgoff_,
-      .prot = prot_,
-      .flags = flags_,
+      .pid = MaybeSwap32(pid_),
+      .tid = MaybeSwap32(tid_),
+      .start = MaybeSwap64(start_),
+      .len = MaybeSwap64(len_),
+      .pgoff = MaybeSwap64(pgoff_),
+      .prot = MaybeSwap32(prot_),
+      .flags = MaybeSwap32(flags_),
       // .filename = ..., written separately
   };
 
   // Compilers handle unnamed union/struct initializers differently.
   // So it'd be safer to assign them after the initialization.
-  event.maj = maj_;
-  event.min = min_;
-  event.ino = ino_;
-  event.ino_generation = 9;
+  event.maj = MaybeSwap32(maj_);
+  event.min = MaybeSwap32(min_);
+  event.ino = MaybeSwap64(ino_);
+  event.ino_generation = MaybeSwap64(9);
 
   if (misc_ & PERF_RECORD_MISC_MMAP_BUILD_ID) {
     memcpy(event.build_id, build_id_, build_id_size_);
@@ -332,7 +332,7 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_mmap_offset;
-  CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
+  CHECK_EQ(GetSize(), static_cast<u64>(written_event_size));
 }
 
 void ExampleForkExitEvent::WriteTo(std::ostream* out) const {
