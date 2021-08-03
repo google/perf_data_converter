@@ -1131,8 +1131,8 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
       return true;
     }
 
-    if (event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
-      // This is only available in the MMAP2
+    if (event->header.type == PERF_RECORD_MMAP2 &&
+        event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
       std::string filename(event->mmap2.filename);
 
       if (filenames_with_build_id_.find(filename) ==
