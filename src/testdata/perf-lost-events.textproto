@@ -1,0 +1,127 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0x00000000
+    size: 0x00000060
+    config: 0x0000000000000000
+    sample_period: 0x00000000000f4243
+    sample_type: 0x0000000000000087
+    read_format: 0x0000000000000000
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0x00000000
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0x00000000
+    bp_type: 0x00000000
+    bp_addr: 0x0000000000000000
+    bp_len: 0x0000000000000000
+    branch_sample_type: 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user: 0x00000000
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+  }
+  ids: 8
+}
+events {
+  header {
+    type: 10
+    misc: 2
+  }
+  mmap_event {
+    pid: 100
+    tid: 100
+    start: 0x100000
+    len: 0x20000
+    pgoff: 0
+    filename: "/foo/bar"
+    filename_md5_prefix: 0x1df481b1ec67d4d8
+    sample_info {
+      pid: 100
+      tid: 100
+    }
+  }
+}
+# Mapped sample.
+events {
+  header {
+    type: 9
+    misc: 1
+  }
+  sample_event {
+    ip: 0x100100
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731567797
+  }
+  timestamp: 1454731567797
+}
+# Unmapped sample.
+events {
+  header {
+    type: 9
+    misc: 1
+  }
+  sample_event {
+    ip: 0x200100
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731568254
+  }
+  timestamp: 1454731568254
+}
+# Lost event with count of 10.
+events {
+  header {
+    type: 2
+    misc: 0
+  }
+  lost_event {
+    id: 8
+    lost: 10
+    sample_info {
+      pid: 100
+      tid: 100
+    }
+  }
+  timestamp: 1454731569638
+}
+# Another unmapped sample, with ip = 0.
+events {
+  header {
+    type: 9
+    misc: 1
+  }
+  sample_event {
+    ip: 0
+    pid: 100
+    tid: 100
+    sample_time_ns: 1454731572112
+  }
+  timestamp: 1454731572112
+}
+timestamp_sec: 0
+metadata_mask: 103890940
