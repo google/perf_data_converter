@@ -758,13 +758,88 @@ TEST(PerfParserTest, MapsSampleEventAddr) {
   EXPECT_EQ(0x4000, events[13].event_ptr->mmap_event().pgoff());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[14].event_ptr->header().type());
-  EXPECT_EQ(PERF_RECORD_SAMPLE, events[14].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/xyz.so", events[14].dso_and_offset.dso_name());
   EXPECT_EQ(0x3200, events[14].dso_and_offset.offset());
   EXPECT_EQ(0x4200, events[14].event_ptr->sample_event().ip());
   EXPECT_EQ("/usr/lib/xyz.so", events[14].data_dso_and_offset.dso_name());
   EXPECT_EQ(0x4300, events[14].data_dso_and_offset.offset());
   EXPECT_EQ(0x5300, events[14].event_ptr->sample_event().addr());
+}
+
+TEST(PerfParserTest, ProfileWithNoKernelMappingHasCorrectOffsets) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  testing::ExampleMmapEvent(1001, 0x1c0000, 0x10000, 0x20000,
+                            "/bin/some_binary",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 0
+  testing::ExampleMmapEvent(1001, 0x200000, 0x1000, 0x2000, "/usr/lib/bar.so",
+                            testing::SampleInfo().Tid(1001))
+      .WriteTo(&input);  // 1
+
+  // PERF_RECORD_SAMPLE
+  testing::ExamplePerfSampleEvent(
+      testing::SampleInfo().Ip(0x00000000001c1000).Tid(1001))
+      .WriteTo(&input);  // 2
+  // dso_and_offset.offset should be 0x21000
+
+  testing::ExamplePerfSampleEvent(
+      testing::SampleInfo().Ip(0x0000000000200800).Tid(1001))
+      .WriteTo(&input);  // 3
+  // dso_and_offset.offset should be 0x2800
+
+  //
+  // Parse input.
+  //
+
+  PerfReader reader;
+  EXPECT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  EXPECT_EQ(2, parser.stats().num_mmap_events);
+  EXPECT_EQ(2, parser.stats().num_sample_events);
+  EXPECT_EQ(2, parser.stats().num_sample_events_mapped);
+  EXPECT_EQ(0, parser.stats().num_data_sample_events);
+  EXPECT_EQ(0, parser.stats().num_data_sample_events_mapped);
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(4, events.size());
+
+  // MMAPs
+
+  EXPECT_EQ(PERF_RECORD_MMAP, events[0].event_ptr->header().type());
+  EXPECT_EQ("/bin/some_binary", events[0].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x20000, events[0].event_ptr->mmap_event().pgoff());
+
+  EXPECT_EQ(PERF_RECORD_MMAP, events[1].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[1].event_ptr->mmap_event().filename());
+  EXPECT_EQ(0x2000, events[1].event_ptr->mmap_event().pgoff());
+
+  // SAMPLESs
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[2].event_ptr->header().type());
+  EXPECT_EQ("/bin/some_binary", events[2].dso_and_offset.dso_name());
+  EXPECT_EQ(0x21000, events[2].dso_and_offset.offset());
+
+  EXPECT_EQ(PERF_RECORD_SAMPLE, events[3].event_ptr->header().type());
+  EXPECT_EQ("/usr/lib/bar.so", events[3].dso_and_offset.dso_name());
+  EXPECT_EQ(0x2800, events[3].dso_and_offset.offset());
 }
 
 TEST(PerfParserTest, ContextSwitchEvents) {

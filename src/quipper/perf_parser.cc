@@ -157,11 +157,13 @@ bool PerfParser::ProcessEvents() {
   pidtid_to_comm_map_[std::make_pair(kSwapperPid, kSwapperPid)] =
       &(*commands_.find(kSwapperCommandName));
 
-  // Keep track of the first MMAP or MMAP2 event. The first mapping corresponds
-  // to the kernel, and requires special handling. It used to be that the kernel
-  // mapping was the first event in a perf.data file, but recent versions of the
-  // tool may include additional user events before the kernel mapping.
-  bool first_mmap = true;
+  // Keep track of the first MMAP or MMAP2 event associated with the kernel.
+  // First such mapping corresponds to the kernel image, and requires special
+  // handling. It's possible for a perf.data file not to include kernel mappings
+  // if the user didn't have permissions to profile the kernel, see b/197005460,
+  // and it's possible for some user mappings to come before the kernel mapping,
+  // see b/137139473..
+  bool first_kernel_mmap = true;
 
   // NB: Not necessarily actually sorted by time.
   for (size_t i = 0; i < parsed_events_.size(); ++i) {
@@ -190,9 +192,12 @@ bool PerfParser::ProcessEvents() {
             event.header().type() == PERF_RECORD_MMAP ? "MMAP" : "MMAP2";
         VLOG(1) << mmap_type_name << ": " << event.mmap_event().filename();
         ++stats_.num_mmap_events;
+        bool is_kernel =
+            first_kernel_mmap &&
+            (event.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
+                quipper::PERF_RECORD_MISC_KERNEL;
         // Use the array index of the current mmap event as a unique identifier.
-        CHECK(MapMmapEvent(event.mutable_mmap_event(), i,
-                           /*is_kernel=*/first_mmap))
+        CHECK(MapMmapEvent(event.mutable_mmap_event(), i, is_kernel))
             << "Unable to map " << mmap_type_name << " event!";
         // No samples in this MMAP region yet, hopefully.
         parsed_event.num_samples_in_mmap_region = 0;
@@ -204,7 +209,9 @@ bool PerfParser::ProcessEvents() {
           dso_info.ino = event.mmap_event().ino();
         }
         name_to_dso_.emplace(dso_info.name, dso_info);
-        first_mmap = false;
+        if (is_kernel) {
+          first_kernel_mmap = false;
+        }
         break;
       }
       case PERF_RECORD_FORK:
