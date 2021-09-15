@@ -284,7 +284,14 @@ bool PerfParser::ProcessEvents() {
   // clang-format on
 
   if (stats_.num_sample_events == 0) {
-    LOG(ERROR) << "Input perf.data has no sample events.";
+    if (reader_->event_types_to_skip_when_serializing().find(
+            PERF_RECORD_SAMPLE) !=
+        reader_->event_types_to_skip_when_serializing().end()) {
+      LOG(INFO) << "Input perf.data has no sample events due to "
+                   "PERF_RECORD_SAMPLE being skipped.";
+    } else {
+      LOG(ERROR) << "Input perf.data has no sample events.";
+    }
     return false;
   }
 

@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -15,7 +16,6 @@
 #include <vector>
 
 #include "base/macros.h"
-
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "kernel/perf_event.h"
@@ -134,6 +134,28 @@ class PerfReader {
   }
 
   uint64_t metadata_mask() const { return proto_->metadata_mask().Get(0); }
+
+  const std::unordered_set<u32>& event_types_to_skip_when_serializing() const {
+    return event_types_to_skip_when_serializing_;
+  }
+
+  // Updates the set of event types which will not be serialized in the output
+  // proto.
+  void SetEventTypesToSkipWhenSerializing(
+      std::unordered_set<u32> event_types_to_skip_when_serializing) {
+    event_types_to_skip_when_serializing_ =
+        std::move(event_types_to_skip_when_serializing);
+  }
+
+  // Sets the callback to be called for each sample event in the perf data file.
+  // It will be called even if PERF_RECORD_SAMPLE is in the set of event types
+  // passed to |SetEventTypesToSkipWhenSerializing|. This is useful when SAMPLE
+  // events can be processed in a streaming fashion, which uses much less memory
+  // than storing them all in the final proto.
+  void SetSampleCallback(
+      std::function<void(const PerfDataProto_SampleEvent&)> callback) {
+    sample_event_callback_ = callback;
+  }
 
  private:
   bool ReadHeader(DataReader* data);
@@ -333,6 +355,14 @@ class PerfReader {
 
   // For build-id embedded in MMAP2 records
   std::unordered_set<std::string> filenames_with_build_id_;
+
+  // Which event types should be skipped when serializing to the output proto,
+  // e.g. PERF_RECORD_SAMPLE, PERF_RECORD_COMM, etc.
+  std::unordered_set<u32> event_types_to_skip_when_serializing_;
+
+  // Callback to be called for each sample event in the perf data file if set,
+  // even if PERF_RECORD_SAMPLE is in |event_types_to_skip_when_serializing|.
+  std::function<void(const PerfDataProto_SampleEvent&)> sample_event_callback_;
 
   PerfReader(const PerfReader&) = delete;
   PerfReader& operator=(const PerfReader&) = delete;

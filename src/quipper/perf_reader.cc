@@ -1158,6 +1158,18 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
     }
   }
 
+  if (event_types_to_skip_when_serializing_.find(event->header.type) !=
+      event_types_to_skip_when_serializing_.end()) {
+    if (event->header.type == PERF_RECORD_SAMPLE && sample_event_callback_) {
+      // Serialize the event outside the long-lived arena to reduce memory
+      // overheads.
+      PerfEvent proto_event;
+      if (!serializer_.SerializeEvent(event, &proto_event)) return false;
+      sample_event_callback_(proto_event.sample_event());
+    }
+    return true;
+  }
+
   // Serialize the event to protobuf form.
   PerfEvent* proto_event = proto_->add_events();
   if (!serializer_.SerializeEvent(event, proto_event)) return false;
@@ -1165,6 +1177,10 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
   if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
     if (!ReadAuxtraceTraceData(data, proto_event)) return false;
     *read_size += proto_event->auxtrace_event().size();
+  }
+
+  if (proto_event->has_sample_event() && sample_event_callback_) {
+    sample_event_callback_(proto_event->sample_event());
   }
 
   return true;
