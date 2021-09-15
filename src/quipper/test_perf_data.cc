@@ -302,9 +302,7 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
       .start = MaybeSwap64(start_),
       .len = MaybeSwap64(len_),
       .pgoff = MaybeSwap64(pgoff_),
-      .prot = MaybeSwap32(prot_),
-      .flags = MaybeSwap32(flags_),
-      // .filename = ..., written separately
+      // union, .prot,.flags,.filename = ..., written separately
   };
 
   // Compilers handle unnamed union/struct initializers differently.
@@ -323,6 +321,9 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
     event.__reserved1 = 0;
     event.__reserved2 = 0;
   }
+
+  event.prot = MaybeSwap32(prot_);
+  event.flags = MaybeSwap32(flags_);
 
   const size_t pre_mmap_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),
