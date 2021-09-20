@@ -329,6 +329,12 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->time_conv.time_shift);
       ByteSwap(&event->time_conv.time_mult);
       ByteSwap(&event->time_conv.time_zero);
+      if (event->time_conv.header.size == sizeof(struct time_conv_event)) {
+        ByteSwap(&event->time_conv.time_cycles);
+        ByteSwap(&event->time_conv.time_mask);
+        ByteSwap(&event->time_conv.cap_user_time_zero);
+        ByteSwap(&event->time_conv.cap_user_time_short);
+      }
       return true;
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_SWITCH:
@@ -1095,7 +1101,9 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
                                        event->header.size - fixed_payload_size,
                                        &variable_payload_size)) {
     LOG(ERROR) << "Couldn't get variable payload size for event "
-               << GetEventName(event->header.type);
+               << GetEventName(event->header.type)
+               << ", header.size=" << event->header.size
+               << ", fixed_payload_size=" << fixed_payload_size;
     return false;
   }
   if (data->is_cross_endian() &&

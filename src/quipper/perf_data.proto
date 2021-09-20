@@ -709,7 +709,7 @@ message PerfDataProto {
   }
 
   // Time members to convert between TSC and perf time.
-  // Next tag: 4
+  // Next tag: 8
   message TimeConvEvent {
     // Time shift value.
     optional uint64 time_shift = 1;
@@ -719,6 +719,12 @@ message PerfDataProto {
 
     // Base time.
     optional uint64 time_zero = 3;
+
+    // Fields added in perf 5.10.
+    optional uint64 time_cycles = 4;
+    optional uint64 time_mask = 5;
+    optional bool cap_user_time_zero = 6;
+    optional bool cap_user_time_short = 7;
   }
 
   // Next tag: 4

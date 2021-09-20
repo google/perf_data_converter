@@ -744,6 +744,31 @@ void ExampleStatRoundEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleTimeConvEventSmall::GetSize() const {
+  return offsetof(struct time_conv_event, time_cycles);
+}
+
+void ExampleTimeConvEventSmall::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct time_conv_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_TIME_CONV),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .time_shift = time_shift_,
+      .time_mult = time_mult_,
+      .time_zero = time_zero_,
+  };
+
+  const size_t pre_time_conv_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }
@@ -760,19 +785,17 @@ void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
       .time_shift = time_shift_,
       .time_mult = time_mult_,
       .time_zero = time_zero_,
+      .time_cycles = time_cycles_,
+      .time_mask = time_mask_,
+      .cap_user_time_zero = cap_user_time_zero_,
+      .cap_user_time_short = cap_user_time_short_,
   };
 
   const size_t pre_time_conv_offset = out->tellp();
-  out->write(reinterpret_cast<const char*>(&event), sizeof(event));
-  if (sizeof(event) < event_size)
-    WriteExtraBytes(event_size - sizeof(event), out);
+  out->write(reinterpret_cast<const char*>(&event), event_size);
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
-}
-
-size_t ExampleTimeConvEventLarge::GetSize() const {
-  return ExampleTimeConvEvent::GetSize() + 24;
 }
 
 size_t ExampleCgroupEvent::GetSize() const {

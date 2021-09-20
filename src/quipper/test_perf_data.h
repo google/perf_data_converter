@@ -764,11 +764,12 @@ class ExampleStatRoundEvent : public StreamWriteable {
 };
 
 // Produces PERF_RECORD_TIME_CONV event.
-class ExampleTimeConvEvent : public StreamWriteable {
+// Before kernel 5.10 struct time_conv_event had only three fields.
+class ExampleTimeConvEventSmall : public StreamWriteable {
  public:
-  ExampleTimeConvEvent(u64 time_shift, u64 time_mult, u64 time_zero)
+  ExampleTimeConvEventSmall(u64 time_shift, u64 time_mult, u64 time_zero)
       : time_shift_(time_shift), time_mult_(time_mult), time_zero_(time_zero) {}
-  virtual size_t GetSize() const;
+  size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -777,11 +778,30 @@ class ExampleTimeConvEvent : public StreamWriteable {
   const u64 time_zero_;
 };
 
-// Kernel 5.10 increased struct time_conv_event from 32 bytes to 56 bytes.
-class ExampleTimeConvEventLarge : public ExampleTimeConvEvent {
+// Kernel 5.10 added new fields to struct time_conv_event.
+class ExampleTimeConvEvent : public StreamWriteable {
  public:
-  using ExampleTimeConvEvent::ExampleTimeConvEvent;
-  size_t GetSize() const override;
+  ExampleTimeConvEvent(u64 time_shift, u64 time_mult, u64 time_zero,
+                       u64 time_cycles, u64 time_mask, bool cap_user_time_zero,
+                       bool cap_user_time_short)
+      : time_shift_(time_shift),
+        time_mult_(time_mult),
+        time_zero_(time_zero),
+        time_cycles_(time_cycles),
+        time_mask_(time_mask),
+        cap_user_time_zero_(cap_user_time_zero),
+        cap_user_time_short_(cap_user_time_short) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 time_shift_;
+  const u64 time_mult_;
+  const u64 time_zero_;
+  const u64 time_cycles_;
+  const u64 time_mask_;
+  const bool cap_user_time_zero_;
+  const bool cap_user_time_short_;
 };
 
 // Produces PERF_RECORD_CGROUP event.

@@ -1222,6 +1222,13 @@ bool PerfSerializer::SerializeTimeConvEvent(
   sample->set_time_shift(time_conv.time_shift);
   sample->set_time_mult(time_conv.time_mult);
   sample->set_time_zero(time_conv.time_zero);
+  // Large time_conv struct.
+  if (time_conv.header.size == sizeof(struct time_conv_event)) {
+    sample->set_time_cycles(time_conv.time_cycles);
+    sample->set_time_mask(time_conv.time_mask);
+    sample->set_cap_user_time_zero(time_conv.cap_user_time_zero);
+    sample->set_cap_user_time_short(time_conv.cap_user_time_short);
+  }
   return true;
 }
 
@@ -1231,6 +1238,12 @@ bool PerfSerializer::DeserializeTimeConvEvent(
   time_conv.time_shift = sample.time_shift();
   time_conv.time_mult = sample.time_mult();
   time_conv.time_zero = sample.time_zero();
+  if (sample.has_time_cycles()) {
+    time_conv.time_cycles = sample.time_cycles();
+    time_conv.time_mask = sample.time_mask();
+    time_conv.cap_user_time_zero = sample.cap_user_time_zero();
+    time_conv.cap_user_time_short = sample.cap_user_time_short();
+  }
   return true;
 }
 

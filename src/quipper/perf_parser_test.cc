@@ -1711,7 +1711,7 @@ TEST(PerfParserTest, TimeConvEvents) {
   std::stringstream input;
 
   // PERF_RECORD_TIME_CONV
-  testing::ExampleTimeConvEvent time_conv_event(5656, 4, 234321);
+  testing::ExampleTimeConvEventSmall time_conv_event(5656, 4, 234321);
 
   size_t data_size = time_conv_event.GetSize();
 
@@ -1749,14 +1749,20 @@ TEST(PerfParserTest, TimeConvEvents) {
   EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
   EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
   EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_time_cycles());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_time_mask());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_cap_user_time_zero());
+  EXPECT_FALSE(
+      events[0].event_ptr->time_conv_event().has_cap_user_time_short());
 }
 
-// Kernel 5.10 increased struct time_conv_event from 32 bytes to 56 bytes.
+// Kernel 5.10 added new fields to the time_conv event.
 TEST(PerfParserTest, TimeConvEventsLarge) {
   std::stringstream input;
 
   // PERF_RECORD_TIME_CONV
-  testing::ExampleTimeConvEventLarge time_conv_event(5656, 4, 234321);
+  testing::ExampleTimeConvEvent time_conv_event(5656, 4, 234321, 9876, 1234,
+                                                true, false);
 
   size_t data_size = time_conv_event.GetSize();
 
@@ -1794,6 +1800,11 @@ TEST(PerfParserTest, TimeConvEventsLarge) {
   EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
   EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
   EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+  EXPECT_EQ(9876, events[0].event_ptr->time_conv_event().time_cycles());
+  EXPECT_EQ(1234, events[0].event_ptr->time_conv_event().time_mask());
+  EXPECT_EQ(true, events[0].event_ptr->time_conv_event().cap_user_time_zero());
+  EXPECT_EQ(false,
+            events[0].event_ptr->time_conv_event().cap_user_time_short());
 }
 
 TEST(PerfParserTest, PipedTimeConvEvents) {
@@ -1809,7 +1820,7 @@ TEST(PerfParserTest, PipedTimeConvEvents) {
       .WriteTo(&input);
 
   // PERF_RECORD_TIME_CONV
-  testing::ExampleTimeConvEvent(5656, 4, 234321).WriteTo(&input);
+  testing::ExampleTimeConvEventSmall(5656, 4, 234321).WriteTo(&input);
 
   //
   // Parse input.
@@ -1830,6 +1841,53 @@ TEST(PerfParserTest, PipedTimeConvEvents) {
   EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
   EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
   EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_time_cycles());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_time_mask());
+  EXPECT_FALSE(events[0].event_ptr->time_conv_event().has_cap_user_time_zero());
+  EXPECT_FALSE(
+      events[0].event_ptr->time_conv_event().has_cap_user_time_short());
+}
+
+TEST(PerfParserTest, PipedTimeConvEventsLarge) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_TIME_CONV
+  testing::ExampleTimeConvEvent(5656, 4, 234321, 9876, 1234, true, false)
+      .WriteTo(&input);
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent> &events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_TIME_CONV, events[0].event_ptr->header().type());
+  EXPECT_EQ(5656, events[0].event_ptr->time_conv_event().time_shift());
+  EXPECT_EQ(4, events[0].event_ptr->time_conv_event().time_mult());
+  EXPECT_EQ(234321, events[0].event_ptr->time_conv_event().time_zero());
+  EXPECT_EQ(9876, events[0].event_ptr->time_conv_event().time_cycles());
+  EXPECT_EQ(1234, events[0].event_ptr->time_conv_event().time_mask());
+  EXPECT_EQ(true, events[0].event_ptr->time_conv_event().cap_user_time_zero());
+  EXPECT_EQ(false,
+            events[0].event_ptr->time_conv_event().cap_user_time_short());
 }
 
 TEST(PerfParserTest, CgroupEvents) {

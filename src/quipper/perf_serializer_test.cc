@@ -1022,7 +1022,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
       .WriteTo(&input);
 
   // PERF_RECORD_TIME_CONV
-  testing::ExampleTimeConvEvent(5656, 4, 234321).WriteTo(&input);
+  testing::ExampleTimeConvEventSmall(5656, 4, 234321).WriteTo(&input);
 
   // Parse and Serialize
 
@@ -1043,6 +1043,53 @@ TEST(PerfSerializerTest, SerializesAndDeserializesTimeConvEvents) {
     EXPECT_EQ(5656, time_conv_event.time_shift());
     EXPECT_EQ(4, time_conv_event.time_mult());
     EXPECT_EQ(234321, time_conv_event.time_zero());
+    EXPECT_FALSE(time_conv_event.has_time_cycles());
+    EXPECT_FALSE(time_conv_event.has_time_mask());
+    EXPECT_FALSE(time_conv_event.has_cap_user_time_zero());
+    EXPECT_FALSE(time_conv_event.has_cap_user_time_short());
+  }
+}
+
+// Kernel 5.10 added new fields to the time_conv event.
+TEST(PerfSerializerTest, SerializesAndDeserializesLargeTimeConvEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_TIME_CONV
+  testing::ExampleTimeConvEvent(5656, 4, 234321, 9876, 1234, true, false)
+      .WriteTo(&input);
+
+  // Parse and Serialize
+
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  EXPECT_EQ(1, perf_data_proto.events().size());
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_TIME_CONV, event.header().type());
+    EXPECT_TRUE(event.has_time_conv_event());
+    const PerfDataProto::TimeConvEvent& time_conv_event =
+        event.time_conv_event();
+    EXPECT_EQ(5656, time_conv_event.time_shift());
+    EXPECT_EQ(4, time_conv_event.time_mult());
+    EXPECT_EQ(234321, time_conv_event.time_zero());
+    EXPECT_EQ(9876, time_conv_event.time_cycles());
+    EXPECT_EQ(1234, time_conv_event.time_mask());
+    EXPECT_EQ(true, time_conv_event.cap_user_time_zero());
+    EXPECT_EQ(false, time_conv_event.cap_user_time_short());
   }
 }
 

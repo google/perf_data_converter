@@ -321,7 +321,7 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
       *size = sizeof(struct stat_round_event);
       return true;
     case PERF_RECORD_TIME_CONV:
-      *size = sizeof(struct time_conv_event);
+      *size = offsetof(struct time_conv_event, time_cycles);
       return true;
     case PERF_RECORD_CGROUP:
       *size = offsetof(struct cgroup_event, path);
@@ -477,7 +477,10 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
     // so ensure the variable payload size completely exhausts
     // the remaining_event_size.
     case PERF_RECORD_TIME_CONV: {
-      if (remaining_event_size == 0 || remaining_event_size == 24) {
+      if (remaining_event_size == 0 ||
+          remaining_event_size ==
+              (sizeof(time_conv_event) -
+               offsetof(struct time_conv_event, time_cycles))) {
         *size = remaining_event_size;
         break;
       }
@@ -549,6 +552,14 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     case PERF_RECORD_CGROUP:
       *size = GetUint64AlignedStringLength(event.cgroup_event().path().size());
       break;
+    // The below event gained new fields in new kernel versions. Return the size
+    // difference if any of the new fields are present.
+    case PERF_RECORD_TIME_CONV:
+      *size = event.time_conv_event().has_time_cycles()
+                  ? sizeof(time_conv_event) -
+                        offsetof(struct time_conv_event, time_cycles)
+                  : 0;
+      break;
     // The below supported perf events have no varaible payload event data.
     case PERF_RECORD_LOST:
     case PERF_RECORD_EXIT:
@@ -565,7 +576,6 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
-    case PERF_RECORD_TIME_CONV:
       *size = 0;
       break;
     default:
