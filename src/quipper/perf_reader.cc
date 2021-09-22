@@ -329,12 +329,6 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->time_conv.time_shift);
       ByteSwap(&event->time_conv.time_mult);
       ByteSwap(&event->time_conv.time_zero);
-      if (event->time_conv.header.size == sizeof(struct time_conv_event)) {
-        ByteSwap(&event->time_conv.time_cycles);
-        ByteSwap(&event->time_conv.time_mask);
-        ByteSwap(&event->time_conv.cap_user_time_zero);
-        ByteSwap(&event->time_conv.cap_user_time_short);
-      }
       return true;
     case PERF_RECORD_SAMPLE:
     case PERF_RECORD_SWITCH:
@@ -383,6 +377,12 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_CGROUP:
       ByteSwap(&event->cgroup.id);
       return true;
+    case PERF_RECORD_TIME_CONV:
+      if (event->time_conv.header.size == sizeof(struct time_conv_event)) {
+        ByteSwap(&event->time_conv.time_cycles);
+        ByteSwap(&event->time_conv.time_mask);
+      }
+      return true;
     // The below supported perf events either have no variable payload fields or
     // don't require byteswapping of the variable payload fields.
     case PERF_RECORD_MMAP:
@@ -404,7 +404,6 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
     case PERF_RECORD_AUXTRACE_ERROR:
-    case PERF_RECORD_TIME_CONV:
       return true;
   }
 

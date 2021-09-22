@@ -1230,8 +1230,8 @@ bool PerfSerializer::SerializeTimeConvEvent(
   if (time_conv.header.size == sizeof(struct time_conv_event)) {
     sample->set_time_cycles(time_conv.time_cycles);
     sample->set_time_mask(time_conv.time_mask);
-    sample->set_cap_user_time_zero(time_conv.cap_user_time_zero);
-    sample->set_cap_user_time_short(time_conv.cap_user_time_short);
+    sample->set_cap_user_time_zero(time_conv.cap_user_time_zero != 0);
+    sample->set_cap_user_time_short(time_conv.cap_user_time_short != 0);
   }
   return true;
 }
