@@ -611,6 +611,10 @@ bool PerfSerializer::SerializeSampleEvent(
   if (sample_type & PERF_SAMPLE_PHYS_ADDR)
     sample->set_physical_addr(sample_info.physical_addr);
   if (sample_type & PERF_SAMPLE_CGROUP) sample->set_cgroup(sample_info.cgroup);
+  if (sample_type & PERF_SAMPLE_DATA_PAGE_SIZE)
+    sample->set_data_page_size(sample_info.data_page_size);
+  if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
+    sample->set_code_page_size(sample_info.code_page_size);
 
   return true;
 }
@@ -1660,6 +1664,10 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
   if (sample.has_physical_addr())
     sample_info->physical_addr = sample.physical_addr();
   if (sample.has_cgroup()) sample_info->cgroup = sample.cgroup();
+  if (sample.has_data_page_size())
+    sample_info->data_page_size = sample.data_page_size();
+  if (sample.has_code_page_size())
+    sample_info->code_page_size = sample.code_page_size();
 }
 
 }  // namespace quipper

@@ -299,6 +299,8 @@ struct perf_sample {
   struct sample_read read;
   u64 physical_addr;
   u64 cgroup;
+  u64 data_page_size;
+  u64 code_page_size;
 
   perf_sample()
       : ip(0),
@@ -322,7 +324,9 @@ struct perf_sample {
         user_stack({}),
         read({}),
         physical_addr(0),
-        cgroup(0) {}
+        cgroup(0),
+        data_page_size(0),
+        code_page_size(0) {}
   ~perf_sample() {
     delete[] callchain;
     delete[] branch_stack;

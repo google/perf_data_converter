@@ -323,7 +323,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 22
+  // Next tag: 24
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -387,6 +387,12 @@ message PerfDataProto {
 
     // Cgroup id.
     optional uint64 cgroup = 20;
+
+    // Data page size
+    optional uint64 data_page_size = 22;
+
+    // Code page size
+    optional uint64 code_page_size = 23;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data

@@ -152,7 +152,7 @@ class PerfSerializer {
 
   bool SerializeSampleInfo(const event_t& event,
                            PerfDataProto_SampleInfo* sample_info) const;
-  bool DeserializeSampleInfo(const PerfDataProto_SampleInfo& info,
+  bool DeserializeSampleInfo(const PerfDataProto_SampleInfo& sample,
                              event_t* event) const;
 
   bool SerializeTracingMetadata(const char* from, size_t size,
