@@ -1608,30 +1608,28 @@ TEST(PerfReaderTest, ReadsAndWritesMmap2Events) {
       offsetof(struct mmap2_event, filename) + 10 +
       6; /* ==16, nearest 64-bit boundary for filename */
   // clang-format on
-  struct mmap2_event written_mmap_event = {
-      .header =
-          {
-              .type = PERF_RECORD_MMAP2,
-              .misc = 0,
-              .size = mmap_event_size,
-          },
-      .pid = 0x68d,
-      .tid = 0x68d,
-      .start = 0x1d000,
-      .len = 0x1000,
-      .pgoff = 0x2000,
-      .prot = 1 | 2,  // == PROT_READ | PROT_WRITE
-      .flags = 2,     // == MAP_PRIVATE
-                      // .filename = ..., // written separately
-  };
-  const char mmap_filename[10 + 6] = "/dev/zero";
-  const size_t pre_mmap_offset = input.tellp();
+  struct mmap2_event written_mmap_event = {.header =
+                                               {
+                                                   .type = PERF_RECORD_MMAP2,
+                                                   .misc = 0,
+                                                   .size = mmap_event_size,
+                                               },
+                                           .pid = 0x68d,
+                                           .tid = 0x68d,
+                                           .start = 0x1d000,
+                                           .len = 0x1000};
   // Compilers handle unnamed union/struct initializers differently.
-  // So it'd be safer to assign them after the initialization
+  // So it'd be safer to assign following fields after the initialization.
   written_mmap_event.maj = 6;
   written_mmap_event.min = 7;
   written_mmap_event.ino = 8;
   written_mmap_event.ino_generation = 9;
+
+  written_mmap_event.pgoff = 0x2000;
+  written_mmap_event.prot = 1 | 2;  // == PROT_READ | PROT_WRITE
+  written_mmap_event.flags = 2;     // == MAP_PRIVATE
+  const char mmap_filename[10 + 6] = "/dev/zero";
+  const size_t pre_mmap_offset = input.tellp();
   input.write(reinterpret_cast<const char*>(&written_mmap_event),
               offsetof(struct mmap2_event, filename));
   input.write(mmap_filename, 10 + 6);
