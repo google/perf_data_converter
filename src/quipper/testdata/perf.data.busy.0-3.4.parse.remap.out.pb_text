@@ -15602,7 +15602,7 @@ events {
     pid: 3496
     tid: 3496
     start: 2156425216
-    len: 9273344
+    len: 9125888
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -15620,16 +15620,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 3496
     tid: 3496
-    start: 2165698560
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2165551104
+    len: 569344
+    pgoff: 9125888
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0
@@ -18230,7 +18230,7 @@ events {
     pid: 4328
     tid: 4328
     start: 2156425216
-    len: 9273344
+    len: 9125888
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -18248,16 +18248,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 4328
     tid: 4328
-    start: 2165698560
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2165551104
+    len: 569344
+    pgoff: 9125888
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0
@@ -23660,7 +23660,7 @@ events {
     pid: 4609
     tid: 4609
     start: 2157461504
-    len: 9273344
+    len: 9125888
     pgoff: 0
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
@@ -23678,16 +23678,16 @@ events {
   header {
     type: 1
     misc: 2
-    size: 80
+    size: 112
   }
   mmap_event {
     pid: 4609
     tid: 4609
-    start: 2166734848
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
+    start: 2166587392
+    len: 569344
+    pgoff: 9125888
+    filename: "/opt/google/chrome/libwidevinecdm.so"
+    filename_md5_prefix: 2025504198935205157
     sample_info {
       pid: 0
       tid: 0

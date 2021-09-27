@@ -45,27 +45,40 @@ bool MaybeWriteGolden(const std::string& protobuf_representation,
 bool MaybeWriteGolden(const Message& proto, const std::string& golden_filename);
 
 template <typename T>
-void CompareTextProtoFiles(const std::string& actual,
-                           const std::string& expected,
-                           const std::string& golden_filename = "") {
+void CompareProtoFiles(const std::string& format, const std::string& actual,
+                       const std::string& expected,
+                       const std::string& golden_filename = "") {
   std::vector<char> actual_contents;
   std::vector<char> expected_contents;
-  ASSERT_TRUE(FileToBuffer(actual, &actual_contents));
-  ASSERT_TRUE(FileToBuffer(expected, &expected_contents));
+  ASSERT_TRUE(FileToBuffer(actual, &actual_contents)) << actual;
+  ASSERT_TRUE(FileToBuffer(expected, &expected_contents)) << expected;
 
   ArrayInputStream actual_arr(actual_contents.data(), actual_contents.size());
   ArrayInputStream expected_arr(expected_contents.data(),
                                 expected_contents.size());
 
   T actual_proto, expected_proto;
-  ASSERT_TRUE(TextFormat::Parse(&actual_arr, &actual_proto));
-  ASSERT_TRUE(TextFormat::Parse(&expected_arr, &expected_proto));
+  if (format == "text") {
+    ASSERT_TRUE(TextFormat::Parse(&actual_arr, &actual_proto));
+    ASSERT_TRUE(TextFormat::Parse(&expected_arr, &expected_proto));
+  } else if (format == "proto") {
+    ASSERT_TRUE(actual_proto.ParseFromZeroCopyStream(&actual_arr));
+    ASSERT_TRUE(expected_proto.ParseFromZeroCopyStream(&expected_arr));
+  } else {
+    FAIL() << format;
+  }
 
   std::string difference;
   bool matches_baseline =
       EqualsProto(actual_proto, expected_proto, &difference);
   if (!matches_baseline) {
-    MaybeWriteGolden(actual_proto, golden_filename);
+    if (format == "text") {
+      MaybeWriteGolden(actual_proto, golden_filename);
+    } else if (format == "proto") {
+      MaybeWriteGolden(actual_proto.SerializeAsString(), golden_filename);
+    } else {
+      FAIL() << format;
+    }
   }
   EXPECT_TRUE(matches_baseline) << difference;
 }

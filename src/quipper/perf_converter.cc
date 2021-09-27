@@ -16,6 +16,7 @@
 
 using quipper::FormatAndFile;
 using quipper::kPerfFormat;
+using quipper::kProtoBinaryFormat;
 using quipper::kProtoTextFormat;
 
 namespace {
@@ -75,7 +76,9 @@ void PrintUsage() {
   LOG(INFO) << "<exe> -i <input filename> -I <input format>"
             << " -o <output filename> -O <output format> -v <verbosity level>";
   LOG(INFO) << "Format options are: '" << kPerfFormat << "' for perf.data"
-            << " and '" << kProtoTextFormat << "' for proto text.";
+            << ", '" << kProtoTextFormat << "' for proto text"
+            << " and '" << kProtoBinaryFormat << "' for proto binary encoding.";
+
   LOG(INFO) << "By default it reads from perf.data and outputs to /dev/stdout"
             << " in proto text format.";
   LOG(INFO) << "Default verbosity level is 0. Higher values increase verbosity."

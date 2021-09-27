@@ -236,10 +236,12 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->mmap2.start);
       ByteSwap(&event->mmap2.len);
       ByteSwap(&event->mmap2.pgoff);
-      ByteSwap(&event->mmap2.maj);
-      ByteSwap(&event->mmap2.min);
-      ByteSwap(&event->mmap2.ino);
-      ByteSwap(&event->mmap2.ino_generation);
+      if (!(event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID)) {
+        ByteSwap(&event->mmap2.maj);
+        ByteSwap(&event->mmap2.min);
+        ByteSwap(&event->mmap2.ino);
+        ByteSwap(&event->mmap2.ino_generation);
+      }
       ByteSwap(&event->mmap2.prot);
       ByteSwap(&event->mmap2.flags);
       return true;
@@ -375,6 +377,12 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_CGROUP:
       ByteSwap(&event->cgroup.id);
       return true;
+    case PERF_RECORD_TIME_CONV:
+      if (event->time_conv.header.size == sizeof(struct time_conv_event)) {
+        ByteSwap(&event->time_conv.time_cycles);
+        ByteSwap(&event->time_conv.time_mask);
+      }
+      return true;
     // The below supported perf events either have no variable payload fields or
     // don't require byteswapping of the variable payload fields.
     case PERF_RECORD_MMAP:
@@ -396,7 +404,6 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
     case PERF_RECORD_AUXTRACE_ERROR:
-    case PERF_RECORD_TIME_CONV:
       return true;
   }
 
@@ -1093,7 +1100,9 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
                                        event->header.size - fixed_payload_size,
                                        &variable_payload_size)) {
     LOG(ERROR) << "Couldn't get variable payload size for event "
-               << GetEventName(event->header.type);
+               << GetEventName(event->header.type)
+               << ", header.size=" << event->header.size
+               << ", fixed_payload_size=" << fixed_payload_size;
     return false;
   }
   if (data->is_cross_endian() &&
@@ -1110,23 +1119,62 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
     return false;
   }
 
-  // A buggy version of perf emits zero-length MMAP records for the kernel when
-  // run as non-root on a system with the kernel.kptr_restrict > 0 sysctl. Since
-  // kptr_restrict replaces the symbol map addresses with 0, perf thinks all
-  // kernel symbols are zero-length and synthesizes a zero-length MMAP to cover
-  // all kernel symbols. These MMAPs are clearly wrong, making it impossible to
-  // map samples to the kernel. Non-kernel MMAPs, however, are still valid, and
-  // thus the perf.data can still be used to profile userspace code. Thus, we'll
-  // ignore zero-length kernel MMAPs.
   if (event->header.type == PERF_RECORD_MMAP ||
       event->header.type == PERF_RECORD_MMAP2) {
     if (proto_->file_attrs(0).has_attr() &&
         proto_->file_attrs(0).attr().exclude_kernel() &&
         event->header.misc & PERF_RECORD_MISC_KERNEL && event->mmap.len == 0) {
+      // A buggy version of perf emits zero-length MMAP records for the kernel
+      // when run as non-root on a system with the kernel.kptr_restrict > 0
+      // sysctl. Since kptr_restrict replaces the symbol map addresses with 0,
+      // perf thinks all kernel symbols are zero-length and synthesizes a
+      // zero-length MMAP to cover all kernel symbols. These MMAPs are clearly
+      // wrong, making it impossible to map samples to the kernel. Non-kernel
+      // MMAPs, however, are still valid, and thus the perf.data can still be
+      // used to profile userspace code. Thus, we'll ignore zero-length kernel
+      // MMAPs.
       LOG(WARNING) << "Skipping zero length kernel mmap event from a perf.data "
                    << "collected in userspace";
       return true;
     }
+
+    if (event->header.type == PERF_RECORD_MMAP2 &&
+        event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+      std::string filename(event->mmap2.filename);
+
+      if (filenames_with_build_id_.find(filename) ==
+          filenames_with_build_id_.end()) {
+        // Serialize a build-id event for a new filename
+        if (event->mmap2.build_id_size > kMaxBuildIdSize) {
+          LOG(ERROR) << "Build-id size is too big: "
+                     << event->mmap2.build_id_size;
+          return false;
+        }
+        std::string build_id_str = RawDataToHexString(
+            event->mmap2.build_id, event->mmap2.build_id_size);
+        malloced_unique_ptr<build_id_event> build_id_event = CreateBuildIDEvent(
+            build_id_str, event->mmap2.filename, event->header.misc);
+        if (!serializer_.SerializeBuildIDEvent(build_id_event,
+                                               proto_->add_build_ids())) {
+          LOG(ERROR) << "Could not serialize build ID event in MMAP2 for "
+                     << filename << " with ID " << event->mmap2.build_id;
+          return false;
+        }
+        filenames_with_build_id_.insert(std::move(filename));
+      }
+    }
+  }
+
+  if (event_types_to_skip_when_serializing_.find(event->header.type) !=
+      event_types_to_skip_when_serializing_.end()) {
+    if (event->header.type == PERF_RECORD_SAMPLE && sample_event_callback_) {
+      // Serialize the event outside the long-lived arena to reduce memory
+      // overheads.
+      PerfEvent proto_event;
+      if (!serializer_.SerializeEvent(event, &proto_event)) return false;
+      sample_event_callback_(proto_event.sample_event());
+    }
+    return true;
   }
 
   // Serialize the event to protobuf form.
@@ -1136,6 +1184,10 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
   if (proto_event->header().type() == PERF_RECORD_AUXTRACE) {
     if (!ReadAuxtraceTraceData(data, proto_event)) return false;
     *read_size += proto_event->auxtrace_event().size();
+  }
+
+  if (proto_event->has_sample_event() && sample_event_callback_) {
+    sample_event_callback_(proto_event->sample_event());
   }
 
   return true;

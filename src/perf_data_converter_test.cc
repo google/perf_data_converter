@@ -465,6 +465,43 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   EXPECT_EQ(2, profile.location_size());
 }
 
+TEST_F(PerfDataConverterTest, HandlesLostEvents) {
+  const std::string path = GetResource("perf-lost-events.textproto");
+  const std::string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+  // Expecting 2 mappings. An explicit mapping and a mapping for lost samples.
+  EXPECT_THAT(profile.mapping(), testing::SizeIs(2));
+  EXPECT_EQ("/foo/bar", profile.string_table(profile.mapping(0).filename()));
+  EXPECT_EQ(0x100000, profile.mapping(0).memory_start());
+  EXPECT_EQ("[lost]", profile.string_table(profile.mapping(1).filename()));
+  EXPECT_EQ(0x9ULL << 60, profile.mapping(1).memory_start());
+
+  // Expecting 3 locations: 1 for mapped samples, 1 for unmapped samples, 1 for
+  // lost samples.
+  EXPECT_THAT(profile.location(), testing::SizeIs(3));
+  EXPECT_EQ(1, profile.location(0).mapping_id());
+  EXPECT_EQ(0, profile.location(1).mapping_id());
+  EXPECT_EQ(2, profile.location(2).mapping_id());
+
+  // Expecting 3 samples: 1 mapped with value 1, 1 unmapped with value 2, and
+  // 1 for lost samples with value 10..
+  EXPECT_THAT(profile.sample(), testing::SizeIs(3));
+  // Mapped samples.
+  EXPECT_EQ(1, profile.sample(0).location_id(0));
+  EXPECT_EQ(1, profile.sample(0).value(0));
+  // Unmapped samples.
+  EXPECT_EQ(2, profile.sample(1).location_id(0));
+  EXPECT_EQ(2, profile.sample(1).value(0));
+  // Lost samples.
+  EXPECT_EQ(3, profile.sample(2).location_id(0));
+  EXPECT_EQ(10, profile.sample(2).value(0));
+}
+
 TEST_F(PerfDataConverterTest, GroupsByComm) {
   string path = GetResource("perf-comm-and-task-comm.textproto");
   string ascii_pb = GetContents(path);

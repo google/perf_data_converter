@@ -159,8 +159,10 @@ enum perf_event_sample_format {
   PERF_SAMPLE_PHYS_ADDR = 1U << 19,
   PERF_SAMPLE_AUX = 1U << 20,
   PERF_SAMPLE_CGROUP = 1U << 21,
+  PERF_SAMPLE_DATA_PAGE_SIZE = 1U << 22,
+  PERF_SAMPLE_CODE_PAGE_SIZE = 1U << 23,
 
-  PERF_SAMPLE_MAX = 1U << 22, /* non-ABI */
+  PERF_SAMPLE_MAX = 1U << 24, /* non-ABI */
 };
 
 /*
@@ -526,13 +528,31 @@ const u16 PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT = 1 << 12;
  */
 const u16 PERF_RECORD_MISC_MMAP_DATA = 1 << 13;
 const u16 PERF_RECORD_MISC_COMM_EXEC = 1 << 13;
-#define PERF_RECORD_MISC_SWITCH_OUT (1 << 13)
+const u16 PERF_RECORD_MISC_SWITCH_OUT = 1 << 13;
+
 /*
- * Indicates that the content of PERF_SAMPLE_IP points to
- * the actual instruction that triggered the event. See also
- * perf_event_attr::precise_ip.
+ * These PERF_RECORD_MISC_* flags below are safely reused
+ * for the following events:
+ *
+ *   PERF_RECORD_MISC_EXACT_IP           - PERF_RECORD_SAMPLE of precise events
+ *   PERF_RECORD_MISC_SWITCH_OUT_PREEMPT - PERF_RECORD_SWITCH* events
+ *   PERF_RECORD_MISC_MMAP_BUILD_ID      - PERF_RECORD_MMAP2 event
+ *
+ *
+ * PERF_RECORD_MISC_EXACT_IP:
+ *   Indicates that the content of PERF_SAMPLE_IP points to
+ *   the actual instruction that triggered the event. See also
+ *   perf_event_attr::precise_ip.
+ *
+ * PERF_RECORD_MISC_SWITCH_OUT_PREEMPT:
+ *   Indicates that thread was preempted in TASK_RUNNING state.
+ *
+ * PERF_RECORD_MISC_MMAP_BUILD_ID:
+ *   Indicates that mmap2 event carries build id data.
  */
 const u16 PERF_RECORD_MISC_EXACT_IP = 1 << 14;
+const u16 PERF_RECORD_MISC_SWITCH_OUT_PREEMPT = 1 << 14;
+const u16 PERF_RECORD_MISC_MMAP_BUILD_ID = 1 << 14;
 /*
  * Reserve the last bit to indicate some extended misc field
  */
@@ -721,6 +741,14 @@ enum perf_event_type {
    *	{ u64			weight;   } && PERF_SAMPLE_WEIGHT
    *	{ u64			data_src; } && PERF_SAMPLE_DATA_SRC
    *	{ u64			transaction; } && PERF_SAMPLE_TRANSACTION
+
+   * 	{ u64			abi; # enum perf_sample_regs_abi
+   * 	  u64			regs[weight(mask)]; } && PERF_SAMPLE_REGS_INTR
+
+   *	{ u64			physical_addr; } && PERF_SAMPLE_PHYS_ADDR
+   *	{ u64			cgroup; } && PERF_SAMPLE_CGROUP
+   *	{ u64			data_page_size; } && PERF_SAMPLE_DATA_PAGE_SIZE
+   *	{ u64			code_page_size; } && PERF_SAMPLE_CODE_PAGE_SIZE
    * };
    */
   PERF_RECORD_SAMPLE = 9,
@@ -736,10 +764,20 @@ enum perf_event_type {
    *	u64				addr;
    *	u64				len;
    *	u64				pgoff;
-   *	u32				maj;
-   *	u32				min;
-   *	u64				ino;
-   *	u64				ino_generation;
+   *	union {
+   *		struct {
+   *			u32		maj;
+   *			u32		min;
+   *			u64		ino;
+   *			u64		ino_generation;
+   *		};
+   *		struct {
+   *			u8		build_id_size;
+   *			u8		__reserved_1;
+   *			u16		__reserved_2;
+   *			u8		build_id[20];
+   *		};
+   *	};
    *	u32				prot, flags;
    *	char				filename[];
    * 	struct sample_id		sample_id;

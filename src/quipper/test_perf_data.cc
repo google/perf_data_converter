@@ -293,23 +293,37 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   struct mmap2_event event = {
       .header =
           {
-              .type = PERF_RECORD_MMAP2,
-              .misc = misc_,
-              .size = static_cast<u16>(event_size),
+              .type = MaybeSwap32(PERF_RECORD_MMAP2),
+              .misc = MaybeSwap16(misc_),
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
           },
-      .pid = pid_,
-      .tid = tid_,
-      .start = start_,
-      .len = len_,
-      .pgoff = pgoff_,
-      .maj = maj_,
-      .min = min_,
-      .ino = ino_,
-      .ino_generation = 9,
-      .prot = prot_,
-      .flags = flags_,
-      // .filename = ..., written separately
+      .pid = MaybeSwap32(pid_),
+      .tid = MaybeSwap32(tid_),
+      .start = MaybeSwap64(start_),
+      .len = MaybeSwap64(len_),
+      .pgoff = MaybeSwap64(pgoff_),
+      // union, .prot,.flags,.filename = ..., written separately
   };
+
+  // Compilers handle unnamed union/struct initializers differently.
+  // So it'd be safer to assign them after the initialization.
+  event.maj = MaybeSwap32(maj_);
+  event.min = MaybeSwap32(min_);
+  event.ino = MaybeSwap64(ino_);
+  event.ino_generation = MaybeSwap64(9);
+
+  if (misc_ & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+    memcpy(event.build_id, build_id_, build_id_size_);
+    if (build_id_size_ < sizeof(event.build_id))
+      memset(&event.build_id[build_id_size_], 0,
+             sizeof(event.build_id) - build_id_size_);
+    event.build_id_size = build_id_size_;
+    event.__reserved1 = 0;
+    event.__reserved2 = 0;
+  }
+
+  event.prot = MaybeSwap32(prot_);
+  event.flags = MaybeSwap32(flags_);
 
   const size_t pre_mmap_offset = out->tellp();
   out->write(reinterpret_cast<const char*>(&event),
@@ -319,7 +333,7 @@ void ExampleMmap2Event::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_mmap_offset;
-  CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
+  CHECK_EQ(GetSize(), static_cast<u64>(written_event_size));
 }
 
 void ExampleForkExitEvent::WriteTo(std::ostream* out) const {
@@ -730,6 +744,31 @@ void ExampleStatRoundEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleTimeConvEventSmall::GetSize() const {
+  return offsetof(struct time_conv_event, time_cycles);
+}
+
+void ExampleTimeConvEventSmall::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  struct time_conv_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_TIME_CONV),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .time_shift = time_shift_,
+      .time_mult = time_mult_,
+      .time_zero = time_zero_,
+  };
+
+  const size_t pre_time_conv_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleTimeConvEvent::GetSize() const {
   return sizeof(struct time_conv_event);
 }
@@ -746,19 +785,17 @@ void ExampleTimeConvEvent::WriteTo(std::ostream* out) const {
       .time_shift = time_shift_,
       .time_mult = time_mult_,
       .time_zero = time_zero_,
+      .time_cycles = time_cycles_,
+      .time_mask = time_mask_,
+      .cap_user_time_zero = cap_user_time_zero_,
+      .cap_user_time_short = cap_user_time_short_,
   };
 
   const size_t pre_time_conv_offset = out->tellp();
-  out->write(reinterpret_cast<const char*>(&event), sizeof(event));
-  if (sizeof(event) < event_size)
-    WriteExtraBytes(event_size - sizeof(event), out);
+  out->write(reinterpret_cast<const char*>(&event), event_size);
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_time_conv_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
-}
-
-size_t ExampleTimeConvEventLarge::GetSize() const {
-  return ExampleTimeConvEvent::GetSize() + 24;
 }
 
 size_t ExampleCgroupEvent::GetSize() const {

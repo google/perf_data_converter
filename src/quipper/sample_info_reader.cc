@@ -436,6 +436,20 @@ bool ReadPerfSampleFromData(const event_t& event,
     return false;
   }
 
+  // { u64                   data_page_size; } && PERF_SAMPLE_DATA_PAGE_SIZE
+  if (sample_fields & PERF_SAMPLE_DATA_PAGE_SIZE &&
+      !reader.ReadUint64(&sample->data_page_size)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_DATA_PAGE_SIZE";
+    return false;
+  }
+
+  // { u64                   code_page_size; } && PERF_SAMPLE_CODE_PAGE_SIZE
+  if (sample_fields & PERF_SAMPLE_CODE_PAGE_SIZE &&
+      !reader.ReadUint64(&sample->code_page_size)) {
+    LOG(ERROR) << "Couldn't read PERF_SAMPLE_CODE_PAGE_SIZE";
+    return false;
+  }
+
   if (sample_fields & ~(PERF_SAMPLE_MAX - 1)) {
     LOG(WARNING) << "Unrecognized sample fields 0x" << std::hex
                  << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
@@ -698,6 +712,16 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
   // { u64                   cgroup; } && PERF_SAMPLE_CGROUP
   if (sample_fields & PERF_SAMPLE_CGROUP) {
     WriteData(sample.cgroup);
+  }
+
+  // { u64                   data_page_size; } && PERF_SAMPLE_DATA_PAGE_SIZE
+  if (sample_fields & PERF_SAMPLE_DATA_PAGE_SIZE) {
+    WriteData(sample.data_page_size);
+  }
+
+  // { u64                   code_page_size; } && PERF_SAMPLE_CODE_PAGE_SIZE
+  if (sample_fields & PERF_SAMPLE_CODE_PAGE_SIZE) {
+    WriteData(sample.code_page_size);
   }
 
   return GetWrittenSize();

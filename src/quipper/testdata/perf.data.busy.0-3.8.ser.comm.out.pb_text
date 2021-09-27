@@ -17048,34 +17048,10 @@ events {
     pid: 5140
     tid: 5140
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 5140
-    tid: 5140
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -19394,34 +19370,10 @@ events {
     pid: 5145
     tid: 5145
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 5145
-    tid: 5145
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -26750,34 +26702,10 @@ events {
     pid: 5968
     tid: 5968
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 5968
-    tid: 5968
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -35666,34 +35594,10 @@ events {
     pid: 6910
     tid: 6910
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 6910
-    tid: 6910
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -37796,34 +37700,10 @@ events {
     pid: 6924
     tid: 6924
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 6924
-    tid: 6924
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -48329,34 +48209,10 @@ events {
     pid: 18529
     tid: 18529
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 18529
-    tid: 18529
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -51851,34 +51707,10 @@ events {
     pid: 18548
     tid: 18548
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 18548
-    tid: 18548
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -53978,34 +53810,10 @@ events {
     pid: 19490
     tid: 19490
     start: 139641473376256
-    len: 106496
+    len: 524288
     pgoff: 8732672
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 19490
-    tid: 19490
-    start: 139641473482752
-    len: 417792
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -58366,7 +58174,7 @@ events {
 timestamp_sec: 0
 stats {
   num_sample_events: 4
-  num_mmap_events: 2161
+  num_mmap_events: 2153
   num_fork_events: 1
   num_exit_events: 4
   num_sample_events_mapped: 4

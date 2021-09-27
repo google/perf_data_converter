@@ -551,7 +551,11 @@ bool PerfSerializer::SerializeSampleEvent(
     sample->set_stream_id(sample_info.stream_id);
   if (sample_type & PERF_SAMPLE_CPU) sample->set_cpu(sample_info.cpu);
   if (sample_type & PERF_SAMPLE_PERIOD) sample->set_period(sample_info.period);
-  if (sample_type & PERF_SAMPLE_RAW) sample->set_raw_size(sample_info.raw_size);
+  if (sample_type & PERF_SAMPLE_RAW) {
+    // See raw and raw_size comments in perf_data.proto
+    sample->set_raw(sample_info.raw_data, sample_info.raw_size);
+    sample->set_raw_size(sample_info.raw_size);
+  }
   if (sample_type & PERF_SAMPLE_READ) {
     const SampleInfoReader* reader = GetSampleInfoReaderForEvent(event);
     if (reader) {
@@ -607,6 +611,10 @@ bool PerfSerializer::SerializeSampleEvent(
   if (sample_type & PERF_SAMPLE_PHYS_ADDR)
     sample->set_physical_addr(sample_info.physical_addr);
   if (sample_type & PERF_SAMPLE_CGROUP) sample->set_cgroup(sample_info.cgroup);
+  if (sample_type & PERF_SAMPLE_DATA_PAGE_SIZE)
+    sample->set_data_page_size(sample_info.data_page_size);
+  if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
+    sample->set_code_page_size(sample_info.code_page_size);
 
   return true;
 }
@@ -658,10 +666,12 @@ bool PerfSerializer::SerializeMMap2Event(
   sample->set_start(mmap.start);
   sample->set_len(mmap.len);
   sample->set_pgoff(mmap.pgoff);
-  sample->set_maj(mmap.maj);
-  sample->set_min(mmap.min);
-  sample->set_ino(mmap.ino);
-  sample->set_ino_generation(mmap.ino_generation);
+  if (!(event.header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID)) {
+    sample->set_maj(mmap.maj);
+    sample->set_min(mmap.min);
+    sample->set_ino(mmap.ino);
+    sample->set_ino_generation(mmap.ino_generation);
+  }
   sample->set_prot(mmap.prot);
   sample->set_flags(mmap.flags);
   sample->set_filename(mmap.filename);
@@ -1216,6 +1226,13 @@ bool PerfSerializer::SerializeTimeConvEvent(
   sample->set_time_shift(time_conv.time_shift);
   sample->set_time_mult(time_conv.time_mult);
   sample->set_time_zero(time_conv.time_zero);
+  // Large time_conv struct.
+  if (time_conv.header.size == sizeof(struct time_conv_event)) {
+    sample->set_time_cycles(time_conv.time_cycles);
+    sample->set_time_mask(time_conv.time_mask);
+    sample->set_cap_user_time_zero(time_conv.cap_user_time_zero != 0);
+    sample->set_cap_user_time_short(time_conv.cap_user_time_short != 0);
+  }
   return true;
 }
 
@@ -1225,6 +1242,12 @@ bool PerfSerializer::DeserializeTimeConvEvent(
   time_conv.time_shift = sample.time_shift();
   time_conv.time_mult = sample.time_mult();
   time_conv.time_zero = sample.time_zero();
+  if (sample.has_time_cycles()) {
+    time_conv.time_cycles = sample.time_cycles();
+    time_conv.time_mask = sample.time_mask();
+    time_conv.cap_user_time_zero = sample.cap_user_time_zero();
+    time_conv.cap_user_time_short = sample.cap_user_time_short();
+  }
   return true;
 }
 
@@ -1605,7 +1628,13 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
     for (size_t i = 0; i < callchain_size; ++i)
       sample_info->callchain->ips[i] = sample.callchain(i);
   }
-  if (sample.raw_size() > 0) {
+  // See raw and raw_size comments in perf_data.proto
+  if (!sample.raw().empty()) {
+    sample_info->raw_size = sample.raw().size();
+    sample_info->raw_data = new uint8_t[sample.raw().size()];
+    sample.raw().copy(reinterpret_cast<char*>(sample_info->raw_data),
+                      sample_info->raw_size);
+  } else if (sample.raw_size() > 0) {
     sample_info->raw_size = sample.raw_size();
     sample_info->raw_data = new uint8_t[sample.raw_size()];
     memset(sample_info->raw_data, 0, sample.raw_size());
@@ -1635,6 +1664,10 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
   if (sample.has_physical_addr())
     sample_info->physical_addr = sample.physical_addr();
   if (sample.has_cgroup()) sample_info->cgroup = sample.cgroup();
+  if (sample.has_data_page_size())
+    sample_info->data_page_size = sample.data_page_size();
+  if (sample.has_code_page_size())
+    sample_info->code_page_size = sample.code_page_size();
 }
 
 }  // namespace quipper

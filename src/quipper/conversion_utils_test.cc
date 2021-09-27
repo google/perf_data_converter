@@ -20,7 +20,6 @@ TEST_P(PerfFile, TextOutput) {
   ScopedTempDir output_dir;
   ASSERT_FALSE(output_dir.path().empty());
   const std::string output_path = output_dir.path();
-
   const std::string test_file = GetParam();
 
   FormatAndFile input, output;
@@ -36,8 +35,33 @@ TEST_P(PerfFile, TextOutput) {
   LOG(INFO) << "golden: " << golden_file;
   LOG(INFO) << "output: " << output.filename;
 
-  CompareTextProtoFiles<PerfDataProto>(output.filename, golden_file,
-                                       basename(output.filename.c_str()));
+  CompareProtoFiles<PerfDataProto>(kProtoTextFormat, output.filename,
+                                   golden_file,
+                                   basename(output.filename.c_str()));
+}
+
+TEST_P(PerfFile, BinaryOutput) {
+  ScopedTempDir output_dir;
+  ASSERT_FALSE(output_dir.path().empty());
+  const std::string output_path = output_dir.path();
+  const std::string test_file = GetParam();
+
+  FormatAndFile input, output;
+
+  input.filename = GetTestInputFilePath(test_file);
+  input.format = kPerfFormat;
+  output.filename = output_path + test_file + ".pb_data";
+  output.format = kProtoBinaryFormat;
+  EXPECT_TRUE(ConvertFile(input, output));
+
+  std::string golden_file =
+      GetTestInputFilePath(std::string(test_file) + ".pb_data");
+  LOG(INFO) << "golden: " << golden_file;
+  LOG(INFO) << "output: " << output.filename;
+
+  CompareProtoFiles<PerfDataProto>(kProtoBinaryFormat, output.filename,
+                                   golden_file,
+                                   basename(output.filename.c_str()));
 }
 
 INSTANTIATE_TEST_SUITE_P(

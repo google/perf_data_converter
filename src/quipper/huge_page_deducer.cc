@@ -68,16 +68,17 @@ bool IsHugePage(const MMapEvent& mmap) {
 }
 
 // IsFileContiguous returns true if the mmap offset of |a| is immediately
-// followed by |b|, or if |a| doesn't have execute protection and |b| is an
-// anonymous mapping, and therefore the file offset is meaningless for it. We
-// don't combine anonymous mappings followed by file backed mappings, since they
-// don't correspond to any known segment splitting scenarios that we handle.
+// followed by |b|, or if |a| is file backed and |b| is an anonymous mapping,
+// and therefore the file offset is meaningless for it. We don't combine
+// anonymous mappings followed by file backed mappings, since they don't
+// correspond to any known segment splitting scenarios that we handle.
 bool IsFileContiguous(const MMapEvent& a, const MMapEvent& b) {
   // Huge page mappings are identified by DeduceHugePages and their backing
   // file names and file offsets are adjusted at that point, so they fall under
   // the first condition below. Data segments that include initialized and
   // uninitialized data are split into contiguous file backed and anonymous
-  // mappings, and they are captured by the second condition below.
+  // mappings, and they are captured by the last condition below. We explicitly
+  // disallow the execute protection for this case to make the test more narrow.
   return ((a.pgoff() + a.len()) == b.pgoff() && !IsAnon(a)) ||
          (!HasExecuteProtection(a) && !IsAnon(a) && IsAnon(b));
 }
@@ -99,10 +100,18 @@ bool IsEquivalentFile(const MMapEvent& a, const MMapEvent& b) {
 bool IsEquivalentProtection(const MMapEvent& a, const MMapEvent& b) {
   constexpr uint32_t ro_prot = PROT_READ;
   constexpr uint32_t rw_prot = PROT_READ | PROT_WRITE;
+  // The flags have multiple bits of information, but we compare only the map
+  // type, i.e. shared or private.
+  uint32_t a_type = a.flags();
+  uint32_t b_type = b.flags();
+#ifdef MAP_TYPE
+  a_type &= MAP_TYPE;
+  b_type &= MAP_TYPE;
+#endif
   // Don't match sharing flags for executable mappings, because some uses of
   // hugepage text, e.g. the hugetlbfs flavor, don't preserve the sharing flags
   // of the original file backed mapping.
-  return (a.flags() == b.flags() || HasExecuteProtection(a)) &&
+  return (a_type == b_type || HasExecuteProtection(a)) &&
          (a.prot() == b.prot() ||
           (a.prot() == ro_prot && b.prot() == rw_prot) ||
           (a.prot() == rw_prot && b.prot() == ro_prot));

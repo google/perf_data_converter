@@ -15626,34 +15626,10 @@ events {
     pid: 3496
     tid: 3496
     start: 139666354585600
-    len: 147456
+    len: 569344
     pgoff: 9125888
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 3496
-    tid: 3496
-    start: 139666354733056
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -18278,34 +18254,10 @@ events {
     pid: 4328
     tid: 4328
     start: 139666354585600
-    len: 147456
+    len: 569344
     pgoff: 9125888
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 4328
-    tid: 4328
-    start: 139666354733056
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -23732,34 +23684,10 @@ events {
     pid: 4609
     tid: 4609
     start: 139666354585600
-    len: 147456
+    len: 569344
     pgoff: 9125888
     filename: "/opt/google/chrome/libwidevinecdm.so"
     filename_md5_prefix: 2025504198935205157
-    sample_info {
-      pid: 0
-      tid: 0
-      sample_time_ns: 0
-      id: 0
-      cpu: 0
-    }
-  }
-  timestamp: 0
-}
-events {
-  header {
-    type: 1
-    misc: 2
-    size: 80
-  }
-  mmap_event {
-    pid: 4609
-    tid: 4609
-    start: 139666354733056
-    len: 421888
-    pgoff: 0
-    filename: "//anon"
-    filename_md5_prefix: 11476964321930150911
     sample_info {
       pid: 0
       tid: 0
@@ -66122,7 +66050,7 @@ events {
 timestamp_sec: 0
 stats {
   num_sample_events: 628
-  num_mmap_events: 1919
+  num_mmap_events: 1916
   num_fork_events: 54
   num_exit_events: 110
   num_sample_events_mapped: 628

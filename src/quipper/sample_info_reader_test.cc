@@ -31,7 +31,9 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
       PERF_SAMPLE_DATA_SRC |
       PERF_SAMPLE_TRANSACTION |
       PERF_SAMPLE_PHYS_ADDR |
-      PERF_SAMPLE_CGROUP;
+      PERF_SAMPLE_CGROUP |
+      PERF_SAMPLE_DATA_PAGE_SIZE |
+      PERF_SAMPLE_CODE_PAGE_SIZE;
   // clang-format on
   struct perf_event_attr attr = {0};
   attr.sample_type = sample_type;
@@ -52,6 +54,8 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
       67890,                                 // TRANSACTIONS
       0x00003f324c43d23b,                    // PHYSICAL_ADDR
       3333,                                  // CGROUP
+      4096,                                  // DATA_PAGE_SIZE
+      2 * 1024 * 1024,                       // CODE_PAGE_SIZE
   };
   const sample_event sample_event_struct = {
       .header = {
@@ -85,6 +89,8 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
   EXPECT_EQ(67890, sample.transaction);
   EXPECT_EQ(0x00003f324c43d23b, sample.physical_addr);
   EXPECT_EQ(3333, sample.cgroup);
+  EXPECT_EQ(4096, sample.data_page_size);
+  EXPECT_EQ(2 * 1024 * 1024, sample.code_page_size);
 }
 
 TEST(SampleInfoReaderTest, ReadSampleEventCrossEndian) {

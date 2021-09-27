@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+    branches: [copybara_staging]
+  pull_request:
+    branches: [master]
+  # Allows for manually triggering workflow runs.
+  workflow_dispatch:
+
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs
+jobs:
+  build-and-test:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.WORKING_DIR }}
+
+      - name: Fetch dependencies
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get install -y libelf-dev libssl-dev libcap-dev linux-tools-`uname -r`
+          git submodule update --init --recursive
+
+      - name: Update toolchain
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update
+          sudo apt-get install g++-5
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
+
+      - name: Build
+        run: bazel build //src:all //src/quipper:all
+
+      - name: Test
+        run: bazel test //src:all //src/quipper:all

@@ -19,6 +19,7 @@
 #include "src/compat/string_compat.h"
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
+#include "src/quipper/binary_data_utils.h"
 #include "src/quipper/dso.h"
 #include "src/quipper/kernel/perf_event.h"
 #include "src/quipper/perf_reader.h"
@@ -136,7 +137,7 @@ class Normalizer {
   // bound to its lifetime.
   const PerfDataHandler::Mapping* GetOrAddFakeMapping(
       const std::string& comm, const std::string& build_id,
-      uint64 comm_md5_prefix);
+      uint64 comm_md5_prefix, uint64 start_addr);
 
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
@@ -223,6 +224,7 @@ class Normalizer {
   struct {
     int64 samples = 0;
     int64 samples_with_addr = 0;
+    int64 synthesized_lost_samples = 0;
     int64 missing_main_mmap = 0;
     int64 missing_sample_mmap = 0;
     int64 missing_addr_mmap = 0;
@@ -257,6 +259,9 @@ void Normalizer::UpdateMapsWithForkEvent(
     pid_to_executable_mmap_[fork.pid()] = exec_mmap_it->second;
   }
 }
+
+static constexpr char kLostMappingFilename[] = "[lost]";
+static const uint64 kLostMd5Prefix = quipper::Md5Prefix(kLostMappingFilename);
 
 void Normalizer::Normalize() {
   for (const auto& event_proto : perf_proto_.events()) {
@@ -320,21 +325,38 @@ void Normalizer::Normalize() {
     } else if (event_proto.has_lost_event()) {
       stat_.samples += event_proto.lost_event().lost();
       stat_.missing_main_mmap += event_proto.lost_event().lost();
-      stat_.missing_sample_mmap += event_proto.lost_event().lost();
       quipper::PerfDataProto::SampleEvent sample;
-      quipper::PerfDataProto::EventHeader header;
       sample.set_id(event_proto.lost_event().id());
       sample.set_pid(event_proto.lost_event().sample_info().pid());
       sample.set_tid(event_proto.lost_event().sample_info().tid());
-      PerfDataHandler::SampleContext context(header, sample);
-      context.file_attrs_index = GetEventIndexForSample(sample);
-      if (context.file_attrs_index == -1) {
+      auto event_index = GetEventIndexForSample(sample);
+      if (event_index == -1) {
         ++stat_.no_event_errors;
         continue;
       }
+
+      // Use a special address and associated mapping for synthesized lost
+      // samples, so we can differentiate them from actual unmapped samples, see
+      // b/195154469. The chosen address avoids potential collisions with the
+      // address space when quipper's do_remap option is set to true or false.
+      // With remapping enabled, the address is guaranteed to be larger than the
+      // mapped quipper space. Without remapping, the address is in a reserved
+      // address range. Kernel addresses on x86 and ARM have the high 16 bits
+      // set, while PowerPC has a reserved space from 0x1000000000000000 to
+      // 0xBFFFFFFFFFFFFFFF. Quipper sets the highest byte of callchain unmapped
+      // addresses to 0x8 to avoid spurious symbolization in the presence of
+      // remapping. Here, we set the highest byte of the synthesized lost sample
+      // addresses to 0x9, to avoid any collisions.
+      sample.set_ip(9ULL << 60);
+      quipper::PerfDataProto::EventHeader header;
+      PerfDataHandler::SampleContext context(header, sample);
+      context.file_attrs_index = event_index;
+      context.sample_mapping = GetOrAddFakeMapping(kLostMappingFilename, "",
+                                                   kLostMd5Prefix, sample.ip());
       for (uint64 i = 0; i < event_proto.lost_event().lost(); ++i) {
         handler_->Sample(context);
       }
+      stat_.synthesized_lost_samples += event_proto.lost_event().lost();
     } else if (event_proto.has_sample_event()) {
       InvokeHandleSample(event_proto);
     }
@@ -385,7 +407,7 @@ void Normalizer::InvokeHandleSample(
       // resolving its md5 prefix when the comm string is nil or empty.
       context.main_mapping =
           GetOrAddFakeMapping(comm_it->second->comm(), build_id,
-                              comm_it->second->comm_md5_prefix());
+                              comm_it->second->comm_md5_prefix(), 0);
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
       // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.
       context.main_mapping = kernel_it->second;
@@ -445,14 +467,14 @@ void Normalizer::InvokeHandleSample(
 
 const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
     const std::string& comm, const std::string& build_id,
-    uint64 comm_md5_prefix) {
+    uint64 comm_md5_prefix, uint64 start_addr) {
   FakeMappingKey key = {comm, build_id, comm_md5_prefix};
   auto it = fake_mappings_.find(key);
   if (it != fake_mappings_.end()) {
     return it->second;
   }
-  owned_mappings_.emplace_back(
-      new PerfDataHandler::Mapping(comm, build_id, 0, 1, 0, comm_md5_prefix));
+  owned_mappings_.emplace_back(new PerfDataHandler::Mapping(
+      comm, build_id, start_addr, start_addr + 1, 0, comm_md5_prefix));
   return fake_mappings_.insert({key, owned_mappings_.back().get()})
       .first->second;
 }
@@ -467,6 +489,8 @@ static void CheckStat(int64 num, int64 denom, const string& desc) {
 void Normalizer::LogStats() {
   CheckStat(stat_.missing_main_mmap, stat_.samples, "missing_main_mmap");
   CheckStat(stat_.missing_sample_mmap, stat_.samples, "missing_sample_mmap");
+  CheckStat(stat_.synthesized_lost_samples, stat_.samples,
+            "synthesized lost samples");
   CheckStat(stat_.missing_addr_mmap, stat_.samples_with_addr,
             "missing_addr_mmap");
   CheckStat(stat_.missing_callchain_mmap, stat_.callchain_ips,

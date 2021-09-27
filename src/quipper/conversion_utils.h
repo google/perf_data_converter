@@ -17,6 +17,9 @@ extern const char kPerfFormat[];
 // Format string for protobuf text format.
 extern const char kProtoTextFormat[];
 
+// Format string for protobuf binary format.
+extern const char kProtoBinaryFormat[];
+
 // Structure to hold the format and file of an input or output.
 struct FormatAndFile {
   // The name of the file.

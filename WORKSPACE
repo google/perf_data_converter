@@ -18,16 +18,18 @@ http_archive(
 # rules_python is a dependency for protobuf.
 http_archive(
     name = "rules_python",
-    urls = ["https://github.com/bazelbuild/rules_python/archive/master.tar.gz"],
-    strip_prefix = "rules_python-master",
+    urls = ["https://codeload.github.com/bazelbuild/rules_python/tar.gz/main"],
+    strip_prefix = "rules_python-main",
+    type = "tar.gz",
 )
 
 # proto_library, cc_proto_library, and java_proto_library rules implicitly
 # depend on @com_google_protobuf for protoc and proto runtimes.
 http_archive(
     name = "com_google_protobuf",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/master.zip"],
+    urls = ["https://codeload.github.com/protocolbuffers/protobuf/zip/master"],
     strip_prefix = "protobuf-master",
+    type = "zip",
 )
 
 http_archive(
@@ -35,8 +37,9 @@ http_archive(
     # Gitiles creates gzip files with an embedded timestamp, so we cannot use
     # sha256 to validate the archives.  We must rely on the commit hash and
     # https. Commits must come from the master-with-bazel branch.
-    urls = ["https://github.com/google/boringssl/archive/master-with-bazel.zip"],
+    urls = ["https://codeload.github.com/google/boringssl/zip/master-with-bazel"],
     strip_prefix = "boringssl-master-with-bazel",
+    type = "zip",
 )
 
 # zlib is a dependency of protobuf.
