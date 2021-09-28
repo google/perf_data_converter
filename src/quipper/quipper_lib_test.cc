@@ -12,7 +12,7 @@ TEST(QuipperLibTest, ValidOldPerfCommandLine) {
 
   EXPECT_TRUE(ParseOldPerfArguments(argc, argv, &perf_duration, &perf_args));
   EXPECT_EQ(10, perf_duration);
-  for (int i = 0; i < perf_args.size(); ++i) {
+  for (size_t i = 0; i < perf_args.size(); ++i) {
     EXPECT_EQ(argv[i + 2], perf_args[i]);
   }
 }

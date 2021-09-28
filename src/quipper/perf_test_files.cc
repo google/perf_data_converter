@@ -87,18 +87,20 @@ const std::vector<const char*>& GetPerfDataFiles() {
       // Obtained from a system that uses NUMA topology.
       "perf.data.numatopology-3.2",
 
-      // Obtained to test GROUP_DESC feature
-      // Command:
-      //    perf record -e "{cache-references,branch-misses}" -o \
-      //    /tmp/perf.data.group_desc-4.14 -- echo "Hello, World!"
+      /* Obtained to test GROUP_DESC feature
+         Command:
+            perf record -e "{cache-references,branch-misses}" -o \
+            /tmp/perf.data.group_desc-4.14 -- echo "Hello, World!"
+      */
       "perf.data.group_desc-4.14",
 
-      // Perf data that contains hardware and software events.
-      // Command:
-      //    perf record -a -c 1000000 -e cycles,branch-misses,cpu-clock -- \
-      //    sleep 2
-      // HW events are cycles and branch-misses, SW event is cpu-clock.
-      // This also tests non-consecutive event types.
+      /* Perf data that contains hardware and software events.
+         Command:
+            perf record -a -c 1000000 -e cycles,branch-misses,cpu-clock -- \
+            sleep 2
+         HW events are cycles and branch-misses, SW event is cpu-clock.
+         This also tests non-consecutive event types.
+      */
       "perf.data.hw_and_sw-3.4",
 
       // This test first mmap()s a DSO, then fork()s to copy the mapping to the
@@ -112,35 +114,40 @@ const std::vector<const char*>& GetPerfDataFiles() {
       // has throttle and unthrottle events.
       "perf.data.throttle-3.8",
 
-      // Perf data that contains intel pt events from perf-4.14
-      // Command:
-      //    perf record -e intel_pt// -e cycles -o /tmp/perf.data.intel_pt-4.14
-      //    -- echo "Hello, World!"
+      /* Perf data that contains intel pt events from perf-4.14
+         Command:
+            perf record -e intel_pt// -e cycles -o /tmp/perf.data.intel_pt-4.14
+            -- echo "Hello, World!"
+      */
       "perf.data.intel_pt-4.14",
 
-      // Obtained with:
-      //    "perf record -b -o /tmp/perf.data.branch-4.14 -- \
-      //    echo "Hello, World!"
+      /* Obtained with:
+            "perf record -b -o /tmp/perf.data.branch-4.14 -- \
+            echo "Hello, World!"
+       */
       "perf.data.branch-4.14",
 
-      // Perf data that contains lost sample events from perf-4.4
-      // Command:
-      //    perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
-      //    -P -c 20003 -o /tmp/perf.data.lost_samples-4.4 -- \
-      //    echo "Hello, World!"
+      /* Perf data that contains lost sample events from perf-4.4
+         Command:
+            perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
+            -P -c 20003 -o /tmp/perf.data.lost_samples-4.4 -- \
+            echo "Hello, World!"
+       */
       "perf.data.lost_samples-4.4",
 
-      // Perf data that contains switch and namespace samples.
-      // Command:
-      // perf record --switch-events --namespace -e cycles -o
-      // /tmp/perf.data.ctx_switch_namespaces-4.14 -- sleep 0.001
+      /* Perf data that contains switch and namespace samples.
+         Command:
+         perf record --switch-events --namespace -e cycles -o
+         /tmp/perf.data.ctx_switch_namespaces-4.14 -- sleep 0.001
+       */
       "perf.data.ctx_switch_namespaces-4.14",
 
-      // Perf data file with mmaps events containing the
-      // PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT misc bit.
-      // Command:
-      // perf record -e cycles -c 4000000 -p 9463 -o /tmp/perf.data \
-      // --proc-map-timeout=2 -- sleep 1
+      /* Perf data file with mmaps events containing the
+         PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT misc bit.
+         Command:
+         perf record -e cycles -c 4000000 -p 9463 -o /tmp/perf.data \
+         --proc-map-timeout=2 -- sleep 1
+       */
       "perf.data.proc.map.timeout-3.18",
   };
   return *files;
@@ -153,46 +160,51 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
       "perf.data.piped.target-3.8",
 
       /* Piped data that contains hardware and software events.
-       * Command:
-       *    perf record -a -c 1000000 -e cycles,branch-misses,cpu-clock -o - \
-       *    -- sleep 2
-       * HW events are cycles and branch-misses, SW event is cpu-clock.
+         Command:
+            perf record -a -c 1000000 -e cycles,branch-misses,cpu-clock -o - \
+            -- sleep 2
+         HW events are cycles and branch-misses, SW event is cpu-clock.
        */
       "perf.data.piped.hw_and_sw-3.4",
 
-      // Perf data that contains intel pt events collected in piped mode from
-      // perf-4.14
-      // Command:
-      //    perf record -e intel_pt// -e cycles -o - -- echo "Hello, World!" | \
-      //    cat &> /tmp/perf.data.piped.intel_pt-4.14
+      /* Perf data that contains intel pt events collected in piped mode from
+         perf-4.14
+         Command:
+            perf record -e intel_pt// -e cycles -o - -- echo "Hello, World!" | \
+            cat &> /tmp/perf.data.piped.intel_pt-4.14
+       */
       "perf.data.piped.intel_pt-4.14",
 
-      // Perf data that contains lost sample events collected in piped mode from
-      // perf-4.4
-      // Command:
-      //    perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
-      //    -P -c 20003 -o - -- echo "Hello, World!" | cat &> \
-      //    /tmp/perf.data.piped.lost_samples-4.4
+      /* Perf data that contains lost sample events collected in piped mode from
+         perf-4.4
+         Command:
+            perf record -e "{cycles:pp,instructions:pp,branch-instructions:pp}"\
+            -P -c 20003 -o - -- echo "Hello, World!" | cat &> \
+            /tmp/perf.data.piped.lost_samples-4.4
+       */
       "perf.data.piped.lost_samples-4.4",
 
-      // Perf data contains PERF_RECORD_HEADER_FEATURE events generated in piped
-      // mode from perf 4.16.
-      // Command:
-      //    /tmp/perf record -e "cycles" -o - -- echo Hello, World! | cat &> \
-      //    /tmp/perf.data.piped.header_features-4.16
+      /* Perf data contains PERF_RECORD_HEADER_FEATURE events generated in piped
+         mode from perf 4.16.
+         Command:
+            /tmp/perf record -e "cycles" -o - -- echo Hello, World! | cat &> \
+            /tmp/perf.data.piped.header_features-4.16
+       */
       "perf.data.piped.header_features-4.16",
 
-      // Perf data from perf 4.14 containing no IDs in PERF_RECORD_HEADER_ATTR
-      // event.
-      // Command:
-      //    perf record -e "cycles" -o - -- sleep 0.001 | cat &> \
-      //    perf.data.piped.no_attr_ids-4.14
+      /* Perf data from perf 4.14 containing no IDs in PERF_RECORD_HEADER_ATTR
+         event.
+         Command:
+            perf record -e "cycles" -o - -- sleep 0.001 | cat &> \
+            perf.data.piped.no_attr_ids-4.14
+       */
       "perf.data.piped.no_attr_ids-4.14",
 
-      // Perf data that contains switch and namespace samples.
-      // Command:
-      // perf record --switch-events --namespace -e cycles -o - -- sleep 0.001 |
-      // cat &> /tmp/perf.data.pipedctx_switch_namespaces-4.14
+      /* Perf data that contains switch and namespace samples.
+         Command:
+         perf record --switch-events --namespace -e cycles -o - -- sleep 0.001 |
+         cat &> /tmp/perf.data.pipedctx_switch_namespaces-4.14
+       */
       "perf.data.piped.ctx_switch_namespaces-4.14",
   };
   return *files;

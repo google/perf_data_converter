@@ -690,7 +690,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
 
 ProcessProfiles PerfDataConverter::Profiles() {
   ProcessProfiles pps;
-  for (int i = 0; i < builders_.size(); i++) {
+  for (size_t i = 0; i < builders_.size(); i++) {
     auto& b = builders_[i];
     b.Finalize();
     auto pp = process_metas_[i].makeProcessProfile(b.mutable_profile());
