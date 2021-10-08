@@ -108,6 +108,8 @@ struct SampleKey {
   uint64 thread_comm = 0;
   // The index of the sample's cgroup name in the profiles's string table.
   uint64 cgroup = 0;
+  uint64 code_page_size = 0;
+  uint64 data_page_size = 0;
   LocationIdVector stack;
 };
 
@@ -117,7 +119,8 @@ struct SampleKeyEqualityTester {
             (a.exec_mode == b.exec_mode) && (a.comm == b.comm) &&
             (a.thread_type == b.thread_type) &&
             (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
-            (a.stack == b.stack));
+            (a.code_page_size == b.code_page_size) &&
+            (a.data_page_size == b.data_page_size) && (a.stack == b.stack));
   }
 };
 
@@ -132,6 +135,8 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64>()(k.thread_type);
     hash ^= std::hash<uint64>()(k.thread_comm);
     hash ^= std::hash<uint64>()(k.cgroup);
+    hash ^= std::hash<uint64>()(k.code_page_size);
+    hash ^= std::hash<uint64>()(k.data_page_size);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64>()(id);
     }
@@ -269,6 +274,16 @@ class PerfDataConverter : public PerfDataHandler {
   // Returns whether cgroup labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
   bool IncludeCgroupLabels() const { return (sample_labels_ & kCgroupLabel); }
+  // Returns whether code page size labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeCodePageSizeLabels() const {
+    return (sample_labels_ & kCodePageSizeLabel);
+  }
+  // Returns whether data page size labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeDataPageSizeLabels() const {
+    return (sample_labels_ & kDataPageSizeLabel);
+  }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
@@ -338,6 +353,12 @@ SampleKey PerfDataConverter::MakeSampleKey(
   }
   if (IncludeCgroupLabels() && sample.cgroup) {
     sample_key.cgroup = UTF8StringId(*sample.cgroup, builder);
+  }
+  if (IncludeCodePageSizeLabels() && sample.sample.has_code_page_size()) {
+    sample_key.code_page_size = sample.sample.code_page_size();
+  }
+  if (IncludeDataPageSizeLabels() && sample.sample.has_data_page_size()) {
+    sample_key.data_page_size = sample.sample.data_page_size();
   }
   return sample_key;
 }
@@ -517,6 +538,16 @@ void PerfDataConverter::AddOrUpdateSample(
       auto* label = sample->add_label();
       label->set_key(builder->StringId(CgroupLabelKey));
       label->set_str(sample_key.cgroup);
+    }
+    if (IncludeCodePageSizeLabels() && sample_key.code_page_size != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(CodePageSizeLabelKey));
+      label->set_num(sample_key.code_page_size);
+    }
+    if (IncludeDataPageSizeLabels() && sample_key.data_page_size != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(DataPageSizeLabelKey));
+      label->set_num(sample_key.data_page_size);
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).

@@ -25,32 +25,40 @@ namespace perftools {
 enum SampleLabels {
   kNoLabels = 0,
   // Adds label with key PidLabelKey and number value set to the process ID.
-  kPidLabel = 1,
+  kPidLabel = 1 << 0,
   // Adds label with key TidLabelKey and number value set to the thread ID.
-  kTidLabel = 2,
+  kTidLabel = 1 << 1,
   // Equivalent to kPidLabel | kTidLabel
   kPidAndTidLabels = 3,
   // Adds label with key TimestampNsLabelKey and number value set to the number
   // of nanoseconds since the system boot that this sample was taken.
-  kTimestampNsLabel = 4,
+  kTimestampNsLabel = 1 << 2,
   // Adds label with key ExecutionModeLabelKey and string value set to one of
   // the ExecutionMode* values.
-  kExecutionModeLabel = 8,
+  kExecutionModeLabel = 1 << 3,
   // Adds a label with key CommLabelKey and string value set to the sample's
   // process's command (that is, /proc/[pid]/comm). If no command is known, no
   // label is added.
-  kCommLabel = 16,
+  kCommLabel = 1 << 4,
   // Adds a label with key ThreadTypeLabelKey and string value set to the thread
   // type of the sample's thread ID. If the sample doesn't have a thread ID or
   // the sample's thread ID doesn't have a thread type, no label is added.
-  kThreadTypeLabel = 32,
+  kThreadTypeLabel = 1 << 5,
   // Adds a label with key ThreadCommLabelKey and string value set to the
   // sample's thread's command (that is, thread name, or
   // /proc/[pid]/task/[tid]/comm). If no command is known, no label is added.
-  kThreadCommLabel = 64,
+  kThreadCommLabel = 1 << 6,
   // Adds a label with CgroupLabelKey and number value set to the cgroup id.
   // If the sample doesn't have a cgroup ID, no label is added.
-  kCgroupLabel = 128,
+  kCgroupLabel = 1 << 7,
+  // Adds a label with CodePageSizeKey and number value set to the
+  // code_page_size. If the sample doesn't have a code page size, no label is
+  // added.
+  kCodePageSizeLabel = 1 << 8,
+  // Adds a label with DataPageSizeKey and number value set to the
+  // data_page_size. If the sample doesn't have a code page size, no label is
+  // added.
+  kDataPageSizeLabel = 1 << 9,
 };
 
 // Sample label key names.
@@ -62,6 +70,8 @@ const char CommLabelKey[] = "comm";
 const char ThreadTypeLabelKey[] = "thread_type";
 const char ThreadCommLabelKey[] = "thread_comm";
 const char CgroupLabelKey[] = "cgroup";
+const char CodePageSizeLabelKey[] = "code_page_size";
+const char DataPageSizeLabelKey[] = "data_page_size";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";
