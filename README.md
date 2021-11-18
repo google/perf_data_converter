@@ -1,3 +1,5 @@
+[![Github Action CI](https://github.com/google/perf_data_converter/workflows/ci/badge.svg)](https://github.com/google/perf_data_converter/actions)
+
 # Introduction
 
 The `perf_to_profile` binary can be used to turn a perf.data file, which is

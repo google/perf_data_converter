@@ -96,7 +96,7 @@ class TestPerfDataHandler : public PerfDataHandler {
       _seen_addr_mappings.push_back(nullptr);
     }
     EXPECT_EQ(_expected_branch_stack.size(), sample.branch_stack.size());
-    for (int i = 0; i < sample.branch_stack.size(); i++) {
+    for (size_t i = 0; i < sample.branch_stack.size(); i++) {
       CheckBranchEquality(_expected_branch_stack[i], sample.branch_stack[i]);
     }
   }

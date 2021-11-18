@@ -1038,7 +1038,7 @@ bool PerfSerializer::DeserializeAuxtraceInfoEvent(
     const PerfDataProto_AuxtraceInfoEvent& sample, event_t* event) const {
   struct auxtrace_info_event& auxtrace_info = event->auxtrace_info;
   auxtrace_info.type = sample.type();
-  for (u64 i = 0; i < sample.unparsed_binary_blob_priv_data_size(); ++i) {
+  for (int i = 0; i < sample.unparsed_binary_blob_priv_data_size(); ++i) {
     auxtrace_info.priv[i] = sample.unparsed_binary_blob_priv_data(i);
   }
   return true;
@@ -1510,7 +1510,7 @@ const SampleInfoReader* PerfSerializer::GetSampleInfoReaderForEvent(
       const u64* array =
           reinterpret_cast<const u64*>(&event) + (offset / sizeof(u64));
       // Find the length of the sample info array.
-      size_t array_size = (event.header.size - offset) / sizeof(u64);
+      ssize_t array_size = (event.header.size - offset) / sizeof(u64);
       if (event.header.type == PERF_RECORD_SAMPLE) {
         if (array_size <= event_id_pos) {
           LOG(ERROR) << "Sample info array of size " << array_size

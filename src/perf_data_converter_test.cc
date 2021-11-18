@@ -33,6 +33,7 @@ using perftools::profiles::Mapping;
 using quipper::PerfDataProto;
 using testing::Contains;
 using testing::Eq;
+using testing::IsEmpty;
 using testing::UnorderedPointwise;
 
 namespace {
@@ -683,8 +684,100 @@ TEST_F(PerfDataConverterTest, ConvertsCgroup) {
     EXPECT_EQ(expected_count.second, counts_by_cgroup[expected_count.first])
         << "Different counts for cgroup: " << expected_count.first << std::endl
         << "Expected: " << expected_count.second << std::endl
-        << "Actual: " << expected_count.first << std::endl;
+        << "Actual: " << counts_by_cgroup[expected_count.first] << std::endl;
   }
+}
+
+std::pair<int, std::unordered_map<uint64, uint64>> ExtractCounts(
+    const ProcessProfiles& pps, std::string key_name) {
+  std::unordered_map<uint64, uint64> counts;
+  int total_samples = 0;
+  const int val_idx = 0;
+
+  for (const auto& pp : pps) {
+    const auto& p = pp->data;
+    EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
+    for (const auto& sample : p.sample()) {
+      total_samples += sample.value(val_idx);
+      for (const auto& label : sample.label()) {
+        if (p.string_table(label.key()) == key_name) {
+          counts[label.num()] += sample.value(val_idx);
+        }
+      }
+    }
+  }
+  return {total_samples, counts};
+}
+
+TEST_F(PerfDataConverterTest, ConvertsCodePageSize) {
+  const string ascii_pb(
+      GetContents(GetResource("perf-code-data-page-sizes.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCodePageSizeLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  const auto counts_pair = ExtractCounts(pps, CodePageSizeLabelKey);
+  const auto total_samples = std::get<0>(counts_pair);
+  const auto& counts = std::get<1>(counts_pair);
+  const std::unordered_map<uint64, uint64> expected_counts{
+      {4096, 2},
+      {2097152, 2},
+      {1073741824, 1},
+  };
+  EXPECT_EQ(total_samples, 5);
+  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+}
+
+TEST_F(PerfDataConverterTest, ConvertsDataPageSize) {
+  const string ascii_pb(
+      GetContents(GetResource("perf-code-data-page-sizes.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kDataPageSizeLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  const auto counts_pair = ExtractCounts(pps, DataPageSizeLabelKey);
+  const auto total_samples = std::get<0>(counts_pair);
+  const auto& counts = std::get<1>(counts_pair);
+  const std::unordered_map<uint64, uint64> expected_counts{
+      {4096, 2},
+      {2097152, 2},
+      {1073741824, 1},
+  };
+  EXPECT_EQ(total_samples, 5);
+  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+}
+
+// Test with a perf data doesn't have page size info.
+TEST_F(PerfDataConverterTest, ConvertsNoCodeDataPageSize) {
+  const string ascii_pb(
+      GetContents(GetResource("perf-cgroup-events.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps = PerfDataProtoToProfiles(
+      &perf_data_proto, kCodePageSizeLabel | kDataPageSizeLabel);
+  ASSERT_EQ(pps.size(), 2);
+
+  auto counts_pair1 = ExtractCounts(pps, CodePageSizeLabelKey);
+  const auto total_samples1 = std::get<0>(counts_pair1);
+  const auto& code_counts = std::get<1>(counts_pair1);
+  EXPECT_EQ(total_samples1, 10);
+  EXPECT_THAT(code_counts, IsEmpty());
+
+  auto counts_pair2 = ExtractCounts(pps, DataPageSizeLabelKey);
+  const auto total_samples2 = std::get<0>(counts_pair2);
+  const auto& data_counts = std::get<1>(counts_pair2);
+  EXPECT_EQ(total_samples2, 10);
+  EXPECT_THAT(data_counts, IsEmpty());
 }
 
 }  // namespace perftools

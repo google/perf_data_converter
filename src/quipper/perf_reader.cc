@@ -1577,7 +1577,7 @@ bool PerfReader::ReadCPUTopologyMetadata(DataReader* data, size_t size) {
       return false;
     }
 
-    for (int i = 0; i < nrcpus; ++i) {
+    for (uint32_t i = 0; i < nrcpus; ++i) {
       PerfCPU cpu;
       if (!data->ReadUint32(&cpu.core_id)) {
         LOG(ERROR) << "Error reading Core ID.";
