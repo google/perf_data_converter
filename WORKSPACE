@@ -9,10 +9,11 @@ http_archive(
 )
 
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
+# TODO(b/210576094): Unpin dependency after fixing compatibility.
 http_archive(
      name = "com_google_googletest",
-     urls = ["https://github.com/google/googletest/archive/master.zip"],
-     strip_prefix = "googletest-master",
+     urls = ["https://github.com/google/googletest/archive/release-1.11.0.zip"],
+     strip_prefix = "googletest-release-1.11.0",
 )
 
 # rules_python is a dependency for protobuf.
@@ -25,10 +26,11 @@ http_archive(
 
 # proto_library, cc_proto_library, and java_proto_library rules implicitly
 # depend on @com_google_protobuf for protoc and proto runtimes.
+# TODO(b/210576094): Unpin dependency after fixing compatibility.
 http_archive(
     name = "com_google_protobuf",
-    urls = ["https://codeload.github.com/protocolbuffers/protobuf/zip/master"],
-    strip_prefix = "protobuf-master",
+    urls = ["https://codeload.github.com/protocolbuffers/protobuf/zip/3.19.x"],
+    strip_prefix = "protobuf-3.19.x",
     type = "zip",
 )
 
