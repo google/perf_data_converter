@@ -15,4 +15,7 @@
 bool ParseOldPerfArguments(int argc, const char* argv[], int* duration,
                            std::vector<std::string>* perf_args);
 
+std::vector<std::string> SplitString(const std::string& str,
+                                     const char delimiter);
+
 #endif  // PERF_DATA_CONVERTER_SRC_QUIPPER_QUIPPER_LIB_H_

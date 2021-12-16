@@ -28,4 +28,14 @@ TEST(QuipperLibTest, InValidOldPerfCommandLine) {
   EXPECT_FALSE(ParseOldPerfArguments(argc, argv, &perf_duration, &perf_args));
 }
 
+TEST(QuipperLibTest, SplitString) {
+  const string str = "perf;inject;-a;--foo=bar;";
+  std::vector<std::string> want = {"perf", "inject", "-a", "--foo=bar"};
+  std::vector<std::string> got = SplitString(str, ';');
+  EXPECT_EQ(got.size(), want.size());
+  for (size_t i = 0; i < want.size(); ++i) {
+    EXPECT_EQ(got[i], want[i]);
+  }
+}
+
 }  // namespace

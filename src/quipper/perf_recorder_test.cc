@@ -47,7 +47,7 @@ TEST_F(PerfRecorderTest, RecordToProtobuf) {
   // Read the protobuf, and reconstruct the perf data.
   std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "record"}, 0.2, &output_string));
+      {"perf", "record"}, 0.2, {}, &output_string));
 
   quipper::PerfDataProto perf_data_proto;
   EXPECT_TRUE(perf_data_proto.ParseFromString(output_string));
@@ -73,7 +73,7 @@ TEST_F(PerfRecorderTest, StatToProtobuf) {
   // Run perf stat and verify output.
   std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "stat"}, 0.2, &output_string));
+      {"perf", "stat"}, 0.2, {}, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
   quipper::PerfStatProto stat;
@@ -87,17 +87,46 @@ TEST_F(PerfRecorderTest, MemRecordToProtobuf) {
   // Run perf mem record and verify output.
   std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "mem", "record"}, 0.2, &output_string));
+      {"perf", "mem", "record"}, 0.2, {}, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
   quipper::PerfDataProto perf_data_proto;
   ASSERT_TRUE(perf_data_proto.ParseFromString(output_string));
 }
 
+TEST_F(PerfRecorderTest, RecordAndInjectToProto) {
+  // Read perf data using the PerfReader class.
+  // Dump it to a string and convert to a protobuf.
+  // Read the protobuf, and reconstruct the perf data.
+  std::string output_string;
+  EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
+      {"perf", "record"}, 0.2, {"perf", "inject", "-b"}, &output_string));
+
+  quipper::PerfDataProto perf_data_proto;
+  EXPECT_TRUE(perf_data_proto.ParseFromString(output_string));
+
+  const auto& string_meta = perf_data_proto.string_metadata();
+  const auto& command = string_meta.perf_command_line_token();
+  EXPECT_EQ(GetPerfPath(), command.Get(0).value());
+  EXPECT_EQ("inject", command.Get(1).value());
+  EXPECT_EQ("-b", command.Get(2).value());
+  EXPECT_EQ("-o", command.Get(3).value());
+  // Unpredictable: EXPECT_EQ("/tmp/quipper.XXXXXX", command.Get(3).value());
+  // Instead, check the file path length and prefix.
+  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(4).value().size());
+  EXPECT_EQ("/tmp/quipper",
+            command.Get(4).value().substr(0, strlen("/tmp/quipper")));
+  EXPECT_EQ("-f", command.Get(5).value());
+  EXPECT_EQ("-i", command.Get(6).value());
+  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(7).value().size());
+  EXPECT_EQ("/tmp/quipper",
+            command.Get(7).value().substr(0, strlen("/tmp/quipper")));
+}
+
 TEST_F(PerfRecorderTest, StatSingleEvent) {
   std::string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "stat", "-a", "-e", "cpu-clock"}, 0.2, &output_string));
+      {"perf", "stat", "-a", "-e", "cpu-clock"}, 0.2, {}, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
 
@@ -123,7 +152,7 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
       {"perf", "stat", "-a", "-e", "cpu-clock", "-e", "context-switches", "-e",
        "major-faults", "-e", "page-faults"},
-      0.2, &output_string));
+      0.2, {}, &output_string));
 
   EXPECT_GT(output_string.size(), 0);
 
@@ -176,18 +205,20 @@ TEST_F(PerfRecorderTest, StatMultipleEvents) {
 TEST_F(PerfRecorderTest, DontAllowCommands) {
   std::string output_string;
   EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "record", "--", "sh", "-c", "echo 'malicious'"}, 0.2,
+      {"perf", "record", "--", "sh", "-c", "echo 'malicious'"}, 0.2, {},
       &output_string));
   EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "stat", "--", "sh", "-c", "echo 'malicious'"}, 0.2,
+      {"perf", "stat", "--", "sh", "-c", "echo 'malicious'"}, 0.2, {},
       &output_string));
+  EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
+      {"perf", "inject", "-b"}, 0.2, {}, &output_string));
 }
 
 TEST(PerfRecorderNoPerfTest, FailsIfPerfDoesntExist) {
   std::string output_string;
   PerfRecorder perf_recorder({"sudo", "/doesnt-exist/usr/not-bin/not-perf"});
   EXPECT_FALSE(perf_recorder.RunCommandAndGetSerializedOutput(
-      {"perf", "record"}, 0.2, &output_string));
+      {"perf", "record"}, 0.2, {}, &output_string));
 }
 
 }  // namespace quipper

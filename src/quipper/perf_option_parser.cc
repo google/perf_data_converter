@@ -166,6 +166,30 @@ const std::map<std::string, OptionType>& GetPerfMemOptions() {
   return *kPerfMemOptions;
 }
 
+const std::map<std::string, OptionType>& GetPerfInjectOptions() {
+  static const auto* kPerfInjectOptions = new std::map<std::string, OptionType>{
+      {"-b", OptionType::Boolean},
+      {"--build-ids", OptionType::Boolean},
+      {"--buildid-all", OptionType::Boolean},
+      /* Not applicable: {"-v", OptionType::Boolean},
+      {"--verbose", OptionType::Boolean}, */ // stdout is not read
+      /* Banned: {"-i", OptionType::Value},
+      {"--input", OptionType::Value}, */ // security, file added by quipper
+      /* Banned: {"-o", OptionType::Value},
+      {"--output", OptionType::Value}, */ // security, file added by quipper
+      {"-s", OptionType::Boolean},
+      {"--sched-stat", OptionType::Boolean},
+      {"--kallsyms", OptionType::Value},
+      {"--itrace", OptionType::Value},
+      {"--strip", OptionType::Boolean},
+      {"-j", OptionType::Boolean},
+      {"--jit", OptionType::Boolean},
+      /* Banned: {"-f", OptionType::Boolean},
+      {"--force", OptionType::Boolean}, */ // added by quipper when needed
+  };
+  return *kPerfInjectOptions;
+}
+
 bool ValidatePerfCommandLineOptions(
     std::vector<std::string>::const_iterator begin_arg,
     std::vector<std::string>::const_iterator end_arg,
@@ -210,6 +234,10 @@ bool ValidatePerfCommandLine(const std::vector<std::string>& args) {
   if (args[1] == "stat") {
     return ValidatePerfCommandLineOptions(args.begin() + 2, args.end(),
                                           GetPerfStatOptions());
+  }
+  if (args[1] == "inject") {
+    return ValidatePerfCommandLineOptions(args.begin() + 2, args.end(),
+                                          GetPerfInjectOptions());
   }
   return false;
 }

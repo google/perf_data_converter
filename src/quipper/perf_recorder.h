@@ -9,9 +9,9 @@
 #include <vector>
 
 #include "base/macros.h"
-
 #include "compat/string.h"
 #include "perf_reader.h"
+#include "scoped_temp_path.h"
 
 namespace quipper {
 
@@ -23,11 +23,13 @@ class PerfRecorder {
   // Security critical: No user-provided strings should be used!
   explicit PerfRecorder(const std::vector<string>& perf_binary_command);
 
-  // Runs the perf command specified in |perf_args| for |time_sec| seconds. The
+  // Runs the perf command specified in |perf_args| for |time_sec| seconds. If
+  // provided, run perf inject with |inject_args| on the perf record output. The
   // output is returned as a serialized protobuf in |output_string|. The
   // protobuf format depends on the provided perf command.
   bool RunCommandAndGetSerializedOutput(const std::vector<string>& perf_args,
                                         const double time_sec,
+                                        const std::vector<string>& inject_args,
                                         string* output_string);
 
   // The command prefix for running perf. e.g., "perf", or "/usr/bin/perf",
@@ -38,6 +40,9 @@ class PerfRecorder {
 
  private:
   const std::vector<string> perf_binary_command_;
+  std::vector<string> FullPerfCommand(const std::vector<string>& perf_args,
+                                      const double time_sec,
+                                      const ScopedTempFile& output_file);
 
   DISALLOW_COPY_AND_ASSIGN(PerfRecorder);
 };

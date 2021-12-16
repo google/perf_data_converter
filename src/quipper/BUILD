@@ -450,12 +450,16 @@ cc_library(
     srcs = ["perf_recorder.cc"],
     hdrs = ["perf_recorder.h"],
     deps = [
+        ":binary_data_utils",
         ":compat",
         ":perf_option_parser",
+        ":perf_parser",
         ":perf_protobuf_io",
+        ":perf_reader",
         ":perf_stat_parser",
         ":run_command",
         ":scoped_temp_path",
+        ":base",
     ],
 )
 
@@ -463,8 +467,13 @@ cc_test(
     name = "perf_recorder_test",
     srcs = ["perf_recorder_test.cc"],
     deps = [
+        ":compat",
         ":compat_gunit",
+        ":perf_protobuf_io",
+        ":perf_reader",
         ":perf_recorder",
+        ":perf_serializer",
+        ":run_command",
         ":test_utils",
     ],
 )
