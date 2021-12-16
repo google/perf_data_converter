@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <vector>
 
 #include <gflags/gflags.h>
 #include <gflags/gflags_declare.h>
@@ -20,9 +21,15 @@ DEFINE_int64(duration, 0, "Duration to run perf in seconds");
 DEFINE_string(perf_path, "", "Path to perf");
 DEFINE_string(output_file, "/dev/stdout",
               "Path to store the output perf_data.pb.data");
+DEFINE_bool(run_inject, false,
+            "If true, run perf inject on the recorded perf data");
+DEFINE_string(inject_args, "",
+            "a list of hyphen-separated flags passed to perf inject, "
+            "must be used with --run_inject");
 
 bool ParsePerfArguments(int argc, const char* argv[], int* duration,
-                        std::vector<string>* perf_args, string* output_file) {
+                        std::vector<string>* perf_args,
+                        std::vector<string>* inject_args, string* output_file) {
   if (argc < 2) {
     return false;
   }
@@ -42,15 +49,21 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   *output_file = FLAGS_output_file;
   if (output_file->empty()) return false;
 
+  bool run_inject = FLAGS_run_inject;
+  string inject_args_string = FLAGS_inject_args;
+  if (!run_inject && !inject_args->empty()) return false;
+
+  *inject_args = SplitString(inject_args_string, ';');
   return true;
 }
 
 bool RecordPerf(int perf_duration, const std::vector<string>& perf_args,
+                const std::vector<string>& inject_args,
                 const string& output_file) {
   quipper::PerfRecorder perf_recorder;
   string output_string;
-  if (!perf_recorder.RunCommandAndGetSerializedOutput(perf_args, perf_duration,
-                                                      &output_string)) {
+  if (!perf_recorder.RunCommandAndGetSerializedOutput(
+          perf_args, perf_duration, inject_args, &output_string)) {
     LOG(ERROR) << "Couldn't record perf";
     return false;
   }
@@ -68,19 +81,22 @@ bool RecordPerf(int perf_duration, const std::vector<string>& perf_args,
 //   <exe> --duration <duration in seconds>
 //         --perf_path <path to perf>
 //         --output_file <path to store the output perf_data.pb.data>
+//         [--run_inject]
+//         [--inject_arg <perf inject argument>]
 //         --
 //         <perf arguments>
 //  or the old way, this is temporarily supported, without any flags:
 //   <exe> <duration in seconds> <perf command line>
 
 int main(int argc, char* argv[]) {
-  std::vector<string> perf_args;
+  std::vector<string> perf_args, inject_args;
   int perf_duration = 0;
 
   if (ParseOldPerfArguments(argc, const_cast<const char**>(argv),
                             &perf_duration, &perf_args)) {
-    return RecordPerf(perf_duration, perf_args, "/dev/stdout") ? EXIT_SUCCESS
-                                                               : EXIT_FAILURE;
+    return RecordPerf(perf_duration, perf_args, inject_args, "/dev/stdout")
+               ? EXIT_SUCCESS
+               : EXIT_FAILURE;
   }
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -89,15 +105,18 @@ int main(int argc, char* argv[]) {
   perf_args.clear();
 
   if (ParsePerfArguments(argc, const_cast<const char**>(argv), &perf_duration,
-                         &perf_args, &output_file)) {
-    return RecordPerf(perf_duration, perf_args, output_file) ? EXIT_SUCCESS
-                                                             : EXIT_FAILURE;
+                         &perf_args, &inject_args, &output_file)) {
+    return RecordPerf(perf_duration, perf_args, inject_args, output_file)
+               ? EXIT_SUCCESS
+               : EXIT_FAILURE;
   }
 
   LOG(ERROR) << "Invalid command line.";
   LOG(ERROR) << "Usage: " << argv[0] << " --duration <duration in seconds>"
              << " --perf_path <path to perf>"
              << " --output_file <path to store the output perf_data.pb.data>"
+             << " [--run_inject]"
+             << " [--inject_args <comma-separated perf inject arguments>]"
              << " -- <perf arguments>"
              << "\nor\n"
              << argv[0] << " <duration in seconds>"

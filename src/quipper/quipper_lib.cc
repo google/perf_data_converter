@@ -33,3 +33,25 @@ bool ParseOldPerfArguments(int argc, const char* argv[], int* duration,
 
   return quipper::ValidatePerfCommandLine(*perf_args);
 }
+
+std::vector<std::string> SplitString(const std::string& str,
+                                     const char delimiter) {
+  std::vector<std::string> result;
+  if (str.empty()) return result;
+
+  size_t start = 0;
+  while (start != std::string::npos) {
+    size_t end = str.find_first_of(delimiter, start);
+    string piece;
+    if (end == std::string::npos) {
+      piece = str.substr(start);
+      start = std::string::npos;
+    } else {
+      piece = str.substr(start, end - start);
+      start = end + 1;
+    }
+
+    if (!piece.empty()) result.emplace_back(piece);
+  }
+  return result;
+}

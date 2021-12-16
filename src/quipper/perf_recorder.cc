@@ -28,6 +28,7 @@ namespace {
 const char kPerfRecordCommand[] = "record";
 const char kPerfStatCommand[] = "stat";
 const char kPerfMemCommand[] = "mem";
+const char kPerfInjectCommand[] = "inject";
 
 // Reads a perf data file and converts it to a PerfDataProto, which is stored as
 // a serialized string in |output_string|. Returns true on success.
@@ -84,31 +85,14 @@ PerfRecorder::PerfRecorder() : PerfRecorder({"/usr/bin/perf"}) {}
 PerfRecorder::PerfRecorder(const std::vector<string>& perf_binary_command)
     : perf_binary_command_(perf_binary_command) {}
 
-bool PerfRecorder::RunCommandAndGetSerializedOutput(
+// Assemble the full command line:
+// - Replace "perf" in |perf_args[0]| with |perf_binary_command_| to
+//   guarantee we're running a binary we believe we can trust.
+// - Add our own paramters.
+std::vector<string> PerfRecorder::FullPerfCommand(
     const std::vector<string>& perf_args, const double time_sec,
-    string* output_string) {
-  if (!ValidatePerfCommandLine(perf_args)) {
-    LOG(ERROR) << "Perf arguments are not safe to run";
-    return false;
-  }
-
-  // ValidatePerfCommandLine should have checked perf_args[0] == "perf", and
-  // that perf_args[1] is a supported sub-command (e.g. "record" or "stat").
-
+    const ScopedTempFile& output_file) {
   const string& perf_type = perf_args[1];
-
-  if (perf_type != kPerfRecordCommand && perf_type != kPerfStatCommand &&
-      perf_type != kPerfMemCommand) {
-    LOG(ERROR) << "Unsupported perf subcommand: " << perf_type;
-    return false;
-  }
-
-  ScopedTempFile output_file;
-
-  // Assemble the full command line:
-  // - Replace "perf" in |perf_args[0]| with |perf_binary_command_| to
-  //   guarantee we're running a binary we believe we can trust.
-  // - Add our own paramters.
 
   std::vector<string> full_perf_args(perf_binary_command_);
   full_perf_args.insert(full_perf_args.end(),
@@ -119,11 +103,40 @@ bool PerfRecorder::RunCommandAndGetSerializedOutput(
   // The perf stat output parser requires raw data from verbose output.
   if (perf_type == kPerfStatCommand) full_perf_args.emplace_back("-v");
 
-  // Append the sleep command to run perf for |time_sec| seconds.
-  std::stringstream time_string;
-  time_string << time_sec;
-  full_perf_args.insert(full_perf_args.end(),
-                        {"--", "sleep", time_string.str()});
+  if (perf_type != kPerfInjectCommand) {
+    // Append the sleep command to run perf for |time_sec| seconds.
+    std::stringstream time_string;
+    time_string << time_sec;
+    full_perf_args.insert(full_perf_args.end(),
+                          {"--", "sleep", time_string.str()});
+  } else {
+    // We use sudo for all commands and perf inject may complain about the input
+    // file is not owned by current user or root.
+    full_perf_args.emplace_back("-f");
+  }
+  return full_perf_args;
+}
+
+bool PerfRecorder::RunCommandAndGetSerializedOutput(
+    const std::vector<string>& perf_args, const double time_sec,
+    const std::vector<string>& inject_args, string* output_string) {
+  if (!ValidatePerfCommandLine(perf_args)) {
+    LOG(ERROR) << "Perf arguments are not safe to run";
+    return false;
+  }
+
+  // ValidatePerfCommandLine should have checked perf_args[0] == "perf", and
+  // that perf_args[1] is a supported sub-command (e.g. "record" or "stat").
+  const string& perf_type = perf_args[1];
+
+  if (perf_type != kPerfRecordCommand && perf_type != kPerfStatCommand &&
+      perf_type != kPerfMemCommand) {
+    LOG(ERROR) << "Unsupported perf subcommand: " << perf_type;
+    return {};
+  }
+
+  ScopedTempFile output_file;
+  auto full_perf_args = FullPerfCommand(perf_args, time_sec, output_file);
 
   // The perf command writes the output to a file, so ignore stdout.
   int status = RunCommand(full_perf_args, nullptr);
@@ -132,12 +145,38 @@ bool PerfRecorder::RunCommandAndGetSerializedOutput(
     return false;
   }
 
-  if (perf_type == kPerfRecordCommand || perf_type == kPerfMemCommand)
-    return ParsePerfDataFileToString(output_file.path(), output_string);
+  if (inject_args.empty()) {
+    if (perf_type == kPerfRecordCommand || perf_type == kPerfMemCommand)
+      return ParsePerfDataFileToString(output_file.path(), output_string);
 
-  // Otherwise, parse as perf stat output.
-  return ParsePerfStatFileToString(output_file.path(), full_perf_args,
-                                   output_string);
+    // Otherwise, parse as perf stat output.
+    return ParsePerfStatFileToString(output_file.path(), full_perf_args,
+                                     output_string);
+  }
+
+  // If provided, run perf inject on the previous output of perf.
+  if (!ValidatePerfCommandLine(inject_args)) {
+    LOG(ERROR) << "Perf inject arguments are not safe to run";
+    return false;
+  }
+
+  const string& inject_command = inject_args[1];
+  if (inject_command != kPerfInjectCommand) {
+    LOG(ERROR) << "Unsupported perf subcommand for perf inject: "
+               << inject_command;
+    return false;
+  }
+  ScopedTempFile& inject_input = output_file;
+  ScopedTempFile inject_output;
+  auto full_inject_args = FullPerfCommand(inject_args, 0, inject_output);
+  full_inject_args.emplace_back("-i");
+  full_inject_args.emplace_back(inject_input.path());
+  status = RunCommand(full_inject_args, nullptr);
+  if (status != 0) {
+    PLOG(ERROR) << "perf inject failed with status: " << status << ", Error";
+    return false;
+  }
+  return ParsePerfDataFileToString(inject_output.path(), output_string);
 }
 
 }  // namespace quipper
