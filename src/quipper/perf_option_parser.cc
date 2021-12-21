@@ -7,6 +7,7 @@
 #include <map>
 
 #include "compat/string.h"
+#include "string_utils.h"
 
 namespace quipper {
 
@@ -14,7 +15,7 @@ namespace {
 
 enum class OptionType {
   Boolean,  // has no value
-  Value,    // Uses another argument.
+  Value,    // uses another argument.
 };
 
 const std::map<std::string, OptionType>& GetPerfRecordOptions() {
@@ -180,7 +181,9 @@ const std::map<std::string, OptionType>& GetPerfInjectOptions() {
       {"-s", OptionType::Boolean},
       {"--sched-stat", OptionType::Boolean},
       {"--kallsyms", OptionType::Value},
-      {"--itrace", OptionType::Value},
+      // The flag itself needs to be in the form of --itrace=<opt>, we ignore
+      // the opt part when validating flags.
+      {"--itrace", OptionType::Boolean},
       {"--strip", OptionType::Boolean},
       {"-j", OptionType::Boolean},
       {"--jit", OptionType::Boolean},
@@ -195,7 +198,12 @@ bool ValidatePerfCommandLineOptions(
     std::vector<std::string>::const_iterator end_arg,
     const std::map<std::string, OptionType>& options) {
   for (auto args_iter = begin_arg; args_iter != end_arg; ++args_iter) {
-    const auto& it = options.find(*args_iter);
+    std::vector<std::string> opt_parts;
+    std::string opt;
+    quipper::SplitString(*args_iter, '=', &opt_parts);
+    if (!opt_parts.empty()) opt = opt_parts[0];
+
+    const auto& it = options.find(opt);
     if (it == options.end()) {
       return false;
     }

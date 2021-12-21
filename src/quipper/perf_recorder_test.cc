@@ -100,7 +100,8 @@ TEST_F(PerfRecorderTest, RecordAndInjectToProto) {
   // Read the protobuf, and reconstruct the perf data.
   std::string output_string;
   EXPECT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
-      {"perf", "record"}, 0.2, {"perf", "inject", "-b"}, &output_string));
+      {"perf", "record"}, 0.2, {"perf", "inject", "--itrace=i512il", "--strip"},
+      &output_string));
 
   quipper::PerfDataProto perf_data_proto;
   EXPECT_TRUE(perf_data_proto.ParseFromString(output_string));
@@ -109,18 +110,19 @@ TEST_F(PerfRecorderTest, RecordAndInjectToProto) {
   const auto& command = string_meta.perf_command_line_token();
   EXPECT_EQ(GetPerfPath(), command.Get(0).value());
   EXPECT_EQ("inject", command.Get(1).value());
-  EXPECT_EQ("-b", command.Get(2).value());
-  EXPECT_EQ("-o", command.Get(3).value());
+  EXPECT_EQ("--itrace=i512il", command.Get(2).value());
+  EXPECT_EQ("--strip", command.Get(3).value());
+  EXPECT_EQ("-o", command.Get(4).value());
   // Unpredictable: EXPECT_EQ("/tmp/quipper.XXXXXX", command.Get(3).value());
   // Instead, check the file path length and prefix.
-  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(4).value().size());
+  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(5).value().size());
   EXPECT_EQ("/tmp/quipper",
-            command.Get(4).value().substr(0, strlen("/tmp/quipper")));
-  EXPECT_EQ("-f", command.Get(5).value());
-  EXPECT_EQ("-i", command.Get(6).value());
-  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(7).value().size());
+            command.Get(5).value().substr(0, strlen("/tmp/quipper")));
+  EXPECT_EQ("-f", command.Get(6).value());
+  EXPECT_EQ("-i", command.Get(7).value());
+  EXPECT_EQ(strlen("/tmp/quipper.XXXXXX"), command.Get(8).value().size());
   EXPECT_EQ("/tmp/quipper",
-            command.Get(7).value().substr(0, strlen("/tmp/quipper")));
+            command.Get(8).value().substr(0, strlen("/tmp/quipper")));
 }
 
 TEST_F(PerfRecorderTest, StatSingleEvent) {
