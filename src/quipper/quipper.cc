@@ -14,6 +14,7 @@
 #include "perf_protobuf_io.h"
 #include "perf_recorder.h"
 #include "quipper_lib.h"
+#include "string_utils.h"
 
 namespace {
 
@@ -51,9 +52,11 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
 
   bool run_inject = FLAGS_run_inject;
   string inject_args_string = FLAGS_inject_args;
-  if (!run_inject && !inject_args->empty()) return false;
+  if (!run_inject && !inject_args_string.empty()) return false;
 
-  *inject_args = SplitString(inject_args_string, ';');
+  quipper::SplitString(inject_args_string, ';', inject_args);
+  // Similar to perf_args, insert the perf_path in front of inject_args.
+  inject_args->emplace(inject_args->begin(), perf_path);
   return true;
 }
 
@@ -116,7 +119,7 @@ int main(int argc, char* argv[]) {
              << " --perf_path <path to perf>"
              << " --output_file <path to store the output perf_data.pb.data>"
              << " [--run_inject]"
-             << " [--inject_args <comma-separated perf inject arguments>]"
+             << " [--inject_args <hyphen-separated perf inject arguments>]"
              << " -- <perf arguments>"
              << "\nor\n"
              << argv[0] << " <duration in seconds>"

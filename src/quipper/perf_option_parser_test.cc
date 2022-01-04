@@ -135,6 +135,23 @@ TEST(PerfOptionParserTest, BadStat_BannedOptions) {
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "stat", "--log-fd", "4"}));
 }
 
+TEST(PerfOptionParserTest, GoodInject) {
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "inject"}));
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "inject", "-b", "-s"}));
+  EXPECT_TRUE(ValidatePerfCommandLine(
+      {"perf", "inject", "--build-ids", "--sched-stat"}));
+  EXPECT_TRUE(
+      ValidatePerfCommandLine({"perf", "inject", "--itrace=i", "--strip"}));
+}
+
+TEST(PerfOptionParserTest, BadInject_OutputOptions) {
+  EXPECT_FALSE(ValidatePerfCommandLine({"perf", "inject", "-i", "suspicious"}));
+}
+
+TEST(PerfOptionParserTest, BadInject_BannedOptions) {
+  EXPECT_FALSE(ValidatePerfCommandLine({"perf", "inject", "-f"}));
+}
+
 TEST(PerfOptionParserTest, DontAllowOtherPerfSubcommands) {
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "list"}));
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "report"}));
@@ -143,7 +160,7 @@ TEST(PerfOptionParserTest, DontAllowOtherPerfSubcommands) {
 
 // Unsafe command lines for either perf command.
 TEST(PerfOptionParserTest, Ugly) {
-  for (const std::string subcmd : {"record", "stat", "mem"}) {
+  for (const std::string subcmd : {"record", "stat", "mem", "inject"}) {
     EXPECT_FALSE(ValidatePerfCommandLine({"perf", subcmd, "rm", "-rf", "/"}));
     EXPECT_FALSE(
         ValidatePerfCommandLine({"perf", subcmd, "--", "rm", "-rf", "/"}));

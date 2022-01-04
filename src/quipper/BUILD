@@ -364,6 +364,7 @@ cc_library(
     hdrs = ["perf_option_parser.h"],
     deps = [
         ":compat",
+        ":string_utils",
     ],
 )
 
@@ -421,11 +422,13 @@ cc_library(
         "test_utils.h",
     ],
     deps = [
+        ":binary_data_utils",
         ":compat",
         ":compat_gunit",
+        ":file_reader",
         ":file_utils",
         ":kernel",
-        ":perf_data_cc_proto",
+        ":perf_data_utils",
         ":perf_parser",
         ":perf_protobuf_io",
         ":run_command",
@@ -482,7 +485,10 @@ cc_library(
     name = "quipper_lib",
     srcs = ["quipper_lib.cc"],
     hdrs = ["quipper_lib.h"],
-    deps = [":perf_option_parser"],
+    deps = [
+        ":compat",
+        ":perf_option_parser",
+    ],
 )
 
 cc_test(
@@ -505,6 +511,7 @@ cc_binary(
         ":perf_protobuf_io",
         ":perf_recorder",
         ":quipper_lib",
+        ":string_utils",
         ":base",
         "@com_github_gflags_gflags//:gflags",
     ],
@@ -610,7 +617,6 @@ cc_test(
         ":compat_gunit",
         ":perf_option_parser",
         ":test_runner",
-        ":test_utils",
     ],
 )
 
