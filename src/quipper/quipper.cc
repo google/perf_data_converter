@@ -54,9 +54,11 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   string inject_args_string = FLAGS_inject_args;
   if (!run_inject && !inject_args_string.empty()) return false;
 
-  quipper::SplitString(inject_args_string, ';', inject_args);
-  // Similar to perf_args, insert the perf_path in front of inject_args.
-  inject_args->emplace(inject_args->begin(), perf_path);
+  if (run_inject) {
+    quipper::SplitString(inject_args_string, ';', inject_args);
+    // Similar to perf_args, insert the perf_path in front of inject_args.
+    inject_args->emplace(inject_args->begin(), perf_path);
+  }
   return true;
 }
 
