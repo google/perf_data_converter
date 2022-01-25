@@ -39,7 +39,9 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   *duration = FLAGS_duration;
   if (*duration <= 0) return false;
 
-  string perf_path = "perf";
+  string perf_path = FLAGS_perf_path.empty()
+                         ? "perf"
+                         : FLAGS_perf_path;
   perf_args->emplace_back(perf_path);
 
   for (int i = 1; i < argc; i++) {
