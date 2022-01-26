@@ -19,7 +19,8 @@
 namespace {
 
 DEFINE_int64(duration, 0, "Duration to run perf in seconds");
-DEFINE_string(perf_path, "", "Path to perf");
+DEFINE_string(perf_path, "",
+              "DEPRECATED: perf path is figured out by quipper. Path to perf");
 DEFINE_string(output_file, "/dev/stdout",
               "Path to store the output perf_data.pb.data");
 DEFINE_bool(run_inject, false,
@@ -38,9 +39,9 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   *duration = FLAGS_duration;
   if (*duration <= 0) return false;
 
-  string perf_path = FLAGS_perf_path;
-  if (perf_path.empty()) return false;
-
+  string perf_path = FLAGS_perf_path.empty()
+                         ? "perf"
+                         : FLAGS_perf_path;
   perf_args->emplace_back(perf_path);
 
   for (int i = 1; i < argc; i++) {
