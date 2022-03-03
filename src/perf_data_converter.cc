@@ -751,16 +751,14 @@ ProcessProfiles RawPerfDataToProfiles(
   }
 
   reader.InjectBuildIDs(build_ids);
-
   // Perf populates info about the kernel using multiple pathways,
   // which don't actually all match up how they name kernel data; in
-  // particular, buildids are reported by a different name ("[kernel.kallsyms]")
-  // than the actual mmap filename ("[kernel.kallsyms]_text" or
-  // "[kernel.kallsyms]_stext"). Normalize these names so our ProcessProfiles
+  // particular, buildids are reported by a different name than the
+  // actual "mmap" info.  Normalize these names so our ProcessProfiles
   // will match kernel mappings to a buildid.
-  reader.AlternateBuildIDFilenames({
-      {"[kernel.kallsyms]", "[kernel.kallsyms]_text"},
-      {"[kernel.kallsyms]", "[kernel.kallsyms]_stext"},
+  reader.LocalizeUsingFilenames({
+      {"[kernel.kallsyms]_text", "[kernel.kallsyms]"},
+      {"[kernel.kallsyms]_stext", "[kernel.kallsyms]"},
   });
 
   // Use PerfParser to modify reader's events to have magic done to them such

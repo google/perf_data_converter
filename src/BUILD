@@ -86,7 +86,6 @@ cc_test(
         "//src/testdata:perf-cros-kernel-3_18-mapping.textproto",
         "//src/testdata:perf-include-comm-md5-prefix.textproto",
         "//src/testdata:perf-java-classes-jsa.textproto",
-        "//src/testdata:perf-kernel-mapping-by-name.textproto",
         "//src/testdata:perf-kernel-sample-before-mmap.textproto",
         "//src/testdata:perf-lost-events.textproto",
         "//src/testdata:perf-non-exec-comm-events.textproto",

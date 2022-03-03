@@ -107,19 +107,6 @@ std::unordered_set<string> AllComments(const ProcessProfiles& pps) {
   }
   return ret;
 }
-
-std::unordered_set<string> AllMmapsWithBuildIDs(const ProcessProfiles& pps) {
-  std::unordered_set<string> ret;
-  for (const auto& pp : pps) {
-    for (const auto& it : pp->data.mapping()) {
-      if (pp->data.string_table(it.build_id()).empty()) {
-        continue;
-      }
-      ret.insert(pp->data.string_table(it.filename()));
-    }
-  }
-  return ret;
-}
 }  // namespace
 
 namespace perftools {
@@ -314,22 +301,6 @@ TEST_F(PerfDataConverterTest, Injects) {
       raw_perf_data.size(), build_ids);
   std::unordered_set<string> all_build_ids = AllBuildIDs(pps);
   EXPECT_THAT(all_build_ids, Contains(want_build_id));
-}
-
-TEST_F(PerfDataConverterTest, PreservesKallsymsRelocation) {
-  string path = GetResource("with-callchain.perf.data");
-  string raw_perf_data = GetContents(path);
-  ASSERT_FALSE(raw_perf_data.empty()) << path;
-  // The full kernel mmap name, including the "_stext" suffix, which signifies
-  // if the perf tool used "_text" or "_stext" as the relocation symbol.
-  const string want_mmap_name = "[kernel.kallsyms]_stext";
-
-  const ProcessProfiles pps = RawPerfDataToProfiles(
-      reinterpret_cast<const void*>(raw_perf_data.c_str()),
-      raw_perf_data.size(), {});
-
-  std::unordered_set<std::string> mmaps = AllMmapsWithBuildIDs(pps);
-  EXPECT_THAT(mmaps, Contains(want_mmap_name));
 }
 
 TEST_F(PerfDataConverterTest, HandlesDataAddresses) {
@@ -807,35 +778,6 @@ TEST_F(PerfDataConverterTest, ConvertsNoCodeDataPageSize) {
   const auto& data_counts = std::get<1>(counts_pair2);
   EXPECT_EQ(total_samples2, 10);
   EXPECT_THAT(data_counts, IsEmpty());
-}
-
-TEST_F(PerfDataConverterTest, HandlesAlternateKernelNames) {
-  string ascii_pb =
-      GetContents(GetResource("perf-kernel-mapping-by-name.textproto"));
-  ASSERT_FALSE(ascii_pb.empty());
-  PerfDataProto perf_data_proto;
-  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
-
-  // Round-trip deserialize/serialize, so we can test RawPerfDataToProfiles(),
-  // which only takes a "raw" serialized perf.data.
-  std::string str;
-  quipper::PerfReader reader;
-  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
-  ASSERT_TRUE(reader.WriteToString(&str));
-
-  ProcessProfiles pps = RawPerfDataToProfiles(str.data(), str.size(), {});
-
-  EXPECT_EQ(1, pps.size());
-  const auto& profile = pps[0]->data;
-
-  EXPECT_EQ(2, profile.mapping_size());
-  // Both mappings in the test case should be matched to a build ID. The kernel
-  // one specifically doesn't have PERF_RECORD_MISC_KERNEL, so we can test
-  // that the matching of the MMAP kernel filename ([kernel.kallsyms]_text) to
-  // the build_id kernel filename ([kernel.kallsyms]) works as expected.
-  for (const auto& mapping : profile.mapping()) {
-    EXPECT_NE(mapping.build_id(), 0) << mapping.DebugString();
-  }
 }
 
 }  // namespace perftools
