@@ -703,6 +703,20 @@ bool PerfReader::LocalizeUsingFilenames(
   return true;
 }
 
+bool PerfReader::AlternateBuildIDFilenames(
+    const std::unordered_multimap<std::string, std::string>& filenames) {
+  for (auto& build_id : *proto_->mutable_build_ids()) {
+    auto range = filenames.equal_range(build_id.filename());
+    for (auto it = range.first; it != range.second; it++) {
+      // Add a copy of this build id, with the alternate filename.
+      auto new_build_id = proto_->add_build_ids();
+      *new_build_id = build_id;
+      new_build_id->set_filename(it->second);
+    }
+  }
+  return true;
+}
+
 void PerfReader::GetFilenames(std::vector<string>* filenames) const {
   std::set<string> filename_set;
   GetFilenamesAsSet(&filename_set);
