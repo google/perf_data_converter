@@ -12,6 +12,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -74,6 +75,14 @@ class PerfReader {
   // Same as Localize, but joins on filenames instead of build ids.
   bool LocalizeUsingFilenames(
       const std::map<std::string, std::string>& filename_map);
+
+  // Synthesize duplicate buildid events for modules under alternate filenames.
+  // This achieves the same effect as LocalizeUsingFilenames (that is, allows
+  // for different buildid <> filename mappings). Importantly, it preserves the
+  // original filenames from MMAP/MMAP2 events.
+  // |filenames| is populated with {existing name : alternate name}.
+  bool AlternateBuildIDFilenames(
+      const std::unordered_multimap<std::string, std::string>& filenames);
 
   // Stores a list of unique filenames found in MMAP/MMAP2 events into
   // |filenames|.  Any existing data in |filenames| will be lost.

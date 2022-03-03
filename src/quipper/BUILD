@@ -1,8 +1,6 @@
 
 licenses(["notice"])  # BSD
 
-exports_files(["LICENSE"])
-
 perf_test_data = glob([
     "testdata/hello_world.txt.gz",
     "testdata/perf",
