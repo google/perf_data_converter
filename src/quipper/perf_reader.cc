@@ -22,6 +22,7 @@
 #include "file_utils.h"
 #include "kernel/perf_internals.h"
 #include "perf_buildid.h"
+#include "perf_data.proto.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "sample_info_reader.h"
@@ -700,6 +701,25 @@ bool PerfReader::LocalizeUsingFilenames(
     if (find_result != filename_map.end())
       build_id.set_filename(find_result->second);
   }
+  return true;
+}
+
+bool PerfReader::AlternateBuildIDFilenames(
+    const std::unordered_multimap<std::string, std::string>& filenames) {
+  std::vector<quipper::PerfDataProto_PerfBuildID> new_build_ids;
+
+  for (const auto& build_id : proto_->build_ids()) {
+    auto range = filenames.equal_range(build_id.filename());
+    for (auto it = range.first; it != range.second; it++) {
+      // Add a copy of this build id, with the alternate filename.
+      new_build_ids.push_back(build_id);
+      new_build_ids.back().set_filename(it->second);
+    }
+  }
+
+  // Add new elements outside the loop so we don't ivalidate iterators.
+  proto_->mutable_build_ids()->Add(new_build_ids.begin(), new_build_ids.end());
+
   return true;
 }
 
