@@ -22,7 +22,6 @@
 #include "file_utils.h"
 #include "kernel/perf_internals.h"
 #include "perf_buildid.h"
-#include "perf_data.proto.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
 #include "sample_info_reader.h"
