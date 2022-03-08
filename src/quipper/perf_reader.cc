@@ -705,15 +705,20 @@ bool PerfReader::LocalizeUsingFilenames(
 
 bool PerfReader::AlternateBuildIDFilenames(
     const std::unordered_multimap<std::string, std::string>& filenames) {
-  for (auto& build_id : *proto_->mutable_build_ids()) {
+  std::vector<quipper::PerfDataProto_PerfBuildID> new_build_ids;
+
+  for (const auto& build_id : proto_->build_ids()) {
     auto range = filenames.equal_range(build_id.filename());
     for (auto it = range.first; it != range.second; it++) {
       // Add a copy of this build id, with the alternate filename.
-      auto new_build_id = proto_->add_build_ids();
-      *new_build_id = build_id;
-      new_build_id->set_filename(it->second);
+      new_build_ids.push_back(build_id);
+      new_build_ids.back().set_filename(it->second);
     }
   }
+
+  // Add new elements outside the loop so we don't ivalidate iterators.
+  proto_->mutable_build_ids()->Add(new_build_ids.begin(), new_build_ids.end());
+
   return true;
 }
 
