@@ -20,6 +20,15 @@ TEST(PerfOptionParserTest, GoodRecord) {
       {"perf", "record", "-a", "-e", "cycles", "-g", "-c", "4000037"}));
   EXPECT_TRUE(ValidatePerfCommandLine({"perf", "record", "-a", "-e", "cycles",
                                        "-j", "any_call", "-c", "1000003"}));
+  EXPECT_TRUE(ValidatePerfCommandLine(
+      {"perf", "record", "-e", "mem_inst_retired.stlb_miss_loads:pp", "-c",
+       "10001", "-a", "--code-page-size"}));
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "record", "-e",
+                                       "mem_inst_retired.stlb_miss_loads:pp",
+                                       "-c", "10001", "-a", "-d"}));
+  EXPECT_TRUE(ValidatePerfCommandLine(
+      {"perf", "record", "-e", "mem_inst_retired.stlb_miss_loads:pp", "-c",
+       "10001", "-a", "-d", "--data-page-size"}));
 }
 
 TEST(PerfOptionParserTest, GoodStat) {

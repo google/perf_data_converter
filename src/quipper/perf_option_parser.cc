@@ -38,6 +38,10 @@ const std::map<std::string, OptionType>& GetPerfRecordOptions() {
       {"--cpu", OptionType::Value},
       {"-c", OptionType::Value},
       {"--count", OptionType::Value},
+      {"--code-page-size", OptionType::Boolean},
+      {"--data-page-size", OptionType::Boolean},
+      {"-d", OptionType::Boolean},
+      {"--data", OptionType::Boolean},
       /* Banned: {"-o", OptionType::Value},
        * {"--output", OptionType::Value}, */
       {"-i", OptionType::Boolean},
