@@ -16,7 +16,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "base/macros.h"
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "kernel/perf_event.h"

@@ -34,6 +34,12 @@ std::string GetTestInputFilePath(const std::string& filename);
 // Returns the size of a file in bytes.
 int64_t GetFileSize(const std::string& filename);
 
+template <typename T, size_t N>
+auto ArraySizeHelper(const T (&array)[N]) -> char (&)[N];
+// Returns the number of elements in an array as a compile-time constant. Using
+// this macro on a pointer by mistake will result in a compile-time error.
+#define arraysize(array) (sizeof(ArraySizeHelper(array)))
+
 // Returns true if the contents of the two files are the same, false otherwise.
 bool CompareFileContents(const std::string& filename1,
                          const std::string& filename2);

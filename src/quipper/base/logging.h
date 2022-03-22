@@ -12,8 +12,6 @@
 #include <sstream>
 #include <string>
 
-#include "base/macros.h"
-
 // Emulate Chrome-like logging.
 
 // LogLevel is an enumeration that holds the log levels like libbase does.

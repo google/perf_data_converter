@@ -5,6 +5,7 @@
 #include "binary_data_utils.h"
 
 #include "compat/test.h"
+#include "test_utils.h"
 
 namespace quipper {
 
