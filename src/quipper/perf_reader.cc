@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "base/macros.h"
 #include "binary_data_utils.h"
 #include "buffer_reader.h"
 #include "buffer_writer.h"

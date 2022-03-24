@@ -7,8 +7,6 @@
 
 #include <string>
 
-#include "base/macros.h"
-
 #include "compat/proto.h"
 #include "compat/string.h"
 

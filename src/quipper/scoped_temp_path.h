@@ -7,8 +7,6 @@
 
 #include <string>
 
-#include "base/macros.h"
-
 #include "compat/string.h"
 
 namespace quipper {
@@ -19,13 +17,14 @@ class ScopedTempPath {
   ScopedTempPath() {}
   // The temporary path will be removed when the object is destroyed.
   virtual ~ScopedTempPath();
+
+  ScopedTempPath(const ScopedTempPath&) = delete;
+  ScopedTempPath& operator=(const ScopedTempPath&) = delete;
+
   const std::string& path() const { return path_; }
 
  protected:
   std::string path_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ScopedTempPath);
 };
 
 class ScopedTempFile : public ScopedTempPath {

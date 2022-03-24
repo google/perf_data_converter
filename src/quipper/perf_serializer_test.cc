@@ -12,7 +12,6 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/macros.h"
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "compat/test.h"

@@ -8,8 +8,8 @@
 #include <memory>
 
 #include "base/logging.h"
-#include "base/macros.h"
 #include "compat/test.h"
+#include "test_utils.h"
 
 namespace quipper {
 

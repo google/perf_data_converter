@@ -12,8 +12,6 @@
 #include <memory>
 #include <vector>
 
-#include "base/macros.h"
-
 #include "compat/proto.h"
 #include "compat/string.h"
 #include "perf_data_utils.h"
@@ -39,6 +37,8 @@ class PerfSerializer {
  public:
   PerfSerializer();
   ~PerfSerializer();
+  PerfSerializer(const PerfSerializer&) = delete;
+  PerfSerializer& operator=(const PerfSerializer&) = delete;
 
   // Returns true if the given event type is a kernel event and supported by
   // the PerfSerializer.
@@ -324,8 +324,6 @@ class PerfSerializer {
   // For each perf event attr ID, there is a SampleInfoReader to read events of
   // the associated perf attr type.
   std::map<uint64_t, std::unique_ptr<SampleInfoReader>> sample_info_reader_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(PerfSerializer);
 };
 
 }  // namespace quipper

@@ -100,7 +100,6 @@ cc_library(
    srcs = ["base/logging.cc"],
    hdrs = [
        "base/logging.h",
-       "base/macros.h",
    ],
    includes = ["."],
    visibility = ["//src:__subpackages__"],
@@ -530,6 +529,7 @@ cc_test(
         ":address_mapper",
         ":compat_gunit",
         ":test_runner",
+        ":test_utils",
         ":base",
     ],
 )

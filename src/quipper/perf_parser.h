@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-#include "base/macros.h"
-
 #include "binary_data_utils.h"
 #include "compat/proto.h"
 #include "compat/string.h"
@@ -185,6 +183,9 @@ class PerfParser {
   // Constructor that takes in options at PerfParser creation time.
   explicit PerfParser(PerfReader* reader, const PerfParserOptions& options);
 
+  PerfParser(const PerfParser&) = delete;
+  PerfParser& operator=(const PerfParser&) = delete;
+
   // Pass in a struct containing various options.
   void set_options(const PerfParserOptions& options) { options_ = options; }
 
@@ -291,8 +292,6 @@ class PerfParser {
 
   // Maps process ID to an address mapper for that process.
   std::unordered_map<uint32_t, std::unique_ptr<AddressMapper>> process_mappers_;
-
-  DISALLOW_COPY_AND_ASSIGN(PerfParser);
 };
 
 }  // namespace quipper

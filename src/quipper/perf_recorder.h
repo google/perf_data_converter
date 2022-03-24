@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "base/macros.h"
 #include "compat/string.h"
 #include "perf_reader.h"
 #include "scoped_temp_path.h"
@@ -22,6 +21,9 @@ class PerfRecorder {
   // Mostly for testing.
   // Security critical: No user-provided strings should be used!
   explicit PerfRecorder(const std::vector<string>& perf_binary_command);
+
+  PerfRecorder(const PerfRecorder&) = delete;
+  PerfRecorder& operator=(const PerfRecorder&) = delete;
 
   // Runs the perf command specified in |perf_args| for |time_sec| seconds. If
   // provided, run perf inject with |inject_args| on the perf record output. The
@@ -43,8 +45,6 @@ class PerfRecorder {
   std::vector<string> FullPerfCommand(const std::vector<string>& perf_args,
                                       const double time_sec,
                                       const ScopedTempFile& output_file);
-
-  DISALLOW_COPY_AND_ASSIGN(PerfRecorder);
 };
 
 }  // namespace quipper
