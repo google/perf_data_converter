@@ -636,6 +636,8 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
   //   u64                   ips[nr];  } && PERF_SAMPLE_CALLCHAIN
   if (sample_fields & PERF_SAMPLE_CALLCHAIN) {
     if (!sample.callchain) {
+      // When no callchain data is available, write the callchain size as 0.
+      WriteData(0);
       LOG(ERROR) << "Expecting callchain data, but none was found.";
     } else {
       WriteData(sample.callchain->nr);

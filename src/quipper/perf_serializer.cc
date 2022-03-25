@@ -568,12 +568,14 @@ bool PerfSerializer::SerializeSampleEvent(
         for (size_t i = 0; i < sample_info.read.group.nr; i++) {
           auto read_value = read_info->add_read_value();
           read_value->set_value(sample_info.read.group.values[i].value);
-          read_value->set_id(sample_info.read.group.values[i].id);
+          if (reader->event_attr().read_format & PERF_FORMAT_ID)
+            read_value->set_id(sample_info.read.group.values[i].id);
         }
       } else {
         auto read_value = read_info->add_read_value();
         read_value->set_value(sample_info.read.one.value);
-        read_value->set_id(sample_info.read.one.id);
+        if (reader->event_attr().read_format & PERF_FORMAT_ID)
+          read_value->set_id(sample_info.read.one.id);
       }
     }
   }
