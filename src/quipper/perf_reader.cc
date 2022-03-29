@@ -716,7 +716,9 @@ bool PerfReader::AlternateBuildIDFilenames(
   }
 
   // Add new elements outside the loop so we don't ivalidate iterators.
-  proto_->mutable_build_ids()->Add(new_build_ids.begin(), new_build_ids.end());
+  for (const auto& id : new_build_ids) {
+    *proto_->mutable_build_ids()->Add() = id;
+  }
 
   return true;
 }
