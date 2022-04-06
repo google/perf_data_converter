@@ -7,6 +7,7 @@
 
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/simple_thread.h"
+#include "base/time/time.h"
 
 namespace quipper {
 
@@ -37,7 +38,7 @@ class Notification : public quipper::compat::NotificationInterface {
   void Wait() override { event_.Wait(); }
 
   bool WaitWithTimeout(int timeout_ms) override {
-    return event_.TimedWait(base::TimeDelta::FromMilliseconds(timeout_ms));
+    return event_.TimedWait(base::Milliseconds(timeout_ms));
   }
 
   void Notify() override { event_.Signal(); }
