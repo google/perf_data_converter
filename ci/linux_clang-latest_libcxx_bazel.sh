@@ -16,7 +16,7 @@ if [ -z "${STD:-}" ]; then
 fi
 
 # This container is a reasonable start but is missing some prerequisite libs and
-# an installation of linux_perf. We'll manually add them here.
+# an installation of linux_perf. We'll manually add them below.
 readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20210617"
 
 time docker run \
