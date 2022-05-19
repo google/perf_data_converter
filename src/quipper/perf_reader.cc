@@ -113,10 +113,11 @@ void CheckNoEventTypePadding() {
 
 void CheckNoBuildIDEventPadding() {
   build_id_event event;
-  CHECK_EQ(sizeof(event), sizeof(event.header.type) +
-                              sizeof(event.header.misc) +
-                              sizeof(event.header.size) + sizeof(event.pid) +
-                              sizeof(event.build_id));
+  CHECK_EQ(sizeof(event),
+           sizeof(event.header.type) + sizeof(event.header.misc) +
+               sizeof(event.header.size) + sizeof(event.pid) +
+               sizeof(event.build_id) + sizeof(event.size) +
+               sizeof(event.reserved1__) + sizeof(event.reserved2__));
 }
 
 // Creates a new build ID event with the given build ID string, filename, and

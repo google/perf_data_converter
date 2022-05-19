@@ -433,6 +433,7 @@ TEST(SampleInfoReaderTest, WriteSampleEventWithZeroBranchStack) {
   sample.time = 1415837014 * 1000000000ULL;
   sample.cpu = 8;
   sample.period = 10001;
+  sample.no_hw_idx = true;
 
   ASSERT_TRUE(reader.WritePerfSampleInfo(sample, event));
 

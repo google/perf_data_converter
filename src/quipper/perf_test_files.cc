@@ -149,6 +149,15 @@ const std::vector<const char*>& GetPerfDataFiles() {
          --proc-map-timeout=2 -- sleep 1
        */
       "perf.data.proc.map.timeout-3.18",
+
+      /* Perf data file with branch sample events containing
+       * PERF_SAMPLE_BRANCH_HW_INDEX. Generated with perf 5.15.
+         Commands (running on Arm with CoreSight/ETM):
+         perf record -e cs_etm/autofdo/u -a -- sleep 1
+         perf inject --itrace=i1000il --strip -i perf.data \
+         -o perf.data.branch_stack_hw_index
+       */
+      "perf.data.branch_stack_hw_index",
   };
   return *files;
 }

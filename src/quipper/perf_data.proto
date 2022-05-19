@@ -323,7 +323,7 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 24
+  // Next tag: 26
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -393,6 +393,14 @@ message PerfDataProto {
 
     // Code page size
     optional uint64 code_page_size = 23;
+
+    // No hw_idx collected in branch_stack.
+    optional bool no_hw_idx = 24;
+
+    // Branch stack hw index,
+    // optional field in PERF_SAMPLE_BRANCH_STACK
+    // used when PERF_SAMPLE_BRANCH_HW_INDEX is set.
+    optional uint64 branch_stack_hw_idx = 25;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data
@@ -826,7 +834,7 @@ message PerfDataProto {
     optional uint64 tracing_data_md5_prefix = 2 [deprecated = true];
   }
 
-  // Next tag: 6
+  // Next tag: 7
   message PerfBuildID {
     // Misc field in perf_event_header.
     optional uint32 misc = 1;
@@ -843,6 +851,9 @@ message PerfDataProto {
 
     // Filename Md5sum prefix.
     optional uint64 filename_md5_prefix = 5;
+
+    // Build id size.
+    optional uint32 size = 6;
   }
 
   // Next tag: 6

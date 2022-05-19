@@ -188,8 +188,9 @@ enum perf_branch_sample_type {
   PERF_SAMPLE_BRANCH_IN_TX = 1U << 8,      /* in transaction */
   PERF_SAMPLE_BRANCH_NO_TX = 1U << 9,      /* not in transaction */
   PERF_SAMPLE_BRANCH_COND = 1U << 10,      /* conditional branches */
+  PERF_SAMPLE_BRANCH_HW_INDEX = 1U << 17,  /* sample contains hw_idx field */
 
-  PERF_SAMPLE_BRANCH_MAX = 1U << 11, /* non-ABI */
+  PERF_SAMPLE_BRANCH_MAX = 1U << 18, /* non-ABI */
 };
 
 const u16 PERF_SAMPLE_BRANCH_PLM_ALL =
@@ -729,7 +730,9 @@ enum perf_event_type {
    *	  char                  data[size];}&& PERF_SAMPLE_RAW
    *
    *	{ u64                   nr;
-   *        { u64 from, to, flags } lbr[nr];} && PERF_SAMPLE_BRANCH_STACK
+   *	  { u64	hw_idx; } && PERF_SAMPLE_BRANCH_HW_INDEX
+   *      { u64 from, to, flags } lbr[nr];
+   *    } && PERF_SAMPLE_BRANCH_STACK
    *
    * 	{ u64			abi; # enum perf_sample_regs_abi
    * 	  u64			regs[weight(mask)]; } && PERF_SAMPLE_REGS_USER
