@@ -270,6 +270,7 @@ struct branch_entry {
 
 struct branch_stack {
   u64 nr;
+  u64 hw_idx;
   struct branch_entry entries[0];
 };
 
@@ -291,6 +292,7 @@ struct perf_sample {
   u64 data_src;
   u32 flags;
   u16 insn_len;
+  bool no_hw_idx; /* No hw_idx collected in branch_stack */
   void *raw_data;
   struct ip_callchain *callchain;
   struct branch_stack *branch_stack;
@@ -334,22 +336,25 @@ struct perf_sample {
   }
 };
 
-// Taken from tools/perf/util/include/linux/kernel.h
-#define ALIGN(x, a) __ALIGN_MASK(x, (decltype(x))(a)-1)
-#define __ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-
 // If this is changed, kBuildIDArraySize in perf_reader.h must also be changed.
 #define BUILD_ID_SIZE 20
 
+// The flag marks buildid events with size.
+#define PERF_RECORD_MISC_BUILD_ID_SIZE (1 << 15)
+
+// Synced with perf_record_header_build_id at
+// tools/lib/perf/include/perf/event.h.
 struct build_id_event {
   struct perf_event_header header;
   pid_t pid;
-  u8 build_id[ALIGN(BUILD_ID_SIZE, sizeof(u64))];
+  u8 build_id[BUILD_ID_SIZE];
+  u8 size;
+  // Padding for 8-byte alignment.
+  u8 reserved1__;
+  u16 reserved2__;
   char filename[];
 };
 
-#undef ALIGN
-#undef __ALIGN_MASK
 #undef BUILD_ID_SIZE
 
 enum perf_user_event_type {

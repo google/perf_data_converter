@@ -585,6 +585,8 @@ bool PerfSerializer::SerializeSampleEvent(
       sample->add_callchain(sample_info.callchain->ips[i]);
   }
   if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
+    sample->set_no_hw_idx(sample_info.no_hw_idx);
+    sample->set_branch_stack_hw_idx(sample_info.branch_stack->hw_idx);
     for (size_t i = 0; i < sample_info.branch_stack->nr; ++i) {
       sample->add_branch_stack();
       const struct branch_entry& entry = sample_info.branch_stack->entries[i];
@@ -976,6 +978,8 @@ bool PerfSerializer::SerializeBuildIDEvent(
   to->set_pid(from->pid);
   to->set_filename(from->filename);
   to->set_filename_md5_prefix(Md5Prefix(from->filename));
+  if (from->header.misc & PERF_RECORD_MISC_BUILD_ID_SIZE)
+    to->set_size(from->size);
 
   // Trim out trailing zeroes from the build ID.
   string build_id = RawDataToHexString(from->build_id, kBuildIDArraySize);
@@ -1008,6 +1012,8 @@ bool PerfSerializer::DeserializeBuildIDEvent(
   event->pid = from.pid();
   memcpy(event->build_id, from.build_id_hash().c_str(),
          from.build_id_hash().size());
+  if (event->header.misc & PERF_RECORD_MISC_BUILD_ID_SIZE)
+    event->size = from.size();
 
   if (from.has_filename() && !filename.empty()) {
     CHECK_GT(
@@ -1644,9 +1650,15 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
   if (sample.branch_stack_size() > 0) {
     uint64_t branch_stack_size = sample.branch_stack_size();
     sample_info->branch_stack = reinterpret_cast<struct branch_stack*>(
-        new uint8_t[sizeof(uint64_t) +
+        new uint8_t[sizeof(uint64_t) + sizeof(uint64_t) +
                     branch_stack_size * sizeof(struct branch_entry)]);
     sample_info->branch_stack->nr = branch_stack_size;
+    // Older protos w/o branch_stack_hw_idx field shall have
+    // no_hw_idx set. So the perf profiles don't change.
+    sample_info->no_hw_idx = true;
+    if (sample.has_no_hw_idx()) sample_info->no_hw_idx = sample.no_hw_idx();
+    if (sample.has_branch_stack_hw_idx())
+      sample_info->branch_stack->hw_idx = sample.branch_stack_hw_idx();
     for (size_t i = 0; i < branch_stack_size; ++i) {
       struct branch_entry& entry = sample_info->branch_stack->entries[i];
       memset(&entry, 0, sizeof(entry));

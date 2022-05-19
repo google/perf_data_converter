@@ -846,6 +846,8 @@ events {
       abort: false
       cycles: 0
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245939019
 }
@@ -1149,6 +1151,8 @@ events {
       abort: false
       cycles: 15
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245946340
 }
@@ -1452,6 +1456,8 @@ events {
       abort: false
       cycles: 8
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245951290
 }
@@ -1755,6 +1761,8 @@ events {
       abort: false
       cycles: 7
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245970874
 }
@@ -2058,6 +2066,8 @@ events {
       abort: false
       cycles: 1
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245976354
 }
@@ -2361,6 +2371,8 @@ events {
       abort: false
       cycles: 14
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245982862
 }
@@ -2664,6 +2676,8 @@ events {
       abort: false
       cycles: 23
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245991077
 }
@@ -2986,6 +3000,8 @@ events {
       abort: false
       cycles: 1
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631245996882
 }
@@ -3289,6 +3305,8 @@ events {
       abort: false
       cycles: 1
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631246006264
 }
@@ -3676,6 +3694,8 @@ events {
       abort: false
       cycles: 26
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631246042354
 }
@@ -4063,6 +4083,8 @@ events {
       abort: false
       cycles: 1
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631246180064
 }
@@ -4478,6 +4500,8 @@ events {
       abort: false
       cycles: 4
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631246458024
 }
@@ -4781,6 +4805,8 @@ events {
       abort: false
       cycles: 4
     }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
   }
   timestamp: 12631246708679
 }

@@ -5,12 +5,13 @@
 #include "sample_info_reader.h"
 
 #include <string.h>
+
 #include <cstdint>
 
 #include "base/logging.h"
-
 #include "buffer_reader.h"
 #include "buffer_writer.h"
+#include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
 #include "perf_data_utils.h"
 
@@ -165,7 +166,7 @@ bool ReadRawData(DataReader* reader, struct perf_sample* sample) {
   return true;
 }
 
-// Read branch stack info from perf data.  Corresponds to sample format type
+// Read branch stack info from perf data. Corresponds to sample format type
 // PERF_SAMPLE_BRANCH_STACK. Returns true when branch stack data is read
 // completely. Otherwise, returns false.
 bool ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
@@ -173,11 +174,19 @@ bool ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
   // |sample->branch_stack|.
   CHECK_EQ(static_cast<void*>(NULL), sample->branch_stack);
 
-  // The branch stack data consists of a uint64_t value |nr| followed by |nr|
-  // branch_entry structs.
+  // The branch stack data consists of a uint64_t value |nr| followed by
+  // uint64_t hw_index which is optional and |nr| branch_entry structs.
   uint64_t branch_stack_size = 0;
+  uint64_t branch_stack_hw_idx = 0;
+
   if (!reader->ReadUint64(&branch_stack_size)) {
     return false;
+  }
+  // no_hw_idx is cleared when branch stack contains an extra field.
+  if (!sample->no_hw_idx) {
+    if (!reader->ReadUint64(&branch_stack_hw_idx)) {
+      return false;
+    }
   }
 
   // Calculate the maximum possible number of branch stack entries assuming the
@@ -191,10 +200,13 @@ bool ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
     return false;
   }
 
+  // Refer to kernel/perf_internals.h for more details on the branch_stack
+  // layout.
   struct branch_stack* branch_stack = reinterpret_cast<struct branch_stack*>(
-      new uint8_t[sizeof(uint64_t) +
+      new uint8_t[sizeof(uint64_t) + sizeof(uint64_t) +
                   branch_stack_size * sizeof(struct branch_entry)]);
   branch_stack->nr = branch_stack_size;
+  branch_stack->hw_idx = branch_stack_hw_idx;
   sample->branch_stack = branch_stack;
   for (size_t i = 0; i < branch_stack_size; ++i) {
     if (!reader->ReadUint64(&branch_stack->entries[i].from) ||
@@ -372,11 +384,16 @@ bool ReadPerfSampleFromData(const event_t& event,
   }
 
   // { u64                   nr;
+  //   { u64 hw_idx; } && PERF_SAMPLE_BRANCH_HW_INDEX
   //   { u64 from, to, flags } lbr[nr];} && PERF_SAMPLE_BRANCH_STACK
-  if (sample_fields & PERF_SAMPLE_BRANCH_STACK &&
-      !ReadBranchStack(&reader, sample)) {
-    LOG(ERROR) << "Couldn't read PERF_SAMPLE_BRANCH_STACK";
-    return false;
+  if (sample_fields & PERF_SAMPLE_BRANCH_STACK) {
+    sample->no_hw_idx = false;
+    if (!(attr.branch_sample_type & PERF_SAMPLE_BRANCH_HW_INDEX))
+      sample->no_hw_idx = true;
+    if (!ReadBranchStack(&reader, sample)) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_BRANCH_STACK";
+      return false;
+    }
   }
 
   // { u64                   abi; # enum perf_sample_regs_abi
@@ -653,19 +670,23 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
   }
 
   // { u64                   nr;
+  //   { u64 hw_idx; } && PERF_SAMPLE_BRANCH_HW_INDEX
   //   { u64 from, to, flags } lbr[nr];} && PERF_SAMPLE_BRANCH_STACK
   if (sample_fields & PERF_SAMPLE_BRANCH_STACK) {
-    if (!sample.branch_stack) {
-      // When no branch stack is available, write the branch stack size as 0.
-      WriteData(0);
-      LOG(ERROR) << "Expecting branch stack data, but none was found.";
-    } else {
-      WriteData(sample.branch_stack->nr);
-      for (size_t i = 0; i < sample.branch_stack->nr; ++i) {
-        WriteData(sample.branch_stack->entries[i].from);
-        WriteData(sample.branch_stack->entries[i].to);
-        WriteData(sizeof(uint64_t), &sample.branch_stack->entries[i].flags);
-      }
+    uint64_t branch_stack_size = 0;
+    uint64_t branch_stack_hw_idx = 0;
+
+    if (sample.branch_stack) {
+      branch_stack_size = sample.branch_stack->nr;
+      branch_stack_hw_idx = sample.branch_stack->hw_idx;
+    }
+
+    WriteData(branch_stack_size);
+    if (!sample.no_hw_idx) WriteData(branch_stack_hw_idx);
+    for (size_t i = 0; i < branch_stack_size; ++i) {
+      WriteData(sample.branch_stack->entries[i].from);
+      WriteData(sample.branch_stack->entries[i].to);
+      WriteData(sizeof(uint64_t), &sample.branch_stack->entries[i].flags);
     }
   }
 
