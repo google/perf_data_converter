@@ -1647,16 +1647,16 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
     sample_info->raw_data = new uint8_t[sample.raw_size()];
     memset(sample_info->raw_data, 0, sample.raw_size());
   }
+  // Older protos w/o branch_stack_hw_idx field shall have no_hw_idx set.
+  // So the perf profiles don't change.
+  sample_info->no_hw_idx = true;
+  if (sample.has_no_hw_idx()) sample_info->no_hw_idx = sample.no_hw_idx();
   if (sample.branch_stack_size() > 0) {
     uint64_t branch_stack_size = sample.branch_stack_size();
     sample_info->branch_stack = reinterpret_cast<struct branch_stack*>(
         new uint8_t[sizeof(uint64_t) + sizeof(uint64_t) +
                     branch_stack_size * sizeof(struct branch_entry)]);
     sample_info->branch_stack->nr = branch_stack_size;
-    // Older protos w/o branch_stack_hw_idx field shall have
-    // no_hw_idx set. So the perf profiles don't change.
-    sample_info->no_hw_idx = true;
-    if (sample.has_no_hw_idx()) sample_info->no_hw_idx = sample.no_hw_idx();
     if (sample.has_branch_stack_hw_idx())
       sample_info->branch_stack->hw_idx = sample.branch_stack_hw_idx();
     for (size_t i = 0; i < branch_stack_size; ++i) {
