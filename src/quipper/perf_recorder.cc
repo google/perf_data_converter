@@ -78,6 +78,17 @@ bool ParsePerfStatFileToString(const string& filename,
   return perf_stat.SerializeToString(output_string);
 }
 
+// Checks if the perf record events include cs_etm.
+bool IsRecordingETM(const std::vector<string>& perf_args) {
+  for (auto it = perf_args.begin(); it != perf_args.end(); ++it) {
+    if (*it != "-e") continue;
+    ++it;
+    if (it == perf_args.end()) return false;
+    if (it->find("cs_etm") != std::string::npos) return true;
+  }
+  return false;
+}
+
 }  // namespace
 
 PerfRecorder::PerfRecorder() : PerfRecorder({"/usr/bin/perf"}) {}
@@ -133,6 +144,12 @@ bool PerfRecorder::RunCommandAndGetSerializedOutput(
       perf_type != kPerfMemCommand) {
     LOG(ERROR) << "Unsupported perf subcommand: " << perf_type;
     return {};
+  }
+
+  if (perf_type == kPerfRecordCommand && IsRecordingETM(perf_args) &&
+      inject_args.empty()) {
+    LOG(ERROR) << "--inject_args must be provided when recording ETM";
+    return false;
   }
 
   ScopedTempFile output_file;
