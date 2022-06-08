@@ -125,6 +125,18 @@ TEST_F(PerfRecorderTest, RecordAndInjectToProto) {
             command.Get(8).value().substr(0, strlen("/tmp/quipper")));
 }
 
+TEST_F(PerfRecorderTest, RecordETMRequiresInject) {
+  std::string output_string;
+  EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
+      {"perf", "record", "-a", "-e", "cs_etm//"}, 0.2, {}, &output_string));
+  EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
+      {"perf", "record", "-a", "-e", "{e1,cs_etm//}"}, 0.2, {},
+      &output_string));
+  EXPECT_FALSE(perf_recorder_.RunCommandAndGetSerializedOutput(
+      {"perf", "record", "-a", "-e", "cycles", "-e", "cs_etm//"}, 0.2, {},
+      &output_string));
+}
+
 TEST_F(PerfRecorderTest, StatSingleEvent) {
   std::string output_string;
   ASSERT_TRUE(perf_recorder_.RunCommandAndGetSerializedOutput(
