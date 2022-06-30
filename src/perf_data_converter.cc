@@ -15,8 +15,6 @@
 #include <vector>
 
 #include "src/builder.h"
-#include "src/compat/int_compat.h"
-#include "src/compat/string_compat.h"
 #include "src/perf_data_handler.h"
 #include "src/quipper/perf_data.pb.h"
 #include "src/quipper/perf_parser.h"
@@ -741,7 +739,7 @@ ProcessProfiles PerfDataProtoToProfiles(
 }
 
 ProcessProfiles RawPerfDataToProfiles(
-    const void* raw, const int raw_size,
+    const void* raw, const uint64_t raw_size,
     const std::map<string, string>& build_ids, const uint32 sample_labels,
     const uint32 options, const std::map<Tid, string>& thread_types) {
   quipper::PerfReader reader;
