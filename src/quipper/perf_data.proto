@@ -432,7 +432,7 @@ message PerfDataProto {
   // stored in LostEvent.
   // Next tag: 4
   message LostEvent {
-    // Id of the event which has been lost.  This should be an id found in a
+    // ID of the event which has been lost. This should be an id found in a
     // PerfFileAttr.
     optional uint64 id = 1;
 
