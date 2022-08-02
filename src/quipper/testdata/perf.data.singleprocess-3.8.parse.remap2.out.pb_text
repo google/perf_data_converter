@@ -37,6 +37,11 @@ file_attrs {
     comm_exec: false
     sample_regs_user: 0
     sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
   }
   ids: 37
   ids: 38
@@ -63,6 +68,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -84,6 +90,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -105,6 +112,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -126,6 +134,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -147,6 +156,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -168,6 +178,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -189,6 +200,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -210,6 +222,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -231,6 +244,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -252,6 +266,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -273,6 +288,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -294,6 +310,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -315,6 +332,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -336,6 +354,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -357,6 +376,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -378,6 +398,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -399,6 +420,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -420,6 +442,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -441,6 +464,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -462,6 +486,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -483,6 +508,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -504,6 +530,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -525,6 +552,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -546,6 +574,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -567,6 +596,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -588,6 +618,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -609,6 +640,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -630,6 +662,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -651,6 +684,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -672,6 +706,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -693,6 +728,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -714,6 +750,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -735,6 +772,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -756,6 +794,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -777,6 +816,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -798,6 +838,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -819,6 +860,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -840,6 +882,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -861,6 +904,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -882,6 +926,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -903,6 +948,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -924,6 +970,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -945,6 +992,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -966,6 +1014,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -987,6 +1036,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1008,6 +1058,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1029,6 +1080,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1050,6 +1102,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1071,6 +1124,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1092,6 +1146,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1113,6 +1168,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1131,6 +1187,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1152,6 +1209,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1173,6 +1231,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1194,6 +1253,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1215,6 +1275,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1236,6 +1297,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1257,6 +1319,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1278,6 +1341,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1299,6 +1363,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1320,6 +1385,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1341,6 +1407,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1362,6 +1429,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1383,6 +1451,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1404,6 +1473,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1425,6 +1495,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1446,6 +1517,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1467,6 +1539,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1488,6 +1561,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1509,6 +1583,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1530,6 +1605,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1551,6 +1627,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1572,6 +1649,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1593,6 +1671,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1614,6 +1693,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1635,6 +1715,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1656,6 +1737,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1677,6 +1759,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1698,6 +1781,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1719,6 +1803,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1740,6 +1825,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1761,6 +1847,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1782,6 +1869,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1803,6 +1891,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1824,6 +1913,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1845,6 +1935,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1866,6 +1957,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1887,6 +1979,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1908,6 +2001,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1929,6 +2023,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1950,6 +2045,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1971,6 +2067,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -1992,6 +2089,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -2013,6 +2111,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -2034,6 +2133,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -2055,6 +2155,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -2076,6 +2177,7 @@ events {
       sample_time_ns: 0
     }
   }
+  timestamp: 0
 }
 events {
   header {
@@ -2090,6 +2192,7 @@ events {
     sample_time_ns: 346637627965545
     period: 1
   }
+  timestamp: 346637627965545
 }
 events {
   header {
@@ -2104,6 +2207,7 @@ events {
     sample_time_ns: 346637627973963
     period: 1
   }
+  timestamp: 346637627973963
 }
 events {
   header {
@@ -2118,6 +2222,7 @@ events {
     sample_time_ns: 346637627978565
     period: 5
   }
+  timestamp: 346637627978565
 }
 events {
   header {
@@ -2132,6 +2237,7 @@ events {
     sample_time_ns: 346637627983162
     period: 35
   }
+  timestamp: 346637627983162
 }
 events {
   header {
@@ -2146,6 +2252,7 @@ events {
     sample_time_ns: 346637627987734
     period: 269
   }
+  timestamp: 346637627987734
 }
 events {
   header {
@@ -2160,6 +2267,7 @@ events {
     sample_time_ns: 346637627992406
     period: 2072
   }
+  timestamp: 346637627992406
 }
 events {
   header {
@@ -2174,6 +2282,7 @@ events {
     sample_time_ns: 346637627997815
     period: 15777
   }
+  timestamp: 346637627997815
 }
 events {
   header {
@@ -2192,6 +2301,7 @@ events {
       sample_time_ns: 346637628001185
     }
   }
+  timestamp: 346637628001185
 }
 events {
   header {
@@ -2206,6 +2316,7 @@ events {
     sample_time_ns: 346637628020816
     period: 104469
   }
+  timestamp: 346637628020816
 }
 events {
   header {
@@ -2227,6 +2338,7 @@ events {
       sample_time_ns: 346637628039655
     }
   }
+  timestamp: 346637628039655
 }
 events {
   header {
@@ -2241,6 +2353,7 @@ events {
     sample_time_ns: 346637628962730
     period: 207017
   }
+  timestamp: 346637628962730
 }
 events {
   header {
@@ -2262,6 +2375,7 @@ events {
       sample_time_ns: 346637628971038
     }
   }
+  timestamp: 346637628971038
 }
 events {
   header {
@@ -2283,6 +2397,7 @@ events {
       sample_time_ns: 346637629008316
     }
   }
+  timestamp: 346637629008316
 }
 events {
   header {
@@ -2297,6 +2412,7 @@ events {
     sample_time_ns: 346637629234840
     period: 169037
   }
+  timestamp: 346637629234840
 }
 events {
   header {
@@ -2318,6 +2434,7 @@ events {
       sample_time_ns: 346637629328551
     }
   }
+  timestamp: 346637629328551
 }
 events {
   header {
@@ -2332,6 +2449,7 @@ events {
     sample_time_ns: 346637629451182
     period: 167307
   }
+  timestamp: 346637629451182
 }
 events {
   header {
@@ -2346,6 +2464,7 @@ events {
     sample_time_ns: 346637629664680
     period: 170547
   }
+  timestamp: 346637629664680
 }
 events {
   header {
@@ -2360,6 +2479,7 @@ events {
     sample_time_ns: 346637629882826
     period: 174203
   }
+  timestamp: 346637629882826
 }
 events {
   header {
@@ -2379,6 +2499,7 @@ events {
       sample_time_ns: 346637629931266
     }
   }
+  timestamp: 346637629931266
 }
 events {
   header {
@@ -2398,6 +2519,7 @@ events {
       sample_time_ns: 346637629932764
     }
   }
+  timestamp: 346637629932764
 }
 events {
   header {
@@ -2417,6 +2539,7 @@ events {
       sample_time_ns: 346637629933960
     }
   }
+  timestamp: 346637629933960
 }
 events {
   header {
@@ -2436,6 +2559,7 @@ events {
       sample_time_ns: 346637629935338
     }
   }
+  timestamp: 346637629935338
 }
 timestamp_sec: 0
 stats {
@@ -2446,7 +2570,7 @@ stats {
   num_sample_events_mapped: 13
   did_remap: false
 }
-metadata_mask: 16380
+metadata_mask: 81916
 build_ids {
   misc: 1
   pid: 4294967295
@@ -2529,4 +2653,34 @@ string_metadata {
     value: "/usr/sbin/perf record -o perf.data.singleprocess.next -- echo"
     value_md5_prefix: 5824131809857580979
   }
+}
+pmu_mappings {
+  type: 4
+  name: "cpu"
+  name_md5_prefix: 15669287738006486457
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 6
+  name: "uncore_cbox_0"
+  name_md5_prefix: 1137124233652450800
+}
+pmu_mappings {
+  type: 7
+  name: "uncore_cbox_1"
+  name_md5_prefix: 15013062577747304375
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
 }

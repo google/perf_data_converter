@@ -321,6 +321,9 @@ TEST_P(PerfDataFiles, NormalPerfData) {
   std::string remapped_perf_data2 =
       output_path + test_file + ".parse.remap2.out";
   ASSERT_TRUE(remap_reader.WriteFile(remapped_perf_data2));
+  EXPECT_TRUE(
+      CheckPerfDataAgainstBaseline(remapped_perf_data2, "", &difference))
+      << difference;
 
   // No need to call CheckPerfDataAgainstBaseline again. Just compare
   // ParsedEvents.
