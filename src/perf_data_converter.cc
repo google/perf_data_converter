@@ -375,6 +375,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
 
     ProfileBuilder* builder = per_pid.builder;
     Profile* profile = builder->mutable_profile();
+    int last_index = 0;
     int unknown_event_idx = 0;
     for (int event_idx = 0; event_idx < perf_data_.file_attrs_size();
          ++event_idx) {
@@ -396,9 +397,12 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       sample_type->set_type(UTF8StringId(event_name + "sample", builder));
       sample_type->set_unit(builder->StringId("count"));
       sample_type = profile->add_sample_type();
-      sample_type->set_type(UTF8StringId(event_name + "event", builder));
+      last_index = UTF8StringId(event_name + "event", builder);
+      sample_type->set_type(last_index);
       sample_type->set_unit(builder->StringId("count"));
     }
+    DCHECK_NE(last_index, 0);
+    profile->set_default_sample_type(last_index);
     if (sample.main_mapping == nullptr) {
       auto fake_main = profile->add_mapping();
       fake_main->set_id(profile->mapping_size());
