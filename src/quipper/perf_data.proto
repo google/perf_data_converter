@@ -323,7 +323,23 @@ message PerfDataProto {
     optional uint32 cycles = 7;
   }
 
-  // Next tag: 26
+  // WeightStruct is microarchitecture-dependant field and only for special
+  // events. For example, for Sapphire Rapids the first field of WeightStruct is
+  // the instruction latency, and the second is the cache latency, but it can
+  // vary.
+  // Next tag: 4
+  message WeightStruct {
+    // First weight factor.
+    optional uint32 var1_dw = 1;
+
+    // Second weight factor.
+    optional uint32 var2_w = 2;
+
+    // Third weight factor.
+    optional uint32 var3_w = 3;
+  }
+
+  // Next tag: 27
   message SampleEvent {
     // Instruction pointer.
     optional uint64 ip = 1;
@@ -401,6 +417,9 @@ message PerfDataProto {
     // optional field in PERF_SAMPLE_BRANCH_STACK
     // used when PERF_SAMPLE_BRANCH_HW_INDEX is set.
     optional uint64 branch_stack_hw_idx = 25;
+
+    // Weight struct.
+    optional WeightStruct weight_struct = 26;
   }
 
   // ForkEvent is used for both FORK and EXIT events, which have the same data

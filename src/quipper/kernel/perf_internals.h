@@ -4,7 +4,7 @@
 #define PERF_DATA_CONVERTER_SRC_QUIPPER_KERNEL_PERF_INTERNALS_H_
 
 #include <linux/limits.h>
-#include <stddef.h>  // For NULL
+#include <stddef.h>     // For NULL
 #include <sys/types.h>  // For pid_t
 
 #include "kernel/perf_event.h"
@@ -274,9 +274,18 @@ struct branch_stack {
   struct branch_entry entries[0];
 };
 
+union perf_sample_weight {
+  u64 full;
+  struct {
+    u32 var1_dw;
+    u16 var2_w;
+    u16 var3_w;
+  };
+};
+
 // All the possible fields of a perf sample.  This is not an actual data
-// structure found in raw perf data, as each field may or may not be present in
-// the data.
+// structure found in raw perf data, as each field may or may not be present
+// in the data.
 struct perf_sample {
   u64 ip;
   u32 pid, tid;
@@ -285,7 +294,7 @@ struct perf_sample {
   u64 id;
   u64 stream_id;
   u64 period;
-  u64 weight;
+  perf_sample_weight weight;
   u64 transaction;
   u32 cpu;
   u32 raw_size;
@@ -313,7 +322,7 @@ struct perf_sample {
         id(0),
         stream_id(0),
         period(0),
-        weight(0),
+        weight(perf_sample_weight{}),
         transaction(0),
         cpu(0),
         raw_size(0),

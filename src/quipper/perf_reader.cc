@@ -683,6 +683,7 @@ bool PerfReader::Localize(
   std::map<string, string> filename_map;
   for (auto& build_id : *proto_->mutable_build_ids()) {
     string build_id_string = RawDataToHexString(build_id.build_id_hash());
+    PerfizeBuildIDString(&build_id_string);
     auto find_result = build_ids_to_filenames.find(build_id_string);
     if (find_result == build_ids_to_filenames.end()) continue;
     const string& new_filename = find_result->second;

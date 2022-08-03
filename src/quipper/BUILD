@@ -146,6 +146,8 @@ cc_library(
     deps = [
         ":binary_data_utils",
         ":compat",
+        ":data_reader",
+        ":kernel",
         ":perf_buildid",
         ":perf_data_utils",
         ":sample_info_reader",
@@ -382,7 +384,9 @@ cc_library(
     deps = [
         ":buffer_reader",
         ":buffer_writer",
+        ":compat",
         ":kernel",
+        ":perf_data_utils",
         ":base",
     ],
 )
@@ -651,8 +655,11 @@ cc_test(
         ":compat",
         ":compat_gunit",
         ":dso_test_utils",
+        ":perf_buildid",
+        ":perf_data_utils",
         ":perf_parser",
         ":perf_reader",
+        ":perf_serializer",
         ":perf_test_files",
         ":scoped_temp_path",
         ":test_runner",
