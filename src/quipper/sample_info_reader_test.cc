@@ -84,13 +84,93 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
   EXPECT_EQ(1, sample.stream_id);
   EXPECT_EQ(8, sample.cpu);
   EXPECT_EQ(10001, sample.period);
-  EXPECT_EQ(12345, sample.weight);
+  EXPECT_EQ(12345, sample.weight.full);
   EXPECT_EQ(0x68100142, sample.data_src);
   EXPECT_EQ(67890, sample.transaction);
   EXPECT_EQ(0x00003f324c43d23b, sample.physical_addr);
   EXPECT_EQ(3333, sample.cgroup);
   EXPECT_EQ(4096, sample.data_page_size);
   EXPECT_EQ(2 * 1024 * 1024, sample.code_page_size);
+}
+
+TEST(SampleInfoReaderTest, ReadSampleEventWeightStruct) {
+  // clang-format off
+  uint64_t sample_type =       // * == in sample_id_all
+      PERF_SAMPLE_IP |
+      PERF_SAMPLE_TID |        // *
+      PERF_SAMPLE_TIME |       // *
+      PERF_SAMPLE_ADDR |
+      PERF_SAMPLE_ID |         // *
+      PERF_SAMPLE_STREAM_ID |  // *
+      PERF_SAMPLE_CPU |        // *
+      PERF_SAMPLE_PERIOD |
+      PERF_SAMPLE_DATA_SRC |
+      PERF_SAMPLE_TRANSACTION |
+      PERF_SAMPLE_PHYS_ADDR |
+      PERF_SAMPLE_CGROUP |
+      PERF_SAMPLE_DATA_PAGE_SIZE |
+      PERF_SAMPLE_CODE_PAGE_SIZE |
+      PERF_SAMPLE_WEIGHT_STRUCT;
+  // clang-format on
+  struct perf_event_attr attr = {0};
+  attr.sample_type = sample_type;
+
+  SampleInfoReader reader(attr, false /* read_cross_endian */);
+
+  const u64 sample_event_array[] = {
+      0xffffffff01234567,                    // IP
+      PunU32U64{.v32 = {0x68d, 0x68e}}.v64,  // TID (u32 pid, tid)
+      1415837014 * 1000000000ULL,            // TIME
+      0x00007f999c38d15a,                    // ADDR
+      2,                                     // ID
+      1,                                     // STREAM_ID
+      8,                                     // CPU
+      10001,                                 // PERIOD
+      perf_sample_weight{.var1_dw = 1, .var2_w = 2, .var3_w = 3}
+          .full,           // WEIGHT_STRUCT
+      0x68100142,          // DATA_SRC
+      67890,               // TRANSACTIONS
+      0x00003f324c43d23b,  // PHYSICAL_ADDR
+      3333,                // CGROUP
+      4096,                // DATA_PAGE_SIZE
+      2 * 1024 * 1024,     // CODE_PAGE_SIZE
+  };
+  const sample_event sample_event_struct = {
+      .header = {
+          .type = PERF_RECORD_SAMPLE,
+          .misc = 0,
+          .size = sizeof(sample_event) + sizeof(sample_event_array),
+      }};
+
+  std::stringstream input;
+  input.write(reinterpret_cast<const char*>(&sample_event_struct),
+              sizeof(sample_event_struct));
+  input.write(reinterpret_cast<const char*>(sample_event_array),
+              sizeof(sample_event_array));
+  string input_string = input.str();
+  const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
+
+  perf_sample sample;
+  ASSERT_TRUE(reader.ReadPerfSampleInfo(event, &sample));
+
+  EXPECT_EQ(0xffffffff01234567, sample.ip);
+  EXPECT_EQ(0x68d, sample.pid);
+  EXPECT_EQ(0x68e, sample.tid);
+  EXPECT_EQ(1415837014 * 1000000000ULL, sample.time);
+  EXPECT_EQ(0x00007f999c38d15a, sample.addr);
+  EXPECT_EQ(2, sample.id);
+  EXPECT_EQ(1, sample.stream_id);
+  EXPECT_EQ(8, sample.cpu);
+  EXPECT_EQ(10001, sample.period);
+  EXPECT_EQ(0x68100142, sample.data_src);
+  EXPECT_EQ(67890, sample.transaction);
+  EXPECT_EQ(0x00003f324c43d23b, sample.physical_addr);
+  EXPECT_EQ(3333, sample.cgroup);
+  EXPECT_EQ(4096, sample.data_page_size);
+  EXPECT_EQ(2 * 1024 * 1024, sample.code_page_size);
+  EXPECT_EQ(1, sample.weight.var1_dw);
+  EXPECT_EQ(2, sample.weight.var2_w);
+  EXPECT_EQ(3, sample.weight.var3_w);
 }
 
 TEST(SampleInfoReaderTest, ReadSampleEventCrossEndian) {

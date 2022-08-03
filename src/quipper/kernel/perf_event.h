@@ -161,8 +161,9 @@ enum perf_event_sample_format {
   PERF_SAMPLE_CGROUP = 1U << 21,
   PERF_SAMPLE_DATA_PAGE_SIZE = 1U << 22,
   PERF_SAMPLE_CODE_PAGE_SIZE = 1U << 23,
+  PERF_SAMPLE_WEIGHT_STRUCT = 1U << 24,
 
-  PERF_SAMPLE_MAX = 1U << 24, /* non-ABI */
+  PERF_SAMPLE_MAX = 1U << 25, /* non-ABI */
 };
 
 /*
@@ -741,7 +742,24 @@ enum perf_event_type {
    * 	  char			data[size];
    * 	  u64			dyn_size; } && PERF_SAMPLE_STACK_USER
    *
-   *	{ u64			weight;   } && PERF_SAMPLE_WEIGHT
+   *	{ union perf_sample_weight
+   *	 {
+   *		u64		full; && PERF_SAMPLE_WEIGHT
+   *	#if defined(__LITTLE_ENDIAN_BITFIELD)
+   *		struct {
+   *			u32	var1_dw;
+   *			u16	var2_w;
+   *			u16	var3_w;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#elif defined(__BIG_ENDIAN_BITFIELD)
+   *		struct {
+   *			u16	var3_w;
+   *			u16	var2_w;
+   *			u32	var1_dw;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#endif
+   *	 }
+   *	}
    *	{ u64			data_src; } && PERF_SAMPLE_DATA_SRC
    *	{ u64			transaction; } && PERF_SAMPLE_TRANSACTION
 

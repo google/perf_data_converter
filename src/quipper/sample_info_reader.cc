@@ -411,11 +411,47 @@ bool ReadPerfSampleFromData(const event_t& event,
     return false;
   }
 
-  // { u64                   weight;   } && PERF_SAMPLE_WEIGHT
+  /*
+   * 	{ union perf_sample_weight
+   *	 {
+   *		u64		full; && PERF_SAMPLE_WEIGHT
+   *	#if defined(__LITTLE_ENDIAN_BITFIELD)
+   *		struct {
+   *			u32	var1_dw;
+   *			u16	var2_w;
+   *			u16	var3_w;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#elif defined(__BIG_ENDIAN_BITFIELD)
+   *		struct {
+   *			u16	var3_w;
+   *			u16	var2_w;
+   *			u32	var1_dw;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#endif
+   *	 }
+   *	}
+   */
   if (sample_fields & PERF_SAMPLE_WEIGHT &&
-      !reader.ReadUint64(&sample->weight)) {
+      sample_fields & PERF_SAMPLE_WEIGHT_STRUCT) {
+    LOG(ERROR) << "Invalid combination: both PERF_SAMPLE_WEIGHT and "
+                  "PERF_SAMPLE_WEIGHT_STRUCT are set at the same time.";
+    return false;
+  }
+  if (sample_fields & PERF_SAMPLE_WEIGHT &&
+      !reader.ReadUint64(&sample->weight.full)) {
     LOG(ERROR) << "Couldn't read PERF_SAMPLE_WEIGHT";
     return false;
+  } else if (sample_fields & PERF_SAMPLE_WEIGHT_STRUCT) {
+    if (reader.is_cross_endian()) {
+      LOG(ERROR) << "Byte swapping of weight struct is not yet supported.";
+      return false;
+    }
+    if (!(reader.ReadUint32(&sample->weight.var1_dw) &&
+          reader.ReadUint16(&sample->weight.var2_w) &&
+          reader.ReadUint16(&sample->weight.var3_w))) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_WEIGHT_STRUCT";
+      return false;
+    }
   }
 
   // { u64                   data_src; } && PERF_SAMPLE_DATA_SRC
@@ -468,8 +504,8 @@ bool ReadPerfSampleFromData(const event_t& event,
   }
 
   if (sample_fields & ~(PERF_SAMPLE_MAX - 1)) {
-    LOG(WARNING) << "Unrecognized sample fields 0x" << std::hex
-                 << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
+    LOG(ERROR) << "Unrecognized sample fields 0x" << std::hex
+               << (sample_fields & ~(PERF_SAMPLE_MAX - 1));
     return false;
   }
 
@@ -705,9 +741,30 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
     return GetWrittenSize();
   }
 
-  // { u64                   weight;   } && PERF_SAMPLE_WEIGHT
-  if (sample_fields & PERF_SAMPLE_WEIGHT) {
-    WriteData(sample.weight);
+  /*
+   * 	{ union perf_sample_weight
+   *	 {
+   *		u64		full; && PERF_SAMPLE_WEIGHT
+   *	#if defined(__LITTLE_ENDIAN_BITFIELD)
+   *		struct {
+   *			u32	var1_dw;
+   *			u16	var2_w;
+   *			u16	var3_w;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#elif defined(__BIG_ENDIAN_BITFIELD)
+   *		struct {
+   *			u16	var3_w;
+   *			u16	var2_w;
+   *			u32	var1_dw;
+   *		} && PERF_SAMPLE_WEIGHT_STRUCT
+   *	#endif
+   *	 }
+   *	}
+   */
+  if (sample_fields & PERF_SAMPLE_WEIGHT ||
+      sample_fields & PERF_SAMPLE_WEIGHT_STRUCT) {
+    // For PERF_SAMPLE_WEIGHT_STRUCT write all three values at once.
+    WriteData(sample.weight.full);
   }
 
   // { u64                   data_src; } && PERF_SAMPLE_DATA_SRC

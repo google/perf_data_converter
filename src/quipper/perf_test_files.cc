@@ -158,6 +158,14 @@ const std::vector<const char*>& GetPerfDataFiles() {
          -o perf.data.branch_stack_hw_index
        */
       "perf.data.branch_stack_hw_index",
+      /* Perf data file with weight struct. Generated with perf5.
+      Command:
+      remote_perf --duration=10 --command=record --sample_addresses --weight
+      --pfm_events="MEM_TRANS_RETIRED.LOAD_LATENCY:ldlat=64:precise=2:mh:mg:pinned"
+      --event_period=1009 --noinvoke_perf_report --host=oxco15 --use_perf5
+      --output /tmp/perf.data
+      */
+      "perf.data.weight_struct",
   };
   return *files;
 }

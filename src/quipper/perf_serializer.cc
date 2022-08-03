@@ -607,7 +607,8 @@ bool PerfSerializer::SerializeSampleEvent(
     }
   }
 
-  if (sample_type & PERF_SAMPLE_WEIGHT) sample->set_weight(sample_info.weight);
+  if (sample_type & PERF_SAMPLE_WEIGHT)
+    sample->set_weight(sample_info.weight.full);
   if (sample_type & PERF_SAMPLE_DATA_SRC)
     sample->set_data_src(sample_info.data_src);
   if (sample_type & PERF_SAMPLE_TRANSACTION)
@@ -619,6 +620,11 @@ bool PerfSerializer::SerializeSampleEvent(
     sample->set_data_page_size(sample_info.data_page_size);
   if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
     sample->set_code_page_size(sample_info.code_page_size);
+  if (sample_type & PERF_SAMPLE_WEIGHT_STRUCT) {
+    sample->mutable_weight_struct()->set_var1_dw(sample_info.weight.var1_dw);
+    sample->mutable_weight_struct()->set_var2_w(sample_info.weight.var2_w);
+    sample->mutable_weight_struct()->set_var3_w(sample_info.weight.var3_w);
+  }
 
   return true;
 }
@@ -1672,7 +1678,12 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
     }
   }
 
-  if (sample.has_weight()) sample_info->weight = sample.weight();
+  if (sample.has_weight()) sample_info->weight.full = sample.weight();
+  if (sample.has_weight_struct()) {
+    sample_info->weight.var1_dw = sample.weight_struct().var1_dw();
+    sample_info->weight.var2_w = sample.weight_struct().var2_w();
+    sample_info->weight.var3_w = sample.weight_struct().var3_w();
+  }
   if (sample.has_data_src()) sample_info->data_src = sample.data_src();
   if (sample.has_transaction()) sample_info->transaction = sample.transaction();
   if (sample.has_physical_addr())
