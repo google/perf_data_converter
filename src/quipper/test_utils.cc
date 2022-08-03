@@ -29,6 +29,13 @@ namespace {
 DEFINE_string(new_golden_file_path, "",
               "Folder where to save new golden files");
 
+// This flag enables comparisons of protobufs in serialized format as a faster
+// alternative to comparing their human-readable text representations. Set this
+// flag to false to compare text representations instead. It's also useful for
+// diffing against the old golden files when writing new golden files.
+DEFINE_bool(use_protobuf_data_format, true,
+"If false, use text format instead of protobuf");
+
 // Newline character.
 const char kNewLineDelimiter = '\n';
 
@@ -185,14 +192,6 @@ bool GetPerfBuildIDMap(const std::string& filename,
   return true;
 }
 
-namespace {
-// This flag enables comparisons of protobufs in serialized format as a faster
-// alternative to comparing their human-readable text representations. Set this
-// flag to false to compare text representations instead. It's also useful for
-// diffing against the old golden files when writing new golden files.
-const bool UseProtobufDataFormat = true;
-}  // namespace
-
 bool MaybeWriteGolden(const std::string& protobuf_representation,
                       const std::string& golden_filename) {
   if (std::string(FLAGS_new_golden_file_path).empty()) {
@@ -233,8 +232,9 @@ bool MaybeWriteGolden(const Message& proto,
 bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
                                   const std::string& baseline_filename,
                                   std::string* difference) {
-  std::string extension =
-      UseProtobufDataFormat ? kProtobufDataExtension : kProtobufTextExtension;
+  std::string extension = FLAGS_use_protobuf_data_format
+                              ? kProtobufDataExtension
+                              : kProtobufTextExtension;
   std::string golden_name = baseline_filename;
   if (baseline_filename.empty()) {
     golden_name = basename(perfdata_filepath.c_str());
@@ -249,7 +249,7 @@ bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
   if (!ReadExistingProtobufText(golden_path, &baseline)) {
     LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
   }
-  if (UseProtobufDataFormat) {
+  if (FLAGS_use_protobuf_data_format) {
     if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
                                        &protobuf_representation)) {
       LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;

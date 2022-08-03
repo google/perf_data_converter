@@ -57,7 +57,9 @@ void CompareProtoFiles(const std::string& format, const std::string& actual,
   std::vector<char> actual_contents;
   std::vector<char> expected_contents;
   ASSERT_TRUE(FileToBuffer(actual, &actual_contents)) << actual;
-  ASSERT_TRUE(FileToBuffer(expected, &expected_contents)) << expected;
+  if (!FileToBuffer(expected, &expected_contents)) {
+    LOG(ERROR) << "Failed to read existing golden file: " << expected;
+  }
 
   ArrayInputStream actual_arr(actual_contents.data(), actual_contents.size());
   ArrayInputStream expected_arr(expected_contents.data(),
