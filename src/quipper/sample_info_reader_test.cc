@@ -116,6 +116,10 @@ TEST(SampleInfoReaderTest, ReadSampleEventWeightStruct) {
   attr.sample_type = sample_type;
 
   SampleInfoReader reader(attr, false /* read_cross_endian */);
+  perf_sample_weight weight_struct;
+  weight_struct.var1_dw = 1;
+  weight_struct.var2_w = 2;
+  weight_struct.var3_w = 3;
 
   const u64 sample_event_array[] = {
       0xffffffff01234567,                    // IP
@@ -126,14 +130,13 @@ TEST(SampleInfoReaderTest, ReadSampleEventWeightStruct) {
       1,                                     // STREAM_ID
       8,                                     // CPU
       10001,                                 // PERIOD
-      perf_sample_weight{.var1_dw = 1, .var2_w = 2, .var3_w = 3}
-          .full,           // WEIGHT_STRUCT
-      0x68100142,          // DATA_SRC
-      67890,               // TRANSACTIONS
-      0x00003f324c43d23b,  // PHYSICAL_ADDR
-      3333,                // CGROUP
-      4096,                // DATA_PAGE_SIZE
-      2 * 1024 * 1024,     // CODE_PAGE_SIZE
+      weight_struct.full,                    // WEIGHT_STRUCT
+      0x68100142,                            // DATA_SRC
+      67890,                                 // TRANSACTIONS
+      0x00003f324c43d23b,                    // PHYSICAL_ADDR
+      3333,                                  // CGROUP
+      4096,                                  // DATA_PAGE_SIZE
+      2 * 1024 * 1024,                       // CODE_PAGE_SIZE
   };
   const sample_event sample_event_struct = {
       .header = {
