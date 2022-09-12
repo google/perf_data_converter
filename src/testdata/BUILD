@@ -1,7 +1,7 @@
 
 # Description:
 #   Test files for converting sampledb proto to profile proto.
-licenses(["notice"])  # BSD
+licenses(["notice"])
 
 # When possible, add new testdata files in the Quipper *.textproto format, not
 # as Linux perf *.data files. The latter are too much of a black box and are

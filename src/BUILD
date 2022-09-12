@@ -4,7 +4,7 @@ package(
     ],
 )
 
-licenses(["notice"])  # BSD
+licenses(["notice"])
 
 exports_files(["LICENSE"])
 
