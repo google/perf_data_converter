@@ -1,5 +1,5 @@
 
-licenses(["notice"])  # BSD
+licenses(["notice"])
 
 perf_test_data = glob([
     "testdata/hello_world.txt.gz",
@@ -82,7 +82,7 @@ cc_library(
         ":perf_parser_options_cc_proto",
         ":perf_stat_cc_proto",
         ":base",
-        "@com_google_protobuf//:protobuf",
+        "//net/proto2/public:proto2",
     ],
 )
 

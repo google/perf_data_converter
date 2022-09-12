@@ -4,7 +4,7 @@ package(
     ],
 )
 
-licenses(["notice"])  # BSD
+licenses(["notice"])
 
 cc_library(
     name = "string_compat",
