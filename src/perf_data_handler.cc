@@ -69,7 +69,16 @@ class Normalizer {
       }
       string filename = PerfDataHandler::NameOrMd5Prefix(
           build_id.filename(), build_id.filename_md5_prefix());
-      filename_to_build_id_[filename.c_str()] = hex.str();
+      auto build_id_it = filename_to_build_id_.find(filename);
+      if (build_id_it != filename_to_build_id_.end() &&
+          build_id_it->second != hex.str()) {
+        LOG(WARNING)
+            << "Observed build ID changed for file path " << filename
+            << ": initially saw " << build_id_it->second << ", now saw "
+            << hex.str() << std::hex << " (pid=0x" << build_id.pid() << ")"
+            << ". In-flight build ID change may lead to wrong symbolization.";
+      }
+      filename_to_build_id_[filename] = hex.str();
 
       switch (build_id.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
         case quipper::PERF_RECORD_MISC_KERNEL:
@@ -109,10 +118,6 @@ class Normalizer {
   // Convert to a protobuf using quipper and then aggregate the results.
   void Normalize();
 
-  // Get buildID using the filename from the mmap. This method should be only
-  // called directly for testing.
-  string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
-
  private:
   // Using a 32-bit type for the PID values as the max PID value on 64-bit
   // systems is 2^22, see http://man7.org/linux/man-pages/man5/proc.5.html.
@@ -121,6 +126,9 @@ class Normalizer {
       PidToCommMap;
 
   typedef IntervalMap<const PerfDataHandler::Mapping*> MMapIntervalMap;
+
+  // Get buildID using the filename from the mmap.
+  string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
 
   // Copy the parent's mmaps/comm if they exist.  Otherwise, items
   // will be lazily populated.
