@@ -37,6 +37,8 @@ std::string ParseFormatOptions(std::string format, PerfParserOptions* options) {
     } else if (opt == "remap.discard") {
       options->do_remap = true;
       options->discard_unused_events = true;
+    } else if (opt == "no_combine") {
+      options->combine_mappings = false;
     } else {
       LOG(ERROR) << "Unknown option: " << opt;
       return "";
