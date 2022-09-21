@@ -335,7 +335,8 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
         } else {
           const auto& mmap_range_last = huge_mmap_range_last->mmap_event();
           if (IsVmaContiguous(mmap_range_last, cur_mmap) &&
-              mmap_range_last.filename() == cur_mmap.filename() &&
+              (mmap_range_last.filename() == cur_mmap.filename() ||
+               (IsAnon(mmap_range_last) && IsAnon(cur_mmap))) &&
               (IsFileContiguous(mmap_range_last, cur_mmap) ||
                (mmap_range_last.pgoff() == 0 && cur_mmap.pgoff() == 0))) {
             // Ranges match exactly: //anon,//anon, or file,file; If they use
