@@ -482,6 +482,25 @@ TEST_P(HugepageTextStyleDependent, DisjointAnonMmapBeforeHugePageText) {
                                  "len:0x401000 pgoff: 0 filename: 'file'}"}));
 }
 
+TEST_P(HugepageTextStyleDependent, DisjointAnonMmaps) {
+  RepeatedPtrField<PerfEvent> events;
+  AddMmap(7, 0x500000000, 0x1000000, 0, "/anon_hugepage", &events);
+  AddMmap(7, 0x501000000, 0x2000000, 0, "//anon", &events);
+  AddMmap(7, 0x503000000, 0x2000, 0x3000000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(events,
+              Pointwise(Partially(EqualsProto()),
+                        {"mmap_event: { start: 0x500000000 "
+                         "len:0x1000000 pgoff: 0 filename: '/anon_hugepage'}",
+                         "mmap_event: { start: 0x501000000 "
+                         "len:0x2000000 pgoff: 0 filename: '//anon'}",
+                         "mmap_event: { start: 0x503000000 "
+                         "len:0x2000 pgoff: 0x3000000 filename: 'file'}"}));
+}
+
 INSTANTIATE_TEST_SUITE_P(NoHugepageText, HugepageTextStyleDependent,
                          ::testing::Values(kNoHugepageText));
 INSTANTIATE_TEST_SUITE_P(SlashSlashAnon, HugepageTextStyleDependent,
@@ -492,6 +511,62 @@ INSTANTIATE_TEST_SUITE_P(AnonHugepageDeleted, HugepageTextStyleDependent,
                          ::testing::Values(kAnonHugepageDeleted));
 INSTANTIATE_TEST_SUITE_P(MemFdHugepageText, HugepageTextStyleDependent,
                          ::testing::Values(kMemFdHugePageText));
+
+TEST(HugepageText, TaggedAnonMergesWithLinearOffsets) {
+  RepeatedPtrField<PerfEvent> events;
+
+  AddMmap(7, 0x500000000, 0x1000000, 0,
+          "[anon:.buildid_0123abcd.address_500000000.offset_0]", &events);
+  AddMmap(7, 0x501000000, 0x2000000, 0,
+          "[anon:.buildid_0123abcd.address_501000000.offset_1000000]", &events);
+  AddMmap(7, 0x503000000, 0x20000, 0x3000000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(events, Pointwise(Partially(EqualsProto()),
+                                {"mmap_event: { start: 0x500000000 "
+                                 "len:0x3020000 pgoff: 0 filename: 'file'}"}));
+}
+
+TEST(HugepageText, TaggedAnonMergesSplitMapping) {
+  RepeatedPtrField<PerfEvent> events;
+
+  AddMmap(7, 0x500000000, 0x1000000, 0,
+          "[anon:.buildid_0123abcd.address_500000000.offset_0]", &events);
+  AddMmap(7, 0x501000000, 0x2000000, 0,
+          "[anon:.buildid_0123abcd.address_500000000.offset_0]", &events);
+  AddMmap(7, 0x503000000, 0x20000, 0x3000000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(events, Pointwise(Partially(EqualsProto()),
+                                {"mmap_event: { start: 0x500000000 "
+                                 "len:0x3020000 pgoff: 0 filename: 'file'}"}));
+}
+
+TEST(HugepageText, TaggedAnonDoesntMergeNonLinearOffsets) {
+  RepeatedPtrField<PerfEvent> events;
+
+  AddMmap(7, 0x500000000, 0x1000000, 0,
+          "[anon:.buildid_0123abcd.address_500000000.offset_0]", &events);
+  AddMmap(7, 0x501000000, 0x2000000, 0,
+          "[anon:.buildid_0123abcd.address_501000000.offset_2000000]", &events);
+  AddMmap(7, 0x503000000, 0x20000, 0x4000000, "file", &events);
+
+  DeduceHugePages(&events);
+  CombineMappings(&events);
+
+  EXPECT_THAT(
+      events,
+      Pointwise(Partially(EqualsProto()),
+                {"mmap_event: { start: 0x500000000 "
+                 "len:0x1000000 pgoff: 0 filename: "
+                 "'[anon:.buildid_0123abcd.address_500000000.offset_0]'}",
+                 "mmap_event: { start: 0x501000000 "
+                 "len:0x2020000 pgoff: 0x2000000 filename: 'file'}"}));
+}
 
 TEST(HugePageDeducer, MemfsRandomSufix) {
   RepeatedPtrField<PerfEvent> events;
