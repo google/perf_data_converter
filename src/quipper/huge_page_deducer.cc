@@ -67,6 +67,12 @@ bool IsHugePage(const MMapEvent& mmap) {
   return mmap.filename().length() > buildid_start + strlen(kBuildIdStr);
 }
 
+// Returns true if the two MMapEvents describe anonymous memory regions
+// that should be merged.
+bool IsMergeableAnon(const MMapEvent& a, const MMapEvent& b) {
+  return false;
+}
+
 // IsFileContiguous returns true if the mmap offset of |a| is immediately
 // followed by |b|, or if |a| is file backed and |b| is an anonymous mapping,
 // and therefore the file offset is meaningless for it. We don't combine
@@ -336,7 +342,7 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
           const auto& mmap_range_last = huge_mmap_range_last->mmap_event();
           if (IsVmaContiguous(mmap_range_last, cur_mmap) &&
               (mmap_range_last.filename() == cur_mmap.filename() ||
-               (IsAnon(mmap_range_last) && IsAnon(cur_mmap))) &&
+               (IsMergeableAnon(mmap_range_last, cur_mmap))) &&
               (IsFileContiguous(mmap_range_last, cur_mmap) ||
                (mmap_range_last.pgoff() == 0 && cur_mmap.pgoff() == 0))) {
             // Ranges match exactly: //anon,//anon, or file,file; If they use
