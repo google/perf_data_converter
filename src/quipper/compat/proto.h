@@ -5,15 +5,15 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_COMPAT_PROTO_H_
 #define CHROMIUMOS_WIDE_PROFILING_COMPAT_PROTO_H_
 
-#include "net/proto2/io/public/zero_copy_stream_impl_lite.h"
-#include "net/proto2/public/arena.h"
-#include "net/proto2/public/message.h"
-#include "net/proto2/public/repeated_field.h"
-#include "net/proto2/public/text_format.h"
-#include "net/proto2/util/public/message_differencer.h"
 #include "perf_data.pb.h"
 #include "perf_parser_options.pb.h"
 #include "perf_stat.pb.h"
+#include "google/protobuf//arena.h"
+#include "google/protobuf//io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf//message.h"
+#include "google/protobuf//repeated_field.h"
+#include "google/protobuf//text_format.h"
+#include "google/protobuf//util/message_differencer.h"
 
 namespace quipper {
 
