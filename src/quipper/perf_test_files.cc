@@ -166,6 +166,11 @@ const std::vector<const char*>& GetPerfDataFiles() {
       --output /tmp/perf.data
       */
       "perf.data.weight_struct",
+      /* Perf data file with branch sample events for AMD Zen4 architecture.
+         Command:
+         perf5 record --event=rc4 -c 50 -b -o perf.data -- /usr/bin/lsattr
+      */
+      "perf.data.branch_stack_spec",
   };
   return *files;
 }

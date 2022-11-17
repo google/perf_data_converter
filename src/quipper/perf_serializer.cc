@@ -600,6 +600,8 @@ bool PerfSerializer::SerializeSampleEvent(
       sample->mutable_branch_stack(i)->set_in_transaction(entry.flags.in_tx);
       sample->mutable_branch_stack(i)->set_abort(entry.flags.abort);
       sample->mutable_branch_stack(i)->set_cycles(entry.flags.cycles);
+      sample->mutable_branch_stack(i)->set_type(entry.flags.type);
+      sample->mutable_branch_stack(i)->set_spec(entry.flags.spec);
       if (entry.flags.reserved != 0) {
         LOG(WARNING) << "Ignoring branch stack entry reserved bits: "
                      << entry.flags.reserved;
@@ -1675,6 +1677,8 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
       entry.flags.in_tx = sample.branch_stack(i).in_transaction();
       entry.flags.abort = sample.branch_stack(i).abort();
       entry.flags.cycles = sample.branch_stack(i).cycles();
+      entry.flags.type = sample.branch_stack(i).type();
+      entry.flags.spec = sample.branch_stack(i).spec();
     }
   }
 
