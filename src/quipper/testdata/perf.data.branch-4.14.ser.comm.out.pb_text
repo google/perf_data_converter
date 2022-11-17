@@ -566,6 +566,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436627076
@@ -575,6 +577,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436627052
@@ -584,6 +588,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -593,6 +599,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -602,6 +610,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -611,6 +621,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -620,6 +632,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -629,6 +643,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -638,6 +654,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -647,6 +665,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -656,6 +676,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -665,6 +687,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -674,6 +698,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -683,6 +709,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -692,6 +720,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -701,6 +731,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -710,6 +742,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -719,6 +753,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -728,6 +764,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -737,6 +775,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -746,6 +786,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -755,6 +797,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -764,6 +808,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -773,6 +819,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -782,6 +830,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -791,6 +841,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -800,6 +852,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -809,6 +863,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -818,6 +874,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -827,6 +885,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -836,6 +896,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 0
@@ -845,6 +907,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 0
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -871,6 +935,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628825
@@ -880,6 +946,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 25
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628710
@@ -889,6 +957,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 27
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616699
@@ -898,6 +968,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622723
@@ -907,6 +979,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622699
@@ -916,6 +990,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 251
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436625945
@@ -925,6 +1001,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 9
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616690
@@ -934,6 +1012,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 24
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615186
@@ -943,6 +1023,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 31
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612701
@@ -952,6 +1034,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612684
@@ -961,6 +1045,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 111
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615148
@@ -970,6 +1056,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 22
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614887
@@ -979,6 +1067,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827237
@@ -988,6 +1078,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 24
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827190
@@ -997,6 +1089,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827231
@@ -1006,6 +1100,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 21
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827206
@@ -1015,6 +1111,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614877
@@ -1024,6 +1122,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 31
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614841
@@ -1033,6 +1133,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622490
@@ -1042,6 +1144,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 33
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622469
@@ -1051,6 +1155,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 38
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622318
@@ -1060,6 +1166,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1069,6 +1177,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1078,6 +1188,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 12
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1087,6 +1199,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 20
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1096,6 +1210,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1105,6 +1221,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 38
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621917
@@ -1114,6 +1232,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 34
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621888
@@ -1123,6 +1243,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 28
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621863
@@ -1132,6 +1254,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898735
@@ -1141,6 +1265,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 27
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898661
@@ -1150,6 +1276,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -1176,6 +1304,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628825
@@ -1185,6 +1315,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628710
@@ -1194,6 +1326,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 14
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616699
@@ -1203,6 +1337,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622723
@@ -1212,6 +1348,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622699
@@ -1221,6 +1359,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 183
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436625945
@@ -1230,6 +1370,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616690
@@ -1239,6 +1381,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 9
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615186
@@ -1248,6 +1392,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612701
@@ -1257,6 +1403,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612684
@@ -1266,6 +1414,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 82
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615148
@@ -1275,6 +1425,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614887
@@ -1284,6 +1436,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827237
@@ -1293,6 +1447,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827190
@@ -1302,6 +1458,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827231
@@ -1311,6 +1469,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827206
@@ -1320,6 +1480,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614877
@@ -1329,6 +1491,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614841
@@ -1338,6 +1502,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 16
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622490
@@ -1347,6 +1513,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622469
@@ -1356,6 +1524,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622318
@@ -1365,6 +1535,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1374,6 +1546,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1383,6 +1557,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1392,6 +1568,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1401,6 +1579,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1410,6 +1590,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621917
@@ -1419,6 +1601,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621888
@@ -1428,6 +1612,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621863
@@ -1437,6 +1623,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898735
@@ -1446,6 +1634,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898661
@@ -1455,6 +1645,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -1481,6 +1673,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628825
@@ -1490,6 +1684,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628710
@@ -1499,6 +1695,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 14
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616699
@@ -1508,6 +1706,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622723
@@ -1517,6 +1717,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622699
@@ -1526,6 +1728,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 42141
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436625945
@@ -1535,6 +1739,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616690
@@ -1544,6 +1750,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615186
@@ -1553,6 +1761,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612701
@@ -1562,6 +1772,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612684
@@ -1571,6 +1783,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 83
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615148
@@ -1580,6 +1794,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614887
@@ -1589,6 +1805,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827237
@@ -1598,6 +1816,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827190
@@ -1607,6 +1827,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827231
@@ -1616,6 +1838,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827206
@@ -1625,6 +1849,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614877
@@ -1634,6 +1860,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614841
@@ -1643,6 +1871,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 12
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622490
@@ -1652,6 +1882,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622469
@@ -1661,6 +1893,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622318
@@ -1670,6 +1904,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1679,6 +1915,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1688,6 +1926,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1697,6 +1937,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -1706,6 +1948,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -1715,6 +1959,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621917
@@ -1724,6 +1970,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621888
@@ -1733,6 +1981,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436621863
@@ -1742,6 +1992,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898735
@@ -1751,6 +2003,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437898661
@@ -1760,6 +2014,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -1786,6 +2042,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616782
@@ -1795,6 +2053,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616744
@@ -1804,6 +2064,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436609558
@@ -1813,6 +2075,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436609534
@@ -1822,6 +2086,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 144
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616726
@@ -1831,6 +2097,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628825
@@ -1840,6 +2108,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628710
@@ -1849,6 +2119,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 14
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616699
@@ -1858,6 +2130,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622723
@@ -1867,6 +2141,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622699
@@ -1876,6 +2152,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2019
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436625945
@@ -1885,6 +2163,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616690
@@ -1894,6 +2174,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 9
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615186
@@ -1903,6 +2185,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612701
@@ -1912,6 +2196,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612684
@@ -1921,6 +2207,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 82
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615148
@@ -1930,6 +2218,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614887
@@ -1939,6 +2229,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827237
@@ -1948,6 +2240,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827190
@@ -1957,6 +2251,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827231
@@ -1966,6 +2262,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827206
@@ -1975,6 +2273,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614877
@@ -1984,6 +2284,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614841
@@ -1993,6 +2295,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622490
@@ -2002,6 +2306,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622469
@@ -2011,6 +2317,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622318
@@ -2020,6 +2328,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -2029,6 +2339,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -2038,6 +2350,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -2047,6 +2361,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622343
@@ -2056,6 +2372,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622451
@@ -2065,6 +2383,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -2091,6 +2411,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436813089
@@ -2100,6 +2422,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 32
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072449175856
@@ -2109,6 +2433,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072449175840
@@ -2118,6 +2444,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615229
@@ -2127,6 +2455,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436619451
@@ -2136,6 +2466,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436619434
@@ -2145,6 +2477,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436619426
@@ -2154,6 +2488,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 17
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615191
@@ -2163,6 +2499,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616782
@@ -2172,6 +2510,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616744
@@ -2181,6 +2521,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436609558
@@ -2190,6 +2532,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436609534
@@ -2199,6 +2543,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 146
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616726
@@ -2208,6 +2554,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628825
@@ -2217,6 +2565,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436628710
@@ -2226,6 +2576,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616699
@@ -2235,6 +2587,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622723
@@ -2244,6 +2598,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436622699
@@ -2253,6 +2609,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1660
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436625945
@@ -2262,6 +2620,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436616690
@@ -2271,6 +2631,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615186
@@ -2280,6 +2642,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612701
@@ -2289,6 +2653,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436612684
@@ -2298,6 +2664,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 80
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436615148
@@ -2307,6 +2675,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614887
@@ -2316,6 +2686,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827237
@@ -2325,6 +2697,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827190
@@ -2334,6 +2708,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827231
@@ -2343,6 +2719,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072439827206
@@ -2352,6 +2730,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614877
@@ -2361,6 +2741,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436614841
@@ -2370,6 +2752,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 14
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -2396,6 +2780,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 210
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071985
@@ -2405,6 +2791,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684306
@@ -2414,6 +2802,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684264
@@ -2423,6 +2813,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684231
@@ -2432,6 +2824,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437356654
@@ -2441,6 +2835,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684217
@@ -2450,6 +2846,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684202
@@ -2459,6 +2857,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437409150
@@ -2468,6 +2868,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437409130
@@ -2477,6 +2879,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437405839
@@ -2486,6 +2890,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437409123
@@ -2495,6 +2901,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437409119
@@ -2504,6 +2912,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436684185
@@ -2513,6 +2923,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683720
@@ -2522,6 +2934,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683501
@@ -2531,6 +2945,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394045
@@ -2540,6 +2956,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394003
@@ -2549,6 +2967,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683480
@@ -2558,6 +2978,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683269
@@ -2567,6 +2989,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683475
@@ -2576,6 +3000,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683451
@@ -2585,6 +3011,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683331
@@ -2594,6 +3022,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704136
@@ -2603,6 +3033,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436701141
@@ -2612,6 +3044,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704120
@@ -2621,6 +3055,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 17
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704164
@@ -2630,6 +3066,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 18
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436683304
@@ -2639,6 +3077,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436801125
@@ -2648,6 +3088,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072444994160
@@ -2657,6 +3099,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072444994013
@@ -2666,6 +3110,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 17
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436801116
@@ -2675,6 +3121,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 23
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -2720,6 +3168,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 30
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437393964
@@ -2729,6 +3179,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 13
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437919353
@@ -2738,6 +3190,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 36
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437902240
@@ -2747,6 +3201,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 22
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884213
@@ -2756,6 +3212,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884188
@@ -2765,6 +3223,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884170
@@ -2774,6 +3234,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884129
@@ -2783,6 +3245,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437221351
@@ -2792,6 +3256,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437220990
@@ -2801,6 +3267,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704136
@@ -2810,6 +3278,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436701141
@@ -2819,6 +3289,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704120
@@ -2828,6 +3300,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436704164
@@ -2837,6 +3311,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 13
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437220978
@@ -2846,6 +3322,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 19
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437911646
@@ -2855,6 +3333,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 19
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072449175568
@@ -2864,6 +3344,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072449175552
@@ -2873,6 +3355,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884113
@@ -2882,6 +3366,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437870969
@@ -2891,6 +3377,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437870950
@@ -2900,6 +3388,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437157616
@@ -2909,6 +3399,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394045
@@ -2918,6 +3410,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394003
@@ -2927,6 +3421,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437157600
@@ -2936,6 +3432,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437157524
@@ -2945,6 +3443,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437157474
@@ -2954,6 +3454,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437393964
@@ -2963,6 +3465,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437157466
@@ -2972,6 +3476,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437870943
@@ -2981,6 +3487,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437884091
@@ -2990,6 +3498,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437870969
@@ -2999,6 +3509,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -3025,6 +3537,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436864281
@@ -3034,6 +3548,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436864252
@@ -3043,6 +3559,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436862918
@@ -3052,6 +3570,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170579
@@ -3061,6 +3581,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438148628
@@ -3070,6 +3592,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170524
@@ -3079,6 +3603,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170488
@@ -3088,6 +3614,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170049
@@ -3097,6 +3625,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170470
@@ -3106,6 +3636,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438170688
@@ -3115,6 +3647,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 22
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437981024
@@ -3124,6 +3658,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 25
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437980528
@@ -3133,6 +3669,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437980474
@@ -3142,6 +3680,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 57
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437964475
@@ -3151,6 +3691,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 33
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437980340
@@ -3160,6 +3702,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437980301
@@ -3169,6 +3713,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437965164
@@ -3178,6 +3724,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437965059
@@ -3187,6 +3735,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 34
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437980291
@@ -3196,6 +3746,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 17
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438005311
@@ -3205,6 +3757,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438008324
@@ -3214,6 +3768,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438008046
@@ -3223,6 +3779,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438002335
@@ -3232,6 +3790,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438008036
@@ -3241,6 +3801,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438005299
@@ -3250,6 +3812,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438252191
@@ -3259,6 +3823,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438252183
@@ -3268,6 +3834,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 17
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438249318
@@ -3277,6 +3845,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438252174
@@ -3286,6 +3856,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 47
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438249819
@@ -3295,6 +3867,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438249746
@@ -3304,6 +3878,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -3414,6 +3990,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436845531
@@ -3423,6 +4001,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 19
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436846724
@@ -3432,6 +4012,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072436846492
@@ -3441,6 +4023,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 16
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071079
@@ -3450,6 +4034,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071534
@@ -3459,6 +4045,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071578
@@ -3468,6 +4056,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071494
@@ -3477,6 +4067,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 30
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072447071057
@@ -3486,6 +4078,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 45
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438715562
@@ -3495,6 +4089,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 673
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438198434
@@ -3504,6 +4100,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438198380
@@ -3513,6 +4111,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438198365
@@ -3522,6 +4122,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193299
@@ -3531,6 +4133,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132335
@@ -3540,6 +4144,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 16
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193285
@@ -3549,6 +4155,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 23
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193250
@@ -3558,6 +4166,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193259
@@ -3567,6 +4177,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 29
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193265
@@ -3576,6 +4188,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193244
@@ -3585,6 +4199,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193265
@@ -3594,6 +4210,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438193244
@@ -3603,6 +4221,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132495
@@ -3612,6 +4232,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132432
@@ -3621,6 +4243,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132492
@@ -3630,6 +4254,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 23
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132460
@@ -3639,6 +4265,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132490
@@ -3648,6 +4276,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132460
@@ -3657,6 +4287,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132490
@@ -3666,6 +4298,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132460
@@ -3675,6 +4309,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132490
@@ -3684,6 +4320,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438132466
@@ -3693,6 +4331,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 26
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -3803,6 +4443,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437915481
@@ -3812,6 +4454,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 18
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437915481
@@ -3821,6 +4465,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437915481
@@ -3830,6 +4476,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 73
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437915263
@@ -3839,6 +4487,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 26
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483598
@@ -3848,6 +4498,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483536
@@ -3857,6 +4509,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394045
@@ -3866,6 +4520,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394023
@@ -3875,6 +4531,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437393993
@@ -3884,6 +4542,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483521
@@ -3893,6 +4553,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483494
@@ -3902,6 +4564,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483469
@@ -3911,6 +4575,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438470276
@@ -3920,6 +4586,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483441
@@ -3929,6 +4597,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394045
@@ -3938,6 +4608,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394003
@@ -3947,6 +4619,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483422
@@ -3956,6 +4630,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483402
@@ -3965,6 +4641,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438470276
@@ -3974,6 +4652,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483378
@@ -3983,6 +4663,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394045
@@ -3992,6 +4674,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072437394003
@@ -4001,6 +4685,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 15
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483358
@@ -4010,6 +4696,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483327
@@ -4019,6 +4707,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483204
@@ -4028,6 +4718,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483312
@@ -4037,6 +4729,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483287
@@ -4046,6 +4740,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483307
@@ -4055,6 +4751,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483307
@@ -4064,6 +4762,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483307
@@ -4073,6 +4773,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 18446744072438483307
@@ -4082,6 +4784,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -4220,6 +4924,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 10
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921332270688
@@ -4229,6 +4935,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 24
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921332270667
@@ -4238,6 +4946,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339950718
@@ -4247,6 +4957,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339949316
@@ -4256,6 +4968,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339941857
@@ -4265,6 +4979,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939575
@@ -4274,6 +4990,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 3
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939213
@@ -4283,6 +5001,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339941257
@@ -4292,6 +5012,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939510
@@ -4301,6 +5023,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938249
@@ -4310,6 +5034,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938284
@@ -4319,6 +5045,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4328,6 +5056,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4337,6 +5067,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938272
@@ -4346,6 +5078,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938216
@@ -4355,6 +5089,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939500
@@ -4364,6 +5100,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4373,6 +5111,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 9
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4382,6 +5122,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 20
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939457
@@ -4391,6 +5133,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 348
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939313
@@ -4400,6 +5144,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 27
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938690
@@ -4409,6 +5155,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938806
@@ -4418,6 +5166,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938779
@@ -4427,6 +5177,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968992
@@ -4436,6 +5188,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968951
@@ -4445,6 +5199,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968966
@@ -4454,6 +5210,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4463,6 +5221,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4472,6 +5232,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968959
@@ -4481,6 +5243,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968934
@@ -4490,6 +5254,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4499,6 +5265,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0
@@ -4525,6 +5293,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 8
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939500
@@ -4534,6 +5304,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 5
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4543,6 +5315,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4552,6 +5326,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 39
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939457
@@ -4561,6 +5337,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 339
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339939313
@@ -4570,6 +5348,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 65
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938690
@@ -4579,6 +5359,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 7
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938806
@@ -4588,6 +5370,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938779
@@ -4597,6 +5381,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968992
@@ -4606,6 +5392,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968951
@@ -4615,6 +5403,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968966
@@ -4624,6 +5414,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4633,6 +5425,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4642,6 +5436,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968959
@@ -4651,6 +5447,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968934
@@ -4660,6 +5458,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4669,6 +5469,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 6
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4678,6 +5480,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968913
@@ -4687,6 +5491,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938719
@@ -4696,6 +5502,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 10
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938806
@@ -4705,6 +5513,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339938779
@@ -4714,6 +5524,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968992
@@ -4723,6 +5535,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968951
@@ -4732,6 +5546,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968966
@@ -4741,6 +5557,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4750,6 +5568,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340007874
@@ -4759,6 +5579,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968959
@@ -4768,6 +5590,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921339968934
@@ -4777,6 +5601,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 1
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012958
@@ -4786,6 +5612,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012928
@@ -4795,6 +5623,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 2
+      type: 0
+      spec: 0
     }
     branch_stack {
       from_ip: 132921340012314
@@ -4804,6 +5634,8 @@ events {
       in_transaction: false
       abort: false
       cycles: 4
+      type: 0
+      spec: 0
     }
     no_hw_idx: true
     branch_stack_hw_idx: 0

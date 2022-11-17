@@ -194,6 +194,40 @@ enum perf_branch_sample_type {
   PERF_SAMPLE_BRANCH_MAX = 1U << 18, /* non-ABI */
 };
 
+/*
+ * Common flow change classification
+ */
+enum {
+  PERF_BR_UNKNOWN = 0,     /* unknown */
+  PERF_BR_COND = 1,        /* conditional */
+  PERF_BR_UNCOND = 2,      /* unconditional  */
+  PERF_BR_IND = 3,         /* indirect */
+  PERF_BR_CALL = 4,        /* function call */
+  PERF_BR_IND_CALL = 5,    /* indirect function call */
+  PERF_BR_RET = 6,         /* function return */
+  PERF_BR_SYSCALL = 7,     /* syscall */
+  PERF_BR_SYSRET = 8,      /* syscall return */
+  PERF_BR_COND_CALL = 9,   /* conditional function call */
+  PERF_BR_COND_RET = 10,   /* conditional function return */
+  PERF_BR_ERET = 11,       /* exception return */
+  PERF_BR_IRQ = 12,        /* irq */
+  PERF_BR_SERROR = 13,     /* system error */
+  PERF_BR_NO_TX = 14,      /* not in transaction */
+  PERF_BR_EXTEND_ABI = 15, /* extend ABI */
+  PERF_BR_MAX,
+};
+
+/*
+ * Common branch speculation outcome classification
+ */
+enum {
+  PERF_BR_SPEC_NA = 0,               /* Not available */
+  PERF_BR_SPEC_WRONG_PATH = 1,       /* Speculative but on wrong path */
+  PERF_BR_NON_SPEC_CORRECT_PATH = 2, /* Non-speculative but on correct path */
+  PERF_BR_SPEC_CORRECT_PATH = 3,     /* Speculative and on correct path */
+  PERF_BR_SPEC_MAX,
+};
+
 const u16 PERF_SAMPLE_BRANCH_PLM_ALL =
     (PERF_SAMPLE_BRANCH_USER | PERF_SAMPLE_BRANCH_KERNEL |
      PERF_SAMPLE_BRANCH_HV);
@@ -1074,6 +1108,8 @@ union perf_mem_data_src {
  *     in_tx: running in a hardware transaction
  *     abort: aborting a hardware transaction
  *    cycles: cycles from last branch (or 0 if not supported)
+ *      type: branch type
+ *      spec: branch speculation info (or 0 if not supported)
  */
 struct perf_branch_entry {
   __u64 from;
@@ -1083,7 +1119,9 @@ struct perf_branch_entry {
       in_tx : 1,     /* in transaction */
       abort : 1,     /* transaction abort */
       cycles : 16,   /* cycle count to last branch */
-      reserved : 44;
+      type : 4,      /* branch type */
+      spec : 2,      /* branch speculation info */
+      reserved : 38;
 };
 
 }  // namespace quipper

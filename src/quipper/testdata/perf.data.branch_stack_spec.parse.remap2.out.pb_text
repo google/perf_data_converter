@@ -1,0 +1,4998 @@
+file_attrs {
+  attr {
+    type: 4
+    size: 96
+    config: 196
+    sample_period: 50
+    sample_type: 2055
+    read_format: 4
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: false
+    inherit_stat: false
+    enable_on_exec: true
+    task: true
+    watermark: false
+    precise_ip: 0
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 8
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
+  }
+  ids: 531962
+  ids: 531963
+  ids: 531964
+  ids: 531965
+  ids: 531966
+  ids: 531967
+  ids: 531968
+  ids: 531969
+  ids: 531970
+  ids: 531971
+  ids: 531972
+  ids: 531973
+  ids: 531974
+  ids: 531975
+  ids: 531976
+  ids: 531977
+  ids: 531978
+  ids: 531979
+  ids: 531980
+  ids: 531981
+  ids: 531982
+  ids: 531983
+  ids: 531984
+  ids: 531985
+  ids: 531986
+  ids: 531987
+  ids: 531988
+  ids: 531989
+  ids: 531990
+  ids: 531991
+  ids: 531992
+  ids: 531993
+  ids: 531994
+  ids: 531995
+  ids: 531996
+  ids: 531997
+  ids: 531998
+  ids: 531999
+  ids: 532000
+  ids: 532001
+  ids: 532002
+  ids: 532003
+  ids: 532004
+  ids: 532005
+  ids: 532006
+  ids: 532007
+  ids: 532008
+  ids: 532009
+  ids: 532010
+  ids: 532011
+  ids: 532012
+  ids: 532013
+  ids: 532014
+  ids: 532015
+  ids: 532016
+  ids: 532017
+  ids: 532018
+  ids: 532019
+  ids: 532020
+  ids: 532021
+  ids: 532022
+  ids: 532023
+  ids: 532024
+  ids: 532025
+  ids: 532026
+  ids: 532027
+  ids: 532028
+  ids: 532029
+  ids: 532030
+  ids: 532031
+  ids: 532032
+  ids: 532033
+  ids: 532034
+  ids: 532035
+  ids: 532036
+  ids: 532037
+  ids: 532038
+  ids: 532039
+  ids: 532040
+  ids: 532041
+  ids: 532042
+  ids: 532043
+  ids: 532044
+  ids: 532045
+  ids: 532046
+  ids: 532047
+  ids: 532048
+  ids: 532049
+  ids: 532050
+  ids: 532051
+  ids: 532052
+  ids: 532053
+  ids: 532054
+  ids: 532055
+  ids: 532056
+  ids: 532057
+  ids: 532058
+  ids: 532059
+  ids: 532060
+  ids: 532061
+  ids: 532062
+  ids: 532063
+  ids: 532064
+  ids: 532065
+  ids: 532066
+  ids: 532067
+  ids: 532068
+  ids: 532069
+  ids: 532070
+  ids: 532071
+  ids: 532072
+  ids: 532073
+  ids: 532074
+  ids: 532075
+  ids: 532076
+  ids: 532077
+  ids: 532078
+  ids: 532079
+  ids: 532080
+  ids: 532081
+  ids: 532082
+  ids: 532083
+  ids: 532084
+  ids: 532085
+  ids: 532086
+  ids: 532087
+  ids: 532088
+  ids: 532089
+  ids: 532090
+  ids: 532091
+  ids: 532092
+  ids: 532093
+  ids: 532094
+  ids: 532095
+  ids: 532096
+  ids: 532097
+  ids: 532098
+  ids: 532099
+  ids: 532100
+  ids: 532101
+  ids: 532102
+  ids: 532103
+  ids: 532104
+  ids: 532105
+  ids: 532106
+  ids: 532107
+  ids: 532108
+  ids: 532109
+  ids: 532110
+  ids: 532111
+  ids: 532112
+  ids: 532113
+  ids: 532114
+  ids: 532115
+  ids: 532116
+  ids: 532117
+  ids: 532118
+  ids: 532119
+  ids: 532120
+  ids: 532121
+  ids: 532122
+  ids: 532123
+  ids: 532124
+  ids: 532125
+  ids: 532126
+  ids: 532127
+  ids: 532128
+  ids: 532129
+  ids: 532130
+  ids: 532131
+  ids: 532132
+  ids: 532133
+  ids: 532134
+  ids: 532135
+  ids: 532136
+  ids: 532137
+  ids: 532138
+  ids: 532139
+  ids: 532140
+  ids: 532141
+  ids: 532142
+  ids: 532143
+  ids: 532144
+  ids: 532145
+  ids: 532146
+  ids: 532147
+  ids: 532148
+  ids: 532149
+  ids: 532150
+  ids: 532151
+  ids: 532152
+  ids: 532153
+  ids: 532154
+  ids: 532155
+  ids: 532156
+  ids: 532157
+  ids: 532158
+  ids: 532159
+  ids: 532160
+  ids: 532161
+  ids: 532162
+  ids: 532163
+  ids: 532164
+  ids: 532165
+  ids: 532166
+  ids: 532167
+  ids: 532168
+  ids: 532169
+  ids: 532170
+  ids: 532171
+  ids: 532172
+  ids: 532173
+  ids: 532174
+  ids: 532175
+  ids: 532176
+  ids: 532177
+  ids: 532178
+  ids: 532179
+  ids: 532180
+  ids: 532181
+  ids: 532182
+  ids: 532183
+  ids: 532184
+  ids: 532185
+  ids: 532186
+  ids: 532187
+  ids: 532188
+  ids: 532189
+  ids: 532190
+  ids: 532191
+  ids: 532192
+  ids: 532193
+  ids: 532194
+  ids: 532195
+  ids: 532196
+  ids: 532197
+  ids: 532198
+  ids: 532199
+  ids: 532200
+  ids: 532201
+  ids: 532202
+  ids: 532203
+  ids: 532204
+  ids: 532205
+  ids: 532206
+  ids: 532207
+  ids: 532208
+  ids: 532209
+  ids: 532210
+  ids: 532211
+  ids: 532212
+  ids: 532213
+  ids: 532214
+  ids: 532215
+  ids: 532216
+  ids: 532217
+  ids: 532218
+  ids: 532219
+  ids: 532220
+  ids: 532221
+  ids: 532222
+  ids: 532223
+  ids: 532224
+  ids: 532225
+  ids: 532226
+  ids: 532227
+  ids: 532228
+  ids: 532229
+  ids: 532230
+  ids: 532231
+  ids: 532232
+  ids: 532233
+  ids: 532234
+  ids: 532235
+  ids: 532236
+  ids: 532237
+  ids: 532238
+  ids: 532239
+  ids: 532240
+  ids: 532241
+  ids: 532242
+  ids: 532243
+  ids: 532244
+  ids: 532245
+  ids: 532246
+  ids: 532247
+  ids: 532248
+  ids: 532249
+  ids: 532250
+  ids: 532251
+  ids: 532252
+  ids: 532253
+  ids: 532254
+  ids: 532255
+  ids: 532256
+  ids: 532257
+  ids: 532258
+  ids: 532259
+  ids: 532260
+  ids: 532261
+  ids: 532262
+  ids: 532263
+  ids: 532264
+  ids: 532265
+  ids: 532266
+  ids: 532267
+  ids: 532268
+  ids: 532269
+  ids: 532270
+  ids: 532271
+  ids: 532272
+  ids: 532273
+  ids: 532274
+  ids: 532275
+  ids: 532276
+  ids: 532277
+  ids: 532278
+  ids: 532279
+  ids: 532280
+  ids: 532281
+  ids: 532282
+  ids: 532283
+  ids: 532284
+  ids: 532285
+  ids: 532286
+  ids: 532287
+  ids: 532288
+  ids: 532289
+  ids: 532290
+  ids: 532291
+  ids: 532292
+  ids: 532293
+  ids: 532294
+  ids: 532295
+  ids: 532296
+  ids: 532297
+  ids: 532298
+  ids: 532299
+  ids: 532300
+  ids: 532301
+  ids: 532302
+  ids: 532303
+  ids: 532304
+  ids: 532305
+  ids: 532306
+  ids: 532307
+  ids: 532308
+  ids: 532309
+  ids: 532310
+  ids: 532311
+  ids: 532312
+  ids: 532313
+  ids: 532314
+  ids: 532315
+  ids: 532316
+  ids: 532317
+  ids: 532318
+  ids: 532319
+  ids: 532320
+  ids: 532321
+  ids: 532322
+  ids: 532323
+  ids: 532324
+  ids: 532325
+  ids: 532326
+  ids: 532327
+  ids: 532328
+  ids: 532329
+  ids: 532330
+  ids: 532331
+  ids: 532332
+  ids: 532333
+  ids: 532334
+  ids: 532335
+  ids: 532336
+  ids: 532337
+  ids: 532338
+  ids: 532339
+  ids: 532340
+  ids: 532341
+  ids: 532342
+  ids: 532343
+  ids: 532344
+  ids: 532345
+}
+events {
+  header {
+    type: 79
+    misc: 0
+    size: 56
+  }
+  timestamp: 0
+  time_conv_event {
+    time_shift: 31
+    time_mult: 1000334292
+    time_zero: 18446743156364376979
+    time_cycles: 0
+    time_mask: 0
+    cap_user_time_zero: true
+    cap_user_time_short: false
+  }
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 80
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 0
+    len: 14685370
+    pgoff: 0
+    filename: "[kernel.kallsyms]_text"
+    filename_md5_prefix: 9918483331179727898
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 144
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 14688256
+    len: 196608
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/ethernet/google/diorite/idpf-hw/idpf.ko"
+    filename_md5_prefix: 13719796155541865382
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 128
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 14884864
+    len: 20480
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/i2c/busses/i2c-piix4.ko"
+    filename_md5_prefix: 2622769569569866461
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 152
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 14905344
+    len: 143360
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/crypto/google/diorite/lce/qat_common/intel_qat.ko"
+    filename_md5_prefix: 16973321626076282000
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 160
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15048704
+    len: 40960
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/crypto/google/diorite/lce/qat_lce_common/qat_lce_common.ko"
+    filename_md5_prefix: 11066674733796827961
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 160
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15089664
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/crypto/google/diorite/lce/qat_lce_apfxx/qat_lce_apfxx.ko"
+    filename_md5_prefix: 6359898794392629754
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15106048
+    len: 69632
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/fs/fat/fat.ko"
+    filename_md5_prefix: 13497212721977712890
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15175680
+    len: 24576
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/fs/fat/vfat.ko"
+    filename_md5_prefix: 5367766765084494702
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15200256
+    len: 57344
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/usb/host/ehci-hcd.ko"
+    filename_md5_prefix: 3265917763200319388
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15257600
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/dummy.ko"
+    filename_md5_prefix: 15917944862911859961
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15273984
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/usb/host/ehci-pci.ko"
+    filename_md5_prefix: 1926015133843846965
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15290368
+    len: 180224
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/usb/host/xhci-hcd.ko"
+    filename_md5_prefix: 6927866674820446308
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15470592
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/mii.ko"
+    filename_md5_prefix: 14674357648383492193
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15486976
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/net/llc/llc.ko"
+    filename_md5_prefix: 11692727795437114599
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15503360
+    len: 20480
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/usb/host/xhci-pci.ko"
+    filename_md5_prefix: 6887759437293046091
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15523840
+    len: 36864
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/usb/usbnet.ko"
+    filename_md5_prefix: 10914457822227708273
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15560704
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/usb/cdc_ether.ko"
+    filename_md5_prefix: 8046288555526877585
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15577088
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/usb/cdc_eem.ko"
+    filename_md5_prefix: 2735360308200558528
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 120
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15593472
+    len: 28672
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/drivers/net/usb/cdc_ncm.ko"
+    filename_md5_prefix: 6255242231810703677
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15622144
+    len: 16384
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/net/802/stp.ko"
+    filename_md5_prefix: 8950476400021478009
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 112
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 15638528
+    len: 176128
+    pgoff: 0
+    filename: "/lib/modules/4.15.0-smp-9xx/kernel/net/bridge/bridge.ko"
+    filename_md5_prefix: 1520563524686019316
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 73
+    misc: 0
+    size: 40
+  }
+  timestamp: 0
+  thread_map_event {
+    entries {
+      pid: 147221
+      comm: ""
+      comm_md5_prefix: 15284527576400310788
+    }
+  }
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 147221
+    tid: 147221
+    comm: "perf-exec"
+    comm_md5_prefix: 6375561754421997525
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 68
+    misc: 0
+    size: 8
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 3154621
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111246458
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111246458
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 3154621
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111253668
+    branch_stack {
+      from_ip: 3136795
+      to_ip: 3136935
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 45228
+      to_ip: 3136736
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 45222
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 45217
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 64026
+      to_ip: 45215
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 63930
+      to_ip: 63991
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 63799
+      to_ip: 63850
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3154628
+      to_ip: 3154610
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111253668
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 3154621
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111258165
+    branch_stack {
+      from_ip: 1981104
+      to_ip: 831232
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831227
+      to_ip: 1981088
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1102032
+      to_ip: 831227
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831222
+      to_ip: 1102016
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057995
+      to_ip: 831193
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057905
+      to_ip: 2057960
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831188
+      to_ip: 2057824
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830912
+      to_ip: 831188
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830667
+      to_ip: 830902
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829312
+      to_ip: 830653
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829323
+      to_ip: 829295
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829382
+      to_ip: 829313
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 829357
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829352
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68992
+      to_ip: 829349
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136936
+      to_ip: 68984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111258165
+}
+events {
+  header {
+    type: 5
+    misc: 0
+    size: 48
+  }
+  throttle_event {
+    time_ns: 1730404111261861
+    id: 532172
+    stream_id: 532172
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111261891
+    }
+  }
+  timestamp: 1730404111261891
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 3154621
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111262141
+    branch_stack {
+      from_ip: 1981104
+      to_ip: 831232
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831227
+      to_ip: 1981088
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1102032
+      to_ip: 831227
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831222
+      to_ip: 1102016
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057995
+      to_ip: 831193
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057905
+      to_ip: 2057960
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831188
+      to_ip: 2057824
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830912
+      to_ip: 831188
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830667
+      to_ip: 830902
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829312
+      to_ip: 830653
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829323
+      to_ip: 829295
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829382
+      to_ip: 829313
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 829357
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829352
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68992
+      to_ip: 829349
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136936
+      to_ip: 68984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111262141
+}
+events {
+  header {
+    type: 3
+    misc: 8192
+    size: 40
+  }
+  comm_event {
+    pid: 147221
+    tid: 147221
+    comm: "lsattr"
+    comm_md5_prefix: 3191280499582356341
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111270905
+    }
+  }
+  timestamp: 1730404111270905
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 104
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 15814656
+    len: 8192
+    pgoff: 0
+    filename: "/usr/bin/lsattr"
+    filename_md5_prefix: 16172668339263457726
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111297605
+    }
+    maj: 8
+    min: 1
+    ino: 267056
+    ino_generation: 2496697256
+    prot: 5
+    flags: 6146
+  }
+  timestamp: 1730404111297605
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 15822848
+    len: 200704
+    pgoff: 0
+    filename: "/usr/grte/v5/lib64/ld-2.27.so"
+    filename_md5_prefix: 16497797678229173547
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111316944
+    }
+    maj: 8
+    min: 1
+    ino: 263367
+    ino_generation: 1675276612
+    prot: 5
+    flags: 6146
+  }
+  timestamp: 1730404111316944
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 96
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 16023552
+    len: 8192
+    pgoff: 0
+    filename: "[vdso]"
+    filename_md5_prefix: 2667416218816914640
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111342592
+    }
+    maj: 0
+    min: 0
+    ino: 0
+    ino_generation: 0
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111342592
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 136
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 16031744
+    len: 20480
+    pgoff: 12288
+    filename: "/usr/lib/x86_64-grtev5-linux-gnu/libe2p.so.2.3"
+    filename_md5_prefix: 9341658472321535153
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111436393
+    }
+    maj: 8
+    min: 1
+    ino: 266237
+    ino_generation: 4000105308
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111436393
+}
+events {
+  header {
+    type: 6
+    misc: 0
+    size: 48
+  }
+  throttle_event {
+    time_ns: 1730404111455031
+    id: 532172
+    stream_id: 532172
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111455062
+    }
+  }
+  timestamp: 1730404111455062
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 1029633
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111464055
+    branch_stack {
+      from_ip: 1568889
+      to_ip: 1580928
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668538
+      to_ip: 1568880
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 6056721
+      to_ip: 1668516
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 6056663
+      to_ip: 6056696
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668511
+      to_ip: 6056640
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668437
+      to_ip: 1668492
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668376
+      to_ip: 1668384
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668356
+      to_ip: 1668368
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668333
+      to_ip: 1668342
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668301
+      to_ip: 1668325
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668198
+      to_ip: 1668220
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1383410
+      to_ip: 1668093
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1668088
+      to_ip: 1383344
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1568577
+      to_ip: 1668032
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1581272
+      to_ip: 1568564
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1581199
+      to_ip: 1581213
+      mispredicted: true
+      predicted: false
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111464055
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 1029633
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111468261
+    branch_stack {
+      from_ip: 831188
+      to_ip: 2057824
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830912
+      to_ip: 831188
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830667
+      to_ip: 830902
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829312
+      to_ip: 830653
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829323
+      to_ip: 829295
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829382
+      to_ip: 829313
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 829357
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829352
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68992
+      to_ip: 829349
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136936
+      to_ip: 68984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136795
+      to_ip: 3136935
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68979
+      to_ip: 3136736
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 68973
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68968
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68959
+      to_ip: 68968
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 70377
+      to_ip: 68954
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111468261
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 1029633
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111472007
+    branch_stack {
+      from_ip: 1981104
+      to_ip: 831232
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831227
+      to_ip: 1981088
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1102032
+      to_ip: 831227
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831222
+      to_ip: 1102016
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057995
+      to_ip: 831193
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057905
+      to_ip: 2057960
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831188
+      to_ip: 2057824
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830912
+      to_ip: 831188
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830667
+      to_ip: 830902
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829312
+      to_ip: 830653
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829323
+      to_ip: 829295
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829382
+      to_ip: 829313
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 829357
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829352
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68992
+      to_ip: 829349
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136936
+      to_ip: 68984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111472007
+}
+events {
+  header {
+    type: 5
+    misc: 0
+    size: 48
+  }
+  throttle_event {
+    time_ns: 1730404111475702
+    id: 532172
+    stream_id: 532172
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111475733
+    }
+  }
+  timestamp: 1730404111475733
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 424
+  }
+  sample_event {
+    ip: 1029633
+    pid: 147221
+    tid: 147221
+    sample_time_ns: 1730404111475803
+    branch_stack {
+      from_ip: 1981104
+      to_ip: 831232
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831227
+      to_ip: 1981088
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 1102032
+      to_ip: 831227
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831222
+      to_ip: 1102016
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057995
+      to_ip: 831193
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 2057905
+      to_ip: 2057960
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 831188
+      to_ip: 2057824
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830912
+      to_ip: 831188
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 830667
+      to_ip: 830902
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829312
+      to_ip: 830653
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829323
+      to_ip: 829295
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829382
+      to_ip: 829313
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 851990
+      to_ip: 829357
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 829352
+      to_ip: 851888
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 68992
+      to_ip: 829349
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    branch_stack {
+      from_ip: 3136936
+      to_ip: 68984
+      mispredicted: false
+      predicted: true
+      in_transaction: false
+      abort: false
+      cycles: 0
+      type: 0
+      spec: 2
+    }
+    no_hw_idx: true
+    branch_stack_hw_idx: 0
+  }
+  timestamp: 1730404111475803
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 144
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 16052224
+    len: 8192
+    pgoff: 4096
+    filename: "/usr/lib/x86_64-grtev5-linux-gnu/libcom_err.so.2.1"
+    filename_md5_prefix: 14514383092211442934
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111500339
+    }
+    maj: 8
+    min: 1
+    ino: 266235
+    ino_generation: 3065248593
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111500339
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 144
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 16060416
+    len: 131072
+    pgoff: 53248
+    filename: "/usr/lib/x86_64-grtev5-linux-gnu/libblkid.so.1.1.0"
+    filename_md5_prefix: 11612563013026516897
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111531036
+    }
+    maj: 8
+    min: 1
+    ino: 271611
+    ino_generation: 422368140
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111531036
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 120
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 16191488
+    len: 1748992
+    pgoff: 0
+    filename: "/usr/grte/v5/lib64/libc-2.27.so"
+    filename_md5_prefix: 14960010017541266311
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111567671
+    }
+    maj: 8
+    min: 1
+    ino: 263369
+    ino_generation: 1004141802
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111567671
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 128
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 17940480
+    len: 122880
+    pgoff: 0
+    filename: "/usr/grte/v5/lib64/libpthread-2.27.so"
+    filename_md5_prefix: 1749210009572577680
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111607020
+    }
+    maj: 8
+    min: 1
+    ino: 263391
+    ino_generation: 3258500352
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111607020
+}
+events {
+  header {
+    type: 10
+    misc: 2
+    size: 144
+  }
+  mmap_event {
+    pid: 147221
+    tid: 147221
+    start: 18063360
+    len: 8192
+    pgoff: 4096
+    filename: "/usr/lib/x86_64-grtev5-linux-gnu/libuuid.so.1.3.0"
+    filename_md5_prefix: 16132058756841133032
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404111650986
+    }
+    maj: 8
+    min: 1
+    ino: 271619
+    ino_generation: 1609405032
+    prot: 5
+    flags: 4098
+  }
+  timestamp: 1730404111650986
+}
+events {
+  header {
+    type: 4
+    misc: 0
+    size: 48
+  }
+  exit_event {
+    pid: 147221
+    ppid: 147220
+    tid: 147221
+    ptid: 147220
+    fork_time_ns: 1730404112059110
+    sample_info {
+      pid: 147221
+      tid: 147221
+      sample_time_ns: 1730404112058579
+    }
+  }
+  timestamp: 1730404112058579
+}
+timestamp_sec: 0
+stats {
+  num_sample_events: 8
+  num_mmap_events: 30
+  num_fork_events: 0
+  num_exit_events: 1
+  num_sample_events_mapped: 8
+  did_remap: false
+}
+metadata_mask: 131068
+build_ids {
+  misc: 32769
+  pid: 4294967295
+  build_id_hash: "\276JQ3\334\017\270\023\014\231\356\242\004)vp\267\307\316\374"
+  filename: "[kernel.kallsyms]"
+  filename_md5_prefix: 280564236321828871
+  size: 20
+}
+build_ids {
+  misc: 32770
+  pid: 4294967295
+  build_id_hash: "\232J\267\354P\201;\217I\251\016mi!\265\347\203\177\202\261"
+  filename: "[vdso]"
+  filename_md5_prefix: 2667416218816914640
+  size: 20
+}
+uint32_metadata {
+  type: 7
+  data: 384
+  data: 384
+}
+uint64_metadata {
+  type: 10
+  data: 1585149188
+}
+event_types {
+  id: 196
+  name: "rc4"
+  name_md5_prefix: 3982050605733836423
+}
+cpu_topology {
+  core_siblings: "0-95,192-287"
+  core_siblings: "96-191,288-383"
+  core_siblings_md5_prefix: 1941509285987173136
+  core_siblings_md5_prefix: 50864044263009467
+  thread_siblings: "0,192"
+  thread_siblings: "1,193"
+  thread_siblings: "2,194"
+  thread_siblings: "3,195"
+  thread_siblings: "4,196"
+  thread_siblings: "5,197"
+  thread_siblings: "6,198"
+  thread_siblings: "7,199"
+  thread_siblings: "8,200"
+  thread_siblings: "9,201"
+  thread_siblings: "10,202"
+  thread_siblings: "11,203"
+  thread_siblings: "12,204"
+  thread_siblings: "13,205"
+  thread_siblings: "14,206"
+  thread_siblings: "15,207"
+  thread_siblings: "16,208"
+  thread_siblings: "17,209"
+  thread_siblings: "18,210"
+  thread_siblings: "19,211"
+  thread_siblings: "20,212"
+  thread_siblings: "21,213"
+  thread_siblings: "22,214"
+  thread_siblings: "23,215"
+  thread_siblings: "24,216"
+  thread_siblings: "25,217"
+  thread_siblings: "26,218"
+  thread_siblings: "27,219"
+  thread_siblings: "28,220"
+  thread_siblings: "29,221"
+  thread_siblings: "30,222"
+  thread_siblings: "31,223"
+  thread_siblings: "32,224"
+  thread_siblings: "33,225"
+  thread_siblings: "34,226"
+  thread_siblings: "35,227"
+  thread_siblings: "36,228"
+  thread_siblings: "37,229"
+  thread_siblings: "38,230"
+  thread_siblings: "39,231"
+  thread_siblings: "40,232"
+  thread_siblings: "41,233"
+  thread_siblings: "42,234"
+  thread_siblings: "43,235"
+  thread_siblings: "44,236"
+  thread_siblings: "45,237"
+  thread_siblings: "46,238"
+  thread_siblings: "47,239"
+  thread_siblings: "48,240"
+  thread_siblings: "49,241"
+  thread_siblings: "50,242"
+  thread_siblings: "51,243"
+  thread_siblings: "52,244"
+  thread_siblings: "53,245"
+  thread_siblings: "54,246"
+  thread_siblings: "55,247"
+  thread_siblings: "56,248"
+  thread_siblings: "57,249"
+  thread_siblings: "58,250"
+  thread_siblings: "59,251"
+  thread_siblings: "60,252"
+  thread_siblings: "61,253"
+  thread_siblings: "62,254"
+  thread_siblings: "63,255"
+  thread_siblings: "64,256"
+  thread_siblings: "65,257"
+  thread_siblings: "66,258"
+  thread_siblings: "67,259"
+  thread_siblings: "68,260"
+  thread_siblings: "69,261"
+  thread_siblings: "70,262"
+  thread_siblings: "71,263"
+  thread_siblings: "72,264"
+  thread_siblings: "73,265"
+  thread_siblings: "74,266"
+  thread_siblings: "75,267"
+  thread_siblings: "76,268"
+  thread_siblings: "77,269"
+  thread_siblings: "78,270"
+  thread_siblings: "79,271"
+  thread_siblings: "80,272"
+  thread_siblings: "81,273"
+  thread_siblings: "82,274"
+  thread_siblings: "83,275"
+  thread_siblings: "84,276"
+  thread_siblings: "85,277"
+  thread_siblings: "86,278"
+  thread_siblings: "87,279"
+  thread_siblings: "88,280"
+  thread_siblings: "89,281"
+  thread_siblings: "90,282"
+  thread_siblings: "91,283"
+  thread_siblings: "92,284"
+  thread_siblings: "93,285"
+  thread_siblings: "94,286"
+  thread_siblings: "95,287"
+  thread_siblings: "96,288"
+  thread_siblings: "97,289"
+  thread_siblings: "98,290"
+  thread_siblings: "99,291"
+  thread_siblings: "100,292"
+  thread_siblings: "101,293"
+  thread_siblings: "102,294"
+  thread_siblings: "103,295"
+  thread_siblings: "104,296"
+  thread_siblings: "105,297"
+  thread_siblings: "106,298"
+  thread_siblings: "107,299"
+  thread_siblings: "108,300"
+  thread_siblings: "109,301"
+  thread_siblings: "110,302"
+  thread_siblings: "111,303"
+  thread_siblings: "112,304"
+  thread_siblings: "113,305"
+  thread_siblings: "114,306"
+  thread_siblings: "115,307"
+  thread_siblings: "116,308"
+  thread_siblings: "117,309"
+  thread_siblings: "118,310"
+  thread_siblings: "119,311"
+  thread_siblings: "120,312"
+  thread_siblings: "121,313"
+  thread_siblings: "122,314"
+  thread_siblings: "123,315"
+  thread_siblings: "124,316"
+  thread_siblings: "125,317"
+  thread_siblings: "126,318"
+  thread_siblings: "127,319"
+  thread_siblings: "128,320"
+  thread_siblings: "129,321"
+  thread_siblings: "130,322"
+  thread_siblings: "131,323"
+  thread_siblings: "132,324"
+  thread_siblings: "133,325"
+  thread_siblings: "134,326"
+  thread_siblings: "135,327"
+  thread_siblings: "136,328"
+  thread_siblings: "137,329"
+  thread_siblings: "138,330"
+  thread_siblings: "139,331"
+  thread_siblings: "140,332"
+  thread_siblings: "141,333"
+  thread_siblings: "142,334"
+  thread_siblings: "143,335"
+  thread_siblings: "144,336"
+  thread_siblings: "145,337"
+  thread_siblings: "146,338"
+  thread_siblings: "147,339"
+  thread_siblings: "148,340"
+  thread_siblings: "149,341"
+  thread_siblings: "150,342"
+  thread_siblings: "151,343"
+  thread_siblings: "152,344"
+  thread_siblings: "153,345"
+  thread_siblings: "154,346"
+  thread_siblings: "155,347"
+  thread_siblings: "156,348"
+  thread_siblings: "157,349"
+  thread_siblings: "158,350"
+  thread_siblings: "159,351"
+  thread_siblings: "160,352"
+  thread_siblings: "161,353"
+  thread_siblings: "162,354"
+  thread_siblings: "163,355"
+  thread_siblings: "164,356"
+  thread_siblings: "165,357"
+  thread_siblings: "166,358"
+  thread_siblings: "167,359"
+  thread_siblings: "168,360"
+  thread_siblings: "169,361"
+  thread_siblings: "170,362"
+  thread_siblings: "171,363"
+  thread_siblings: "172,364"
+  thread_siblings: "173,365"
+  thread_siblings: "174,366"
+  thread_siblings: "175,367"
+  thread_siblings: "176,368"
+  thread_siblings: "177,369"
+  thread_siblings: "178,370"
+  thread_siblings: "179,371"
+  thread_siblings: "180,372"
+  thread_siblings: "181,373"
+  thread_siblings: "182,374"
+  thread_siblings: "183,375"
+  thread_siblings: "184,376"
+  thread_siblings: "185,377"
+  thread_siblings: "186,378"
+  thread_siblings: "187,379"
+  thread_siblings: "188,380"
+  thread_siblings: "189,381"
+  thread_siblings: "190,382"
+  thread_siblings: "191,383"
+  thread_siblings_md5_prefix: 13445652743622497081
+  thread_siblings_md5_prefix: 299146797061849049
+  thread_siblings_md5_prefix: 6724402414398194648
+  thread_siblings_md5_prefix: 4869550716045844694
+  thread_siblings_md5_prefix: 16923216840497113666
+  thread_siblings_md5_prefix: 7722987832056344517
+  thread_siblings_md5_prefix: 18223220007152571165
+  thread_siblings_md5_prefix: 7814067902557408348
+  thread_siblings_md5_prefix: 6541424777850586147
+  thread_siblings_md5_prefix: 13859371437697440456
+  thread_siblings_md5_prefix: 6333199316674871255
+  thread_siblings_md5_prefix: 13916369016214432734
+  thread_siblings_md5_prefix: 16614856386121205901
+  thread_siblings_md5_prefix: 12334015921144671090
+  thread_siblings_md5_prefix: 9850066196515573395
+  thread_siblings_md5_prefix: 18148108570991902888
+  thread_siblings_md5_prefix: 8201703211359488842
+  thread_siblings_md5_prefix: 16332898578824885188
+  thread_siblings_md5_prefix: 4729659071472644898
+  thread_siblings_md5_prefix: 9387577686054060794
+  thread_siblings_md5_prefix: 7444286253201007509
+  thread_siblings_md5_prefix: 1745451828346675949
+  thread_siblings_md5_prefix: 14436312558356171687
+  thread_siblings_md5_prefix: 7632087491655662247
+  thread_siblings_md5_prefix: 7360327047666744286
+  thread_siblings_md5_prefix: 6182496188766945342
+  thread_siblings_md5_prefix: 8585878182853648408
+  thread_siblings_md5_prefix: 2486839335977724614
+  thread_siblings_md5_prefix: 12045123853947110061
+  thread_siblings_md5_prefix: 13768948460493466380
+  thread_siblings_md5_prefix: 17676929316479841085
+  thread_siblings_md5_prefix: 126731593839807206
+  thread_siblings_md5_prefix: 4561822284915181197
+  thread_siblings_md5_prefix: 8807122268349128018
+  thread_siblings_md5_prefix: 17410722792455781591
+  thread_siblings_md5_prefix: 15717571317673002010
+  thread_siblings_md5_prefix: 5922649667763754038
+  thread_siblings_md5_prefix: 6225930998435277885
+  thread_siblings_md5_prefix: 8152442372325948124
+  thread_siblings_md5_prefix: 5044873405737701697
+  thread_siblings_md5_prefix: 10540259162391536514
+  thread_siblings_md5_prefix: 14886557228379645091
+  thread_siblings_md5_prefix: 16612787119883107881
+  thread_siblings_md5_prefix: 4100271221595829293
+  thread_siblings_md5_prefix: 5157320126254758249
+  thread_siblings_md5_prefix: 5845085462263694566
+  thread_siblings_md5_prefix: 17440008568902544409
+  thread_siblings_md5_prefix: 6250829742452754177
+  thread_siblings_md5_prefix: 10550349525972425011
+  thread_siblings_md5_prefix: 508617242835327332
+  thread_siblings_md5_prefix: 4484314873417306757
+  thread_siblings_md5_prefix: 18144844993779850754
+  thread_siblings_md5_prefix: 16008748506025035257
+  thread_siblings_md5_prefix: 10301947511631902941
+  thread_siblings_md5_prefix: 1652365307514571944
+  thread_siblings_md5_prefix: 9963359021801963825
+  thread_siblings_md5_prefix: 13231150268519866725
+  thread_siblings_md5_prefix: 8408763197308633821
+  thread_siblings_md5_prefix: 8398649113066880476
+  thread_siblings_md5_prefix: 10161763115291940313
+  thread_siblings_md5_prefix: 6728192832066490623
+  thread_siblings_md5_prefix: 15265832653847610189
+  thread_siblings_md5_prefix: 4787559300402331731
+  thread_siblings_md5_prefix: 16308934535291857312
+  thread_siblings_md5_prefix: 15856600745686724733
+  thread_siblings_md5_prefix: 11230889766201328632
+  thread_siblings_md5_prefix: 13393089129883049618
+  thread_siblings_md5_prefix: 14657413077397351637
+  thread_siblings_md5_prefix: 14155052796186080052
+  thread_siblings_md5_prefix: 17835819155657257489
+  thread_siblings_md5_prefix: 12331149247448772556
+  thread_siblings_md5_prefix: 7618232322962763914
+  thread_siblings_md5_prefix: 2358497338319073294
+  thread_siblings_md5_prefix: 12736429436142073131
+  thread_siblings_md5_prefix: 8371108189816583692
+  thread_siblings_md5_prefix: 11477503811450415164
+  thread_siblings_md5_prefix: 1620185431924429528
+  thread_siblings_md5_prefix: 16668026974362050238
+  thread_siblings_md5_prefix: 2096899046643115332
+  thread_siblings_md5_prefix: 2107364241565805730
+  thread_siblings_md5_prefix: 9538890165780442626
+  thread_siblings_md5_prefix: 9448761799083305797
+  thread_siblings_md5_prefix: 8413605533485840153
+  thread_siblings_md5_prefix: 4184757400239281159
+  thread_siblings_md5_prefix: 1041272313865405906
+  thread_siblings_md5_prefix: 3359095957144860219
+  thread_siblings_md5_prefix: 7192085849148846832
+  thread_siblings_md5_prefix: 1988610697201996835
+  thread_siblings_md5_prefix: 15496017341263926788
+  thread_siblings_md5_prefix: 2688591167069347170
+  thread_siblings_md5_prefix: 11111833068615725095
+  thread_siblings_md5_prefix: 10643112224558491154
+  thread_siblings_md5_prefix: 16433121992441634987
+  thread_siblings_md5_prefix: 13185299474340433624
+  thread_siblings_md5_prefix: 17086453441010173455
+  thread_siblings_md5_prefix: 4417019719126543277
+  thread_siblings_md5_prefix: 4436776147713184641
+  thread_siblings_md5_prefix: 7875693097755130807
+  thread_siblings_md5_prefix: 6125529231678466381
+  thread_siblings_md5_prefix: 11764421031134570280
+  thread_siblings_md5_prefix: 2803839870461629935
+  thread_siblings_md5_prefix: 3237065613760055150
+  thread_siblings_md5_prefix: 3344220273600950323
+  thread_siblings_md5_prefix: 7079022406420428260
+  thread_siblings_md5_prefix: 13831427416173023701
+  thread_siblings_md5_prefix: 10262662845049788399
+  thread_siblings_md5_prefix: 12826652752055494030
+  thread_siblings_md5_prefix: 2300937994118257926
+  thread_siblings_md5_prefix: 6162629933719575456
+  thread_siblings_md5_prefix: 3848041492622312709
+  thread_siblings_md5_prefix: 16212360017243217546
+  thread_siblings_md5_prefix: 16931516018377713850
+  thread_siblings_md5_prefix: 9484641873498379304
+  thread_siblings_md5_prefix: 7321713098917865609
+  thread_siblings_md5_prefix: 6592882980773471623
+  thread_siblings_md5_prefix: 8342517075947714364
+  thread_siblings_md5_prefix: 14182436307160870074
+  thread_siblings_md5_prefix: 7842537366253724744
+  thread_siblings_md5_prefix: 12983107128894552888
+  thread_siblings_md5_prefix: 972590409636276467
+  thread_siblings_md5_prefix: 11291906038199872453
+  thread_siblings_md5_prefix: 8684389052310012510
+  thread_siblings_md5_prefix: 12973365060089956652
+  thread_siblings_md5_prefix: 11141811891335906360
+  thread_siblings_md5_prefix: 6233704861064024683
+  thread_siblings_md5_prefix: 10217809279873665679
+  thread_siblings_md5_prefix: 5773363024935241545
+  thread_siblings_md5_prefix: 17312902257768648258
+  thread_siblings_md5_prefix: 12770208465075116337
+  thread_siblings_md5_prefix: 12845753809884634102
+  thread_siblings_md5_prefix: 16597033061428108001
+  thread_siblings_md5_prefix: 17994358543086755143
+  thread_siblings_md5_prefix: 14844937313449234152
+  thread_siblings_md5_prefix: 6416668023445180962
+  thread_siblings_md5_prefix: 4533624575237777996
+  thread_siblings_md5_prefix: 17518785463444807918
+  thread_siblings_md5_prefix: 13104177646244212485
+  thread_siblings_md5_prefix: 2020972458901718848
+  thread_siblings_md5_prefix: 10800079619853520226
+  thread_siblings_md5_prefix: 3712298234013145782
+  thread_siblings_md5_prefix: 1398768692775600374
+  thread_siblings_md5_prefix: 8167009449264015031
+  thread_siblings_md5_prefix: 10098391278025674336
+  thread_siblings_md5_prefix: 14963634601628611129
+  thread_siblings_md5_prefix: 5200748429115608688
+  thread_siblings_md5_prefix: 8570755719484347035
+  thread_siblings_md5_prefix: 15858585561402478774
+  thread_siblings_md5_prefix: 17677793646306568426
+  thread_siblings_md5_prefix: 9985257050644548951
+  thread_siblings_md5_prefix: 5163845787931695595
+  thread_siblings_md5_prefix: 2306257706054478157
+  thread_siblings_md5_prefix: 2143488636763632161
+  thread_siblings_md5_prefix: 17391276844946145578
+  thread_siblings_md5_prefix: 9130609385353563363
+  thread_siblings_md5_prefix: 212992912695201992
+  thread_siblings_md5_prefix: 14308827766869966648
+  thread_siblings_md5_prefix: 8197603834301326839
+  thread_siblings_md5_prefix: 6126152243316879903
+  thread_siblings_md5_prefix: 5367402609568633404
+  thread_siblings_md5_prefix: 6092270001213871098
+  thread_siblings_md5_prefix: 7851241393776338985
+  thread_siblings_md5_prefix: 11226660164832992853
+  thread_siblings_md5_prefix: 5621322576476752050
+  thread_siblings_md5_prefix: 10970201092112441008
+  thread_siblings_md5_prefix: 11075902669909109984
+  thread_siblings_md5_prefix: 10090015632754857454
+  thread_siblings_md5_prefix: 4796366120199581673
+  thread_siblings_md5_prefix: 1234637224597502989
+  thread_siblings_md5_prefix: 4789632984384634896
+  thread_siblings_md5_prefix: 16116808335620739151
+  thread_siblings_md5_prefix: 73397697797664750
+  thread_siblings_md5_prefix: 2272955103686114503
+  thread_siblings_md5_prefix: 1453677181020677740
+  thread_siblings_md5_prefix: 1316365134367349454
+  thread_siblings_md5_prefix: 3999925931995539332
+  thread_siblings_md5_prefix: 11026418040359664461
+  thread_siblings_md5_prefix: 8200907886831665639
+  thread_siblings_md5_prefix: 6742134157922068504
+  thread_siblings_md5_prefix: 8179547793574462445
+  thread_siblings_md5_prefix: 15044414920767363019
+  thread_siblings_md5_prefix: 9128434175154321582
+  thread_siblings_md5_prefix: 8572492900046772366
+  thread_siblings_md5_prefix: 3181988217646342313
+  thread_siblings_md5_prefix: 8167686516511767163
+  thread_siblings_md5_prefix: 13704703298144356459
+  thread_siblings_md5_prefix: 15824919488203926748
+  thread_siblings_md5_prefix: 2326447547360773664
+  thread_siblings_md5_prefix: 7810241632788961251
+  thread_siblings_md5_prefix: 17204700872900235914
+  thread_siblings_md5_prefix: 9693388375177470250
+  thread_siblings_md5_prefix: 6470047881402111106
+  thread_siblings_md5_prefix: 13993094824741718756
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 2
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 3
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 5
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 6
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 7
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 8
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 9
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 10
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 11
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 12
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 13
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 14
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 15
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 16
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 17
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 18
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 19
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 20
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 21
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 22
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 23
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 24
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 25
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 26
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 27
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 28
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 29
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 30
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 31
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 32
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 33
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 34
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 35
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 36
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 37
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 38
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 39
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 40
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 41
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 42
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 43
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 44
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 45
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 46
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 47
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 48
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 49
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 50
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 51
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 52
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 53
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 54
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 55
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 56
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 57
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 58
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 59
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 60
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 61
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 62
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 63
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 64
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 65
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 66
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 67
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 68
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 69
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 70
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 71
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 72
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 73
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 74
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 75
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 76
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 77
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 78
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 79
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 80
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 81
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 82
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 83
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 84
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 85
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 86
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 87
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 88
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 89
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 90
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 91
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 92
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 93
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 94
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 95
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 2
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 3
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 5
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 6
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 7
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 8
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 9
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 10
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 11
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 12
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 13
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 14
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 15
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 16
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 17
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 18
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 19
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 20
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 21
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 22
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 23
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 24
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 25
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 26
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 27
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 28
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 29
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 30
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 31
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 32
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 33
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 34
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 35
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 36
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 37
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 38
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 39
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 40
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 41
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 42
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 43
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 44
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 45
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 46
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 47
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 48
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 49
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 50
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 51
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 52
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 53
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 54
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 55
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 56
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 57
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 58
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 59
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 60
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 61
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 62
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 63
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 64
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 65
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 66
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 67
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 68
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 69
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 70
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 71
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 72
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 73
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 74
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 75
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 76
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 77
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 78
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 79
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 80
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 81
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 82
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 83
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 84
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 85
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 86
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 87
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 88
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 89
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 90
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 91
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 92
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 93
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 94
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 95
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 2
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 3
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 5
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 6
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 7
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 8
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 9
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 10
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 11
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 12
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 13
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 14
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 15
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 16
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 17
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 18
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 19
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 20
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 21
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 22
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 23
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 24
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 25
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 26
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 27
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 28
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 29
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 30
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 31
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 32
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 33
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 34
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 35
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 36
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 37
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 38
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 39
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 40
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 41
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 42
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 43
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 44
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 45
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 46
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 47
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 48
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 49
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 50
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 51
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 52
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 53
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 54
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 55
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 56
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 57
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 58
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 59
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 60
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 61
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 62
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 63
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 64
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 65
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 66
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 67
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 68
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 69
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 70
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 71
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 72
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 73
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 74
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 75
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 76
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 77
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 78
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 79
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 80
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 81
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 82
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 83
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 84
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 85
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 86
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 87
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 88
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 89
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 90
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 91
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 92
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 93
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 94
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 95
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 1
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 2
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 3
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 5
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 6
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 7
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 8
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 9
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 10
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 11
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 12
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 13
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 14
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 15
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 16
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 17
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 18
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 19
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 20
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 21
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 22
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 23
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 24
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 25
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 26
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 27
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 28
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 29
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 30
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 31
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 32
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 33
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 34
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 35
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 36
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 37
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 38
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 39
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 40
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 41
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 42
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 43
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 44
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 45
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 46
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 47
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 48
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 49
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 50
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 51
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 52
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 53
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 54
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 55
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 56
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 57
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 58
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 59
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 60
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 61
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 62
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 63
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 64
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 65
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 66
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 67
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 68
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 69
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 70
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 71
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 72
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 73
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 74
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 75
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 76
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 77
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 78
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 79
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 80
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 81
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 82
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 83
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 84
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 85
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 86
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 87
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 88
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 89
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 90
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 91
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 92
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 93
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 94
+    socket_id: 1
+  }
+  available_cpus {
+    core_id: 95
+    socket_id: 1
+  }
+}
+numa_topology {
+  id: 0
+  total_memory: 792546768
+  free_memory: 785125648
+  cpu_list: "0-95,192-287"
+  cpu_list_md5_prefix: 1941509285987173136
+}
+numa_topology {
+  id: 1
+  total_memory: 792602420
+  free_memory: 789457648
+  cpu_list: "96-191,288-383"
+  cpu_list_md5_prefix: 50864044263009467
+}
+string_metadata {
+  hostname {
+    value: "mvca28.prod.google.com"
+    value_md5_prefix: 3458121045885160148
+  }
+  kernel_version {
+    value: "4.15.0-smp-9xx"
+    value_md5_prefix: 6785867397664589109
+  }
+  perf_version {
+    value: "5.19.0-4-GOOGLE-gbb83c99d3d0a"
+    value_md5_prefix: 3525472714500436259
+  }
+  architecture {
+    value: "x86_64"
+    value_md5_prefix: 11246003006864564
+  }
+  cpu_description {
+    value: "AMD Eng Sample: 100-000000894-04"
+    value_md5_prefix: 5372704976473757808
+  }
+  cpu_id {
+    value: "AuthenticAMD,25,17,0"
+    value_md5_prefix: 12519212433471287882
+  }
+  perf_command_line_token {
+    value: "/usr/bin/perf5"
+    value_md5_prefix: 3621406570381569633
+  }
+  perf_command_line_token {
+    value: "record"
+    value_md5_prefix: 16003524724320237622
+  }
+  perf_command_line_token {
+    value: "--event=rc4"
+    value_md5_prefix: 4171139345267322630
+  }
+  perf_command_line_token {
+    value: "-c"
+    value_md5_prefix: 2437668070592140105
+  }
+  perf_command_line_token {
+    value: "50"
+    value_md5_prefix: 13891290847430655434
+  }
+  perf_command_line_token {
+    value: "-b"
+    value_md5_prefix: 1577424657589311166
+  }
+  perf_command_line_token {
+    value: "-o"
+    value_md5_prefix: 12893035396610391846
+  }
+  perf_command_line_token {
+    value: "perf.data"
+    value_md5_prefix: 3488416738417285439
+  }
+  perf_command_line_token {
+    value: "--"
+    value_md5_prefix: 14964084598567107715
+  }
+  perf_command_line_token {
+    value: "/usr/bin/lsattr"
+    value_md5_prefix: 16172668339263457726
+  }
+  perf_command_line_whole {
+    value: "/usr/bin/perf5 record --event=rc4 -c 50 -b -o perf.data -- /usr/bin/lsattr"
+    value_md5_prefix: 12995148688721341459
+  }
+}
+pmu_mappings {
+  type: 14
+  name: "amd_iommu_1"
+  name_md5_prefix: 16319729221116021089
+}
+pmu_mappings {
+  type: 7
+  name: "uprobe"
+  name_md5_prefix: 10272799137701582342
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
+}
+pmu_mappings {
+  type: 12
+  name: "amd_l3"
+  name_md5_prefix: 6645808196567134752
+}
+pmu_mappings {
+  type: 19
+  name: "amd_iommu_6"
+  name_md5_prefix: 3174950950326075715
+}
+pmu_mappings {
+  type: 8
+  name: "power"
+  name_md5_prefix: 7119389851461848805
+}
+pmu_mappings {
+  type: 4
+  name: "cpu"
+  name_md5_prefix: 15669287738006486457
+}
+pmu_mappings {
+  type: 17
+  name: "amd_iommu_4"
+  name_md5_prefix: 13710482709989600751
+}
+pmu_mappings {
+  type: 15
+  name: "amd_iommu_2"
+  name_md5_prefix: 3247234293563485632
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 6
+  name: "kprobe"
+  name_md5_prefix: 14790103604247633387
+}
+pmu_mappings {
+  type: 13
+  name: "amd_iommu_0"
+  name_md5_prefix: 7925510595040369844
+}
+pmu_mappings {
+  type: 11
+  name: "amd_df"
+  name_md5_prefix: 17257478211928421748
+}
+pmu_mappings {
+  type: 20
+  name: "amd_iommu_7"
+  name_md5_prefix: 17991118016847646219
+}
+pmu_mappings {
+  type: 18
+  name: "amd_iommu_5"
+  name_md5_prefix: 1835831543903859339
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 21
+  name: "msr"
+  name_md5_prefix: 4085670281987242153
+}
+pmu_mappings {
+  type: 10
+  name: "ibs_op"
+  name_md5_prefix: 804526779655281763
+}
+pmu_mappings {
+  type: 16
+  name: "amd_iommu_3"
+  name_md5_prefix: 8843378004087508151
+}
+pmu_mappings {
+  type: 9
+  name: "ibs_fetch"
+  name_md5_prefix: 5545809578737097851
+}

@@ -299,7 +299,7 @@ message PerfDataProto {
     repeated ReadValue read_value = 3;
   }
 
-  // Next tag: 8
+  // Next tag: 10
   message BranchStackEntry {
     // Branch source address.
     optional uint64 from_ip = 1;
@@ -321,6 +321,12 @@ message PerfDataProto {
 
     // Cycle count to last branch
     optional uint32 cycles = 7;
+
+    // Branch type.
+    optional uint32 type = 8;
+
+    // Branch speculation info.
+    optional uint32 spec = 9;
   }
 
   // WeightStruct is microarchitecture-dependant field and only for special
