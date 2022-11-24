@@ -461,15 +461,11 @@ void PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
   const uint64_t unmapped_event_ip = sample_info.ip();
   uint64_t remapped_event_ip = 0;
 
-  bool mapping_ok = true;
   // Map the event IP itself.
-  if (!MapIPAndPidAndGetNameAndOffset(sample_info.ip(), pidtid,
-                                      &remapped_event_ip,
-                                      &parsed_event->dso_and_offset)) {
-    mapping_ok = false;
-  } else {
-    sample_info.set_ip(remapped_event_ip);
-  }
+  bool mapping_ok = MapIPAndPidAndGetNameAndOffset(
+      sample_info.ip(), pidtid, &remapped_event_ip,
+      &parsed_event->dso_and_offset);
+  sample_info.set_ip(remapped_event_ip);
 
   if (sample_info.has_addr() && sample_info.addr() != 0) {
     ++stats_.num_data_sample_events;
@@ -478,8 +474,8 @@ void PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
                                        &remapped_addr,
                                        &parsed_event->data_dso_and_offset)) {
       ++stats_.num_data_sample_events_mapped;
-      sample_info.set_addr(remapped_addr);
     }
+    sample_info.set_addr(remapped_addr);
   }
 
   if (sample_info.callchain_size() &&
@@ -529,26 +525,9 @@ bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
     uint64_t mapped_addr = 0;
     if (!MapIPAndPidAndGetNameAndOffset(
             entry, pidtid, &mapped_addr,
-            &parsed_event->callchain[num_entries_mapped++])) {
+            &parsed_event->callchain[num_entries_mapped++]))
       mapping_ok = false;
-      // During the remapping process, callchain ips that are not mapped to the
-      // quipper space will have their original addresses passed on, based on an
-      // earlier logic. This would sometimes lead to incorrect assignment of
-      // such addresses to certain mmap regions in the quipper space by
-      // perf_data_handler. Therefore, the unmapped address needs to be
-      // explicitly marked by setting its highest bit. This operation considers
-      // potential collision with the address space when options_.do_remap is
-      // set to true or false. When options_.do_remap is true, this marked
-      // address is guaranteed to be larger than the mapped quipper space. When
-      // options_.do_remap is false, the kernel addresses of x86 and ARM have
-      // the high 16 bit set and PowerPC has a reserved space from
-      // 0x1000000000000000 to 0xBFFFFFFFFFFFFFFF. Thus, setting highest bit of
-      // the unmapped address, which starts with 0x8, should not collide with
-      // any existing addresses or mapped quipper addresses.
-      callchain->Set(i, entry | 1ULL << 63);
-    } else {
-      callchain->Set(i, mapped_addr);
-    }
+    callchain->Set(i, mapped_addr);
   }
   // Not all the entries were mapped.  Trim |parsed_event->callchain| to
   // remove unused entries at the end.
@@ -587,6 +566,7 @@ bool PerfParser::MapBranchStack(
 
   // Map branch stack addresses.
   parsed_event->branch_stack.resize(trimmed_size);
+  bool mapping_ok = true;
   for (unsigned int i = 0; i < trimmed_size; ++i) {
     BranchStackEntry* entry = branch_stack->Mutable(i);
     ParsedEvent::BranchEntry& parsed_entry = parsed_event->branch_stack[i];
@@ -594,14 +574,14 @@ bool PerfParser::MapBranchStack(
     uint64_t from_mapped = 0;
     if (!MapIPAndPidAndGetNameAndOffset(entry->from_ip(), pidtid, &from_mapped,
                                         &parsed_entry.from)) {
-      return false;
+      mapping_ok = false;
     }
     entry->set_from_ip(from_mapped);
 
     uint64_t to_mapped = 0;
     if (!MapIPAndPidAndGetNameAndOffset(entry->to_ip(), pidtid, &to_mapped,
                                         &parsed_entry.to)) {
-      return false;
+      mapping_ok = false;
     }
     entry->set_to_ip(to_mapped);
 
@@ -612,7 +592,7 @@ bool PerfParser::MapBranchStack(
     parsed_entry.cycles = entry->cycles();
   }
 
-  return true;
+  return mapping_ok;
 }
 
 bool PerfParser::MapIPAndPidAndGetNameAndOffset(
@@ -649,18 +629,34 @@ bool PerfParser::MapIPAndPidAndGetNameAndOffset(
     dso_iter->second.hit = true;
     dso_iter->second.threads.insert(mergeTwoU32(pidtid.first, pidtid.second));
     ++parsed_event.num_samples_in_mmap_region;
+  } else {
+    // During the remapping process, ips and addrs that are not mapped to the
+    // quipper space will have their original addresses passed on, based on an
+    // earlier logic. This would sometimes lead to incorrect assignment of
+    // such addresses to certain mmap regions in the quipper space by
+    // perf_data_handler. Therefore, the unmapped address needs to be
+    // explicitly marked by setting its highest bit. This operation considers
+    // potential collision with the address space when options_.do_remap is
+    // set to true or false. When options_.do_remap is true, this marked
+    // address is guaranteed to be larger than the mapped quipper space. When
+    // options_.do_remap is false, the kernel addresses of x86 and ARM have
+    // the high 16 bit set and PowerPC has a reserved space from
+    // 0x1000000000000000 to 0xBFFFFFFFFFFFFFFF. Thus, setting highest byte of
+    // the unmapped address, which starts with 0x8, should not collide with
+    // any existing addresses or mapped quipper addresses.
+    mapped_addr = (ip & ~(0xfULL << 60)) | 0x8ULL << 60;
+  }
 
-    if (options_.do_remap) {
-      if (GetPageAlignedOffset(mapped_addr) != GetPageAlignedOffset(ip)) {
-        LOG(ERROR) << "Remapped address " << std::hex << mapped_addr << " "
-                   << "does not have the same page alignment offset as "
-                   << "original address " << ip;
-        return false;
-      }
-      *new_ip = mapped_addr;
-    } else {
-      *new_ip = ip;
+  if (options_.do_remap) {
+    if (GetPageAlignedOffset(mapped_addr) != GetPageAlignedOffset(ip)) {
+      LOG(ERROR) << "Remapped address " << std::hex << mapped_addr << " "
+                 << "does not have the same page alignment offset as "
+                 << "original address " << ip;
+      return false;
     }
+    *new_ip = mapped_addr;
+  } else {
+    *new_ip = ip;
   }
   return mapped;
 }

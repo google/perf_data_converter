@@ -1,0 +1,188 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {	# (quipper.PerfDataProto.PerfFileAttr) size=148B
+  attr: {	# (quipper.PerfDataProto.PerfEventAttr) size=127B
+    type    : 0x00000008
+    size    : 0x00000060	# 96
+    config  : 0x0000000010008000	# 268_468_224; [if milliseconds]: 3 days 2 hours
+    sample_period   : 0x0000000000000001
+    sample_type     : 0x0000000000010087	# 65_671
+    read_format     : 0x0000000000000004
+    disabled: true
+    inherit : true
+    pinned  : false
+    exclusive       : false
+    exclude_user    : false
+    exclude_kernel  : false
+    exclude_hv      : false
+    exclude_idle    : false
+    mmap    : false
+    comm    : false
+    freq    : false
+    inherit_stat    : false
+    enable_on_exec  : false
+    task    : false
+    watermark       : false
+    precise_ip      : 0x00000000
+    mmap_data       : false
+    sample_id_all   : true
+    exclude_host    : false
+    exclude_guest   : true
+    wakeup_events   : 0x00000000
+    bp_type : 0x00000000
+    bp_addr : 0x0000000000000000
+    bp_len  : 0xa7c3dddd00000000
+    branch_sample_type      : 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user  : false
+    mmap2   : false
+    comm_exec       : false
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user       : 0x00000000
+    use_clockid     : false
+    context_switch  : false
+    write_backward  : false
+    namespaces      : false
+    cgroup  : false
+  }	# file_attrs[0].attr
+  ids : [ 0x000000000000007b, 0x000000000000007c, 0x000000000000007d, 0x000000000000007e, 0x000000000000007f, 0x0000000000000080, 0x0000000000000081, 0x0000000000000082 ]
+}	# file_attrs[0]
+file_attrs: {	# (quipper.PerfDataProto.PerfFileAttr) size=125B
+  attr: {	# (quipper.PerfDataProto.PerfEventAttr) size=117B
+    type    : 0x00000000
+    size    : 0x00000060	# 96
+    config  : 0x0000000000000001
+    sample_period   : 0x0000000000000200	# 512
+    sample_type     : 0x0000000000010987	# 67_975
+    read_format     : 0x0000000000000004
+    disabled: false
+    inherit : false
+    pinned  : false
+    exclusive       : false
+    exclude_user    : false
+    exclude_kernel  : false
+    exclude_hv      : false
+    exclude_idle    : false
+    mmap    : false
+    comm    : false
+    freq    : false
+    inherit_stat    : false
+    enable_on_exec  : false
+    task    : false
+    watermark       : false
+    precise_ip      : 0x00000000
+    mmap_data       : false
+    sample_id_all   : true
+    exclude_host    : false
+    exclude_guest   : true
+    wakeup_events   : 0x00000000
+    bp_type : 0x00000000
+    bp_addr : 0x0000000000000000
+    bp_len  : 0x0000000000000000
+    branch_sample_type      : 0x0000000000020000	# 131_072; [if seconds]: 1 day 12 hours
+    exclude_callchain_kernel: false
+    exclude_callchain_user  : false
+    mmap2   : false
+    comm_exec       : false
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user       : 0x00000000
+    use_clockid     : false
+    context_switch  : false
+    write_backward  : false
+    namespaces      : false
+    cgroup  : false
+  }	# file_attrs[2].attr
+  ids : [ 0x000000003b9aca7b ]	# 1_000_000_123; [as seconds]: 2001-09-08 18:48:43 -0700
+}	# file_attrs[2]
+events: {	# (quipper.PerfDataProto.PerfEvent) size=96B
+  header: {	# (quipper.PerfDataProto.EventHeader) size=7B
+    type: 0x0000000a	# 10
+    misc: 0x00000002
+    size: 0x00000088	# 136
+  }	# events[3944].header
+  mmap_event: {	# (quipper.PerfDataProto.MMapEvent) size=83B
+    pid: 0x000013d9	# 5_081
+    tid: 0x000013d9	# 5_081
+    start      : 0x0000000001197000	# 18_444_288; [if milliseconds]: 5 hours 7 minutes
+    len: 0x0000000007ce0000	# 130_940_928; [if milliseconds]: 1 day 12 hours
+    pgoff      : 0x0000000000000000
+    filename   : "/opt/google/chrome/chrome"	# size=25
+    filename_md5_prefix: 0xd64ba540dbc21c83
+    sample_info: {	# (quipper.PerfDataProto.SampleInfo) size=10B
+      pid: 0x00000000
+      tid: 0x00000000
+      sample_time_ns: 0x0000000000000000
+      id : 0x0000000000000000
+      cpu: 0x00000000
+    }	# events[3944].mmap_event.sample_info
+    maj: 0x000000b3	# 179
+    min: 0x00000005
+    ino: 0x0000000000016029	# 90_153; [if seconds]: 1 day 1 hour
+    ino_generation     : 0x0000000000000000
+    prot       : 0x00000005
+    flags      : 0x00000002
+  }	# events[3944].mmap_event
+  timestamp   : 0x0000000000000000
+}	# events[3944]
+events: {	# (quipper.PerfDataProto.PerfEvent) size=161B
+  header: {	# (quipper.PerfDataProto.EventHeader) size=7B
+    type: 0x00000009
+    misc: 0x00000002
+    size: 0x00000090	# 144
+  }	# events[5385].header
+  sample_event: {	# (quipper.PerfDataProto.SampleEvent) size=142B
+    ip : 0x8000000009c4497c
+    pid: 0x000013d9	# 5_081
+    tid: 0x000013d9	# 5_081
+    sample_time_ns     : 0x0000023b9197f14a	# [as nanoseconds]: 40 minutes 54 seconds
+    id : 0x000000003b9aca7b	# 1_000_000_123; [as seconds]: 2001-09-08 18:48:43 -0700
+    period     : 0x0000000000000014	# 20
+    cpu: 0x00000007
+    branch_stack: {	# (quipper.PerfDataProto.BranchStackEntry) size=36B
+      from_ip       : 0x8000000009c44a4a
+      to_ip : 0x8000000009c44970
+      mispredicted  : false
+      predicted     : true
+      in_transaction: false
+      abort : false
+      cycles: 0x00000000
+      type  : 0x00000000
+      spec  : 0x00000000
+    }	# events[5385].sample_event.branch_stack[0]
+    branch_stack: {	# (quipper.PerfDataProto.BranchStackEntry) size=30B
+      from_ip       : 0x0000000008045c2a	# 134_503_466; [if milliseconds]: 1 day 13 hours
+      to_ip : 0x8000000009c44a48
+      mispredicted  : false
+      predicted     : true
+      in_transaction: false
+      abort : false
+      cycles: 0x00000000
+      type  : 0x00000000
+      spec  : 0x00000000
+    }	# events[5385].sample_event.branch_stack[1]
+    branch_stack: {	# (quipper.PerfDataProto.BranchStackEntry) size=30B
+      from_ip       : 0x8000000009c44aba
+      to_ip : 0x0000000008045c20	# 134_503_456; [if milliseconds]: 1 day 13 hours
+      mispredicted  : false
+      predicted     : true
+      in_transaction: false
+      abort : false
+      cycles: 0x00000000
+      type  : 0x00000000
+      spec  : 0x00000000
+    }	# events[5385].sample_event.branch_stack[2]
+    no_hw_idx  : false
+    branch_stack_hw_idx: 0x0000000000000000
+  }	# events[5385].sample_event
+  timestamp   : 0x0000023b9197f14a	# [if microseconds]: 4 weeks 9 hours
+}	# events[5385]
+timestamp_sec  : 0x0000000000000000
+metadata_mask  : [ 0x000000000001bcfc ]	# 113_916; [if seconds]: 1 day 7 hours
+build_ids: {	# (quipper.PerfDataProto.PerfBuildID) size=72B
+  misc    : 0x00008002	# 32_770
+  pid     : 0xffffffff	# s = -1; u = 4_294_967_295; [if microseconds]: 1 hour 11 minutes; as IP:255.255.255.255 (swapped=255.255.255.255)
+  build_id_hash      : "U\xD3Ӗ|e\xA0wh\x89\xA8\x32\x61> \x95\xB4\xBE\x8D)"	# size=20
+  filename: "/opt/google/chrome/chrome"	# size=25
+  filename_md5_prefix: 0xd64ba540dbc21c83
+  size    : 0x00000014	# 20
+}	# build_ids[6]

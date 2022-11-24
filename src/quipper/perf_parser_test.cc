@@ -521,7 +521,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   EXPECT_EQ(0x1fff, events[6].event_ptr->sample_event().ip());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[7].event_ptr->header().type());
-  EXPECT_EQ(0x00000000001c2bad, events[7].event_ptr->sample_event().ip());
+  EXPECT_EQ(0x80000000001c2bad, events[7].event_ptr->sample_event().ip());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[8].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/baz.so", events[8].dso_and_offset.dso_name());
@@ -529,7 +529,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
   EXPECT_EQ(0xa, events[8].event_ptr->sample_event().ip());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[9].event_ptr->header().type());
-  EXPECT_EQ(0x00000000002c5bad, events[9].event_ptr->sample_event().ip());
+  EXPECT_EQ(0x80000000002c5bad, events[9].event_ptr->sample_event().ip());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[10].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/xyz.so", events[10].dso_and_offset.dso_name());
@@ -538,7 +538,7 @@ TEST(PerfParserTest, MapsSampleEventIp) {
 
   // not mapped yet:
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[11].event_ptr->header().type());
-  EXPECT_EQ(0x00000000002c400b, events[11].event_ptr->sample_event().ip());
+  EXPECT_EQ(0x80000000002c400b, events[11].event_ptr->sample_event().ip());
 
   EXPECT_EQ(PERF_RECORD_MMAP2, events[12].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/new.so", events[12].event_ptr->mmap_event().filename());
@@ -724,7 +724,7 @@ TEST(PerfParserTest, MapsSampleEventAddr) {
   EXPECT_EQ(0x2b00, events[8].dso_and_offset.offset());
   EXPECT_EQ(0x1b00, events[8].event_ptr->sample_event().ip());
   // addr field not mapped.
-  EXPECT_EQ(0x1c7bad, events[8].event_ptr->sample_event().addr());
+  EXPECT_EQ(0x80000000001c7bad, events[8].event_ptr->sample_event().addr());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[9].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/baz.so", events[9].dso_and_offset.dso_name());
@@ -739,7 +739,7 @@ TEST(PerfParserTest, MapsSampleEventAddr) {
   EXPECT_EQ(0x1800, events[10].dso_and_offset.offset());
   EXPECT_EQ(0x1800, events[10].event_ptr->sample_event().ip());
   // addr field not mapped.
-  EXPECT_EQ(0x2c6bad, events[10].event_ptr->sample_event().addr());
+  EXPECT_EQ(0x80000000002c6bad, events[10].event_ptr->sample_event().addr());
 
   EXPECT_EQ(PERF_RECORD_SAMPLE, events[11].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/xyz.so", events[11].dso_and_offset.dso_name());
@@ -752,7 +752,7 @@ TEST(PerfParserTest, MapsSampleEventAddr) {
   EXPECT_EQ("/usr/lib/xyz.so", events[12].dso_and_offset.dso_name());
   EXPECT_EQ(0x3200, events[12].dso_and_offset.offset());
   EXPECT_EQ(0x4200, events[12].event_ptr->sample_event().ip());
-  EXPECT_EQ(0x2d3300, events[12].event_ptr->sample_event().addr());
+  EXPECT_EQ(0x80000000002d3300, events[12].event_ptr->sample_event().addr());
 
   EXPECT_EQ(PERF_RECORD_MMAP2, events[13].event_ptr->header().type());
   EXPECT_EQ("/usr/lib/xyz.so", events[13].event_ptr->mmap_event().filename());
