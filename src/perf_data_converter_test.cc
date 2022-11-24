@@ -495,6 +495,29 @@ TEST_F(PerfDataConverterTest, HandlesUnmappedCallchainIP) {
   EXPECT_EQ(2, profile.location_size());
 }
 
+TEST_F(PerfDataConverterTest, HandlesUnmappedSampleAndBranchStack) {
+  string path = GetResource("perf-unmapped-sample-and-branch-stack.textproto");
+  string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  for (const auto& event_proto : perf_data_proto.events()) {
+    if (event_proto.has_sample_event()) {
+      int branch_stack_size = event_proto.sample_event().branch_stack_size();
+      EXPECT_EQ(3, branch_stack_size);
+    }
+  }
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+
+  EXPECT_EQ(1, profile.mapping_size());
+  EXPECT_EQ("/opt/google/chrome/chrome",
+            profile.string_table(profile.mapping(0).filename()));
+  EXPECT_EQ(1, profile.sample_size());
+  EXPECT_EQ(2, profile.location_size());
+}
+
 TEST_F(PerfDataConverterTest, HandlesLostEvents) {
   const std::string path = GetResource("perf-lost-events.textproto");
   const std::string ascii_pb = GetContents(path);
