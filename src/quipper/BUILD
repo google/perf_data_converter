@@ -651,6 +651,11 @@ cc_test(
         "perf_parser_test.cc",
     ],
     includes = ["compat/non_cros"],
+    tags = [
+        # TODO(b/261224575): This test fails on ARM because it tries to run
+        # a checked-in version of x86 perf.
+        "not_run:arm",
+    ],
     deps = [
         ":compat",
         ":compat_gunit",
@@ -691,6 +696,11 @@ cc_test(
     name = "perf_serializer_test",
     size = "large",
     srcs = ["perf_serializer_test.cc"],
+    tags = [
+        # TODO(b/261224575): This test fails on ARM because it tries to run
+        # a checked-in version of x86 perf.
+        "not_run:arm",
+    ],
     deps = [
         ":compat",
         ":compat_gunit",
