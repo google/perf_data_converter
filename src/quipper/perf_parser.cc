@@ -590,6 +590,7 @@ bool PerfParser::MapBranchStack(
     parsed_entry.in_transaction = entry->in_transaction();
     parsed_entry.aborted_transaction = entry->abort();
     parsed_entry.cycles = entry->cycles();
+    parsed_entry.spec = entry->spec();
   }
 
   return mapping_ok;
