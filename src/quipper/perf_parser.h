@@ -95,6 +95,10 @@ struct ParsedEvent {
     bool in_transaction;
     bool aborted_transaction;
     uint16_t cycles;
+
+    // Branch speculation outcome classification (see enum in perf_event.h for
+    // list of values it may take).
+    uint32_t spec;
     DSOAndOffset from;
     DSOAndOffset to;
 
@@ -103,7 +107,8 @@ struct ParsedEvent {
              predicted == other.predicted &&
              in_transaction == other.in_transaction &&
              aborted_transaction == other.aborted_transaction &&
-             cycles == other.cycles && from == other.from && to == other.to;
+             cycles == other.cycles && spec == other.spec &&
+             from == other.from && to == other.to;
     }
   };
   std::vector<BranchEntry> branch_stack;
