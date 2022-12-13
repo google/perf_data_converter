@@ -65,7 +65,8 @@ class PerfDataHandler {
           predicted(false),
           in_transaction(false),
           abort(false),
-          cycles(0) {}
+          cycles(0),
+          spec(0) {}
 
     Location from;
     Location to;
@@ -79,6 +80,8 @@ class PerfDataHandler {
     bool abort;
     // The cycles from last taken branch (LBR).
     uint32 cycles;
+    // Branch speculation outcome classification if supported.
+    uint32 spec;
   };
 
   struct SampleContext {
