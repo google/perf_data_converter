@@ -462,6 +462,7 @@ void Normalizer::InvokeHandleSample(
     context.branch_stack[i].in_transaction = entry.in_transaction();
     context.branch_stack[i].abort = entry.abort();
     context.branch_stack[i].cycles = entry.cycles();
+    context.branch_stack[i].spec = entry.spec();
   }
 
   if (sample.has_cgroup()) {
