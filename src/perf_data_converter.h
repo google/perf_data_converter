@@ -59,6 +59,8 @@ enum SampleLabels {
   // data_page_size. If the sample doesn't have a code page size, no label is
   // added.
   kDataPageSizeLabel = 1 << 9,
+  // Adds label with key CpuLabelKey and number value set to the CPU number.
+  kCpuLabel = 1 << 10,
 };
 
 // Sample label key names.
@@ -72,6 +74,7 @@ const char ThreadCommLabelKey[] = "thread_comm";
 const char CgroupLabelKey[] = "cgroup";
 const char CodePageSizeLabelKey[] = "code_page_size";
 const char DataPageSizeLabelKey[] = "data_page_size";
+const char CpuLabelKey[] = "cpu";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";

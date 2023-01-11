@@ -108,6 +108,7 @@ struct SampleKey {
   uint64 cgroup = 0;
   uint64 code_page_size = 0;
   uint64 data_page_size = 0;
+  uint32 cpu = 0;
   LocationIdVector stack;
 };
 
@@ -118,7 +119,8 @@ struct SampleKeyEqualityTester {
             (a.thread_type == b.thread_type) &&
             (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
             (a.code_page_size == b.code_page_size) &&
-            (a.data_page_size == b.data_page_size) && (a.stack == b.stack));
+            (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
+            (a.stack == b.stack));
   }
 };
 
@@ -135,6 +137,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64>()(k.cgroup);
     hash ^= std::hash<uint64>()(k.code_page_size);
     hash ^= std::hash<uint64>()(k.data_page_size);
+    hash ^= std::hash<uint32>()(k.cpu);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64>()(id);
     }
@@ -282,6 +285,9 @@ class PerfDataConverter : public PerfDataHandler {
   bool IncludeDataPageSizeLabels() const {
     return (sample_labels_ & kDataPageSizeLabel);
   }
+  // Returns whether CPU labels were requested for inclusion in the
+  // profile.proto's Sample.Label field.
+  bool IncludeCpuLabels() const { return (sample_labels_ & kCpuLabel); }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
@@ -358,6 +364,8 @@ SampleKey PerfDataConverter::MakeSampleKey(
   if (IncludeDataPageSizeLabels() && sample.sample.has_data_page_size()) {
     sample_key.data_page_size = sample.sample.data_page_size();
   }
+  sample_key.cpu =
+      (IncludeCpuLabels() && sample.sample.has_cpu()) ? sample.sample.cpu() : 0;
   return sample_key;
 }
 
@@ -550,6 +558,12 @@ void PerfDataConverter::AddOrUpdateSample(
       auto* label = sample->add_label();
       label->set_key(builder->StringId(DataPageSizeLabelKey));
       label->set_num(sample_key.data_page_size);
+    }
+    if (IncludeCpuLabels() && context.sample.has_cpu()) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(CpuLabelKey));
+      label->set_num(static_cast<int64>(context.sample.cpu()));
+      label->set_num_unit(builder->StringId("cpu"));
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
