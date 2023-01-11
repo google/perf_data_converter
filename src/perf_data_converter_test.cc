@@ -807,6 +807,28 @@ TEST_F(PerfDataConverterTest, ConvertsDataPageSize) {
   EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
 }
 
+TEST_F(PerfDataConverterTest, ConvertsCpu) {
+  const string ascii_pb(GetContents(GetResource("perf-cpu.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCpuLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  const auto counts_pair = ExtractCounts(pps, CpuLabelKey);
+  const auto total_samples = std::get<0>(counts_pair);
+  const auto& counts = std::get<1>(counts_pair);
+  const std::unordered_map<uint64, uint64> expected_counts{
+      {0, 1},
+      {3, 2},
+      {8, 1},
+  };
+  EXPECT_EQ(total_samples, 4);
+  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+}
+
 // Test with a perf data doesn't have page size info.
 TEST_F(PerfDataConverterTest, ConvertsNoCodeDataPageSize) {
   const string ascii_pb(
