@@ -131,6 +131,7 @@ events {
       sample_time_ns: 0
       id: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -376,6 +377,8 @@ events {
     ino_generation: 2947997514
     prot: 5
     flags: 6146
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 16450092198054
 }

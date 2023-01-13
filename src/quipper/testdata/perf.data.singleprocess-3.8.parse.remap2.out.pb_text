@@ -67,6 +67,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -89,6 +90,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -111,6 +114,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -133,6 +138,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -155,6 +162,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -177,6 +186,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -199,6 +210,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -221,6 +234,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -243,6 +258,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -265,6 +282,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -287,6 +306,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -309,6 +330,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -331,6 +354,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -353,6 +378,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -375,6 +402,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -397,6 +426,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -419,6 +450,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -441,6 +474,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -463,6 +498,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -485,6 +522,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -507,6 +546,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -529,6 +570,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -551,6 +594,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -573,6 +618,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -595,6 +642,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -617,6 +666,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -639,6 +690,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -661,6 +714,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -683,6 +738,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -705,6 +762,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -727,6 +786,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -749,6 +810,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -771,6 +834,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -793,6 +858,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -815,6 +882,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -837,6 +906,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -859,6 +930,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -881,6 +954,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -903,6 +978,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -925,6 +1002,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -947,6 +1026,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -969,6 +1050,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -991,6 +1074,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1013,6 +1098,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1035,6 +1122,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1057,6 +1146,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1079,6 +1170,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1101,6 +1194,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1123,6 +1218,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1145,6 +1242,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1167,6 +1266,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -1208,6 +1309,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1230,6 +1333,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1252,6 +1357,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1274,6 +1381,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1296,6 +1405,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1318,6 +1429,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1340,6 +1453,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1362,6 +1477,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1384,6 +1501,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1406,6 +1525,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1428,6 +1549,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1450,6 +1573,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1472,6 +1597,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1494,6 +1621,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1516,6 +1645,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1538,6 +1669,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1560,6 +1693,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1582,6 +1717,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1604,6 +1741,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1626,6 +1765,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1648,6 +1789,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1670,6 +1813,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1692,6 +1837,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1714,6 +1861,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1736,6 +1885,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1758,6 +1909,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1780,6 +1933,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1802,6 +1957,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1824,6 +1981,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1846,6 +2005,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -1868,6 +2029,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1890,6 +2053,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1912,6 +2077,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1934,6 +2101,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1956,6 +2125,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -1978,6 +2149,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -2000,6 +2173,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -2022,6 +2197,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }
@@ -2044,6 +2221,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -2066,6 +2245,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -2088,6 +2269,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -2110,6 +2293,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/lib64"
+    root_path_md5_prefix: 12618475205294225504
   }
   timestamp: 0
 }
@@ -2132,6 +2317,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/usr/sbin"
+    root_path_md5_prefix: 16040712304826019592
   }
   timestamp: 0
 }
@@ -2154,6 +2341,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -2176,6 +2364,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -2337,6 +2526,8 @@ events {
       tid: 14170
       sample_time_ns: 346637628039655
     }
+    root_path: "/bin"
+    root_path_md5_prefix: 2197980360447347189
   }
   timestamp: 346637628039655
 }
@@ -2374,6 +2565,8 @@ events {
       tid: 14170
       sample_time_ns: 346637628971038
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 346637628971038
 }
@@ -2396,6 +2589,7 @@ events {
       tid: 14170
       sample_time_ns: 346637629008316
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 346637629008316
 }
@@ -2433,6 +2627,8 @@ events {
       tid: 14170
       sample_time_ns: 346637629328551
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 346637629328551
 }

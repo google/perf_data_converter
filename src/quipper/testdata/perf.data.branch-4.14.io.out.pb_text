@@ -76,6 +76,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -98,6 +99,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -120,6 +123,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -142,6 +147,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -164,6 +171,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -186,6 +195,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -208,6 +219,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -230,6 +243,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -252,6 +267,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -274,6 +291,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -296,6 +315,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -318,6 +339,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -340,6 +363,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -362,6 +387,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -384,6 +411,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -406,6 +435,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -428,6 +459,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -450,6 +483,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -472,6 +507,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -494,6 +531,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -516,6 +555,8 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path: "/lib/modules"
+    root_path_md5_prefix: 15876357775565552986
   }
   timestamp: 0
 }
@@ -3903,6 +3944,8 @@ events {
     ino_generation: 2948000201
     prot: 5
     flags: 6146
+    root_path: "/usr/bin"
+    root_path_md5_prefix: 8435948316302646952
   }
   timestamp: 12631246012584
 }
@@ -3931,6 +3974,8 @@ events {
     ino_generation: 2947997514
     prot: 5
     flags: 6146
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246024530
 }
@@ -3959,6 +4004,7 @@ events {
     ino_generation: 0
     prot: 5
     flags: 4098
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 12631246034265
 }
@@ -4356,6 +4402,8 @@ events {
     ino_generation: 2947999215
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246115339
 }
@@ -4384,6 +4432,8 @@ events {
     ino_generation: 2947998017
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246147645
 }
@@ -4412,6 +4462,8 @@ events {
     ino_generation: 2947997528
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246169509
 }
@@ -4809,6 +4861,8 @@ events {
     ino_generation: 2947997513
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246200660
 }
@@ -4837,6 +4891,8 @@ events {
     ino_generation: 2947997519
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246229725
 }
@@ -4865,6 +4921,8 @@ events {
     ino_generation: 2947998009
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246260999
 }
@@ -4893,6 +4951,8 @@ events {
     ino_generation: 2947997521
     prot: 5
     flags: 4098
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 12631246282809
 }

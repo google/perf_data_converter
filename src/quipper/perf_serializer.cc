@@ -23,6 +23,25 @@
 
 namespace quipper {
 
+namespace {
+
+// Extract the first two levels of directories of |filename| starting from root.
+std::string RootPath(const std::string& filename) {
+  if (filename[0] != '/') return "";
+  std::string root_path = "";
+  size_t pos = 1;
+  while (pos < filename.size() && filename[pos] == '/') ++pos;
+  for (int i = 1; i < 3; ++i) {
+    size_t next = filename.find('/', pos);
+    if (next == std::string::npos) break;
+    while (next < filename.size() && filename[next] == '/') ++next;
+    pos = next;
+  }
+  return filename.substr(0, pos - 1);
+}
+
+}  // namespace
+
 PerfSerializer::PerfSerializer() {}
 
 PerfSerializer::~PerfSerializer() {}
@@ -653,6 +672,11 @@ bool PerfSerializer::SerializeMMapEvent(const event_t& event,
   sample->set_pgoff(mmap.pgoff);
   sample->set_filename(mmap.filename);
   sample->set_filename_md5_prefix(Md5Prefix(mmap.filename));
+  std::string root_path = RootPath(mmap.filename);
+  if (!root_path.empty()) {
+    sample->set_root_path(root_path);
+  }
+  sample->set_root_path_md5_prefix(Md5Prefix(root_path));
 
   return SerializeSampleInfo(event, sample->mutable_sample_info());
 }
@@ -688,6 +712,11 @@ bool PerfSerializer::SerializeMMap2Event(
   sample->set_flags(mmap.flags);
   sample->set_filename(mmap.filename);
   sample->set_filename_md5_prefix(Md5Prefix(mmap.filename));
+  std::string root_path = RootPath(mmap.filename);
+  if (!root_path.empty()) {
+    sample->set_root_path(root_path);
+  }
+  sample->set_root_path_md5_prefix(Md5Prefix(root_path));
 
   return SerializeSampleInfo(event, sample->mutable_sample_info());
 }
