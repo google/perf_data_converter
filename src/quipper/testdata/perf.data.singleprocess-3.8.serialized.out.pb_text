@@ -67,6 +67,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }

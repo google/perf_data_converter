@@ -76,6 +76,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -332,6 +333,8 @@ events {
     ino_generation: 3616733759617904184
     prot: 5
     flags: 2
+    root_path: "/opt/google"
+    root_path_md5_prefix: 8804561403361959047
   }
   timestamp: 0
 }
@@ -360,6 +363,8 @@ events {
     ino_generation: 3616733759617904184
     prot: 5
     flags: 2
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 0
 }

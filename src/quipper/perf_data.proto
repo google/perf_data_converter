@@ -242,7 +242,7 @@ message PerfDataProto {
   }
 
   // Represents both mmap_event and mmap2_event.
-  // Next tag: 15
+  // Next tag: 17
   message MMapEvent {
     // Process id.
     optional uint32 pid = 1;
@@ -277,6 +277,14 @@ message PerfDataProto {
 
     // Filename's md5 prefix.
     optional uint64 filename_md5_prefix = 7;
+
+    // The root path is defined as the first two levels of directories starting
+    // from the root, e.g. /data/app, /system/lib.
+    optional string root_path = 15;
+
+    // Root path's md5 prefix. It helps to categorize filenames we could not
+    // recover by the filename_md5_prefix.
+    optional uint64 root_path_md5_prefix = 16;
 
     // Info about the perf sample containing this event.
     optional SampleInfo sample_info = 8;
@@ -662,7 +670,7 @@ message PerfDataProto {
     // TID of the process mapped to these namespaces.
     optional uint32 tid = 2;
 
-    // Device/inode information per namespace upto NR_NAMESPACES.
+    // Device/inode information per namespace up to NR_NAMESPACES.
     repeated PerfNamespacesLinkInfo link_info = 3;
 
     // Info about the perf sample containing this event.

@@ -95,6 +95,7 @@ events {
       tid: 0
       sample_time_ns: 0
     }
+    root_path_md5_prefix: 15284527576400310788
   }
   timestamp: 0
 }
@@ -320,6 +321,8 @@ events {
       tid: 5644
       sample_time_ns: 5438450664625572
     }
+    root_path: "/lib64"
+    root_path_md5_prefix: 15875182237731550359
   }
   timestamp: 5438450664625572
 }
@@ -357,6 +360,8 @@ events {
       tid: 5644
       sample_time_ns: 5438450666853149
     }
+    root_path: "/mnt/host"
+    root_path_md5_prefix: 3903917034207834541
   }
   timestamp: 5438450666853149
 }
