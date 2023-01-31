@@ -1,7 +1,15 @@
+load("//tools/build_defs/license:license.bzl", "license")
+
 package(
+    default_applicable_licenses = ["//src:license"],
     default_visibility = [
         "//src:__subpackages__",
     ],
+)
+
+license(
+    name = "license",
+    package_name = "perf_data_converter",
 )
 
 licenses(["notice"])
