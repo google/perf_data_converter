@@ -40,6 +40,8 @@ std::string RootPath(const std::string& filename) {
   return filename.substr(0, pos - 1);
 }
 
+constexpr int kHexCharsPerByte = 2;
+
 }  // namespace
 
 PerfSerializer::PerfSerializer() {}
@@ -702,7 +704,9 @@ bool PerfSerializer::SerializeMMap2Event(
   sample->set_start(mmap.start);
   sample->set_len(mmap.len);
   sample->set_pgoff(mmap.pgoff);
-  if (!(event.header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID)) {
+  if (event.header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+    sample->set_build_id(RawDataToHexString(mmap.build_id, mmap.build_id_size));
+  } else {
     sample->set_maj(mmap.maj);
     sample->set_min(mmap.min);
     sample->set_ino(mmap.ino);
@@ -729,10 +733,23 @@ bool PerfSerializer::DeserializeMMap2Event(
   mmap.start = sample.start();
   mmap.len = sample.len();
   mmap.pgoff = sample.pgoff();
-  mmap.maj = sample.maj();
-  mmap.min = sample.min();
-  mmap.ino = sample.ino();
-  mmap.ino_generation = sample.ino_generation();
+  if (sample.has_build_id()) {
+    uint8_t bytes[kBuildIDArraySize];
+    if (HexStringToRawData(sample.build_id(), bytes, sizeof(bytes))) {
+      mmap.build_id_size = sample.build_id().size() / kHexCharsPerByte;
+      memset(mmap.build_id, 0, sizeof(mmap.build_id));
+      memcpy(mmap.build_id, bytes, mmap.build_id_size);
+    } else {
+      LOG(ERROR) << "Failed to convert build_id=" << sample.build_id()
+                 << " into bytes.";
+      return false;
+    }
+  } else {
+    mmap.maj = sample.maj();
+    mmap.min = sample.min();
+    mmap.ino = sample.ino();
+    mmap.ino_generation = sample.ino_generation();
+  }
   mmap.prot = sample.prot();
   mmap.flags = sample.flags();
   snprintf(mmap.filename, PATH_MAX, "%s", sample.filename().c_str());
@@ -1028,7 +1045,6 @@ bool PerfSerializer::SerializeBuildIDEvent(
 
   // Used to convert build IDs (and possibly other hashes) between raw data
   // format and as string of hex digits.
-  const int kHexCharsPerByte = 2;
   to->set_build_id_hash(build_id_bytes, build_id.size() / kHexCharsPerByte);
 
   return true;

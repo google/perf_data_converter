@@ -98,6 +98,20 @@ void CheckChronologicalOrderOfSerializedEvents(const PerfDataProto& proto) {
   }
 }
 
+void DeserializeAndSerialize(const PerfDataProto& input,
+                             PerfDataProto* output) {
+  // Check deserialization.
+  PerfReader reader1;
+  EXPECT_TRUE(reader1.Deserialize(input));
+  std::string buf;
+  reader1.WriteToString(&buf);
+
+  PerfReader reader2;
+  PerfDataProto perf_data_proto_2;
+  reader2.ReadFromString(buf);
+  ASSERT_TRUE(reader2.Serialize(output));
+}
+
 void SerializeAndDeserialize(const std::string& input,
                              const std::string& output, bool do_remap,
                              bool discard_unused_events) {
@@ -606,6 +620,15 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
                              testing::SampleInfo().Tid(1002))
       .WriteTo(&input);
 
+  // PERF_RECORD_MMAP2 with buildid-mmap field
+  std::vector<u8> build_id = {0x0,  0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                              0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xef, 0x0};
+  testing::ExampleMmap2Event(1003, 0x2c1000, 0x2000, 0x3000, "/usr/lib/bar.so",
+                             testing::SampleInfo().Tid(1003))
+      .WithMisc(PERF_RECORD_MISC_MMAP_BUILD_ID)
+      .WithBuildId(build_id.data(), build_id.size())
+      .WriteTo(&input);
+
   // Parse and Serialize
 
   PerfReader reader;
@@ -614,7 +637,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(reader.Serialize(&perf_data_proto));
 
-  EXPECT_EQ(2, perf_data_proto.events().size());
+  EXPECT_EQ(3, perf_data_proto.events().size());
 
   {
     const PerfDataProto::PerfEvent& event = perf_data_proto.events(0);
@@ -647,6 +670,42 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
     EXPECT_EQ(9, mmap.ino_generation());
     EXPECT_EQ(1 | 2, mmap.prot());
     EXPECT_EQ(2, mmap.flags());
+  }
+
+  {
+    const PerfDataProto::PerfEvent& event = perf_data_proto.events(2);
+    EXPECT_EQ(PERF_RECORD_MMAP2, event.header().type());
+    EXPECT_TRUE(event.has_mmap_event());
+    const PerfDataProto::MMapEvent& mmap = event.mmap_event();
+    EXPECT_EQ(1003, mmap.pid());
+    EXPECT_EQ(1003, mmap.tid());
+    EXPECT_EQ(0x2c1000, mmap.start());
+    EXPECT_EQ(0x2000, mmap.len());
+    EXPECT_EQ(0x3000, mmap.pgoff());
+    EXPECT_EQ("/usr/lib/bar.so", mmap.filename());
+    EXPECT_EQ(mmap.build_id(), "00112233445566778899aabbccddef00");
+  }
+
+  {
+    // Check deserialization
+    PerfDataProto perf_data_proto_2;
+    DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
+
+    std::string difference;
+    bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
+    EXPECT_TRUE(matches) << difference;
+  }
+
+  {
+    // Deserialization should fail when the build ID is not a hex string.
+    perf_data_proto.mutable_events(2)->mutable_mmap_event()->set_build_id(
+        "not a hex string");
+    PerfDataProto perf_data_proto_2;
+    DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
+
+    std::string difference;
+    bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
+    EXPECT_FALSE(matches) << difference;
   }
 }
 
