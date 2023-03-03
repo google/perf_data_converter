@@ -242,7 +242,7 @@ message PerfDataProto {
   }
 
   // Represents both mmap_event and mmap2_event.
-  // Next tag: 17
+  // Next tag: 18
   message MMapEvent {
     // Process id.
     optional uint32 pid = 1;
@@ -261,11 +261,21 @@ message PerfDataProto {
 
     // Only in MMAP2 events, information about the mapped inode:
     // Major/minor numbers
+    // Note that those the fields maj, min, ino, ino_generation should be
+    // unspecified if build_id is set.
     optional uint32 maj = 9;
     optional uint32 min = 10;
     // Inode number and generation.
     optional uint64 ino = 11;
     optional uint64 ino_generation = 12;
+
+    // Only in MMAP2 events, the build ID of this mmap.
+    // The build_id is a HexString representation of the bytes in original
+    // perf.data (example value: "af2272facafc97e344e12aff495cbddd00000000").
+    // Note that this field should be unspecified if any of the inode-related
+    // fields (maj, min, ino, ino_generation) are set.
+    optional string build_id = 17;
+
     // Protection bits and flags.
     optional uint32 prot = 13;
     optional uint32 flags = 14;
