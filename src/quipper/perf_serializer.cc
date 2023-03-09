@@ -705,6 +705,12 @@ bool PerfSerializer::SerializeMMap2Event(
   sample->set_len(mmap.len);
   sample->set_pgoff(mmap.pgoff);
   if (event.header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+    if (mmap.build_id_size > sizeof(mmap.build_id)) {
+      LOG(ERROR)
+          << "Invalid build_id_size, possibly data corruption: build_id_size = "
+          << mmap.build_id_size;
+      return false;
+    }
     sample->set_build_id(RawDataToHexString(mmap.build_id, mmap.build_id_size));
   } else {
     sample->set_maj(mmap.maj);
@@ -735,13 +741,15 @@ bool PerfSerializer::DeserializeMMap2Event(
   mmap.pgoff = sample.pgoff();
   if (sample.has_build_id()) {
     uint8_t bytes[kBuildIDArraySize];
-    if (HexStringToRawData(sample.build_id(), bytes, sizeof(bytes))) {
+    if (sample.build_id().size() % kHexCharsPerByte == 0 &&
+        sample.build_id().size() / kHexCharsPerByte <= sizeof(bytes) &&
+        HexStringToRawData(sample.build_id(), bytes, sizeof(bytes))) {
       mmap.build_id_size = sample.build_id().size() / kHexCharsPerByte;
       memset(mmap.build_id, 0, sizeof(mmap.build_id));
       memcpy(mmap.build_id, bytes, mmap.build_id_size);
     } else {
       LOG(ERROR) << "Failed to convert build_id=" << sample.build_id()
-                 << " into bytes.";
+                 << " (size=" << sample.build_id().size() << ") into bytes.";
       return false;
     }
   } else {

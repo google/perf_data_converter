@@ -703,9 +703,48 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
     PerfDataProto perf_data_proto_2;
     DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
 
-    std::string difference;
-    bool matches = EqualsProto(perf_data_proto_2, perf_data_proto, &difference);
-    EXPECT_FALSE(matches) << difference;
+    EXPECT_NE(perf_data_proto_2.events().size(),
+              perf_data_proto.events().size());
+  }
+
+  {
+    // Deserialization should fail when the build ID is not a complete hex str.
+    // E.g. "abc", where "ab" is a byte, but that single "c" is not.
+    perf_data_proto.mutable_events(2)->mutable_mmap_event()->set_build_id(
+        "abc");
+    PerfDataProto perf_data_proto_2;
+    DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
+
+    EXPECT_NE(perf_data_proto_2.events().size(),
+              perf_data_proto.events().size());
+  }
+
+  {
+    // Deserialization should fail when the build ID is larger than the
+    // maximum value of the build ID field of mmap2 perf event.
+    // https://source.corp.google.com/piper///depot/google3/third_party/linux_tools/src/tools/lib/perf/include/perf/event.h;l=39;bpv=1;bpt=0;rcl=483414731
+    perf_data_proto.mutable_events(2)->mutable_mmap_event()->set_build_id(
+        std::string(kMaxBuildIdSize * 2 + 2, 'a'));
+    PerfDataProto perf_data_proto_2;
+    DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
+
+    EXPECT_NE(perf_data_proto_2.events().size(),
+              perf_data_proto.events().size());
+  }
+
+  {
+    // Serialization should fail when the build_id_size field is larger than the
+    // maximum value of the build ID field of mmap2 perf event.
+    std::vector<u8> build_id = {0x0,  0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                                0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xef, 0x0};
+    testing::ExampleMmap2Event(1003, 0x2c1000, 0x2000, 0x3000,
+                               "/usr/lib/bar.so",
+                               testing::SampleInfo().Tid(1003))
+        .WithMisc(PERF_RECORD_MISC_MMAP_BUILD_ID)
+        .WithBuildId(build_id.data(), kMaxBuildIdSize + 1)
+        .WriteTo(&input);
+    PerfReader reader;
+    ASSERT_FALSE(reader.ReadFromString(input.str()));
   }
 }
 
