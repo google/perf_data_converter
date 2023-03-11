@@ -391,6 +391,10 @@ class ExampleMmap2Event : public StreamWriteable {
     build_id_size_ = size;
     return *this;
   }
+  SelfT& WithBuildIdSize(u8 size) {
+    build_id_size_ = size;
+    return *this;
+  }
 
   void WriteTo(std::ostream* out) const override;
 

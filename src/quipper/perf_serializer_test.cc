@@ -741,7 +741,8 @@ TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {
                                "/usr/lib/bar.so",
                                testing::SampleInfo().Tid(1003))
         .WithMisc(PERF_RECORD_MISC_MMAP_BUILD_ID)
-        .WithBuildId(build_id.data(), kMaxBuildIdSize + 1)
+        .WithBuildId(build_id.data(), build_id.size())
+        .WithBuildIdSize(kMaxBuildIdSize + 1)
         .WriteTo(&input);
     PerfReader reader;
     ASSERT_FALSE(reader.ReadFromString(input.str()));
