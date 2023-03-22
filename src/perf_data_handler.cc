@@ -25,7 +25,6 @@
 #include "src/quipper/perf_reader.h"
 
 using quipper::PerfDataProto;
-using quipper::PerfDataProto_CommEvent;
 using quipper::PerfDataProto_MMapEvent;
 
 namespace perftools {
