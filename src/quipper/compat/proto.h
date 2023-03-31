@@ -24,7 +24,7 @@ using ::google::protobuf::RepeatedPtrField;
 using ::google::protobuf::TextFormat;
 using ::google::protobuf::io::ArrayInputStream;
 using ::google::protobuf::util::MessageDifferencer;
-using ::google::protobuf::uint64;
+
 }  // namespace quipper
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_COMPAT_PROTO_H_

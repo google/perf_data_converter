@@ -497,7 +497,7 @@ void PerfParser::MapSampleEvent(ParsedEvent* parsed_event) {
 
 bool PerfParser::MapCallchain(const uint64_t ip, const PidTid pidtid,
                               const uint64_t original_event_addr,
-                              RepeatedField<uint64>* callchain,
+                              RepeatedField<uint64_t>* callchain,
                               ParsedEvent* parsed_event) {
   if (!callchain) {
     LOG(ERROR) << "NULL call stack data.";

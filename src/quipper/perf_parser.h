@@ -234,7 +234,7 @@ class PerfParser {
   // Calls MapIPAndPidAndGetNameAndOffset() on the callchain of a sample event.
   bool MapCallchain(const uint64_t ip, const PidTid pidtid,
                     uint64_t original_event_addr,
-                    RepeatedField<uint64>* callchain,
+                    RepeatedField<uint64_t>* callchain,
                     ParsedEvent* parsed_event);
 
   // Trims the branch stack for null entries and calls

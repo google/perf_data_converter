@@ -26,8 +26,8 @@ std::string ReadFileToString(const std::string& path) {
 }
 
 perftools::ProcessProfiles StringToProfiles(const std::string& data,
-                                            uint32 sample_labels,
-                                            uint32 options) {
+                                            uint32_t sample_labels,
+                                            uint32_t options) {
   // Try to parse it as a PerfDataProto.
   quipper::PerfDataProto perf_data_proto;
   if (perf_data_proto.ParseFromArray(data.data(), data.length())) {

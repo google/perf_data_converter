@@ -10,7 +10,6 @@
 
 #include <vector>
 
-#include "src/compat/int_compat.h"
 #include "src/compat/string_compat.h"
 #include "src/quipper/perf_data.pb.h"
 
@@ -32,8 +31,8 @@ class PerfDataHandler {
   struct Mapping {
    public:
     Mapping(const std::string& filename, const std::string& build_id,
-            uint64 start, uint64 limit, uint64 file_offset,
-            uint64 filename_md5_prefix)
+            uint64_t start, uint64_t limit, uint64_t file_offset,
+            uint64_t filename_md5_prefix)
         : filename(filename),
           build_id(build_id),
           start(start),
@@ -43,10 +42,10 @@ class PerfDataHandler {
 
     std::string filename;  // Empty if missing.
     std::string build_id;  // Empty if missing.
-    uint64 start;
-    uint64 limit;  // limit=ceiling.
-    uint64 file_offset;
-    uint64 filename_md5_prefix;
+    uint64_t start;
+    uint64_t limit;  // limit=ceiling.
+    uint64_t file_offset;
+    uint64_t filename_md5_prefix;
 
    private:
     Mapping() {}
@@ -55,7 +54,7 @@ class PerfDataHandler {
   struct Location {
     Location() : ip(0), mapping(nullptr) {}
 
-    uint64 ip;
+    uint64_t ip;
     const Mapping* mapping;
   };
 
@@ -79,9 +78,9 @@ class PerfDataHandler {
     // Indicates aborting a hardware transaction.
     bool abort;
     // The cycles from last taken branch (LBR).
-    uint32 cycles;
+    uint32_t cycles;
     // Branch speculation outcome classification if supported.
-    uint32 spec;
+    uint32_t spec;
   };
 
   struct SampleContext {
@@ -111,7 +110,7 @@ class PerfDataHandler {
     std::vector<BranchStackPair> branch_stack;
     // An index into PerfDataProto.file_attrs or -1 if
     // unavailable.
-    int64 file_attrs_index;
+    int64_t file_attrs_index;
     // Cgroup pathname
     const std::string* cgroup;
   };
@@ -128,7 +127,7 @@ class PerfDataHandler {
     // that gets added to pid_to_mmaps_.
     const PerfDataHandler::Mapping* mapping;
     // The process id used as a key to pid_to_mmaps_.
-    uint32 pid;
+    uint32_t pid;
   };
 
   PerfDataHandler(const PerfDataHandler&) = delete;

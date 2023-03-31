@@ -15,7 +15,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "src/compat/int_compat.h"
 #include "src/compat/string_compat.h"
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
@@ -33,7 +32,7 @@ namespace {
 static constexpr char kKernelPrefix[] = "[kernel.kallsyms]";
 // PID value used by perf for synthesized mmap records for the kernel binary
 // and *.ko modules.
-static constexpr uint32 kKernelPid = std::numeric_limits<uint32>::max();
+static constexpr uint32_t kKernelPid = std::numeric_limits<uint32_t>::max();
 
 bool HasPrefixString(const string& s, const char* substr) {
   const size_t substr_len = strlen(substr);
@@ -100,9 +99,9 @@ class Normalizer {
       }
     }
 
-    uint64 current_event_index = 0;
+    uint64_t current_event_index = 0;
     for (const auto& attr : perf_proto_.file_attrs()) {
-      for (uint64 id : attr.ids()) {
+      for (uint64_t id : attr.ids()) {
         id_to_event_index_[id] = current_event_index;
       }
       current_event_index++;
@@ -120,8 +119,8 @@ class Normalizer {
  private:
   // Using a 32-bit type for the PID values as the max PID value on 64-bit
   // systems is 2^22, see http://man7.org/linux/man-pages/man5/proc.5.html.
-  typedef std::unordered_map<uint32, PerfDataHandler::Mapping*> PidToMMapMap;
-  typedef std::unordered_map<uint32, const quipper::PerfDataProto_CommEvent*>
+  typedef std::unordered_map<uint32_t, PerfDataHandler::Mapping*> PidToMMapMap;
+  typedef std::unordered_map<uint32_t, const quipper::PerfDataProto_CommEvent*>
       PidToCommMap;
 
   typedef IntervalMap<const PerfDataHandler::Mapping*> MMapIntervalMap;
@@ -144,27 +143,28 @@ class Normalizer {
   // bound to its lifetime.
   const PerfDataHandler::Mapping* GetOrAddFakeMapping(
       const std::string& comm, const std::string& build_id,
-      uint64 comm_md5_prefix, uint64 start_addr);
+      uint64_t comm_md5_prefix, uint64_t start_addr);
 
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
-  const PerfDataHandler::Mapping* TryLookupInPid(uint32 pid, uint64 ip) const;
+  const PerfDataHandler::Mapping* TryLookupInPid(uint32_t pid,
+                                                 uint64_t ip) const;
 
   // Find the mapping for a given ip given a pid context (in user or kernel
   // mappings) and whether the ip is in user context; returns nullptr if none
   // can be found.
   const PerfDataHandler::Mapping* GetMappingFromPidAndIP(
-      uint32 pid, uint64 ip, bool ip_in_user_context) const;
+      uint32_t pid, uint64_t ip, bool ip_in_user_context) const;
 
   // Find the main MMAP event for this pid.  If no mapping is found,
   // nullptr is returned.
-  const PerfDataHandler::Mapping* GetMainMMapFromPid(uint32 pid) const;
+  const PerfDataHandler::Mapping* GetMainMMapFromPid(uint32_t pid) const;
 
   // For profiles with a single event, perf doesn't bother sending the
   // id.  So, if there is only one event, the event index must be 0.
   // Returns the event index corresponding to the id for this sample, or
   // -1 for an error.
-  int64 GetEventIndexForSample(
+  int64_t GetEventIndexForSample(
       const quipper::PerfDataProto_SampleEvent& sample) const;
 
   const quipper::PerfDataProto& perf_proto_;
@@ -178,7 +178,7 @@ class Normalizer {
   struct FakeMappingKey {
     string comm;
     string build_id;
-    uint64 comm_md5_prefix;
+    uint64_t comm_md5_prefix;
 
     bool operator==(const FakeMappingKey& rhs) const {
       return (comm == rhs.comm && build_id == rhs.build_id &&
@@ -189,7 +189,7 @@ class Normalizer {
       std::size_t operator()(const FakeMappingKey& k) const noexcept {
         std::size_t h = std::hash<std::string>{}(k.comm);
         h ^= std::hash<std::string>{}(k.build_id);
-        h ^= std::hash<uint64>{}(k.comm_md5_prefix);
+        h ^= std::hash<uint64_t>{}(k.comm_md5_prefix);
         return h;
       }
     };
@@ -201,20 +201,20 @@ class Normalizer {
 
   // The event for a given sample is determined by the id.
   // Map each id to an index in the event_profiles_ vector.
-  std::unordered_map<uint64, uint64> id_to_event_index_;
+  std::unordered_map<uint64_t, uint64_t> id_to_event_index_;
 
   // pid_to_comm_event maps a pid to the corresponding comm event.
   PidToCommMap pid_to_comm_event_;
 
   // pid_to_mmaps maps a pid to all mmap events that correspond to that pid.
-  std::unordered_map<uint32, std::unique_ptr<MMapIntervalMap>> pid_to_mmaps_;
+  std::unordered_map<uint32_t, std::unique_ptr<MMapIntervalMap>> pid_to_mmaps_;
 
   // pid_to_executable_mmap maps a pid to mmap that most likely contains the
   // filename of the main executable for that pid.
   PidToMMapMap pid_to_executable_mmap_;
 
   // |pid_had_any_mmap_| stores the pids that have their mmap events found.
-  std::unordered_set<uint32> pid_had_any_mmap_;
+  std::unordered_set<uint32_t> pid_had_any_mmap_;
 
   // map filenames to build-ids.
   std::unordered_map<string, string> filename_to_build_id_;
@@ -226,23 +226,23 @@ class Normalizer {
   string maybe_kernel_build_id_;
 
   // map from cgroup id to pathname.
-  std::unordered_map<uint64, const string> cgroup_map_;
+  std::unordered_map<uint64_t, const string> cgroup_map_;
 
   struct {
-    int64 samples = 0;
-    int64 samples_with_addr = 0;
-    int64 synthesized_lost_samples = 0;
-    int64 missing_main_mmap = 0;
-    int64 missing_sample_mmap = 0;
-    int64 missing_addr_mmap = 0;
+    int64_t samples = 0;
+    int64_t samples_with_addr = 0;
+    int64_t synthesized_lost_samples = 0;
+    int64_t missing_main_mmap = 0;
+    int64_t missing_sample_mmap = 0;
+    int64_t missing_addr_mmap = 0;
 
-    int64 callchain_ips = 0;
-    int64 missing_callchain_mmap = 0;
+    int64_t callchain_ips = 0;
+    int64_t missing_callchain_mmap = 0;
 
-    int64 branch_stack_ips = 0;
-    int64 missing_branch_stack_mmap = 0;
+    int64_t branch_stack_ips = 0;
+    int64_t missing_branch_stack_mmap = 0;
 
-    int64 no_event_errors = 0;
+    int64_t no_event_errors = 0;
   } stat_;
 };
 
@@ -268,7 +268,7 @@ void Normalizer::UpdateMapsWithForkEvent(
 }
 
 static constexpr char kLostMappingFilename[] = "[lost]";
-static const uint64 kLostMd5Prefix = quipper::Md5Prefix(kLostMappingFilename);
+static const uint64_t kLostMd5Prefix = quipper::Md5Prefix(kLostMappingFilename);
 
 void Normalizer::Normalize() {
   for (const auto& event_proto : perf_proto_.events()) {
@@ -360,7 +360,7 @@ void Normalizer::Normalize() {
       context.file_attrs_index = event_index;
       context.sample_mapping = GetOrAddFakeMapping(kLostMappingFilename, "",
                                                    kLostMd5Prefix, sample.ip());
-      for (uint64 i = 0; i < event_proto.lost_event().lost(); ++i) {
+      for (uint64_t i = 0; i < event_proto.lost_event().lost(); ++i) {
         handler_->Sample(context);
       }
       stat_.synthesized_lost_samples += event_proto.lost_event().lost();
@@ -385,7 +385,7 @@ void Normalizer::InvokeHandleSample(
   }
   ++stat_.samples;
 
-  uint32 pid = sample.pid();
+  uint32_t pid = sample.pid();
 
   context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
   stat_.missing_sample_mmap += context.sample_mapping == nullptr;
@@ -475,7 +475,7 @@ void Normalizer::InvokeHandleSample(
 
 const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
     const std::string& comm, const std::string& build_id,
-    uint64 comm_md5_prefix, uint64 start_addr) {
+    uint64_t comm_md5_prefix, uint64_t start_addr) {
   FakeMappingKey key = {comm, build_id, comm_md5_prefix};
   auto it = fake_mappings_.find(key);
   if (it != fake_mappings_.end()) {
@@ -487,7 +487,7 @@ const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
       .first->second;
 }
 
-static void CheckStat(int64 num, int64 denom, const string& desc) {
+static void CheckStat(int64_t num, int64_t denom, const string& desc) {
   const int max_missing_pct = 1;
   if (denom > 0 && num * 100 / denom > max_missing_pct) {
     LOG(WARNING) << "stat: " << desc << " " << num << "/" << denom;
@@ -540,7 +540,7 @@ void Normalizer::UpdateMapsWithMMapEvent(
     LOG(WARNING) << "bogus mapping: " << mmap->filename();
     return;
   }
-  uint32 pid = mmap->pid();
+  uint32_t pid = mmap->pid();
   MMapIntervalMap* interval_map = nullptr;
   const auto& it = pid_to_mmaps_.find(pid);
   if (it == pid_to_mmaps_.end()) {
@@ -554,9 +554,9 @@ void Normalizer::UpdateMapsWithMMapEvent(
       mmap->filename(), GetBuildId(mmap), mmap->start(),
       mmap->start() + mmap->len(), mmap->pgoff(), mmap->filename_md5_prefix());
   owned_mappings_.emplace_back(mapping);
-  if (mapping->start <= (static_cast<uint64>(1) << 63) &&
-      mapping->file_offset > (static_cast<uint64>(1) << 63) &&
-      mapping->limit > (static_cast<uint64>(1) << 63)) {
+  if (mapping->start <= (static_cast<uint64_t>(1) << 63) &&
+      mapping->file_offset > (static_cast<uint64_t>(1) << 63) &&
+      mapping->limit > (static_cast<uint64_t>(1) << 63)) {
     // Prior to the fix (https://lore.kernel.org/patchwork/patch/473712/), perf
     // synthesizes the kernel start using the address of the first symbol, found
     // in the `/proc/kallsyms` file, that doesn't contain the `[` character.
@@ -631,8 +631,8 @@ void Normalizer::UpdateMapsWithMMapEvent(
   }
 }
 
-const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32 pid,
-                                                           uint64 ip) const {
+const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32_t pid,
+                                                           uint64_t ip) const {
   const auto& it = pid_to_mmaps_.find(pid);
   if (it == pid_to_mmaps_.end()) {
     VLOG(2) << "No mmaps for pid " << pid;
@@ -650,7 +650,7 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32 pid,
 // stored in our map as pid = -1), so check there if the lookup fails
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
-    uint32 pid, uint64 ip, bool ip_in_user_context) const {
+    uint32_t pid, uint64_t ip, bool ip_in_user_context) const {
   if (ip >= quipper::PERF_CONTEXT_MAX || ip >> 60 == 0x8) {
     // In case the ip is context hint or the highest 4 bits of ip is 1000,
     // it has null mapping. For the latter case, we set the highest bit to mark
@@ -678,7 +678,7 @@ const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
 }
 
 const PerfDataHandler::Mapping* Normalizer::GetMainMMapFromPid(
-    uint32 pid) const {
+    uint32_t pid) const {
   auto mapping_it = pid_to_executable_mmap_.find(pid);
   if (mapping_it != pid_to_executable_mmap_.end()) {
     return mapping_it->second;
@@ -688,7 +688,7 @@ const PerfDataHandler::Mapping* Normalizer::GetMainMMapFromPid(
   return nullptr;
 }
 
-int64 Normalizer::GetEventIndexForSample(
+int64_t Normalizer::GetEventIndexForSample(
     const quipper::PerfDataProto_SampleEvent& sample) const {
   if (perf_proto_.file_attrs().size() == 1) {
     return 0;

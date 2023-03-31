@@ -14,17 +14,6 @@ cc_library(
 )
 
 cc_library(
-    name = "int_compat",
-    hdrs = [
-        "int_compat.h",
-    ],
-    deps = [
-        "//src:profile_cc_proto",
-        "//src/quipper:base",
-    ],
-)
-
-cc_library(
     name = "test_compat",
     testonly = 1,
     hdrs = [

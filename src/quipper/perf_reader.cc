@@ -1382,7 +1382,7 @@ bool PerfReader::ReadBuildIDMetadataWithoutHeader(
   size_t aligned_size =
       sizeof(*event) + GetUint64AlignedStringLength(filename_size);
   if (aligned_size > event->header.size) {
-    LOG(ERROR) << "Event size " << aligned_size << " after uint64 alignment"
+    LOG(ERROR) << "Event size " << aligned_size << " after uint64_t alignment"
                << " of the filename length is greater than event size "
                << event->header.size
                << " reported by perf for the buildid event of type "
@@ -1450,7 +1450,7 @@ bool PerfReader::ReadUint32Metadata(DataReader* data, u32 type, size_t size) {
   while (size > 0) {
     uint32_t item;
     if (!data->ReadUint32(&item)) {
-      LOG(ERROR) << "Error reading uint32 metadata for "
+      LOG(ERROR) << "Error reading uint32_t metadata for "
                  << GetMetadataName(type);
       return false;
     }
@@ -1460,7 +1460,8 @@ bool PerfReader::ReadUint32Metadata(DataReader* data, u32 type, size_t size) {
   }
 
   if (uint32_data.data.empty()) {
-    LOG(ERROR) << "No uint32 metadata available for " << GetMetadataName(type);
+    LOG(ERROR) << "No uint32_t metadata available for "
+               << GetMetadataName(type);
     return false;
   }
 
@@ -1476,7 +1477,7 @@ bool PerfReader::ReadUint64Metadata(DataReader* data, u32 type, size_t size) {
   while (size > 0) {
     uint64_t item;
     if (!data->ReadUint64(&item)) {
-      LOG(ERROR) << "Error reading uint64 metadata for "
+      LOG(ERROR) << "Error reading uint64_t metadata for "
                  << GetMetadataName(type);
       return false;
     }
@@ -1486,7 +1487,8 @@ bool PerfReader::ReadUint64Metadata(DataReader* data, u32 type, size_t size) {
   }
 
   if (uint64_data.data.empty()) {
-    LOG(ERROR) << "No uint64 metadata available for " << GetMetadataName(type);
+    LOG(ERROR) << "No uint64_t metadata available for "
+               << GetMetadataName(type);
     return false;
   }
 
@@ -2099,7 +2101,7 @@ bool PerfReader::WriteUint32Metadata(u32 type, DataWriter* data) const {
                                 raw_data.size() * sizeof(uint32_t),
                                 "uint32_t metadata");
   }
-  LOG(ERROR) << "Uint32 metadata of type " << GetMetadataName(type)
+  LOG(ERROR) << "uint32_t metadata of type " << GetMetadataName(type)
              << " not present";
   return false;
 }
@@ -2114,7 +2116,7 @@ bool PerfReader::WriteUint64Metadata(u32 type, DataWriter* data) const {
                                 raw_data.size() * sizeof(uint64_t),
                                 "uint32_t metadata");
   }
-  LOG(ERROR) << "Uint64 metadata of type " << GetMetadataName(type)
+  LOG(ERROR) << "uint64_t metadata of type " << GetMetadataName(type)
              << " not present";
   return false;
 }

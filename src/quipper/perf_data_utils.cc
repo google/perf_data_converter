@@ -17,8 +17,8 @@ namespace {
 
 // Gets the string length from the given |str| buffer using the |max_size| as
 // the maximum size of the buffer. Returns true and updates the |size| with
-// the uint64 aligned string length on success. Returns false when the |str| is
-// not null terimated or the uint64 aligned string length exceeds the
+// the uint64_t aligned string length on success. Returns false when the |str|
+// is not null terimated or the uint64_t aligned string length exceeds the
 // |max_size|.
 bool GetUint64AlignedStringLength(const char* str, size_t max_size,
                                   const string& string_name, size_t* size) {
@@ -28,13 +28,13 @@ bool GetUint64AlignedStringLength(const char* str, size_t max_size,
                << " is not null-terminated";
     return false;
   }
-  // When perf calculates an event size, it uses uint64 aligned string length.
+  // When perf calculates an event size, it uses uint64_t aligned string length.
   // Because of this, the string length obtained using `strnlen` should be
-  // uint64 aligned before validating it against the string length reported in
+  // uint64_t aligned before validating it against the string length reported in
   // a perf event.
   str_size = quipper::GetUint64AlignedStringLength(str_size);
   if (str_size > max_size) {
-    LOG(ERROR) << "Uint64 aligned string length " << str_size << " of "
+    LOG(ERROR) << "uint64_t aligned string length " << str_size << " of "
                << string_name << " exceeds the max string length " << max_size;
     return false;
   }
@@ -508,7 +508,7 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
   if (*size % sizeof(u64) != 0) {
     *size = 0;
     LOG(ERROR) << "Variable payload size " << *size << " of event "
-               << GetEventName(event.header.type) << " is not uint64 aligned";
+               << GetEventName(event.header.type) << " is not uint64_t aligned";
     return false;
   }
   return true;
@@ -586,7 +586,7 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     *size = 0;
     LOG(ERROR) << "Variable payload size " << *size << " of event "
                << GetEventName(event.header().type())
-               << " is not uint64 aligned";
+               << " is not uint64_t aligned";
     return false;
   }
   return true;

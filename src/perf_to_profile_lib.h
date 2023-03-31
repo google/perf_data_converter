@@ -26,8 +26,8 @@ std::string ReadFileToString(const std::string& path);
 // Generates profiles from either a raw perf.data string or perf data proto
 // string. Returns a vector of process profiles, empty if any error occurs.
 perftools::ProcessProfiles StringToProfiles(
-    const std::string& data, uint32 sample_labels = perftools::kNoLabels,
-    uint32 options = perftools::kNoOptions);
+    const std::string& data, uint32_t sample_labels = perftools::kNoLabels,
+    uint32_t options = perftools::kNoOptions);
 
 // Creates a file at the given |path|. If |overwrite_output| is set to true,
 // overwrites the file at the given path.

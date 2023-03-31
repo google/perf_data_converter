@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#include "src/compat/int_compat.h"
 #include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
 #include "src/intervalmap.h"
@@ -38,7 +37,7 @@ using testing::UnorderedPointwise;
 
 namespace {
 
-typedef std::unordered_map<string, std::pair<int64, int64>> MapCounts;
+typedef std::unordered_map<string, std::pair<int64_t, int64_t>> MapCounts;
 
 // GetMapCounts returns a map keyed by a location identifier and
 // mapping to self and total counts for that location.
@@ -46,7 +45,7 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
   MapCounts map_counts;
   for (const auto& pp : pps) {
     const auto& profile = pp->data;
-    std::unordered_map<uint64, const Location*> locations;
+    std::unordered_map<uint64_t, const Location*> locations;
     perftools::IntervalMap<const Mapping*> mappings;
     CHECK_GT(profile.mapping_size(), 0);
     const Mapping& main = profile.mapping(0);
@@ -59,14 +58,14 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
     for (int i = 0; i < profile.sample_size(); ++i) {
       const auto& sample = profile.sample(i);
       for (int id_index = 0; id_index < sample.location_id_size(); ++id_index) {
-        uint64 id = sample.location_id(id_index);
+        uint64_t id = sample.location_id(id_index);
         CHECK(locations[id] != nullptr);
         std::stringstream key_stream;
         key_stream << profile.string_table(main.filename()) << ":"
                    << profile.string_table(main.build_id());
         if (locations[id]->mapping_id() != 0) {
           const Mapping* dso;
-          uint64 addr = locations[id]->address();
+          uint64_t addr = locations[id]->address();
           CHECK(mappings.Lookup(addr, &dso));
           key_stream << "+" << profile.string_table(dso->filename()) << ":"
                      << profile.string_table(dso->build_id()) << std::hex
@@ -163,9 +162,9 @@ class PerfDataConverterTest : public ::testing::Test {
 
 struct TestCase {
   string filename;
-  int64 key_count;
-  int64 total_exclusive;
-  int64 total_inclusive;
+  int64_t key_count;
+  int64_t total_exclusive;
+  int64_t total_inclusive;
 };
 
 // Builds a set of counts for each sample in the profile.  This is a
@@ -196,8 +195,8 @@ TEST_F(PerfDataConverterTest, Converts) {
     EXPECT_EQ(pps.size(), 1);
     auto counts = GetMapCounts(pps);
     EXPECT_EQ(c.key_count, counts.size()) << casename;
-    int64 total_exclusive = 0;
-    int64 total_inclusive = 0;
+    int64_t total_exclusive = 0;
+    int64_t total_inclusive = 0;
     for (const auto& it : counts) {
       total_exclusive += it.second.first;
       total_inclusive += it.second.second;
@@ -234,7 +233,7 @@ TEST_F(PerfDataConverterTest, ConvertsGroupPid) {
   const auto pps = PerfDataProtoToProfiles(
       &perf_data_proto, kPidAndTidLabels, kGroupByPids);
 
-  uint64 total_samples = 0;
+  uint64_t total_samples = 0;
   // Samples were collected for 6 pids in this case, so the outer vector should
   // contain 6 profiles, one for each pid.
   int pids = 6;
@@ -259,7 +258,7 @@ TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
 
-  std::map<uint32, string> thread_types;
+  std::map<uint32_t, string> thread_types;
   thread_types[1084] = "MAIN_THREAD";
   thread_types[1289] = "MAIN_THREAD";
   thread_types[1305] = "COMPOSITOR_THREAD";
@@ -268,8 +267,8 @@ TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
   const ProcessProfiles pps = PerfDataProtoToProfiles(
       &perf_data_proto, kThreadTypeLabel, kNoOptions, thread_types);
 
-  uint64 total_samples = 0;
-  std::unordered_map<string, uint64> counts_by_thread_type;
+  uint64_t total_samples = 0;
+  std::unordered_map<string, uint64_t> counts_by_thread_type;
   for (const auto& pp : pps) {
     const auto& profile = pp->data;
     for (const auto& sample : profile.sample()) {
@@ -287,7 +286,7 @@ TEST_F(PerfDataConverterTest, GroupByThreadTypes) {
   }
   EXPECT_EQ(8, total_samples);
 
-  std::unordered_map<string, uint64> expected_counts = {
+  std::unordered_map<string, uint64_t> expected_counts = {
       {"MAIN_THREAD", 2}, {"IO_THREAD", 1}, {"COMPOSITOR_THREAD", 1}};
   EXPECT_EQ(expected_counts.size(), counts_by_thread_type.size());
 
@@ -336,7 +335,7 @@ TEST_F(PerfDataConverterTest, HandlesDataAddresses) {
   struct TestCase {
     string desc;
     string filename;
-    uint32 options;
+    uint32_t options;
     size_t want_samples;
     std::vector<size_t> want_frames;  // expected # of frames per sample
   };
@@ -403,9 +402,9 @@ TEST_F(PerfDataConverterTest, HandlesKernelMmapOverlappingUserCode) {
 
   EXPECT_EQ(2, profile.mapping_size());
   EXPECT_EQ(1000, profile.mapping(0).memory_start());  // user
-  int64 user_mapping_id = profile.mapping(0).id();
+  int64_t user_mapping_id = profile.mapping(0).id();
   EXPECT_EQ(0, profile.mapping(1).memory_start());  // kernel
-  int64 kernel_mapping_id = profile.mapping(1).id();
+  int64_t kernel_mapping_id = profile.mapping(1).id();
 
   EXPECT_EQ(3, profile.location_size());
   EXPECT_EQ(kernel_mapping_id, profile.location(0).mapping_id());
@@ -426,9 +425,9 @@ TEST_F(PerfDataConverterTest, HandlesCrOSKernel3_18Mapping) {
 
   EXPECT_EQ(2, profile.mapping_size());
   EXPECT_EQ(1000, profile.mapping(0).memory_start());  // user
-  int64 user_mapping_id = profile.mapping(0).id();
+  int64_t user_mapping_id = profile.mapping(0).id();
   EXPECT_EQ(0xffffffff8bc001c8, profile.mapping(1).memory_start());  // kernel
-  int64 kernel_mapping_id = profile.mapping(1).id();
+  int64_t kernel_mapping_id = profile.mapping(1).id();
 
   EXPECT_EQ(3, profile.location_size());
   EXPECT_EQ(kernel_mapping_id, profile.location(0).mapping_id());
@@ -567,7 +566,7 @@ TEST_F(PerfDataConverterTest, GroupsByComm) {
 
   const int val_idx = 0;
   int total_samples = 0;
-  std::unordered_map<string, uint64> counts_by_comm, counts_by_thread_comm;
+  std::unordered_map<string, uint64_t> counts_by_comm, counts_by_thread_comm;
   for (const auto& pp : pps) {
     const auto& p = pp->data;
     EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
@@ -587,12 +586,12 @@ TEST_F(PerfDataConverterTest, GroupsByComm) {
     }
   }
   EXPECT_EQ(10, total_samples);
-  std::unordered_map<string, uint64> expected_comm_counts = {
+  std::unordered_map<string, uint64_t> expected_comm_counts = {
       {"pid_2", 6},
       {"1234567812345678", 4},
   };
   EXPECT_THAT(counts_by_comm, UnorderedPointwise(Eq(), expected_comm_counts));
-  std::unordered_map<string, uint64> expected_thread_comm_counts = {
+  std::unordered_map<string, uint64_t> expected_thread_comm_counts = {
       {"pid_2", 1},
       {"tid_3", 2},
       {"0", 3},
@@ -710,7 +709,7 @@ TEST_F(PerfDataConverterTest, ConvertsCgroup) {
 
   const int val_idx = 0;
   int total_samples = 0;
-  std::unordered_map<std::string, uint64> counts_by_cgroup;
+  std::unordered_map<std::string, uint64_t> counts_by_cgroup;
   for (const auto& pp : pps) {
     const auto& p = pp->data;
     EXPECT_EQ(p.string_table(p.sample_type(val_idx).type()), "cycles_sample");
@@ -726,7 +725,7 @@ TEST_F(PerfDataConverterTest, ConvertsCgroup) {
   }
   EXPECT_EQ(total_samples, 10);
 
-  const std::unordered_map<std::string, uint64> expected_counts{
+  const std::unordered_map<std::string, uint64_t> expected_counts{
       {"/", 1},
       {"/abc", 5},
       {"/XYZ", 4},
@@ -740,9 +739,9 @@ TEST_F(PerfDataConverterTest, ConvertsCgroup) {
   }
 }
 
-std::pair<int, std::unordered_map<uint64, uint64>> ExtractCounts(
+std::pair<int, std::unordered_map<uint64_t, uint64_t>> ExtractCounts(
     const ProcessProfiles& pps, std::string key_name) {
-  std::unordered_map<uint64, uint64> counts;
+  std::unordered_map<uint64_t, uint64_t> counts;
   int total_samples = 0;
   const int val_idx = 0;
 
@@ -775,7 +774,7 @@ TEST_F(PerfDataConverterTest, ConvertsCodePageSize) {
   const auto counts_pair = ExtractCounts(pps, CodePageSizeLabelKey);
   const auto total_samples = std::get<0>(counts_pair);
   const auto& counts = std::get<1>(counts_pair);
-  const std::unordered_map<uint64, uint64> expected_counts{
+  const std::unordered_map<uint64_t, uint64_t> expected_counts{
       {4096, 2},
       {2097152, 2},
       {1073741824, 1},
@@ -798,7 +797,7 @@ TEST_F(PerfDataConverterTest, ConvertsDataPageSize) {
   const auto counts_pair = ExtractCounts(pps, DataPageSizeLabelKey);
   const auto total_samples = std::get<0>(counts_pair);
   const auto& counts = std::get<1>(counts_pair);
-  const std::unordered_map<uint64, uint64> expected_counts{
+  const std::unordered_map<uint64_t, uint64_t> expected_counts{
       {4096, 2},
       {2097152, 2},
       {1073741824, 1},
@@ -820,7 +819,7 @@ TEST_F(PerfDataConverterTest, ConvertsCpu) {
   const auto counts_pair = ExtractCounts(pps, CpuLabelKey);
   const auto total_samples = std::get<0>(counts_pair);
   const auto& counts = std::get<1>(counts_pair);
-  const std::unordered_map<uint64, uint64> expected_counts{
+  const std::unordered_map<uint64_t, uint64_t> expected_counts{
       {0, 1},
       {3, 2},
       {8, 1},
