@@ -26,8 +26,8 @@ namespace {
 typedef perftools::profiles::Profile Profile;
 typedef perftools::profiles::Builder ProfileBuilder;
 
-typedef uint32 Pid;
-typedef uint32 Tid;
+typedef uint32_t Pid;
+typedef uint32_t Tid;
 
 enum ExecutionMode {
   Unknown,
@@ -78,12 +78,12 @@ ExecutionMode PerfExecMode(const PerfDataHandler::SampleContext& sample) {
 // this also ensures the string contains structurally valid UTF-8.
 // In order to successfully unmarshal the proto in Go, all strings inserted into
 // the profile string table must be valid UTF-8.
-int64 UTF8StringId(const string& s, ProfileBuilder* builder) {
+int64_t UTF8StringId(const string& s, ProfileBuilder* builder) {
   return builder->StringId(s.c_str());
 }
 
 // List of profile location IDs, currently used to represent a call stack.
-typedef std::vector<uint64> LocationIdVector;
+typedef std::vector<uint64_t> LocationIdVector;
 
 // It is sufficient to key the location and mapping maps by PID.
 // However, when Samples include labels, it is necessary to key their maps
@@ -96,19 +96,19 @@ typedef std::vector<uint64> LocationIdVector;
 struct SampleKey {
   Pid pid = 0;
   Tid tid = 0;
-  uint64 time_ns = 0;
+  uint64_t time_ns = 0;
   ExecutionMode exec_mode = Unknown;
   // The index of the sample's command in the profile's string table.
-  uint64 comm = 0;
+  uint64_t comm = 0;
   // The index of the sample's thread type in the profile's string table.
-  uint64 thread_type = 0;
+  uint64_t thread_type = 0;
   // The index of the sample's thread command in the profile's string table.
-  uint64 thread_comm = 0;
+  uint64_t thread_comm = 0;
   // The index of the sample's cgroup name in the profiles's string table.
-  uint64 cgroup = 0;
-  uint64 code_page_size = 0;
-  uint64 data_page_size = 0;
-  uint32 cpu = 0;
+  uint64_t cgroup = 0;
+  uint64_t code_page_size = 0;
+  uint64_t data_page_size = 0;
+  uint32_t cpu = 0;
   LocationIdVector stack;
 };
 
@@ -127,19 +127,19 @@ struct SampleKeyEqualityTester {
 struct SampleKeyHasher {
   size_t operator()(const SampleKey k) const {
     size_t hash = 0;
-    hash ^= std::hash<int32>()(k.pid);
-    hash ^= std::hash<int32>()(k.tid);
-    hash ^= std::hash<uint64>()(k.time_ns);
+    hash ^= std::hash<int32_t>()(k.pid);
+    hash ^= std::hash<int32_t>()(k.tid);
+    hash ^= std::hash<uint64_t>()(k.time_ns);
     hash ^= std::hash<int>()(k.exec_mode);
-    hash ^= std::hash<uint64>()(k.comm);
-    hash ^= std::hash<uint64>()(k.thread_type);
-    hash ^= std::hash<uint64>()(k.thread_comm);
-    hash ^= std::hash<uint64>()(k.cgroup);
-    hash ^= std::hash<uint64>()(k.code_page_size);
-    hash ^= std::hash<uint64>()(k.data_page_size);
-    hash ^= std::hash<uint32>()(k.cpu);
+    hash ^= std::hash<uint64_t>()(k.comm);
+    hash ^= std::hash<uint64_t>()(k.thread_type);
+    hash ^= std::hash<uint64_t>()(k.thread_comm);
+    hash ^= std::hash<uint64_t>()(k.cgroup);
+    hash ^= std::hash<uint64_t>()(k.code_page_size);
+    hash ^= std::hash<uint64_t>()(k.data_page_size);
+    hash ^= std::hash<uint32_t>()(k.cpu);
     for (const auto& id : k.stack) {
-      hash ^= std::hash<uint64>()(id);
+      hash ^= std::hash<uint64_t>()(id);
     }
     return hash;
   }
@@ -159,12 +159,13 @@ typedef std::unordered_map<SampleKey, perftools::profiles::Sample*,
 // address, not also the mapping ID since the map / its portions are invalidated
 // by Comm() and MMap() methods to force re-creation of those locations.
 //
-typedef std::map<uint64, uint64> LocationMap;
+typedef std::map<uint64_t, uint64_t> LocationMap;
 
 // Map from the handler mapping object to profile mapping ID. The mappings
 // the handler creates are immutable and reasonably shared (as in no new mapping
 // object is created per, say, each sample), so using the pointers is OK.
-typedef std::unordered_map<const PerfDataHandler::Mapping*, uint64> MappingMap;
+typedef std::unordered_map<const PerfDataHandler::Mapping*, uint64_t>
+    MappingMap;
 
 // Per-process (aggregated when no PID grouping requested) info.
 // See docs on ProcessProfile in the header file for details on the fields.
@@ -174,7 +175,7 @@ class ProcessMeta {
   explicit ProcessMeta(Pid pid) : pid_(pid) {}
 
   // Updates the bounding time interval ranges per specified timestamp.
-  void UpdateTimestamps(int64 time_nsec) {
+  void UpdateTimestamps(int64_t time_nsec) {
     if (min_sample_time_ns_ == 0 || time_nsec < min_sample_time_ns_) {
       min_sample_time_ns_ = time_nsec;
     }
@@ -194,15 +195,15 @@ class ProcessMeta {
 
  private:
   Pid pid_;
-  int64 min_sample_time_ns_ = 0;
-  int64 max_sample_time_ns_ = 0;
+  int64_t min_sample_time_ns_ = 0;
+  int64_t max_sample_time_ns_ = 0;
 };
 
 class PerfDataConverter : public PerfDataHandler {
  public:
   explicit PerfDataConverter(const quipper::PerfDataProto& perf_data,
-                             uint32 sample_labels = kNoLabels,
-                             uint32 options = kGroupByPids,
+                             uint32_t sample_labels = kNoLabels,
+                             uint32_t options = kGroupByPids,
                              const std::map<Tid, string>& thread_types = {})
       : perf_data_(perf_data),
         sample_labels_(sample_labels),
@@ -233,15 +234,15 @@ class PerfDataConverter : public PerfDataHandler {
   // Adds a new location to the profile if such location is not present in the
   // profile, returning the ID of the location. It also adds the profile mapping
   // corresponding to the specified handler mapping.
-  uint64 AddOrGetLocation(const Pid& pid, uint64 addr,
-                          const PerfDataHandler::Mapping* mapping,
-                          ProfileBuilder* builder);
+  uint64_t AddOrGetLocation(const Pid& pid, uint64_t addr,
+                            const PerfDataHandler::Mapping* mapping,
+                            ProfileBuilder* builder);
 
   // Adds a new mapping to the profile if such mapping is not present in the
   // profile, returning the ID of the mapping. It returns 0 to indicate that the
   // mapping was not added (only happens if smap == 0 currently).
-  uint64 AddOrGetMapping(const Pid& pid, const PerfDataHandler::Mapping* smap,
-                         ProfileBuilder* builder);
+  uint64_t AddOrGetMapping(const Pid& pid, const PerfDataHandler::Mapping* smap,
+                           ProfileBuilder* builder);
 
   // Returns whether pid labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
@@ -318,8 +319,8 @@ class PerfDataConverter : public PerfDataHandler {
   };
   std::unordered_map<Pid, PerPidInfo> per_pid_;
 
-  const uint32 sample_labels_;
-  const uint32 options_;
+  const uint32_t sample_labels_;
+  const uint32_t options_;
   std::unordered_map<Tid, string> thread_types_;
 };
 
@@ -455,9 +456,9 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
   return per_pid.builder;
 }
 
-uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
-                                          const PerfDataHandler::Mapping* smap,
-                                          ProfileBuilder* builder) {
+uint64_t PerfDataConverter::AddOrGetMapping(
+    const Pid& pid, const PerfDataHandler::Mapping* smap,
+    ProfileBuilder* builder) {
   CHECK(builder != nullptr) << "Cannot add mapping to null builder";
 
   if (smap == nullptr) {
@@ -472,7 +473,7 @@ uint64 PerfDataConverter::AddOrGetMapping(const Pid& pid,
 
   Profile* profile = builder->mutable_profile();
   auto mapping = profile->add_mapping();
-  uint64 mapping_id = profile->mapping_size();
+  uint64_t mapping_id = profile->mapping_size();
   mapping->set_id(mapping_id);
   mapping->set_memory_start(smap->start);
   mapping->set_memory_limit(smap->limit);
@@ -510,12 +511,12 @@ void PerfDataConverter::AddOrUpdateSample(
     if (IncludePidLabels() && context.sample.has_pid()) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(PidLabelKey));
-      label->set_num(static_cast<int64>(context.sample.pid()));
+      label->set_num(static_cast<int64_t>(context.sample.pid()));
     }
     if (IncludeTidLabels() && context.sample.has_tid()) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(TidLabelKey));
-      label->set_num(static_cast<int64>(context.sample.tid()));
+      label->set_num(static_cast<int64_t>(context.sample.tid()));
     }
     if (IncludeCommLabels() && sample_key.comm != 0) {
       auto* label = sample->add_label();
@@ -525,8 +526,8 @@ void PerfDataConverter::AddOrUpdateSample(
     if (IncludeTimestampNsLabels() && context.sample.has_sample_time_ns()) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(TimestampNsLabelKey));
-      int64 timestamp_ns_as_int64 =
-          static_cast<int64>(context.sample.sample_time_ns());
+      int64_t timestamp_ns_as_int64 =
+          static_cast<int64_t>(context.sample.sample_time_ns());
       label->set_num(timestamp_ns_as_int64);
     }
     if (IncludeExecutionModeLabels() && sample_key.exec_mode != Unknown) {
@@ -562,7 +563,7 @@ void PerfDataConverter::AddOrUpdateSample(
     if (IncludeCpuLabels() && context.sample.has_cpu()) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(CpuLabelKey));
-      label->set_num(static_cast<int64>(context.sample.cpu()));
+      label->set_num(static_cast<int64_t>(context.sample.cpu()));
       label->set_num_unit(builder->StringId("cpu"));
     }
     // Two values per collected event: the first is sample counts, the second is
@@ -574,12 +575,12 @@ void PerfDataConverter::AddOrUpdateSample(
     }
   }
 
-  int64 weight = 1;
+  int64_t weight = 1;
   // If the sample has a period, use that in preference
   if (context.sample.period() > 0) {
     weight = context.sample.period();
   } else if (context.file_attrs_index >= 0) {
-    uint64 period =
+    uint64_t period =
         perf_data_.file_attrs(context.file_attrs_index).attr().sample_period();
     if (period > 0) {
       // If sampling used a fixed period, use that as the weight.
@@ -592,8 +593,8 @@ void PerfDataConverter::AddOrUpdateSample(
                     sample->value(2 * event_index + 1) + weight);
 }
 
-uint64 PerfDataConverter::AddOrGetLocation(
-    const Pid& pid, uint64 addr, const PerfDataHandler::Mapping* mapping,
+uint64_t PerfDataConverter::AddOrGetLocation(
+    const Pid& pid, uint64_t addr, const PerfDataHandler::Mapping* mapping,
     ProfileBuilder* builder) {
   LocationMap& loc_map = per_pid_[pid].location_map;
   auto loc_it = loc_map.find(addr);
@@ -603,10 +604,10 @@ uint64 PerfDataConverter::AddOrGetLocation(
 
   Profile* profile = builder->mutable_profile();
   perftools::profiles::Location* loc = profile->add_location();
-  uint64 loc_id = profile->location_size();
+  uint64_t loc_id = profile->location_size();
   loc->set_id(loc_id);
   loc->set_address(addr);
-  uint64 mapping_id = AddOrGetMapping(pid, mapping, builder);
+  uint64_t mapping_id = AddOrGetMapping(pid, mapping, builder);
   if (mapping_id != 0) {
     loc->set_mapping_id(mapping_id);
   } else {
@@ -650,7 +651,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   ProfileBuilder* builder = GetOrCreateBuilder(sample);
   SampleKey sample_key = MakeSampleKey(sample, builder);
 
-  uint64 ip = sample.sample_mapping != nullptr ? sample.sample.ip() : 0;
+  uint64_t ip = sample.sample_mapping != nullptr ? sample.sample.ip() : 0;
   if (ip != 0) {
     const auto start = sample.sample_mapping->start;
     const auto limit = sample.sample_mapping->limit;
@@ -662,7 +663,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   // the stack. When kAddDataAddressFrames is set, add another leaf with the
   // virtual data address of the access.
   if (options_ & kAddDataAddressFrames) {
-    uint64 addr = sample.addr_mapping != nullptr ? sample.sample.addr() : 0;
+    uint64_t addr = sample.addr_mapping != nullptr ? sample.sample.addr() : 0;
     if (addr != 0) {
       const auto start = sample.addr_mapping->start;
       const auto limit = sample.addr_mapping->limit;
@@ -749,8 +750,8 @@ ProcessProfiles PerfDataConverter::Profiles() {
 }  // namespace
 
 ProcessProfiles PerfDataProtoToProfiles(
-    const quipper::PerfDataProto* perf_data, const uint32 sample_labels,
-    const uint32 options, const std::map<Tid, string>& thread_types) {
+    const quipper::PerfDataProto* perf_data, const uint32_t sample_labels,
+    const uint32_t options, const std::map<Tid, string>& thread_types) {
   PerfDataConverter converter(*perf_data, sample_labels, options, thread_types);
   PerfDataHandler::Process(*perf_data, &converter);
   return converter.Profiles();
@@ -758,8 +759,8 @@ ProcessProfiles PerfDataProtoToProfiles(
 
 ProcessProfiles RawPerfDataToProfiles(
     const void* raw, const uint64_t raw_size,
-    const std::map<string, string>& build_ids, const uint32 sample_labels,
-    const uint32 options, const std::map<Tid, string>& thread_types) {
+    const std::map<string, string>& build_ids, const uint32_t sample_labels,
+    const uint32_t options, const std::map<Tid, string>& thread_types) {
   quipper::PerfReader reader;
   if (!reader.ReadFromPointer(reinterpret_cast<const char*>(raw), raw_size)) {
     LOG(ERROR) << "Could not read input perf.data";

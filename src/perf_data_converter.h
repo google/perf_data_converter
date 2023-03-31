@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "src/profile.pb.h"
-#include "src/compat/int_compat.h"
 #include "src/compat/string_compat.h"
 
 namespace quipper {
@@ -105,13 +104,13 @@ enum ConversionOptions {
 struct ProcessProfile {
   // Process PID or 0 if no process grouping was requested.
   // PIDs can duplicate if there was a PID reuse during the profiling session.
-  uint32 pid = 0;
+  uint32_t pid = 0;
   // Profile proto data.
   perftools::profiles::Profile data;
   // Min timestamp of a sample, in nanoseconds since boot, or 0 if unknown.
-  int64 min_sample_time_ns = 0;
+  int64_t min_sample_time_ns = 0;
   // Max timestamp of a sample, in nanoseconds since boot, or 0 if unknown.
-  int64 max_sample_time_ns = 0;
+  int64_t max_sample_time_ns = 0;
 };
 
 // Type alias for a random access sequence of owned ProcessProfile objects.
@@ -135,14 +134,14 @@ using ProcessProfiles = std::vector<std::unique_ptr<ProcessProfile>>;
 extern ProcessProfiles RawPerfDataToProfiles(
     const void* raw, uint64_t raw_size,
     const std::map<std::string, std::string>& build_ids,
-    uint32 sample_labels = kNoLabels, uint32 options = kGroupByPids,
-    const std::map<uint32, std::string>& thread_types = {});
+    uint32_t sample_labels = kNoLabels, uint32_t options = kGroupByPids,
+    const std::map<uint32_t, std::string>& thread_types = {});
 
 // Converts a PerfDataProto to a vector of process profiles.
 extern ProcessProfiles PerfDataProtoToProfiles(
-    const quipper::PerfDataProto* perf_data, uint32 sample_labels = kNoLabels,
-    uint32 options = kGroupByPids,
-    const std::map<uint32, std::string>& thread_types = {});
+    const quipper::PerfDataProto* perf_data, uint32_t sample_labels = kNoLabels,
+    uint32_t options = kGroupByPids,
+    const std::map<uint32_t, std::string>& thread_types = {});
 
 }  // namespace perftools
 

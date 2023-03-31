@@ -40,7 +40,7 @@ class DataWriter {
   virtual bool WriteString(const std::string& str, const size_t size) = 0;
 
   // Writes a string |src| to data, prefixed with a 32-bit size field. The size
-  // is rounded up to the next multiple of uint64.
+  // is rounded up to the next multiple of uint64_t.
   bool WriteStringWithSizeToData(const std::string& src);
 
  protected:

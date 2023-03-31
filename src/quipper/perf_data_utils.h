@@ -90,8 +90,8 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size);
 // For supported event |type|, calculates the event data's variable payload
 // size, validates it with the |remaining_event_size|, and updates |size| with
 // variable payload size. Returns false when the validation with the remaining
-// event size fails, when the variable payload size is not uint64 aligned or for
-// unsupported event type.
+// event size fails, when the variable payload size is not uint64_t aligned or
+// for unsupported event type.
 bool GetEventDataVariablePayloadSize(const event_t& event,
                                      size_t remaining_event_size, size_t* size);
 // For supported event |type|, calculates the event data's variable payload

@@ -2448,7 +2448,7 @@ TEST(PerfReaderTest, CrossEndianNormalPerfData) {
 }
 
 TEST(PerfReaderTest, MetadataMaskInitialized) {
-  // The metadata mask is actually an array of uint64's. The accessors/mutator
+  // The metadata mask is actually an array of uint64_t's. The accessors/mutator
   // in PerfReader depend on it being initialized.
   PerfReader reader;
   ASSERT_EQ(1U, reader.proto().metadata_mask().size());

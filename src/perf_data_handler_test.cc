@@ -236,7 +236,7 @@ TEST(PerfDataHandlerTest, SampleBranchStackMatches) {
   quipper::PerfDataProto proto;
 
   // File attrs are required for sample event processing.
-  uint64 file_attr_id = 0;
+  uint64_t file_attr_id = 0;
   auto* file_attr = proto.add_file_attrs();
   file_attr->add_ids(file_attr_id);
 
@@ -279,7 +279,7 @@ TEST(PerfDataHandlerTest, AddressMappingIsSet) {
   quipper::PerfDataProto proto;
 
   // File attrs are required for sample event processing.
-  uint64 file_attr_id = 0;
+  uint64_t file_attr_id = 0;
   auto* file_attr = proto.add_file_attrs();
   file_attr->add_ids(file_attr_id);
 

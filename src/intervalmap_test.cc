@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include "src/compat/int_compat.h"
 #include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
 #include "src/intervalmap.h"
@@ -27,7 +26,7 @@ class Command {
 
 class SetCommand : public Command {
  public:
-  SetCommand(uint64 start, uint64 limit, const char* value)
+  SetCommand(uint64_t start, uint64_t limit, const char* value)
       : start_(start), limit_(limit), value_(value) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
@@ -35,30 +34,30 @@ class SetCommand : public Command {
   }
 
  private:
-  const uint64 start_;
-  const uint64 limit_;
+  const uint64_t start_;
+  const uint64_t limit_;
   const char* value_;
 };
 
 class NumIntervalsCommand : public Command {
  public:
-  explicit NumIntervalsCommand(uint64 expected) : expected_(expected) {}
+  explicit NumIntervalsCommand(uint64_t expected) : expected_(expected) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
     ASSERT_EQ(expected_, map->Size());
   }
 
  private:
-  const uint64 expected_;
+  const uint64_t expected_;
 };
 
 class LookupCommand : public Command {
  public:
-  LookupCommand(uint64 from, uint64 to, const char* expected)
+  LookupCommand(uint64_t from, uint64_t to, const char* expected)
       : from_(from), to_(to), expected_(expected) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
-    for (uint64 key = from_; key <= to_; ++key) {
+    for (uint64_t key = from_; key <= to_; ++key) {
       std::string result;
       ASSERT_TRUE(map->Lookup(key, &result)) << "Did not find value for key: "
                                              << key;
@@ -69,14 +68,14 @@ class LookupCommand : public Command {
   }
 
  private:
-  const uint64 from_;
-  const uint64 to_;
+  const uint64_t from_;
+  const uint64_t to_;
   const char* expected_;
 };
 
 class FailLookupCommand : public Command {
  public:
-  explicit FailLookupCommand(std::vector<uint64> keys)
+  explicit FailLookupCommand(std::vector<uint64_t> keys)
       : keys_(std::move(keys)) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
@@ -87,21 +86,21 @@ class FailLookupCommand : public Command {
   }
 
  private:
-  std::vector<uint64> keys_;
+  std::vector<uint64_t> keys_;
 };
 
 class FindNextCommand : public Command {
  public:
-  FindNextCommand(uint64 key, uint64 expected_start, uint64 expected_limit,
-                  const char* expected_value)
+  FindNextCommand(uint64_t key, uint64_t expected_start,
+                  uint64_t expected_limit, const char* expected_value)
       : key_(key),
         expected_start_(expected_start),
         expected_limit_(expected_limit),
         expected_value_(expected_value) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
-    uint64 start;
-    uint64 limit;
+    uint64_t start;
+    uint64_t limit;
     std::string value;
     ASSERT_TRUE(map->FindNext(key_, &start, &limit, &value))
         << "Did not find a next interval for key: " << key_;
@@ -119,19 +118,19 @@ class FindNextCommand : public Command {
   }
 
  private:
-  uint64 key_;
-  uint64 expected_start_;
-  uint64 expected_limit_;
+  uint64_t key_;
+  uint64_t expected_start_;
+  uint64_t expected_limit_;
   const char* expected_value_;
 };
 
 class FailFindNextCommand : public Command {
  public:
-  explicit FailFindNextCommand(uint64 key) : key_(key) {}
+  explicit FailFindNextCommand(uint64_t key) : key_(key) {}
 
   void ExecuteOn(IntervalMap<std::string>* map) const override {
-    uint64 start;
-    uint64 limit;
+    uint64_t start;
+    uint64_t limit;
     std::string value;
     ASSERT_FALSE(map->FindNext(key_, &start, &limit, &value))
         << "Found interval for: " << key_ << ". "
@@ -142,33 +141,35 @@ class FailFindNextCommand : public Command {
   }
 
  private:
-  uint64 key_;
+  uint64_t key_;
 };
 
-std::shared_ptr<Command> Set(uint64 start, uint64 limit, const char* value) {
+std::shared_ptr<Command> Set(uint64_t start, uint64_t limit,
+                             const char* value) {
   return std::make_shared<SetCommand>(start, limit, value);
 }
 
-std::shared_ptr<Command> NumIntervals(uint64 size) {
+std::shared_ptr<Command> NumIntervals(uint64_t size) {
   return std::make_shared<NumIntervalsCommand>(size);
 }
 
 // Looks up every key in the interval [from, to] and expects them all to be
 // equal to expected.
-std::shared_ptr<Command> Lookup(uint64 from, uint64 to, const char* expected) {
+std::shared_ptr<Command> Lookup(uint64_t from, uint64_t to,
+                                const char* expected) {
   return std::make_shared<LookupCommand>(from, to, expected);
 }
 
-std::shared_ptr<Command> FailLookup(std::vector<uint64> keys) {
+std::shared_ptr<Command> FailLookup(std::vector<uint64_t> keys) {
   return std::make_shared<FailLookupCommand>(keys);
 }
 
-std::shared_ptr<Command> FindNext(uint64 key, uint64 start, uint64 limit,
+std::shared_ptr<Command> FindNext(uint64_t key, uint64_t start, uint64_t limit,
                                   const char* expected) {
   return std::make_shared<FindNextCommand>(key, start, limit, expected);
 }
 
-std::shared_ptr<Command> FailFindNext(uint64 key) {
+std::shared_ptr<Command> FailFindNext(uint64_t key) {
   return std::make_shared<FailFindNextCommand>(key);
 }
 

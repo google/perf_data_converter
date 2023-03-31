@@ -278,8 +278,8 @@ void UpdateRangeFromNext(PerPidMMapEventRange::MMapEventIterator first,
   const uint64_t range_length = last->mmap_event().start() -
                                 first->mmap_event().start() +
                                 last->mmap_event().len();
-  const uint64 start_pgoff = next.pgoff() - range_length;
-  uint64 pgoff = start_pgoff;
+  const uint64_t start_pgoff = next.pgoff() - range_length;
+  uint64_t pgoff = start_pgoff;
   for (; first != end; ++first) {
     PerfEvent* event = *first;
     MMapEvent* mmap = event->mutable_mmap_event();
@@ -364,7 +364,7 @@ void DeduceHugePages(RepeatedPtrField<PerfEvent>* events) {
           uint64_t huge_mmap_range_length = mmap_range_last.start() -
                                             mmap_range_first.start() +
                                             mmap_range_last.len();
-          uint64 start_pgoff = 0;
+          uint64_t start_pgoff = 0;
           if (pre_mmap_range_last != mmap_range.end()) {
             const auto& pre_mmap = pre_mmap_range_last->mmap_event();
             if (IsVmaContiguous(pre_mmap, mmap_range_first) &&
