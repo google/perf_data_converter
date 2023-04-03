@@ -16,17 +16,17 @@
 
 namespace quipper {
 
-bool ParsePerfStatFileToProto(const string& path, PerfStatProto* proto) {
+bool ParsePerfStatFileToProto(const std::string& path, PerfStatProto* proto) {
   std::vector<char> data;
   if (!FileToBuffer(path, &data)) {
     return false;
   }
-  string data_str(data.begin(), data.end());
+  std::string data_str(data.begin(), data.end());
   return ParsePerfStatOutputToProto(data_str, proto);
 }
 
-bool ParsePerfStatOutputToProto(const string& data, PerfStatProto* proto) {
-  std::vector<string> lines;
+bool ParsePerfStatOutputToProto(const std::string& data, PerfStatProto* proto) {
+  std::vector<std::string> lines;
   SplitString(data, '\n', &lines);
   uint64_t time_ms = 0;
   for (size_t i = 0; i < lines.size(); ++i) {
@@ -35,12 +35,12 @@ bool ParsePerfStatOutputToProto(const string& data, PerfStatProto* proto) {
     // "name: 123 123 123"
     // OR
     // "1.234 seconds time elapsed"
-    std::vector<string> tokens;
+    std::vector<std::string> tokens;
     SplitString(lines[i], ' ', &tokens);
     if (tokens.size() != 4) {
       continue;
     }
-    const string& first_token = tokens[0];
+    const std::string& first_token = tokens[0];
     // Look for "name: 123 123 123"
     if (first_token.back() == ':') {
       char* endptr;
@@ -66,7 +66,7 @@ bool ParsePerfStatOutputToProto(const string& data, PerfStatProto* proto) {
   return proto->line_size() > 0;
 }
 
-bool SecondsStringToMillisecondsUint64(const string& str, uint64_t* out) {
+bool SecondsStringToMillisecondsUint64(const std::string& str, uint64_t* out) {
   char* endptr;
   double seconds = strtod(str.c_str(), &endptr);
   if (*endptr != '\0') {

@@ -12,7 +12,7 @@
 
 namespace quipper {
 
-bool DataReader::ReadDataString(const size_t size, string* dest) {
+bool DataReader::ReadDataString(const size_t size, std::string* dest) {
   if (size == 0) {
     dest->clear();
     return true;
@@ -28,7 +28,7 @@ bool DataReader::ReadDataString(const size_t size, string* dest) {
   return ret;
 }
 
-bool DataReader::ReadDataValue(const size_t size, const string& value_name,
+bool DataReader::ReadDataValue(const size_t size, const std::string& value_name,
                                void* dest) {
   if (ReadData(size, dest)) return true;
   LOG(ERROR) << "Unable to read " << value_name << ". Requested " << size
@@ -36,7 +36,7 @@ bool DataReader::ReadDataValue(const size_t size, const string& value_name,
   return false;
 }
 
-bool DataReader::ReadStringWithSizeFromData(string* dest) {
+bool DataReader::ReadStringWithSizeFromData(std::string* dest) {
   uint32_t len = 0;
   if (!ReadUint32(&len)) {
     LOG(ERROR) << "Could not read string length from data.";

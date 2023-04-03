@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "binary_data_utils.h"  // for Align<T>
-#include "compat/string.h"
 
 namespace quipper {
 

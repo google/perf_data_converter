@@ -10,8 +10,6 @@
 #include <vector>
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "compat/test.h"
 
 namespace {

@@ -10,18 +10,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <algorithm>
 
+#include <algorithm>
 #include <memory>
 #include <set>
 #include <sstream>
 
 #include "base/logging.h"
-
 #include "address_mapper.h"
 #include "binary_data_utils.h"
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "dso.h"
 #include "huge_page_deducer.h"
 
@@ -338,8 +336,8 @@ std::pair<uint32_t, uint32_t> splitU64(uint64_t value) {
                         std::numeric_limits<uint32_t>::max() & value);
 }
 
-bool ReadElfBuildIdIfSameInode(const string& dso_path, const DSOInfo& dso,
-                               string* buildid) {
+bool ReadElfBuildIdIfSameInode(const std::string& dso_path, const DSOInfo& dso,
+                               std::string* buildid) {
   int fd = open(dso_path.c_str(), O_RDONLY);
   FdCloser fd_closer(fd);
   if (fd == -1) {
@@ -358,9 +356,9 @@ bool ReadElfBuildIdIfSameInode(const string& dso_path, const DSOInfo& dso,
 // Looks up build ID of a given DSO by reading directly from the file system.
 // - Does not support reading build ID of the main kernel binary.
 // - Reads build IDs of kernel modules and other DSOs using functions in dso.h.
-string FindDsoBuildId(const DSOInfo& dso_info) {
-  string buildid_bin;
-  const string& dso_name = dso_info.name;
+std::string FindDsoBuildId(const DSOInfo& dso_info) {
+  std::string buildid_bin;
+  const std::string& dso_name = dso_info.name;
   if (IsKernelNonModuleName(dso_name)) return buildid_bin;  // still empty
   // Does this look like a kernel module?
   if (dso_name.size() >= 2 && dso_name[0] == '[' && dso_name.back() == ']') {
@@ -379,7 +377,7 @@ string FindDsoBuildId(const DSOInfo& dso_info) {
     std::tie(pid, tid) = splitU64(pidtid_it);
     std::stringstream dso_path_stream;
     dso_path_stream << "/proc/" << tid << "/root/" << dso_name;
-    string dso_path = dso_path_stream.str();
+    std::string dso_path = dso_path_stream.str();
     if (ReadElfBuildIdIfSameInode(dso_path, dso_info, &buildid_bin)) {
       return buildid_bin;
     }
@@ -390,7 +388,7 @@ string FindDsoBuildId(const DSOInfo& dso_info) {
     // Try the parent process:
     std::stringstream parent_dso_path_stream;
     parent_dso_path_stream << "/proc/" << pid << "/root/" << dso_name;
-    string parent_dso_path = parent_dso_path_stream.str();
+    std::string parent_dso_path = parent_dso_path_stream.str();
     if (ReadElfBuildIdIfSameInode(parent_dso_path, dso_info, &buildid_bin)) {
       return buildid_bin;
     }
@@ -405,12 +403,12 @@ string FindDsoBuildId(const DSOInfo& dso_info) {
 }  // namespace
 
 bool PerfParser::FillInDsoBuildIds() {
-  std::map<string, string> filenames_to_build_ids;
+  std::map<std::string, std::string> filenames_to_build_ids;
   reader_->GetFilenamesToBuildIDs(&filenames_to_build_ids);
 
-  std::map<string, string> new_buildids;
+  std::map<std::string, std::string> new_buildids;
 
-  for (std::pair<const string, DSOInfo>& kv : name_to_dso_) {
+  for (std::pair<const std::string, DSOInfo>& kv : name_to_dso_) {
     DSOInfo& dso_info = kv.second;
     const auto it = filenames_to_build_ids.find(dso_info.name);
     if (it != filenames_to_build_ids.end()) {
@@ -419,7 +417,7 @@ bool PerfParser::FillInDsoBuildIds() {
     // If there is both an existing build ID and a new build ID returned by
     // FindDsoBuildId(), overwrite the existing build ID.
     if (options_.read_missing_buildids && dso_info.hit) {
-      string buildid_bin = FindDsoBuildId(dso_info);
+      std::string buildid_bin = FindDsoBuildId(dso_info);
       if (!buildid_bin.empty()) {
         dso_info.build_id = RawDataToHexString(buildid_bin);
         new_buildids[dso_info.name] = dso_info.build_id;

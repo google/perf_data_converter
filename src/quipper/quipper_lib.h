@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "compat/string.h"
-
 // ParseOldPerfArguments parses the given command line arguments i.e., |argc|
 // and |argv| for the below quipper CLI usage:
 //   <exe> <duration in seconds> <perf command line>

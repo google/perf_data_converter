@@ -16,7 +16,6 @@
 #include "binary_data_utils.h"
 #include "buffer_reader.h"
 #include "buffer_writer.h"
-#include "compat/string.h"
 #include "file_reader.h"
 #include "file_utils.h"
 #include "kernel/perf_internals.h"
@@ -122,9 +121,8 @@ void CheckNoBuildIDEventPadding() {
 
 // Creates a new build ID event with the given build ID string, filename, and
 // misc value.
-malloced_unique_ptr<build_id_event> CreateBuildIDEvent(const string& build_id,
-                                                       const string& filename,
-                                                       uint16_t misc) {
+malloced_unique_ptr<build_id_event> CreateBuildIDEvent(
+    const std::string& build_id, const std::string& filename, uint16_t misc) {
   size_t filename_len = GetUint64AlignedStringLength(filename.size());
   size_t size = sizeof(struct build_id_event) + filename_len;
   malloced_unique_ptr<build_id_event> event(CallocMemoryForBuildID(size));
@@ -143,7 +141,7 @@ malloced_unique_ptr<build_id_event> CreateBuildIDEvent(const string& build_id,
 // Given a string, returns the total size required to store the string in perf
 // data, including a preceding length field and extra padding to align the
 // string + null terminator to a multiple of uint64s.
-size_t ExpectedStorageSizeOf(const string& str) {
+size_t ExpectedStorageSizeOf(const std::string& str) {
   return sizeof(string_size_type) + GetUint64AlignedStringLength(str.size());
 }
 
@@ -455,7 +453,7 @@ bool PerfReader::Deserialize(const PerfDataProto& perf_data_proto) {
   return PopulateMissingEventSize();
 }
 
-bool PerfReader::ReadFile(const string& filename) {
+bool PerfReader::ReadFile(const std::string& filename) {
   FileReader reader(filename);
   if (!reader.IsOpen()) {
     LOG(ERROR) << "Unable to open file " << filename;
@@ -468,7 +466,7 @@ bool PerfReader::ReadFromVector(const std::vector<char>& data) {
   return ReadFromPointer(data.data(), data.size());
 }
 
-bool PerfReader::ReadFromString(const string& str) {
+bool PerfReader::ReadFromString(const std::string& str) {
   return ReadFromPointer(str.data(), str.size());
 }
 
@@ -501,7 +499,7 @@ bool PerfReader::ReadFromData(DataReader* data) {
   return ReadPipedData(data);
 }
 
-bool PerfReader::WriteFile(const string& filename) {
+bool PerfReader::WriteFile(const std::string& filename) {
   std::vector<char> data;
   return WriteToVector(&data) && BufferToFile(filename, data);
 }
@@ -511,7 +509,7 @@ bool PerfReader::WriteToVector(std::vector<char>* data) {
   return WriteToPointerWithoutCheckingSize(&data->at(0), data->size());
 }
 
-bool PerfReader::WriteToString(string* str) {
+bool PerfReader::WriteToString(std::string* str) {
   str->resize(GetSize());
   return WriteToPointerWithoutCheckingSize(&str->at(0), str->size());
 }
@@ -622,14 +620,14 @@ void PerfReader::GenerateHeader(struct perf_file_header* header) const {
 }
 
 bool PerfReader::InjectBuildIDs(
-    const std::map<string, string>& filenames_to_build_ids) {
+    const std::map<std::string, std::string>& filenames_to_build_ids) {
   set_metadata_mask_bit(HEADER_BUILD_ID);
-  std::set<string> updated_filenames;
+  std::set<std::string> updated_filenames;
   // Inject new build ID's for existing build ID events.
   for (auto& build_id : *proto_->mutable_build_ids()) {
     auto find_result = filenames_to_build_ids.find(build_id.filename());
     if (find_result == filenames_to_build_ids.end()) continue;
-    const string& build_id_string = find_result->second;
+    const std::string& build_id_string = find_result->second;
     const int kHexCharsPerByte = 2;
     std::vector<uint8_t> build_id_data(build_id_string.size() /
                                        kHexCharsPerByte);
@@ -647,7 +645,7 @@ bool PerfReader::InjectBuildIDs(
   // For files with no existing build ID events, create new build ID events.
   // This requires a lookup of all MMAP's to determine the |misc| field of each
   // build ID event.
-  std::map<string, uint16_t> filename_to_misc;
+  std::map<std::string, uint16_t> filename_to_misc;
   for (const PerfEvent& event : proto_->events()) {
     if (event.header().type() == PERF_RECORD_MMAP ||
         event.header().type() == PERF_RECORD_MMAP2) {
@@ -655,19 +653,19 @@ bool PerfReader::InjectBuildIDs(
     }
   }
 
-  std::map<string, string>::const_iterator it;
+  std::map<std::string, std::string>::const_iterator it;
   for (it = filenames_to_build_ids.begin(); it != filenames_to_build_ids.end();
        ++it) {
-    const string& filename = it->first;
+    const std::string& filename = it->first;
     if (updated_filenames.find(filename) != updated_filenames.end()) continue;
 
     // Determine the misc field.
     uint16_t new_misc = PERF_RECORD_MISC_KERNEL;
-    std::map<string, uint16_t>::const_iterator misc_iter =
+    std::map<std::string, uint16_t>::const_iterator misc_iter =
         filename_to_misc.find(filename);
     if (misc_iter != filename_to_misc.end()) new_misc = misc_iter->second;
 
-    string build_id = it->second;
+    std::string build_id = it->second;
     malloced_unique_ptr<build_id_event> event =
         CreateBuildIDEvent(build_id, filename, new_misc);
     if (!serializer_.SerializeBuildIDEvent(event, proto_->add_build_ids())) {
@@ -679,14 +677,14 @@ bool PerfReader::InjectBuildIDs(
 }
 
 bool PerfReader::Localize(
-    const std::map<string, string>& build_ids_to_filenames) {
-  std::map<string, string> filename_map;
+    const std::map<std::string, std::string>& build_ids_to_filenames) {
+  std::map<std::string, std::string> filename_map;
   for (auto& build_id : *proto_->mutable_build_ids()) {
-    string build_id_string = RawDataToHexString(build_id.build_id_hash());
+    std::string build_id_string = RawDataToHexString(build_id.build_id_hash());
     PerfizeBuildIDString(&build_id_string);
     auto find_result = build_ids_to_filenames.find(build_id_string);
     if (find_result == build_ids_to_filenames.end()) continue;
-    const string& new_filename = find_result->second;
+    const std::string& new_filename = find_result->second;
     filename_map[build_id.filename()] = new_filename;
   }
 
@@ -694,7 +692,7 @@ bool PerfReader::Localize(
 }
 
 bool PerfReader::LocalizeUsingFilenames(
-    const std::map<string, string>& filename_map) {
+    const std::map<std::string, std::string>& filename_map) {
   LocalizeMMapFilenames(filename_map);
   for (auto& build_id : *proto_->mutable_build_ids()) {
     auto find_result = filename_map.find(build_id.filename());
@@ -725,15 +723,15 @@ bool PerfReader::AlternateBuildIDFilenames(
   return true;
 }
 
-void PerfReader::GetFilenames(std::vector<string>* filenames) const {
-  std::set<string> filename_set;
+void PerfReader::GetFilenames(std::vector<std::string>* filenames) const {
+  std::set<std::string> filename_set;
   GetFilenamesAsSet(&filename_set);
   filenames->clear();
   filenames->insert(filenames->begin(), filename_set.begin(),
                     filename_set.end());
 }
 
-void PerfReader::GetFilenamesAsSet(std::set<string>* filenames) const {
+void PerfReader::GetFilenamesAsSet(std::set<std::string>* filenames) const {
   filenames->clear();
   for (const PerfEvent& event : proto_->events()) {
     if (event.header().type() == PERF_RECORD_MMAP ||
@@ -744,10 +742,10 @@ void PerfReader::GetFilenamesAsSet(std::set<string>* filenames) const {
 }
 
 void PerfReader::GetFilenamesToBuildIDs(
-    std::map<string, string>* filenames_to_build_ids) const {
+    std::map<std::string, std::string>* filenames_to_build_ids) const {
   filenames_to_build_ids->clear();
   for (const auto& build_id : proto_->build_ids()) {
-    string build_id_string = RawDataToHexString(build_id.build_id_hash());
+    std::string build_id_string = RawDataToHexString(build_id.build_id_hash());
     PerfizeBuildIDString(&build_id_string);
     (*filenames_to_build_ids)[build_id.filename()] = build_id_string;
   }
@@ -1404,7 +1402,7 @@ bool PerfReader::ReadSingleStringMetadata(DataReader* data,
                                           StringAndMd5sumPrefix* dest) const {
   // If a string metadata field is present but empty, it can have a size of 0,
   // in which case there is nothing to be read.
-  string single_string;
+  std::string single_string;
   if (max_readable_size && !data->ReadStringWithSizeFromData(&single_string))
     return false;
   dest->set_value(single_string);
@@ -1423,7 +1421,7 @@ bool PerfReader::ReadRepeatedStringMetadata(
   }
   size_t size_read = sizeof(count);
 
-  string full_string;
+  std::string full_string;
   while (count-- > 0 && size_read < max_readable_size) {
     StringAndMd5sumPrefix* new_entry = dest_array->Add();
     size_t offset = data->Tell();
@@ -2174,19 +2172,19 @@ bool PerfReader::WriteCPUTopologyMetadata(DataWriter* data) const {
   serializer_.DeserializeCPUTopologyMetadata(proto_->cpu_topology(),
                                              &cpu_topology);
 
-  std::vector<string>& cores = cpu_topology.core_siblings;
+  std::vector<std::string>& cores = cpu_topology.core_siblings;
   num_siblings_type num_cores = cores.size();
   if (!data->WriteDataValue(&num_cores, sizeof(num_cores), "num cores"))
     return false;
-  for (string& core_name : cores) {
+  for (std::string& core_name : cores) {
     if (!data->WriteStringWithSizeToData(core_name)) return false;
   }
 
-  std::vector<string>& threads = cpu_topology.thread_siblings;
+  std::vector<std::string>& threads = cpu_topology.thread_siblings;
   num_siblings_type num_threads = threads.size();
   if (!data->WriteDataValue(&num_threads, sizeof(num_threads), "num threads"))
     return false;
-  for (string& thread_name : threads) {
+  for (std::string& thread_name : threads) {
     if (!data->WriteStringWithSizeToData(thread_name)) return false;
   }
 
@@ -2416,12 +2414,13 @@ size_t PerfReader::GetUint64MetadataSize() const {
 size_t PerfReader::GetCPUTopologyMetadataSize() const {
   // Core siblings.
   size_t size = sizeof(num_siblings_type);
-  for (const string& core_sibling : proto_->cpu_topology().core_siblings())
+  for (const std::string& core_sibling : proto_->cpu_topology().core_siblings())
     size += ExpectedStorageSizeOf(core_sibling);
 
   // Thread siblings.
   size += sizeof(num_siblings_type);
-  for (const string& thread_sibling : proto_->cpu_topology().thread_siblings())
+  for (const std::string& thread_sibling :
+       proto_->cpu_topology().thread_siblings())
     size += ExpectedStorageSizeOf(thread_sibling);
 
   // Size of Core ID and Socket ID per CPU.
@@ -2464,7 +2463,7 @@ bool PerfReader::NeedsNumberOfStringData(u32 type) const {
 }
 
 bool PerfReader::LocalizeMMapFilenames(
-    const std::map<string, string>& filename_map) {
+    const std::map<std::string, std::string>& filename_map) {
   CHECK(serializer_.SampleInfoReaderAvailable());
 
   // Search for mmap/mmap2 events for which the filename needs to be updated.
@@ -2473,12 +2472,12 @@ bool PerfReader::LocalizeMMapFilenames(
         event.header().type() != PERF_RECORD_MMAP2) {
       continue;
     }
-    const string& filename = event.mmap_event().filename();
+    const std::string& filename = event.mmap_event().filename();
     const auto it = filename_map.find(filename);
     if (it == filename_map.end())  // not found
       continue;
 
-    const string& new_filename = it->second;
+    const std::string& new_filename = it->second;
     size_t old_len = GetUint64AlignedStringLength(filename.size());
     size_t new_len = GetUint64AlignedStringLength(new_filename.size());
     size_t new_size = event.header().size() - old_len + new_len;

@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "compat/thread.h"
 #include "dso_test_utils.h"

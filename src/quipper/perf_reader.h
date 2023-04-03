@@ -17,7 +17,6 @@
 #include <vector>
 
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "kernel/perf_event.h"
 #include "perf_serializer.h"
 #include "sample_info_reader.h"

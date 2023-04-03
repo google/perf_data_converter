@@ -8,8 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "compat/string.h"
-
 namespace quipper {
 namespace testing {
 

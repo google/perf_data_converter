@@ -128,7 +128,7 @@ const char* kSupportedMetadata[] = {
     "node1 cpu list",   // NUMA topology.
     NULL,
 };
-string GetTestInputFilePath(const string& filename) {
+std::string GetTestInputFilePath(const std::string& filename) {
   #ifdef GITHUB_BAZEL
     return "src/quipper/testdata/" + filename;
   # else
@@ -136,7 +136,7 @@ string GetTestInputFilePath(const string& filename) {
   #endif
 }
 
-string GetPerfPath() {
+std::string GetPerfPath() {
   return "/usr/bin/perf";
 }
 

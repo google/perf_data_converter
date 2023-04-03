@@ -5,7 +5,6 @@
 #include "perf_data_utils.h"
 
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "kernel/perf_event.h"
 

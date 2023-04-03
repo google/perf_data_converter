@@ -11,9 +11,7 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "binary_data_utils.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "kernel/perf_internals.h"
 #include "perf_data_utils.h"

@@ -9,9 +9,7 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "compat/log_level.h"
-#include "compat/string.h"
 #include "conversion_utils.h"
 
 using quipper::FormatAndFile;

@@ -11,9 +11,7 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "file_utils.h"
 #include "perf_parser.h"
 #include "perf_protobuf_io.h"

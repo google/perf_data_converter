@@ -57,11 +57,11 @@ bool IsHugePage(const MMapEvent& mmap) {
   // <filesystem path>/<prefix>.buildid_<hash>
   const char kBuildIdStr[] = ".buildid_";
   size_t file_start = mmap.filename().rfind('/');
-  if (file_start == string::npos) {
+  if (file_start == std::string::npos) {
     return false;
   }
   size_t buildid_start = mmap.filename().find(kBuildIdStr, file_start);
-  if (buildid_start == string::npos) {
+  if (buildid_start == std::string::npos) {
     return false;
   }
   return mmap.filename().length() > buildid_start + strlen(kBuildIdStr);
@@ -135,7 +135,7 @@ bool IsCombinableFile(const MMapEvent& mmap) {
 
 // Helper to correctly update a filename on a PerfEvent that contains an
 // MMapEvent.
-void SetMmapFilename(PerfEvent* event, const string& new_filename,
+void SetMmapFilename(PerfEvent* event, const std::string& new_filename,
                      uint64_t new_filename_md5_prefix) {
   CHECK(event->has_mmap_event());
   event->mutable_header()->set_size(

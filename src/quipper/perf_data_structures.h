@@ -7,7 +7,6 @@
 
 #include <vector>
 
-#include "compat/string.h"
 #include "kernel/perf_event.h"
 
 // Data structures that are used by multiple modules.
@@ -17,7 +16,7 @@ namespace quipper {
 // This is becoming more like a partial struct perf_evsel
 struct PerfFileAttr {
   struct perf_event_attr attr;
-  string name;
+  std::string name;
   std::vector<uint64_t> ids;
 };
 
@@ -37,8 +36,8 @@ struct PerfCPU {
 };
 
 struct PerfCPUTopologyMetadata {
-  std::vector<string> core_siblings;
-  std::vector<string> thread_siblings;
+  std::vector<std::string> core_siblings;
+  std::vector<std::string> thread_siblings;
   std::vector<PerfCPU> available_cpus;
 };
 
@@ -46,16 +45,16 @@ struct PerfNodeTopologyMetadata {
   uint32_t id;
   uint64_t total_memory;
   uint64_t free_memory;
-  string cpu_list;
+  std::string cpu_list;
 };
 
 struct PerfPMUMappingsMetadata {
   uint32_t type;
-  string name;
+  std::string name;
 };
 
 struct PerfGroupDescMetadata {
-  string name;
+  std::string name;
   uint32_t leader_idx;
   uint32_t num_members;
 };

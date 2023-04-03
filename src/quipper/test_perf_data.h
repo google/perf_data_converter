@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "binary_data_utils.h"
-#include "compat/string.h"
 #include "kernel/perf_internals.h"
 
 namespace quipper {
@@ -318,7 +317,7 @@ class SampleInfo {
 class ExampleMmapEvent : public StreamWriteable {
  public:
   typedef ExampleMmapEvent SelfT;
-  ExampleMmapEvent(u32 pid, u64 start, u64 len, u64 pgoff, string filename,
+  ExampleMmapEvent(u32 pid, u64 start, u64 len, u64 pgoff, std::string filename,
                    const SampleInfo& sample_id)
       : misc_(0),
         pid_(pid),
@@ -343,7 +342,7 @@ class ExampleMmapEvent : public StreamWriteable {
   const u64 start_;
   const u64 len_;
   const u64 pgoff_;
-  const string filename_;
+  const std::string filename_;
   const SampleInfo sample_id_;
 };
 
@@ -352,11 +351,11 @@ class ExampleMmap2Event : public StreamWriteable {
  public:
   typedef ExampleMmap2Event SelfT;
   // pid is used as both pid and tid.
-  ExampleMmap2Event(u32 pid, u64 start, u64 len, u64 pgoff, string filename,
-                    const SampleInfo& sample_id)
+  ExampleMmap2Event(u32 pid, u64 start, u64 len, u64 pgoff,
+                    std::string filename, const SampleInfo& sample_id)
       : ExampleMmap2Event(pid, pid, start, len, pgoff, filename, sample_id) {}
   ExampleMmap2Event(u32 pid, u32 tid, u64 start, u64 len, u64 pgoff,
-                    string filename, const SampleInfo& sample_id)
+                    std::string filename, const SampleInfo& sample_id)
       : misc_(0),
         pid_(pid),
         tid_(tid),
@@ -412,7 +411,7 @@ class ExampleMmap2Event : public StreamWriteable {
   u32 flags_;
   u8 build_id_[20];
   u8 build_id_size_;
-  const string filename_;
+  const std::string filename_;
   const SampleInfo sample_id_;
 };
 
@@ -515,7 +514,7 @@ class ExampleStringMetadata : public StreamWriteable {
  public:
   // The input string gets zero-padded/truncated to |kStringAlignSize| bytes if
   // it is shorter/longer, respectively.
-  explicit ExampleStringMetadata(const string& data, size_t offset)
+  explicit ExampleStringMetadata(const std::string& data, size_t offset)
       : data_(data), index_entry_(offset, sizeof(u32) + kStringAlignSize) {
     data_.resize(kStringAlignSize);
   }
@@ -531,7 +530,7 @@ class ExampleStringMetadata : public StreamWriteable {
   }
 
  private:
-  string data_;
+  std::string data_;
   MetadataIndexEntry index_entry_;
 
   static const int kStringAlignSize = 64;
@@ -541,7 +540,7 @@ class ExampleStringMetadata : public StreamWriteable {
 class ExampleStringMetadataEvent : public StreamWriteable {
  public:
   // The input string gets aligned to |kStringAlignSize|.
-  explicit ExampleStringMetadataEvent(u32 type, const string& data)
+  explicit ExampleStringMetadataEvent(u32 type, const std::string& data)
       : type_(type), data_(data) {
     data_.resize(kStringAlignSize);
   }
@@ -549,7 +548,7 @@ class ExampleStringMetadataEvent : public StreamWriteable {
 
  private:
   u32 type_;
-  string data_;
+  std::string data_;
 
   static const int kStringAlignSize = 64;
 };
@@ -559,11 +558,11 @@ class ExampleTracingMetadata {
  public:
   class Data : public StreamWriteable {
    public:
-    static const string kTraceMetadata;
+    static const std::string kTraceMetadata;
 
     explicit Data(ExampleTracingMetadata* parent) : parent_(parent) {}
 
-    const string& value() const { return kTraceMetadata; }
+    const std::string& value() const { return kTraceMetadata; }
 
     void WriteTo(std::ostream* out) const override;
 
@@ -587,7 +586,7 @@ class ExampleTracingMetadata {
 class ExampleAuxtraceEvent : public StreamWriteable {
  public:
   ExampleAuxtraceEvent(u64 size, u64 offset, u64 reference, u32 idx, u32 tid,
-                       u32 cpu, u32 reserved, string trace_data)
+                       u32 cpu, u32 reserved, std::string trace_data)
       : size_(size),
         offset_(offset),
         reference_(reference),
@@ -608,7 +607,7 @@ class ExampleAuxtraceEvent : public StreamWriteable {
   const u32 tid_;
   const u32 cpu_;
   const u32 reserved_;
-  const string trace_data_;
+  const std::string trace_data_;
 };
 
 // Produces PERF_RECORD_SWITCH or PERF_RECORD_SWITCH_CPU_WIDE events.
@@ -675,7 +674,7 @@ class ExampleAuxtraceInfoEvent : public StreamWriteable {
 class ExampleAuxtraceErrorEvent : public StreamWriteable {
  public:
   ExampleAuxtraceErrorEvent(u32 type, u32 code, u32 cpu, u32 pid, u32 tid,
-                            u32 ip, string msg)
+                            u32 ip, std::string msg)
       : type_(type),
         code_(code),
         cpu_(cpu),
@@ -693,7 +692,7 @@ class ExampleAuxtraceErrorEvent : public StreamWriteable {
   const u32 pid_;
   const u32 tid_;
   const u64 ip_;
-  const string msg_;
+  const std::string msg_;
 };
 
 // Produces PERF_RECORD_THREAD_MAP event.
@@ -703,7 +702,7 @@ class ExampleThreadMapEvent : public StreamWriteable {
   size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
-  ExampleThreadMapEvent& WithEntry(u32 pid, const string& comm) {
+  ExampleThreadMapEvent& WithEntry(u32 pid, const std::string& comm) {
     entries_.push_back(entry{
         .pid = pid,
         .comm = comm,
@@ -714,7 +713,7 @@ class ExampleThreadMapEvent : public StreamWriteable {
  private:
   struct entry {
     u32 pid;
-    string comm;
+    std::string comm;
   };
   std::vector<struct entry> entries_;
 };
@@ -811,14 +810,14 @@ class ExampleTimeConvEvent : public StreamWriteable {
 // Produces PERF_RECORD_CGROUP event.
 class ExampleCgroupEvent : public StreamWriteable {
  public:
-  ExampleCgroupEvent(u64 id, string path, const SampleInfo& sample_id)
+  ExampleCgroupEvent(u64 id, std::string path, const SampleInfo& sample_id)
       : id_(id), path_(path), sample_id_(sample_id) {}
   size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
  private:
   const u64 id_;
-  const string path_;
+  const std::string path_;
   const SampleInfo sample_id_;
 };
 

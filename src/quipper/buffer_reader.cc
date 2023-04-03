@@ -27,11 +27,11 @@ bool BufferReader::ReadData(const size_t size, void* dest) {
   return true;
 }
 
-bool BufferReader::ReadString(size_t size, string* str) {
+bool BufferReader::ReadString(size_t size, std::string* str) {
   if (offset_ > SIZE_MAX - size || offset_ + size > size_) return false;
 
   size_t actual_length = strnlen(buffer_ + offset_, size);
-  *str = string(buffer_ + offset_, actual_length);
+  *str = std::string(buffer_ + offset_, actual_length);
   offset_ += size;
   return true;
 }

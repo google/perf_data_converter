@@ -8,8 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Executes |command|. stderr is directed to /dev/null. If |output| is not null,

@@ -9,8 +9,6 @@
 
 #include <memory>
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Based on kernel/perf_internals.h

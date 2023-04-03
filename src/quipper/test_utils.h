@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 
-#include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
 #include "perf_parser.h"

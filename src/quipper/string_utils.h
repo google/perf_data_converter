@@ -7,8 +7,6 @@
 
 #include <vector>
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Trim leading and trailing whitespace from |str|.

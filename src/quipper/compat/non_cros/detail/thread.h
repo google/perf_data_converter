@@ -14,7 +14,7 @@ namespace quipper {
 
 class Thread : public quipper::compat::ThreadInterface {
  public:
-  explicit Thread(const string& name_prefix) {}
+  explicit Thread(const std::string& name_prefix) {}
 
   void Start() override { thread_ = std::thread(&Thread::Run, this); }
 

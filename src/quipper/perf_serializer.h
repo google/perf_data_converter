@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "perf_data_utils.h"
 
 struct perf_event_attr;

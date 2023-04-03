@@ -7,13 +7,6 @@ package(
 licenses(["notice"])
 
 cc_library(
-    name = "string_compat",
-    hdrs = [
-        "string_compat.h",
-    ],
-)
-
-cc_library(
     name = "test_compat",
     testonly = 1,
     hdrs = [

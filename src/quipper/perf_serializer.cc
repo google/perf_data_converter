@@ -13,7 +13,6 @@
 #include "base/logging.h"
 #include "binary_data_utils.h"
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "kernel/perf_event.h"
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
@@ -1044,7 +1043,7 @@ bool PerfSerializer::SerializeBuildIDEvent(
     to->set_size(from->size);
 
   // Trim out trailing zeroes from the build ID.
-  string build_id = RawDataToHexString(from->build_id, kBuildIDArraySize);
+  std::string build_id = RawDataToHexString(from->build_id, kBuildIDArraySize);
   TrimZeroesFromBuildIDString(&build_id);
 
   uint8_t build_id_bytes[kBuildIDArraySize];
@@ -1061,7 +1060,7 @@ bool PerfSerializer::SerializeBuildIDEvent(
 bool PerfSerializer::DeserializeBuildIDEvent(
     const PerfDataProto_PerfBuildID& from,
     malloced_unique_ptr<build_id_event>* to) const {
-  const string& filename = from.filename();
+  const std::string& filename = from.filename();
   size_t size =
       sizeof(build_id_event) + GetUint64AlignedStringLength(filename.size());
 
@@ -1359,11 +1358,11 @@ bool PerfSerializer::DeserializeSingleUint64Metadata(
 bool PerfSerializer::SerializeCPUTopologyMetadata(
     const PerfCPUTopologyMetadata& metadata,
     PerfDataProto_PerfCPUTopologyMetadata* proto_metadata) const {
-  for (const string& core_name : metadata.core_siblings) {
+  for (const std::string& core_name : metadata.core_siblings) {
     proto_metadata->add_core_siblings(core_name);
     proto_metadata->add_core_siblings_md5_prefix(Md5Prefix(core_name));
   }
-  for (const string& thread_name : metadata.thread_siblings) {
+  for (const std::string& thread_name : metadata.thread_siblings) {
     proto_metadata->add_thread_siblings(thread_name);
     proto_metadata->add_thread_siblings_md5_prefix(Md5Prefix(thread_name));
   }

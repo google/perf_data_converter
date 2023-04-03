@@ -4,7 +4,6 @@
 
 #include "perf_buildid.h"
 
-#include "compat/string.h"
 #include "compat/test.h"
 
 namespace quipper {

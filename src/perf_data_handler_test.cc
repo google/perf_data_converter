@@ -11,7 +11,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
 #include "src/path_matching.h"
 #include "src/quipper/binary_data_utils.h"
@@ -23,7 +22,7 @@ using BranchStackEntry = quipper::PerfDataProto::BranchStackEntry;
 namespace perftools {
 
 TEST(PathMatching, DeletedSharedObjectMatching) {
-  const std::vector<string> paths = {
+  const std::vector<std::string> paths = {
       "lib.so.v1(deleted)",
       "lib.so.v1(deleted)junk",
       "lib.so (deleted)",
@@ -36,7 +35,7 @@ TEST(PathMatching, DeletedSharedObjectMatching) {
 }
 
 TEST(PathMatching, DeletedSharedObjectNotMatching) {
-  const std::vector<string> paths = {
+  const std::vector<std::string> paths = {
       "abc",
       "lib.so ",
       "lib.so(deleted)",
@@ -51,8 +50,11 @@ TEST(PathMatching, DeletedSharedObjectNotMatching) {
 }
 
 TEST(PathMatching, VersionedSharedObjectMatching) {
-  const std::vector<string> paths = {
-      "lib.so.", "lib.so.abc", "lib.so.1", "lib.so.v1",
+  const std::vector<std::string> paths = {
+      "lib.so.",
+      "lib.so.abc",
+      "lib.so.1",
+      "lib.so.v1",
   };
   for (const auto& path : paths) {
     ASSERT_TRUE(IsVersionedSharedObject(path));
@@ -60,7 +62,7 @@ TEST(PathMatching, VersionedSharedObjectMatching) {
 }
 
 TEST(PathMatching, VersionedSharedObjectNotMatching) {
-  const std::vector<string> paths = {
+  const std::vector<std::string> paths = {
       "abc", "lib.so(deleted)", ".so.v1", ".so.", "",
   };
   for (const auto& path : paths) {
@@ -75,9 +77,9 @@ class PerfDataHandlerTest : public ::testing::Test {
 
 class TestPerfDataHandler : public PerfDataHandler {
  public:
-  TestPerfDataHandler(
-      std::vector<BranchStackEntry> expected_branch_stack,
-      std::unordered_map<string, string> expected_filename_to_build_id)
+  TestPerfDataHandler(std::vector<BranchStackEntry> expected_branch_stack,
+                      std::unordered_map<std::string, std::string>
+                          expected_filename_to_build_id)
       : _expected_branch_stack(std::move(expected_branch_stack)),
         _expected_filename_to_build_id(
             std::move(expected_filename_to_build_id)) {}
@@ -102,8 +104,8 @@ class TestPerfDataHandler : public PerfDataHandler {
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
-    string actual_build_id = mmap.mapping->build_id;
-    string actual_filename = mmap.mapping->filename;
+    std::string actual_build_id = mmap.mapping->build_id;
+    std::string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
         _expected_filename_to_build_id.find(actual_filename);
     if (expected_build_id_it != _expected_filename_to_build_id.end()) {
@@ -142,8 +144,8 @@ class TestPerfDataHandler : public PerfDataHandler {
     EXPECT_EQ(expected.cycles(), actual.cycles);
   }
   std::vector<BranchStackEntry> _expected_branch_stack;
-  std::unordered_map<string, string> _expected_filename_to_build_id;
-  std::unordered_set<string> _seen_filenames;
+  std::unordered_map<std::string, std::string> _expected_filename_to_build_id;
+  std::unordered_set<std::string> _seen_filenames;
   std::vector<std::unique_ptr<Mapping>> _seen_addr_mappings;
 };
 
@@ -158,7 +160,7 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   build_id->set_filename_md5_prefix(
       quipper::Md5Prefix("[guest.kernel.kallsyms]"));
 
-  string guest_kernel_build_id = "27357e645f";
+  std::string guest_kernel_build_id = "27357e645f";
   uint8_t guest_kernel_build_id_bytes[quipper::kBuildIDArraySize];
   ASSERT_TRUE(quipper::HexStringToRawData(guest_kernel_build_id,
                                           guest_kernel_build_id_bytes,
@@ -173,7 +175,7 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   build_id->set_filename("kernel");
   build_id->set_filename_md5_prefix(quipper::Md5Prefix("kernel"));
 
-  string kernel_build_id = "17937e648e";
+  std::string kernel_build_id = "17937e648e";
   uint8_t kernel_build_id_bytes[quipper::kBuildIDArraySize];
   ASSERT_TRUE(quipper::HexStringToRawData(
       kernel_build_id, kernel_build_id_bytes, sizeof(kernel_build_id_bytes)));
@@ -187,7 +189,7 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   build_id->set_filename("chrome");
   build_id->set_filename_md5_prefix(quipper::Md5Prefix("chrome"));
 
-  string chrome_build_id = "cac4b36db4d0";
+  std::string chrome_build_id = "cac4b36db4d0";
   uint8_t chrome_build_id_bytes[quipper::kBuildIDArraySize];
   ASSERT_TRUE(quipper::HexStringToRawData(
       chrome_build_id, chrome_build_id_bytes, sizeof(chrome_build_id_bytes)));
@@ -222,7 +224,7 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   // Map of expected filenames to buildids. Unknown is expected not to have a
   // build id. Since the guest kernel doesn't have a mapping, it is not expected
   // to appear in the MMap() call.
-  std::unordered_map<string, string> expected_filename_to_build_id;
+  std::unordered_map<std::string, std::string> expected_filename_to_build_id;
   expected_filename_to_build_id["[kernel.kallsyms]"] = "17937e648e";
   expected_filename_to_build_id["chrome"] = "cac4b36db4d0";
 
@@ -271,7 +273,7 @@ TEST(PerfDataHandlerTest, SampleBranchStackMatches) {
   branch_stack.push_back(*entry);
 
   TestPerfDataHandler handler(branch_stack,
-                              std::unordered_map<string, string>());
+                              std::unordered_map<std::string, std::string>());
   PerfDataHandler::Process(proto, &handler);
 }
 
@@ -320,7 +322,7 @@ TEST(PerfDataHandlerTest, AddressMappingIsSet) {
   sample_event->set_id(file_attr_id);
 
   TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
-                              std::unordered_map<string, string>{});
+                              std::unordered_map<std::string, std::string>{});
   PerfDataHandler::Process(proto, &handler);
   auto& addr_mappings = handler.SeenAddrMappings();
   // We expect two elements, one nullptr and the other with /foo/baz info.
