@@ -21,7 +21,8 @@ namespace {
 // is not null terimated or the uint64_t aligned string length exceeds the
 // |max_size|.
 bool GetUint64AlignedStringLength(const char* str, size_t max_size,
-                                  const string& string_name, size_t* size) {
+                                  const std::string& string_name,
+                                  size_t* size) {
   size_t str_size;
   if (!GetStringLength(str, max_size, &str_size)) {
     LOG(ERROR) << "Malformed " << string_name << " of max length " << max_size
@@ -137,7 +138,7 @@ uint64_t GetSampleIdFromPerfEvent(const PerfDataProto_PerfEvent& event) {
   return 0;
 }
 
-string GetMetadataName(uint32_t type) {
+std::string GetMetadataName(uint32_t type) {
   switch (type) {
     case HEADER_TRACING_DATA:
       return "HEADER_TRACING_DATA";
@@ -179,7 +180,7 @@ string GetMetadataName(uint32_t type) {
   return "UNKNOWN_METADATA_" + std::to_string(type);
 }
 
-string GetEventName(uint32_t type) {
+std::string GetEventName(uint32_t type) {
   switch (type) {
     case PERF_RECORD_MMAP:
       return "PERF_RECORD_MMAP";

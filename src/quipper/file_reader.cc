@@ -11,7 +11,7 @@
 
 namespace quipper {
 
-FileReader::FileReader(const string& filename) {
+FileReader::FileReader(const std::string& filename) {
   infile_ = fopen(filename.c_str(), "rb");
   if (!IsOpen()) {
     size_ = 0;
@@ -59,7 +59,7 @@ bool FileReader::ReadData(const size_t size, void* dest) {
   return true;
 }
 
-bool FileReader::ReadString(const size_t size, string* str) {
+bool FileReader::ReadString(const size_t size, std::string* str) {
   if (!ReadDataString(size, str)) return false;
 
   // Truncate anything after a terminating null.

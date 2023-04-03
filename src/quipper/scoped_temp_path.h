@@ -7,8 +7,6 @@
 
 #include <string>
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Used to create a temporary file or directory.

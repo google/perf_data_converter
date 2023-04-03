@@ -7,8 +7,6 @@
 
 #include <string>
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Format string for perf.data.

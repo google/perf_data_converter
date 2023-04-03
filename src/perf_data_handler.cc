@@ -15,7 +15,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "src/compat/string_compat.h"
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
 #include "src/quipper/binary_data_utils.h"
@@ -34,13 +33,13 @@ static constexpr char kKernelPrefix[] = "[kernel.kallsyms]";
 // and *.ko modules.
 static constexpr uint32_t kKernelPid = std::numeric_limits<uint32_t>::max();
 
-bool HasPrefixString(const string& s, const char* substr) {
+bool HasPrefixString(const std::string& s, const char* substr) {
   const size_t substr_len = strlen(substr);
   const size_t s_len = s.length();
   return s_len >= substr_len && s.compare(0, substr_len, substr) == 0;
 }
 
-bool HasSuffixString(const string& s, const char* substr) {
+bool HasSuffixString(const std::string& s, const char* substr) {
   const size_t substr_len = strlen(substr);
   const size_t s_len = s.length();
   return s_len >= substr_len &&
@@ -55,7 +54,7 @@ class Normalizer {
   Normalizer(const PerfDataProto& perf_proto, PerfDataHandler* handler)
       : perf_proto_(perf_proto), handler_(handler) {
     for (const auto& build_id : perf_proto_.build_ids()) {
-      const string& bytes = build_id.build_id_hash();
+      const std::string& bytes = build_id.build_id_hash();
       std::stringstream hex;
       for (size_t i = 0; i < bytes.size(); ++i) {
         // The char must be turned into an int to be used by stringstream;
@@ -65,7 +64,7 @@ class Normalizer {
         hex << std::hex << std::setfill('0') << std::setw(2)
             << static_cast<int>(byte);
       }
-      string filename = PerfDataHandler::NameOrMd5Prefix(
+      std::string filename = PerfDataHandler::NameOrMd5Prefix(
           build_id.filename(), build_id.filename_md5_prefix());
       auto build_id_it = filename_to_build_id_.find(filename);
       if (build_id_it != filename_to_build_id_.end() &&
@@ -82,7 +81,7 @@ class Normalizer {
         case quipper::PERF_RECORD_MISC_KERNEL:
           if (quipper::IsKernelNonModuleName(filename) ||
               !HasSuffixString(filename, ".ko")) {
-            string build_id = hex.str();
+            std::string build_id = hex.str();
             if (!maybe_kernel_build_id_.empty() &&
                 maybe_kernel_build_id_ != build_id) {
               LOG(WARNING) << "Multiple kernel buildids found, file name: "
@@ -126,7 +125,7 @@ class Normalizer {
   typedef IntervalMap<const PerfDataHandler::Mapping*> MMapIntervalMap;
 
   // Get buildID using the filename from the mmap.
-  string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
+  std::string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
 
   // Copy the parent's mmaps/comm if they exist.  Otherwise, items
   // will be lazily populated.
@@ -176,8 +175,8 @@ class Normalizer {
       owned_quipper_mappings_;
 
   struct FakeMappingKey {
-    string comm;
-    string build_id;
+    std::string comm;
+    std::string build_id;
     uint64_t comm_md5_prefix;
 
     bool operator==(const FakeMappingKey& rhs) const {
@@ -217,16 +216,16 @@ class Normalizer {
   std::unordered_set<uint32_t> pid_had_any_mmap_;
 
   // map filenames to build-ids.
-  std::unordered_map<string, string> filename_to_build_id_;
+  std::unordered_map<std::string, std::string> filename_to_build_id_;
 
   // maybe_kernel_build_id_ contains a possible kernel build id obtained from a
   // perf proto buildid whose misc bits set to
   // quipper::PERF_RECORD_MISC_CPUMODE_MASK. This is used as a kernel buildid
   // when no buildid found for the filename [kernel.kallsyms] .
-  string maybe_kernel_build_id_;
+  std::string maybe_kernel_build_id_;
 
   // map from cgroup id to pathname.
-  std::unordered_map<uint64_t, const string> cgroup_map_;
+  std::unordered_map<uint64_t, const std::string> cgroup_map_;
 
   struct {
     int64_t samples = 0;
@@ -306,7 +305,7 @@ void Normalizer::Normalize() {
           // to exec() and |pid_to_executable_mmap_| should be erased.
           // Also note that for older kernels (< 3.16), where the comm_exec
           // in perf file attribute is not set, we will erase the mapping in
-          // |pid_to_executable_mmap_| at the occurence of a comm event.
+          // |pid_to_executable_mmap_| at the occurrence of a comm event.
           // Thus we have the following heuristics:
           // The pid to executable mapping in |pid_to_executable_mmap_| is
           // erased when either one of the following is true (1) comm_exec in
@@ -405,7 +404,7 @@ void Normalizer::InvokeHandleSample(
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
-      string build_id;
+      std::string build_id;
       if (kernel_it != pid_to_executable_mmap_.end()) {
         build_id = kernel_it->second->build_id;
       }
@@ -487,7 +486,7 @@ const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
       .first->second;
 }
 
-static void CheckStat(int64_t num, int64_t denom, const string& desc) {
+static void CheckStat(int64_t num, int64_t denom, const std::string& desc) {
   const int max_missing_pct = 1;
   if (denom > 0 && num * 100 / denom > max_missing_pct) {
     LOG(WARNING) << "stat: " << desc << " " << num << "/" << denom;
@@ -508,10 +507,11 @@ void Normalizer::LogStats() {
   CheckStat(stat_.no_event_errors, 1, "unknown event id");
 }
 
-string Normalizer::GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap) {
-  string filename = PerfDataHandler::NameOrMd5Prefix(
+std::string Normalizer::GetBuildId(
+    const quipper::PerfDataProto_MMapEvent* mmap) {
+  std::string filename = PerfDataHandler::NameOrMd5Prefix(
       mmap->filename(), mmap->filename_md5_prefix());
-  std::unordered_map<string, string>::const_iterator build_id_it =
+  std::unordered_map<std::string, std::string>::const_iterator build_id_it =
       filename_to_build_id_.find(filename);
   if (build_id_it != filename_to_build_id_.end()) {
     return build_id_it->second;
@@ -529,7 +529,7 @@ string Normalizer::GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap) {
   return "";
 }
 
-static bool IsVirtualMapping(const string& map_name) {
+static bool IsVirtualMapping(const std::string& map_name) {
   return HasPrefixString(map_name, "//") ||
          (HasPrefixString(map_name, "[") && HasSuffixString(map_name, "]"));
 }
@@ -709,28 +709,29 @@ int64_t Normalizer::GetEventIndexForSample(
 }  // namespace
 
 // Finds needle in haystack starting at cursor. It then returns the index
-// directly after needle or string::npos if needle was not found.
-size_t FindAfter(const string& haystack, const string& needle, size_t cursor) {
+// directly after needle or std::string::npos if needle was not found.
+size_t FindAfter(const std::string& haystack, const std::string& needle,
+                 size_t cursor) {
   auto next_cursor = haystack.find(needle, cursor);
-  if (next_cursor != string::npos) {
+  if (next_cursor != std::string::npos) {
     next_cursor += needle.size();
   }
   return next_cursor;
 }
 
-bool IsDeletedSharedObject(const string& path) {
+bool IsDeletedSharedObject(const std::string& path) {
   size_t cursor = 1;
-  while ((cursor = FindAfter(path, ".so", cursor)) != string::npos) {
+  while ((cursor = FindAfter(path, ".so", cursor)) != std::string::npos) {
     const auto ch = path.at(cursor);
     if (ch == '.' || ch == '_' || ch == ' ') {
-      return path.find("(deleted)", cursor) != string::npos;
+      return path.find("(deleted)", cursor) != std::string::npos;
     }
   }
   return false;
 }
 
-bool IsVersionedSharedObject(const string& path) {
-  return path.find(".so.", 1) != string::npos;
+bool IsVersionedSharedObject(const std::string& path) {
+  return path.find(".so.", 1) != std::string::npos;
 }
 
 PerfDataHandler::PerfDataHandler() {}
@@ -741,7 +742,8 @@ void PerfDataHandler::Process(const quipper::PerfDataProto& perf_proto,
   return Normalizer.Normalize();
 }
 
-string PerfDataHandler::NameOrMd5Prefix(string name, uint64_t md5_prefix) {
+std::string PerfDataHandler::NameOrMd5Prefix(std::string name,
+                                             uint64_t md5_prefix) {
   if (name.empty()) {
     std::stringstream ss;
     ss << std::hex << md5_prefix;
@@ -750,7 +752,7 @@ string PerfDataHandler::NameOrMd5Prefix(string name, uint64_t md5_prefix) {
   return name;
 }
 
-string PerfDataHandler::MappingFilename(const Mapping* m) {
+std::string PerfDataHandler::MappingFilename(const Mapping* m) {
   return NameOrMd5Prefix(m->filename, m->filename_md5_prefix);
 }
 

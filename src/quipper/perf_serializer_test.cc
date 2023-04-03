@@ -4,7 +4,6 @@
 
 #include "perf_serializer.h"
 
-#include <inttypes.h>
 #include <sys/time.h>
 
 #include <map>
@@ -13,7 +12,6 @@
 
 #include "base/logging.h"
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
 #include "perf_buildid.h"
@@ -844,7 +842,6 @@ TEST(PerfSerializerTest, SerializesAndDeserializesAuxtraceErrorEvents) {
                                               /*sample_id_all=*/true)
       .WriteTo(&input);
 
-  // string auxtrace_error_msg = "AUXTRACE ERROR MESSAGE.";
   std::string auxtrace_error_msg =
       "000001111122222333334444455555666667777788888999990000011111222";
 

@@ -12,7 +12,6 @@
 #include <fstream>
 
 #include "src/quipper/base/logging.h"
-#include "src/compat/string_compat.h"
 #include "src/perf_data_converter.h"
 #include "src/quipper/perf_data.pb.h"
 

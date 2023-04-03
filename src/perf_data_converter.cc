@@ -78,7 +78,7 @@ ExecutionMode PerfExecMode(const PerfDataHandler::SampleContext& sample) {
 // this also ensures the string contains structurally valid UTF-8.
 // In order to successfully unmarshal the proto in Go, all strings inserted into
 // the profile string table must be valid UTF-8.
-int64_t UTF8StringId(const string& s, ProfileBuilder* builder) {
+int64_t UTF8StringId(const std::string& s, ProfileBuilder* builder) {
   return builder->StringId(s.c_str());
 }
 
@@ -201,10 +201,10 @@ class ProcessMeta {
 
 class PerfDataConverter : public PerfDataHandler {
  public:
-  explicit PerfDataConverter(const quipper::PerfDataProto& perf_data,
-                             uint32_t sample_labels = kNoLabels,
-                             uint32_t options = kGroupByPids,
-                             const std::map<Tid, string>& thread_types = {})
+  explicit PerfDataConverter(
+      const quipper::PerfDataProto& perf_data,
+      uint32_t sample_labels = kNoLabels, uint32_t options = kGroupByPids,
+      const std::map<Tid, std::string>& thread_types = {})
       : perf_data_(perf_data),
         sample_labels_(sample_labels),
         options_(options) {
@@ -306,7 +306,7 @@ class PerfDataConverter : public PerfDataHandler {
     ProcessMeta* process_meta = nullptr;
     LocationMap location_map;
     MappingMap mapping_map;
-    std::unordered_map<Tid, string> tid_to_comm_map;
+    std::unordered_map<Tid, std::string> tid_to_comm_map;
     SampleMap sample_map;
     void clear() {
       builder = nullptr;
@@ -321,7 +321,7 @@ class PerfDataConverter : public PerfDataHandler {
 
   const uint32_t sample_labels_;
   const uint32_t options_;
-  std::unordered_map<Tid, string> thread_types_;
+  std::unordered_map<Tid, std::string> thread_types_;
 };
 
 SampleKey PerfDataConverter::MakeSampleKey(
@@ -339,7 +339,7 @@ SampleKey PerfDataConverter::MakeSampleKey(
   }
   if (IncludeCommLabels() && sample.sample.has_pid()) {
     Pid pid = sample.sample.pid();
-    string comm = per_pid_[pid].tid_to_comm_map[pid];
+    std::string comm = per_pid_[pid].tid_to_comm_map[pid];
     sample_key.comm = UTF8StringId(comm, builder);
   }
   if (IncludeThreadTypeLabels() && sample.sample.has_tid()) {
@@ -353,7 +353,7 @@ SampleKey PerfDataConverter::MakeSampleKey(
       sample.sample.has_tid()) {
     Pid pid = sample.sample.pid();
     Tid tid = sample.sample.tid();
-    const string& comm = per_pid_[pid].tid_to_comm_map[tid];
+    const std::string& comm = per_pid_[pid].tid_to_comm_map[tid];
     sample_key.thread_comm = UTF8StringId(comm, builder);
   }
   if (IncludeCgroupLabels() && sample.cgroup) {
@@ -392,7 +392,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       // contain an event_types section of the same cardinality as its
       // file_attrs; in this case we can just use the name there.  Otherwise
       // we just give it an anonymous name.
-      string event_name = "";
+      std::string event_name = "";
       if (perf_data_.file_attrs_size() == perf_data_.event_types_size()) {
         const auto& event_type = perf_data_.event_types(event_idx);
         if (event_type.has_name()) {
@@ -421,12 +421,12 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       AddOrGetMapping(sample.sample.pid(), sample.main_mapping, builder);
     }
     if (perf_data_.string_metadata().has_perf_version()) {
-      string perf_version =
+      std::string perf_version =
           "perf-version:" + perf_data_.string_metadata().perf_version().value();
       profile->add_comment(UTF8StringId(perf_version, builder));
     }
     if (perf_data_.string_metadata().has_perf_command_line_whole()) {
-      string perf_command =
+      std::string perf_command =
           "perf-command:" +
           perf_data_.string_metadata().perf_command_line_whole().value();
       profile->add_comment(UTF8StringId(perf_command, builder));
@@ -435,9 +435,9 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
     Profile* profile = per_pid.builder->mutable_profile();
     if ((options_ & kGroupByPids) && sample.main_mapping != nullptr &&
         !sample.main_mapping->filename.empty()) {
-      const string& filename =
+      const std::string& filename =
           profile->string_table(profile->mapping(0).filename());
-      const string& sample_filename = MappingFilename(sample.main_mapping);
+      const std::string& sample_filename = MappingFilename(sample.main_mapping);
 
       if (filename != sample_filename) {
         if (options_ & kFailOnMainMappingMismatch) {
@@ -481,7 +481,7 @@ uint64_t PerfDataConverter::AddOrGetMapping(
   if (!smap->build_id.empty()) {
     mapping->set_build_id(UTF8StringId(smap->build_id, builder));
   }
-  string mapping_filename = MappingFilename(smap);
+  std::string mapping_filename = MappingFilename(smap);
   mapping->set_filename(UTF8StringId(mapping_filename, builder));
   CHECK_LE(mapping->memory_start(), mapping->memory_limit())
       << "Mapping start must be strictly less than its limit: "
@@ -751,7 +751,7 @@ ProcessProfiles PerfDataConverter::Profiles() {
 
 ProcessProfiles PerfDataProtoToProfiles(
     const quipper::PerfDataProto* perf_data, const uint32_t sample_labels,
-    const uint32_t options, const std::map<Tid, string>& thread_types) {
+    const uint32_t options, const std::map<Tid, std::string>& thread_types) {
   PerfDataConverter converter(*perf_data, sample_labels, options, thread_types);
   PerfDataHandler::Process(*perf_data, &converter);
   return converter.Profiles();
@@ -759,8 +759,9 @@ ProcessProfiles PerfDataProtoToProfiles(
 
 ProcessProfiles RawPerfDataToProfiles(
     const void* raw, const uint64_t raw_size,
-    const std::map<string, string>& build_ids, const uint32_t sample_labels,
-    const uint32_t options, const std::map<Tid, string>& thread_types) {
+    const std::map<std::string, std::string>& build_ids,
+    const uint32_t sample_labels, const uint32_t options,
+    const std::map<Tid, std::string>& thread_types) {
   quipper::PerfReader reader;
   if (!reader.ReadFromPointer(reinterpret_cast<const char*>(raw), raw_size)) {
     LOG(ERROR) << "Could not read input perf.data";

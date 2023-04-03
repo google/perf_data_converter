@@ -17,7 +17,6 @@ cc_library(
     ],
     deps = [
         ":intervalmap",
-        "//src/compat:string_compat",
         "//src/quipper:binary_data_utils",
         "//src/quipper:dso",
         "//src/quipper:kernel",
@@ -36,7 +35,6 @@ cc_library(
         ":perf_data_handler",
         ":builder",
         ":profile_cc_proto",
-        "//src/compat:string_compat",
         "//src/quipper:kernel",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_parser",
@@ -60,7 +58,6 @@ cc_test(
     srcs = ["perf_data_handler_test.cc"],
     deps = [
         ":perf_data_handler",
-        "//src/compat:string_compat",
         "//src/compat:test_compat",
         "//src/quipper:binary_data_utils",
         "//src/quipper:kernel",
@@ -102,7 +99,6 @@ cc_test(
     deps = [
         ":intervalmap",
         ":perf_data_converter",
-        "//src/compat:string_compat",
         "//src/compat:test_compat",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_parser",
@@ -116,7 +112,6 @@ cc_test(
     srcs = ["intervalmap_test.cc"],
     deps = [
         ":intervalmap",
-        "//src/compat:string_compat",
         "//src/compat:test_compat",
     ],
 )
@@ -128,7 +123,6 @@ cc_library(
     deps = [
         ":perf_data_converter",
         "//src/quipper:base",
-        "//src/compat:string_compat",
         "//src/quipper:perf_data_cc_proto",
     ],
 )

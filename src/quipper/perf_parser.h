@@ -17,7 +17,6 @@
 
 #include "binary_data_utils.h"
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "dso.h"
 #include "perf_reader.h"
 

@@ -4,18 +4,17 @@
 
 #include "perf_buildid.h"
 
-#include <cstdint>
 #include <string>
 
 namespace quipper {
 
-void PerfizeBuildIDString(string* build_id) {
+void PerfizeBuildIDString(std::string* build_id) {
   build_id->resize(kBuildIDStringLength, '0');
 }
 
-void TrimZeroesFromBuildIDString(string* build_id) {
+void TrimZeroesFromBuildIDString(std::string* build_id) {
   const size_t kPaddingSize = 8;
-  const string kBuildIDPadding = string(kPaddingSize, '0');
+  const std::string kBuildIDPadding = std::string(kPaddingSize, '0');
 
   // Remove kBuildIDPadding from the end of build_id until we cannot remove any
   // more. The build ID string can be reduced down to an empty string. This

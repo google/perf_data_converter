@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "src/profile.pb.h"
-#include "src/compat/string_compat.h"
 
 namespace quipper {
 class PerfDataProto;

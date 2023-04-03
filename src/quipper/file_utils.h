@@ -9,8 +9,6 @@
 
 #include "base/logging.h"
 
-#include "compat/string.h"
-
 namespace quipper {
 
 // Reads the contents of a file into |contents|. Returns true on success, false

@@ -75,7 +75,6 @@ cc_library(
     hdrs = [
         "compat/log_level.h",
         "compat/proto.h",
-        "compat/string.h",
     ],
     deps = [
         ":perf_data_cc_proto",

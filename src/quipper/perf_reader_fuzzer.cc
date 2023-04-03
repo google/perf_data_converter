@@ -2,15 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "perf_reader.h"
-
 #include <vector>
 
 #include "base/logging.h"
-
 #include "buffer_reader.h"
-#include "compat/string.h"
 #include "compat/test.h"
+#include "perf_reader.h"
 
 namespace quipper {
 

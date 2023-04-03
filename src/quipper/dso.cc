@@ -17,8 +17,6 @@
 #include <vector>
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "file_reader.h"
 
 namespace quipper {

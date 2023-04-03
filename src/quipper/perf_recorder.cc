@@ -12,7 +12,6 @@
 
 #include "binary_data_utils.h"
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "perf_option_parser.h"
 #include "perf_parser.h"
 #include "perf_protobuf_io.h"
@@ -32,7 +31,8 @@ const char kPerfInjectCommand[] = "inject";
 
 // Reads a perf data file and converts it to a PerfDataProto, which is stored as
 // a serialized string in |output_string|. Returns true on success.
-bool ParsePerfDataFileToString(const string& filename, string* output_string) {
+bool ParsePerfDataFileToString(const std::string& filename,
+                               std::string* output_string) {
   // Now convert it into a protobuf.
 
   PerfParserOptions options;
@@ -52,9 +52,10 @@ bool ParsePerfDataFileToString(const string& filename, string* output_string) {
 
 // Reads a perf data file and converts it to a PerfStatProto, which is stored as
 // a serialized string in |output_string|. Returns true on success.
-bool ParsePerfStatFileToString(const string& filename,
-                               const std::vector<string>& command_line_args,
-                               string* output_string) {
+bool ParsePerfStatFileToString(
+    const std::string& filename,
+    const std::vector<std::string>& command_line_args,
+    std::string* output_string) {
   PerfStatProto perf_stat;
   if (!ParsePerfStatFileToProto(filename, &perf_stat)) {
     LOG(ERROR) << "Failed to parse PerfStatProto from " << filename;
@@ -62,9 +63,9 @@ bool ParsePerfStatFileToString(const string& filename,
   }
 
   // Fill in the command line field of the protobuf.
-  string command_line;
+  std::string command_line;
   for (size_t i = 0; i < command_line_args.size(); ++i) {
-    const string& arg = command_line_args[i];
+    const std::string& arg = command_line_args[i];
     // Strip the output file argument from the command line.
     if (arg == "-o") {
       ++i;
@@ -79,7 +80,7 @@ bool ParsePerfStatFileToString(const string& filename,
 }
 
 // Checks if the perf record events include cs_etm.
-bool IsRecordingETM(const std::vector<string>& perf_args) {
+bool IsRecordingETM(const std::vector<std::string>& perf_args) {
   for (auto it = perf_args.begin(); it != perf_args.end(); ++it) {
     if (*it != "-e") continue;
     ++it;
@@ -93,19 +94,19 @@ bool IsRecordingETM(const std::vector<string>& perf_args) {
 
 PerfRecorder::PerfRecorder() : PerfRecorder({"/usr/bin/perf"}) {}
 
-PerfRecorder::PerfRecorder(const std::vector<string>& perf_binary_command)
+PerfRecorder::PerfRecorder(const std::vector<std::string>& perf_binary_command)
     : perf_binary_command_(perf_binary_command) {}
 
 // Assemble the full command line:
 // - Replace "perf" in |perf_args[0]| with |perf_binary_command_| to
 //   guarantee we're running a binary we believe we can trust.
 // - Add our own paramters.
-std::vector<string> PerfRecorder::FullPerfCommand(
-    const std::vector<string>& perf_args, const double time_sec,
+std::vector<std::string> PerfRecorder::FullPerfCommand(
+    const std::vector<std::string>& perf_args, const double time_sec,
     const ScopedTempFile& output_file) {
-  const string& perf_type = perf_args[1];
+  const std::string& perf_type = perf_args[1];
 
-  std::vector<string> full_perf_args(perf_binary_command_);
+  std::vector<std::string> full_perf_args(perf_binary_command_);
   full_perf_args.insert(full_perf_args.end(),
                         perf_args.begin() + 1,  // skip "perf"
                         perf_args.end());
@@ -129,8 +130,8 @@ std::vector<string> PerfRecorder::FullPerfCommand(
 }
 
 bool PerfRecorder::RunCommandAndGetSerializedOutput(
-    const std::vector<string>& perf_args, const double time_sec,
-    const std::vector<string>& inject_args, string* output_string) {
+    const std::vector<std::string>& perf_args, const double time_sec,
+    const std::vector<std::string>& inject_args, std::string* output_string) {
   if (!ValidatePerfCommandLine(perf_args)) {
     LOG(ERROR) << "Perf arguments are not safe to run";
     return false;
@@ -138,7 +139,7 @@ bool PerfRecorder::RunCommandAndGetSerializedOutput(
 
   // ValidatePerfCommandLine should have checked perf_args[0] == "perf", and
   // that perf_args[1] is a supported sub-command (e.g. "record" or "stat").
-  const string& perf_type = perf_args[1];
+  const std::string& perf_type = perf_args[1];
 
   if (perf_type != kPerfRecordCommand && perf_type != kPerfStatCommand &&
       perf_type != kPerfMemCommand) {
@@ -177,7 +178,7 @@ bool PerfRecorder::RunCommandAndGetSerializedOutput(
     return false;
   }
 
-  const string& inject_command = inject_args[1];
+  const std::string& inject_command = inject_args[1];
   if (inject_command != kPerfInjectCommand) {
     LOG(ERROR) << "Unsupported perf subcommand for perf inject: "
                << inject_command;

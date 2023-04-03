@@ -5,8 +5,6 @@
 #include "conversion_utils.h"
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "compat/test.h"
 #include "perf_test_files.h"
 #include "scoped_temp_path.h"

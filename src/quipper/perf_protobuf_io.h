@@ -6,7 +6,6 @@
 #define CHROMIUMOS_WIDE_PROFILING_PERF_PROTOBUF_IO_H_
 
 #include "compat/proto.h"
-#include "compat/string.h"
 #include "perf_parser.h"
 #include "perf_reader.h"
 

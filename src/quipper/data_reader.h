@@ -9,7 +9,6 @@
 #include <stdint.h>
 
 #include "binary_data_utils.h"
-#include "compat/string.h"
 
 namespace quipper {
 

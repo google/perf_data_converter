@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "compat/string.h"
 #include "compat/test.h"
 
 namespace quipper {

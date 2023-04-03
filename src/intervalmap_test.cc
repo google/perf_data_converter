@@ -8,12 +8,12 @@
 #ifndef PERFTOOLS_INTERVALMAP_TEST_H_
 #define PERFTOOLS_INTERVALMAP_TEST_H_
 
+#include "src/intervalmap.h"
+
 #include <utility>
 #include <vector>
 
-#include "src/compat/string_compat.h"
 #include "src/compat/test_compat.h"
-#include "src/intervalmap.h"
 
 namespace perftools {
 namespace {

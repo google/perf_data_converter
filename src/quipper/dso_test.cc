@@ -16,9 +16,7 @@
 #include <vector>
 
 #include "base/logging.h"
-
 #include "buffer_reader.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "dso_test_utils.h"
 #include "scoped_temp_path.h"

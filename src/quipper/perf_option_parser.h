@@ -5,9 +5,8 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_PERF_OPTION_PARSER_H_
 #define CHROMIUMOS_WIDE_PROFILING_PERF_OPTION_PARSER_H_
 
+#include <string>
 #include <vector>
-
-#include "compat/string.h"
 
 namespace quipper {
 

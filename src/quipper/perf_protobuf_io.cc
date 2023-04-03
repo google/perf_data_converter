@@ -12,13 +12,13 @@
 
 namespace quipper {
 
-bool SerializeFromString(const string& contents,
+bool SerializeFromString(const std::string& contents,
                          PerfDataProto* perf_data_proto) {
   return SerializeFromStringWithOptions(contents, PerfParserOptions(),
                                         perf_data_proto);
 }
 
-bool SerializeFromStringWithOptions(const string& contents,
+bool SerializeFromStringWithOptions(const std::string& contents,
                                     const PerfParserOptions& options,
                                     PerfDataProto* perf_data_proto) {
   PerfReader reader;
@@ -34,7 +34,7 @@ bool SerializeFromStringWithOptions(const string& contents,
   return true;
 }
 
-bool SerializeFromStringWithOptions(const string& contents,
+bool SerializeFromStringWithOptions(const std::string& contents,
                                     const PerfParserOptionsProto& options,
                                     PerfDataProto* proto) {
   PerfParserOptions opts;
@@ -49,12 +49,13 @@ bool SerializeFromStringWithOptions(const string& contents,
   return SerializeFromStringWithOptions(contents, opts, proto);
 }
 
-bool SerializeFromFile(const string& filename, PerfDataProto* perf_data_proto) {
+bool SerializeFromFile(const std::string& filename,
+                       PerfDataProto* perf_data_proto) {
   return SerializeFromFileWithOptions(filename, PerfParserOptions(),
                                       perf_data_proto);
 }
 
-bool SerializeFromFileWithOptions(const string& filename,
+bool SerializeFromFileWithOptions(const std::string& filename,
                                   const PerfParserOptions& options,
                                   PerfDataProto* perf_data_proto) {
   PerfReader reader;
@@ -71,21 +72,21 @@ bool SerializeFromFileWithOptions(const string& filename,
 }
 
 bool DeserializeToFile(const PerfDataProto& perf_data_proto,
-                       const string& filename) {
+                       const std::string& filename) {
   PerfReader reader;
   return reader.Deserialize(perf_data_proto) && reader.WriteFile(filename);
 }
 
 bool WriteProtobufToFile(const PerfDataProto& perf_data_proto,
-                         const string& filename) {
-  string output;
+                         const std::string& filename) {
+  std::string output;
   perf_data_proto.SerializeToString(&output);
 
   return BufferToFile(filename, output);
 }
 
 bool ReadProtobufFromFile(PerfDataProto* perf_data_proto,
-                          const string& filename) {
+                          const std::string& filename) {
   std::vector<char> buffer;
   if (!FileToBuffer(filename, &buffer)) return false;
 

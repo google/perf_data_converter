@@ -10,7 +10,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "compat/string.h"
 #include "data_reader.h"
 
 namespace quipper {

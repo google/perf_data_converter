@@ -10,10 +10,10 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include <atomic>
 #include <vector>
 
-#include "compat/string.h"
 #include "compat/test.h"
 
 namespace quipper {

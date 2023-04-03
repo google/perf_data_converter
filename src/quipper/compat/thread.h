@@ -12,7 +12,7 @@ namespace compat {
 class ThreadInterface {
  public:
   // Constructor signature should match this:
-  // Thread(const string& name_prefix);
+  // Thread(const std::string& name_prefix);
 
   virtual ~ThreadInterface() {}
 

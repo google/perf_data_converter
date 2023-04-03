@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <map>
 
-#include "compat/string.h"
 #include "string_utils.h"
 
 namespace quipper {

@@ -12,7 +12,7 @@
 
 namespace quipper {
 
-bool FileToBuffer(const string& filename, std::vector<char>* contents) {
+bool FileToBuffer(const std::string& filename, std::vector<char>* contents) {
   FileReader reader(filename);
   if (!reader.IsOpen()) return false;
   size_t file_size = reader.size();
@@ -26,7 +26,7 @@ bool FileToBuffer(const string& filename, std::vector<char>* contents) {
   return true;
 }
 
-bool FileExists(const string& filename) {
+bool FileExists(const std::string& filename) {
   struct stat st;
   return stat(filename.c_str(), &st) == 0;
 }

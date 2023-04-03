@@ -7,8 +7,6 @@
 #include <string>
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
 #include "scoped_temp_path.h"

@@ -13,8 +13,6 @@
 #include <vector>
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "compat/test.h"
 #include "file_utils.h"
 #include "perf_test_files.h"

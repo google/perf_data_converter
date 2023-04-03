@@ -7,7 +7,6 @@
 #include <sys/mman.h>
 
 #include "base/logging.h"
-#include "compat/string.h"
 #include "compat/test.h"
 #include "perf_reader.h"
 #include "perf_serializer.h"

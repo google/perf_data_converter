@@ -69,7 +69,7 @@ TEST(SampleInfoReaderTest, ReadSampleEvent) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -150,7 +150,7 @@ TEST(SampleInfoReaderTest, ReadSampleEventWeightStruct) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -216,7 +216,7 @@ TEST(SampleInfoReaderTest, ReadSampleEventCrossEndian) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -290,7 +290,7 @@ TEST(SampleInfoReaderTest, ReadMmapEvent) {
   input.write(reinterpret_cast<const char*>(mmap_sample_id),
               sizeof(mmap_sample_id));
 
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -341,7 +341,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoAllFields) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -383,7 +383,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoOmitTotalTimeFields) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -422,7 +422,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoValueFieldOnly) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;
@@ -466,7 +466,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoWithGroups) {
               sizeof(sample_event_struct));
   input.write(reinterpret_cast<const char*>(sample_event_array),
               sizeof(sample_event_array));
-  string input_string = input.str();
+  std::string input_string = input.str();
   const event_t& event = *reinterpret_cast<const event_t*>(input_string.data());
 
   perf_sample sample;

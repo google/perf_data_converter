@@ -8,7 +8,6 @@
 #include <string>
 
 #include "compat/proto.h"
-#include "compat/string.h"
 
 namespace quipper {
 
@@ -20,12 +19,12 @@ namespace quipper {
 //     "event2: 123 123 123\n"
 //     "..."
 //     "1.234 seconds time elapsed"
-bool ParsePerfStatFileToProto(const string& path, PerfStatProto* proto);
-bool ParsePerfStatOutputToProto(const string& data, PerfStatProto* proto);
+bool ParsePerfStatFileToProto(const std::string& path, PerfStatProto* proto);
+bool ParsePerfStatOutputToProto(const std::string& data, PerfStatProto* proto);
 
 // This function assumes that |str| is of the form "1234.1234567" and returns
 // false otherwise. This function does not accept negatives (e.g. "-12.23").
-bool SecondsStringToMillisecondsUint64(const string& str, uint64_t* out);
+bool SecondsStringToMillisecondsUint64(const std::string& str, uint64_t* out);
 
 }  // namespace quipper
 

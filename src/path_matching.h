@@ -10,8 +10,6 @@
 
 #include <string>
 
-#include "src/compat/string_compat.h"
-
 namespace perftools {
 
 // Checks if a file is a .so file which is being used by an executing binary

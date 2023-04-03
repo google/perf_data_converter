@@ -14,8 +14,6 @@
 #include <vector>
 
 #include "base/logging.h"
-
-#include "compat/string.h"
 #include "kernel/perf_internals.h"
 
 namespace quipper {

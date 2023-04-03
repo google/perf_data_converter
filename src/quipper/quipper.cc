@@ -9,7 +9,6 @@
 #include <gflags/gflags.h>
 #include <gflags/gflags_declare.h>
 #include "base/logging.h"
-#include "compat/string.h"
 #include "file_utils.h"
 #include "perf_protobuf_io.h"
 #include "perf_recorder.h"
@@ -30,8 +29,9 @@ DEFINE_string(inject_args, "",
             "must be used with --run_inject");
 
 bool ParsePerfArguments(int argc, const char* argv[], int* duration,
-                        std::vector<string>* perf_args,
-                        std::vector<string>* inject_args, string* output_file) {
+                        std::vector<std::string>* perf_args,
+                        std::vector<std::string>* inject_args,
+                        std::string* output_file) {
   if (argc < 2) {
     return false;
   }
@@ -39,9 +39,9 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   *duration = FLAGS_duration;
   if (*duration <= 0) return false;
 
-  string perf_path = FLAGS_perf_path.empty()
-                         ? "perf"
-                         : FLAGS_perf_path;
+  std::string perf_path = FLAGS_perf_path.empty()
+                              ? "perf"
+                              : FLAGS_perf_path;
   perf_args->emplace_back(perf_path);
 
   for (int i = 1; i < argc; i++) {
@@ -52,7 +52,7 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   if (output_file->empty()) return false;
 
   bool run_inject = FLAGS_run_inject;
-  string inject_args_string = FLAGS_inject_args;
+  std::string inject_args_string = FLAGS_inject_args;
   if (!run_inject && !inject_args_string.empty()) return false;
 
   if (run_inject) {
@@ -63,11 +63,11 @@ bool ParsePerfArguments(int argc, const char* argv[], int* duration,
   return true;
 }
 
-bool RecordPerf(int perf_duration, const std::vector<string>& perf_args,
-                const std::vector<string>& inject_args,
-                const string& output_file) {
+bool RecordPerf(int perf_duration, const std::vector<std::string>& perf_args,
+                const std::vector<std::string>& inject_args,
+                const std::string& output_file) {
   quipper::PerfRecorder perf_recorder;
-  string output_string;
+  std::string output_string;
   if (!perf_recorder.RunCommandAndGetSerializedOutput(
           perf_args, perf_duration, inject_args, &output_string)) {
     LOG(ERROR) << "Couldn't record perf";
@@ -95,7 +95,7 @@ bool RecordPerf(int perf_duration, const std::vector<string>& perf_args,
 //   <exe> <duration in seconds> <perf command line>
 
 int main(int argc, char* argv[]) {
-  std::vector<string> perf_args, inject_args;
+  std::vector<std::string> perf_args, inject_args;
   int perf_duration = 0;
 
   if (ParseOldPerfArguments(argc, const_cast<const char**>(argv),
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  string output_file;
+  std::string output_file;
   perf_args.clear();
 
   if (ParsePerfArguments(argc, const_cast<const char**>(argv), &perf_duration,
