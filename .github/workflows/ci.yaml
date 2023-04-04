@@ -28,9 +28,9 @@ jobs:
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
           sudo apt-get update
-          sudo apt-get install g++-5
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
+          sudo apt-get install g++-12
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 1
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 1
 
       - name: Build
         run: bazel build //src:all //src/quipper:all
