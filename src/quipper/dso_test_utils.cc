@@ -8,12 +8,9 @@
 #include <fcntl.h>
 #include <gelf.h>
 #include <libelf.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <vector>
 
 #include "base/logging.h"
 

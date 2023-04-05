@@ -4,8 +4,6 @@
 
 #include "string_utils.h"
 
-#include <sstream>
-
 namespace quipper {
 
 void TrimWhitespace(std::string* str) {
