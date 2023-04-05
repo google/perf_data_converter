@@ -5,6 +5,7 @@
 #ifndef PERF_DATA_CONVERTER_SRC_QUIPPER_QUIPPER_LIB_H_
 #define PERF_DATA_CONVERTER_SRC_QUIPPER_QUIPPER_LIB_H_
 
+#include <sstream>
 #include <vector>
 
 // ParseOldPerfArguments parses the given command line arguments i.e., |argc|

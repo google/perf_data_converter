@@ -5,6 +5,7 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_DSO_TEST_UTILS_H_
 #define CHROMIUMOS_WIDE_PROFILING_DSO_TEST_UTILS_H_
 
+#include <string>
 #include <utility>
 #include <vector>
 

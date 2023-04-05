@@ -1,8 +1,6 @@
 // Copyright 2018 The Chromium OS Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-#include <sstream>
-
 #include "quipper_lib.h"
 
 #include "perf_option_parser.h"
