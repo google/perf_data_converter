@@ -53,6 +53,7 @@ TEST(HugePageDeducer, HugePagesMappings) {
     ev->set_len(0x18000);
     ev->set_pgoff(0);
     ev->set_filename("/usr/lib/libfoo.so");
+    ev->set_build_id("abcdef0001");
   }
   {
     MMapEvent* ev = events.Add()->mutable_mmap_event();
@@ -61,6 +62,7 @@ TEST(HugePageDeducer, HugePagesMappings) {
     ev->set_len(0x1e8000);
     ev->set_pgoff(0);
     ev->set_filename("/opt/google/chrome/chrome");
+    ev->set_build_id("abcdef0002");
   }
   {
     MMapEvent* ev = events.Add()->mutable_mmap_event();
@@ -77,6 +79,7 @@ TEST(HugePageDeducer, HugePagesMappings) {
     ev->set_len(0x4000000);
     ev->set_pgoff(0x1de8000);
     ev->set_filename("/opt/google/chrome/chrome");
+    ev->set_build_id("abcdef0002");
   }
   {
     MMapEvent* ev = events.Add()->mutable_mmap_event();
@@ -93,40 +96,56 @@ TEST(HugePageDeducer, HugePagesMappings) {
     ev->set_len(0x4000000);
     ev->set_pgoff(0x1e00000);
     ev->set_filename("/opt/google/chrome/chrome");
+    ev->set_build_id("abcdef0002");
   }
 
   DeduceHugePages(&events);
+
+  // Expect the file offset, filenames and build IDs of the hugepage mmap events
+  // are deduced correctly.
+  EXPECT_THAT(
+      events,
+      Pointwise(Partially(EqualsProto()),
+                {
+                    "mmap_event: { start: 0x40000000 len:0x18000 "
+                    "pgoff: 0 filename: '/usr/lib/libfoo.so' build_id: "
+                    "'abcdef0001' }",
+                    "mmap_event: { start: 0x40018000 len:0x1e8000 "
+                    "pgoff: 0 filename: '/opt/google/chrome/chrome' build_id: "
+                    "'abcdef0002' }",
+                    "mmap_event: { start: 0x40200000 len:0x1c00000 "
+                    "pgoff: 0x1e8000 filename: '/opt/google/chrome/chrome' "
+                    "build_id: "
+                    "'abcdef0002' }",
+                    "mmap_event: { start: 0x41e00000 len:0x4000000 "
+                    "pgoff: 0x1de8000 filename: '/opt/google/chrome/chrome' "
+                    "build_id: 'abcdef0002' }",
+                    "mmap_event: { start: 0x45e00000 len:0x1e00000 "
+                    "pgoff: 0 filename: '/opt/google/chrome/chrome' "
+                    "build_id: 'abcdef0002' }",
+                    "mmap_event: { start: 0x47c00000 len:0x4000000 "
+                    "pgoff: 0x1e00000 filename: '/opt/google/chrome/chrome' "
+                    "build_id: 'abcdef0002' }",
+                }));
+
   CombineMappings(&events);
 
+  // Expect the continuous mmap events are merged.
   ASSERT_GE(events.size(), 3);
   EXPECT_EQ(events.size(), 3);
-
   EXPECT_THAT(events,
               Pointwise(Partially(EqualsProto()),
                         {
                             "mmap_event: { start: 0x40000000 len:0x18000 "
-                            "pgoff: 0 filename: '/usr/lib/libfoo.so'}",
+                            "pgoff: 0 filename: '/usr/lib/libfoo.so' build_id: "
+                            "'abcdef0001' }",
                             "mmap_event: { start: 0x40018000 len:0x5de8000 "
-                            "pgoff: 0 filename: '/opt/google/chrome/chrome'}",
+                            "pgoff: 0 filename: '/opt/google/chrome/chrome' "
+                            "build_id: 'abcdef0002' }",
                             "mmap_event: { start: 0x45e00000 len:0x5e00000 "
-                            "pgoff: 0 filename: '/opt/google/chrome/chrome'}",
+                            "pgoff: 0 filename: '/opt/google/chrome/chrome' "
+                            "build_id: 'abcdef0002' }",
                         }));
-
-  EXPECT_EQ("/usr/lib/libfoo.so", events[0].mmap_event().filename());
-  EXPECT_EQ(0x40000000, events[0].mmap_event().start());
-  EXPECT_EQ(0x18000, events[0].mmap_event().len());
-  EXPECT_EQ(0x0, events[0].mmap_event().pgoff());
-
-  // The split Chrome mappings should have been combined.
-  EXPECT_EQ("/opt/google/chrome/chrome", events[2].mmap_event().filename());
-  EXPECT_EQ(0x40018000, events[1].mmap_event().start());
-  EXPECT_EQ(0x5de8000, events[1].mmap_event().len());
-  EXPECT_EQ(0x0, events[1].mmap_event().pgoff());
-
-  EXPECT_EQ("/opt/google/chrome/chrome", events[2].mmap_event().filename());
-  EXPECT_EQ(0x45e00000, events[2].mmap_event().start());
-  EXPECT_EQ(0x5e00000, events[2].mmap_event().len());
-  EXPECT_EQ(0x0, events[2].mmap_event().pgoff());
 }
 
 enum HugepageTextStyle {

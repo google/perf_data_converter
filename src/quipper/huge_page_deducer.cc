@@ -290,6 +290,9 @@ void UpdateRangeFromNext(PerPidMMapEventRange::MMapEventIterator first,
     // possible.
     if (is_hugepage) {
       SetMmapFilename(event, next.filename(), next.filename_md5_prefix());
+      if (next.has_build_id()) {
+        mmap->set_build_id(next.build_id());
+      }
       if (mmap->pgoff() == 0) {
         // Correct anonymous page file offsets.
         mmap->set_pgoff(pgoff);
@@ -426,10 +429,13 @@ void CombineMappings(RepeatedPtrField<PerfEvent>* events) {
                    IsVmaContiguous(*prev_mmap, *mmap);
     if (should_merge) {
       if (IsHugePage(*prev_mmap) && !IsHugePage(*mmap)) {
-        // Update the file offset and filename for the anon mapping.
+        // Update the file offset, filename and build ID for the anon mapping.
         prev_mmap->set_pgoff(mmap->pgoff() - prev_mmap->len());
         SetMmapFilename(prev_mmap_event, mmap->filename(),
                         mmap->filename_md5_prefix());
+        if (mmap->has_build_id()) {
+          prev_mmap->set_build_id(mmap->build_id());
+        }
       }
       // Combine the lengths of the two mappings.
       prev_mmap->set_len(prev_mmap->len() + mmap->len());
