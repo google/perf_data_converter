@@ -15,6 +15,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -22,6 +23,7 @@
 
 #include "src/compat/test_compat.h"
 #include "src/intervalmap.h"
+#include "src/perf_data_handler.h"
 #include "src/quipper/perf_parser.h"
 #include "src/quipper/perf_reader.h"
 
@@ -119,6 +121,34 @@ std::unordered_set<std::string> AllMmapsWithBuildIDs(
   }
   return ret;
 }
+
+class ProfileIndexer {
+ public:
+  ProfileIndexer(const perftools::profiles::Profile& profile)
+      : profile_(profile) {
+    for (uint64_t i = 0; i < profile_.location().size(); ++i) {
+      addr_to_loc_i_[profile_.location().Get(i).address()] = i;
+    }
+    for (uint64_t i = 0; i < profile_.mapping().size(); ++i) {
+      id_to_mapping_i_[profile_.mapping().Get(i).id()] = i;
+    }
+  }
+
+  // GetBuildId returns the build ID by the location address in a profile.
+  std::string GetBuildId(uint64_t addr) {
+    if (addr_to_loc_i_.find(addr) == addr_to_loc_i_.end()) {
+      return "";
+    }
+    const auto& location = profile_.location().Get(addr_to_loc_i_[addr]);
+    const auto& mapping =
+        profile_.mapping().Get(id_to_mapping_i_[location.mapping_id()]);
+    return profile_.string_table(mapping.build_id());
+  }
+
+  const perftools::profiles::Profile& profile_;
+  std::unordered_map<uint64_t, uint64_t> addr_to_loc_i_;
+  std::unordered_map<uint64_t, uint64_t> id_to_mapping_i_;
+};
 }  // namespace
 
 namespace perftools {
@@ -889,6 +919,85 @@ TEST_F(PerfDataConverterTest, HandlesAlternateKernelNames) {
   for (const auto& mapping : profile.mapping()) {
     EXPECT_NE(mapping.build_id(), 0) << mapping.DebugString();
   }
+}
+
+TEST_F(PerfDataConverterTest, BuildIdFromMmapEvents) {
+  std::string ascii_pb(
+      GetContents(GetResource("perf-buildid-mmap-events.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  // Expect that with buildid-mmap events, the samples will be assigned to the
+  // corresponding different build IDs, even the mmap events have the same file
+  // name.
+  {
+    // Write the proto perf.data to a string so that we can call the
+    // RawPerfDataToProfiles API.
+    std::string str;
+    quipper::PerfReader reader;
+    ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+    ASSERT_TRUE(reader.WriteToString(&str));
+    ProcessProfiles pps = RawPerfDataToProfiles(
+        str.data(), str.size(), {{"/usr/lib/bar", "abcdef0024"}});
+    EXPECT_EQ(1, pps.size());
+    const auto& pp = pps[0];
+
+    ProfileIndexer indexer(pp->data);
+    EXPECT_EQ(indexer.GetBuildId(0x2010), "abcdef0020");
+    EXPECT_EQ(indexer.GetBuildId(0x2020), "abcdef0021");
+  }
+
+  // If we change buildid-mmap events back to normal mmap events, then we will
+  // see thoes two samples being assigned the same build ID (the injected one).
+  {
+    for (size_t i = 0; i < perf_data_proto.events().size(); ++i) {
+      auto event = perf_data_proto.mutable_events()->Mutable(i);
+      if (event->has_mmap_event()) {
+        event->mutable_header()->set_misc(0x2);
+        event->mutable_mmap_event()->clear_build_id();
+      }
+    }
+    std::string str;
+    quipper::PerfReader reader;
+    ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+    ASSERT_TRUE(reader.WriteToString(&str));
+    ProcessProfiles pps = RawPerfDataToProfiles(
+        str.data(), str.size(), {{"/usr/lib/bar", "abcdef0024"}});
+    EXPECT_EQ(1, pps.size());
+    const auto& pp = pps[0];
+
+    ProfileIndexer indexer(pp->data);
+    EXPECT_EQ(indexer.GetBuildId(0x2010), "abcdef0024");
+    EXPECT_EQ(indexer.GetBuildId(0x2020), "abcdef0024");
+  }
+}
+
+TEST_F(PerfDataConverterTest, BuildIdStats) {
+  std::string ascii_pb(
+      GetContents(GetResource("perf-buildid-stats.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  std::string str;
+  quipper::PerfReader reader;
+  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+  ASSERT_TRUE(reader.WriteToString(&str));
+  ProcessProfiles pps = RawPerfDataToProfiles(
+      str.data(), str.size(),
+      {{"/usr/lib/bar", "abcdef0024"}, {"/usr/lib/qux", "abcdef0040"}});
+  EXPECT_EQ(2, pps.size());
+
+  // Expect that each Build ID source is counted correctly.
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdMmapSameFilename), 2);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdMmapDiffFilename), 2);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdFilename), 1);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdFilenameInjected), 1);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdFilenameAmbiguous), 1);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdKernelPrefix), 1);
+  EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdMissing), 1);
+  EXPECT_EQ(pps[1]->build_id_stats.at(kBuildIdNoMmap), 1);
 }
 
 }  // namespace perftools

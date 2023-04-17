@@ -11,6 +11,7 @@
 #include <deque>
 #include <map>
 #include <sstream>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -184,12 +185,16 @@ class ProcessMeta {
     }
   }
 
-  std::unique_ptr<ProcessProfile> makeProcessProfile(Profile* data) {
+  std::unique_ptr<ProcessProfile> MakeProcessProfile(
+      Profile* data, const std::unordered_map<Pid, BuildIdStats>& stats) {
     ProcessProfile* pp = new ProcessProfile();
     pp->pid = pid_;
     pp->data.Swap(data);
     pp->min_sample_time_ns = min_sample_time_ns_;
     pp->max_sample_time_ns = max_sample_time_ns_;
+    if (stats.find(pid_) != stats.end()) {
+      pp->build_id_stats = stats.at(pid_);
+    }
     return std::unique_ptr<ProcessProfile>(pp);
   }
 
@@ -478,8 +483,8 @@ uint64_t PerfDataConverter::AddOrGetMapping(
   mapping->set_memory_start(smap->start);
   mapping->set_memory_limit(smap->limit);
   mapping->set_file_offset(smap->file_offset);
-  if (!smap->build_id.empty()) {
-    mapping->set_build_id(UTF8StringId(smap->build_id, builder));
+  if (!smap->build_id.value.empty()) {
+    mapping->set_build_id(UTF8StringId(smap->build_id.value, builder));
   }
   std::string mapping_filename = MappingFilename(smap);
   mapping->set_filename(UTF8StringId(mapping_filename, builder));
@@ -675,6 +680,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   }
   sample_key.stack.push_back(
       AddOrGetLocation(event_pid, ip, sample.sample_mapping, builder));
+  IncBuildIdStats(event_pid, sample.sample_mapping);
 
   // LBR callstacks include only user call chains. If this is an LBR sample,
   // we get the kernel callstack from the sample's callchain, and the user
@@ -716,6 +722,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     // Subtract one so we point to the call instead of the return addr.
     sample_key.stack.push_back(
         AddOrGetLocation(event_pid, frame.ip - 1, frame.mapping, builder));
+    IncBuildIdStats(event_pid, frame.mapping);
   }
   for (const auto& frame : sample.branch_stack) {
     // branch_stack entries are pairs of <from, to> locations corresponding to
@@ -732,6 +739,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     }
     sample_key.stack.push_back(AddOrGetLocation(event_pid, frame.from.ip,
                                                 frame.from.mapping, builder));
+    IncBuildIdStats(event_pid, frame.from.mapping);
   }
   AddOrUpdateSample(sample, event_pid, sample_key, builder);
 }
@@ -741,7 +749,8 @@ ProcessProfiles PerfDataConverter::Profiles() {
   for (size_t i = 0; i < builders_.size(); i++) {
     auto& b = builders_[i];
     b.Finalize();
-    auto pp = process_metas_[i].makeProcessProfile(b.mutable_profile());
+    auto pp = process_metas_[i].MakeProcessProfile(b.mutable_profile(),
+                                                   process_build_id_stats_);
     pps.push_back(std::move(pp));
   }
   return pps;

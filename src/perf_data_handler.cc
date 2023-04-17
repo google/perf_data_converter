@@ -67,15 +67,20 @@ class Normalizer {
       std::string filename = PerfDataHandler::NameOrMd5Prefix(
           build_id.filename(), build_id.filename_md5_prefix());
       auto build_id_it = filename_to_build_id_.find(filename);
+      BuildIdSource build_id_source =
+          build_id.has_is_injected() && build_id.is_injected()
+              ? kBuildIdFilenameInjected
+              : kBuildIdFilename;
       if (build_id_it != filename_to_build_id_.end() &&
-          build_id_it->second != hex.str()) {
+          build_id_it->second.value != hex.str()) {
         LOG(WARNING)
             << "Observed build ID changed for file path " << filename
-            << ": initially saw " << build_id_it->second << ", now saw "
+            << ": initially saw " << build_id_it->second.value << ", now saw "
             << hex.str() << std::hex << " (pid=0x" << build_id.pid() << ")"
             << ". In-flight build ID change may lead to wrong symbolization.";
+        build_id_source = kBuildIdFilenameAmbiguous;
       }
-      filename_to_build_id_[filename] = hex.str();
+      filename_to_build_id_[filename] = BuildId(hex.str(), build_id_source);
 
       switch (build_id.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
         case quipper::PERF_RECORD_MISC_KERNEL:
@@ -124,8 +129,9 @@ class Normalizer {
 
   typedef IntervalMap<const PerfDataHandler::Mapping*> MMapIntervalMap;
 
-  // Get buildID using the filename from the mmap.
-  std::string GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
+  // Gets the build ID if the mmap2 event's build_id field exists, otherwise
+  // finds the build ID according to the filename from the mmap.
+  BuildId GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
 
   // Copy the parent's mmaps/comm if they exist.  Otherwise, items
   // will be lazily populated.
@@ -140,9 +146,10 @@ class Normalizer {
   // Get a memoized fake mapping by specified attributes or add one. Never
   // returns nullptr. The returned pointer is owned by the normalizer and
   // bound to its lifetime.
-  const PerfDataHandler::Mapping* GetOrAddFakeMapping(
-      const std::string& comm, const std::string& build_id,
-      uint64_t comm_md5_prefix, uint64_t start_addr);
+  const PerfDataHandler::Mapping* GetOrAddFakeMapping(const std::string& comm,
+                                                      const BuildId& build_id,
+                                                      uint64_t comm_md5_prefix,
+                                                      uint64_t start_addr);
 
   // Find the MMAP event which has ip in its address range from pid.  If no
   // mapping is found, returns nullptr.
@@ -216,7 +223,8 @@ class Normalizer {
   std::unordered_set<uint32_t> pid_had_any_mmap_;
 
   // map filenames to build-ids.
-  std::unordered_map<std::string, std::string> filename_to_build_id_;
+  // TODO(b/250664624): remove this field when buildid-mmap is available to all.
+  std::unordered_map<std::string, BuildId> filename_to_build_id_;
 
   // maybe_kernel_build_id_ contains a possible kernel build id obtained from a
   // perf proto buildid whose misc bits set to
@@ -357,7 +365,8 @@ void Normalizer::Normalize() {
       quipper::PerfDataProto::EventHeader header;
       PerfDataHandler::SampleContext context(header, sample);
       context.file_attrs_index = event_index;
-      context.sample_mapping = GetOrAddFakeMapping(kLostMappingFilename, "",
+      context.sample_mapping = GetOrAddFakeMapping(kLostMappingFilename,
+                                                   BuildId("", kBuildIdMissing),
                                                    kLostMd5Prefix, sample.ip());
       for (uint64_t i = 0; i < event_proto.lost_event().lost(); ++i) {
         handler_->Sample(context);
@@ -404,9 +413,10 @@ void Normalizer::InvokeHandleSample(
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
-      std::string build_id;
+      BuildId build_id("", kBuildIdMissing);
       if (kernel_it != pid_to_executable_mmap_.end()) {
-        build_id = kernel_it->second->build_id;
+        build_id.value = kernel_it->second->build_id.value;
+        build_id.source = kBuildIdKernelPrefix;
       }
       // The comm_md5_prefix is used for the filename_md5_prefix field in the
       // fake mapping. This allows recovery of the process name (execname) by
@@ -473,9 +483,9 @@ void Normalizer::InvokeHandleSample(
 }
 
 const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
-    const std::string& comm, const std::string& build_id,
-    uint64_t comm_md5_prefix, uint64_t start_addr) {
-  FakeMappingKey key = {comm, build_id, comm_md5_prefix};
+    const std::string& comm, const BuildId& build_id, uint64_t comm_md5_prefix,
+    uint64_t start_addr) {
+  FakeMappingKey key = {comm, build_id.value, comm_md5_prefix};
   auto it = fake_mappings_.find(key);
   if (it != fake_mappings_.end()) {
     return it->second;
@@ -507,15 +517,37 @@ void Normalizer::LogStats() {
   CheckStat(stat_.no_event_errors, 1, "unknown event id");
 }
 
-std::string Normalizer::GetBuildId(
-    const quipper::PerfDataProto_MMapEvent* mmap) {
+// IsSameBuildId returns true iff build ID is a prefix of the other AND the rest
+// of characters are all 0s.
+static bool IsSameBuildId(const std::string& build_id1,
+                          const std::string& build_id2) {
+  auto is_same = [](const std::string& a, const std::string& b) {
+    return HasPrefixString(a, b.c_str()) &&
+           a.substr(a.find(b) + b.length()).find_first_not_of('0') ==
+               std::string::npos;
+  };
+  return is_same(build_id1, build_id2) || is_same(build_id2, build_id1);
+}
+
+BuildId Normalizer::GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap) {
   std::string filename = PerfDataHandler::NameOrMd5Prefix(
       mmap->filename(), mmap->filename_md5_prefix());
-  std::unordered_map<std::string, std::string>::const_iterator build_id_it =
-      filename_to_build_id_.find(filename);
-  if (build_id_it != filename_to_build_id_.end()) {
-    return build_id_it->second;
+  auto it = filename_to_build_id_.find(filename);
+  BuildId build_id_from_filename = it != filename_to_build_id_.end()
+                                       ? it->second
+                                       : BuildId("", kBuildIdMissing);
+
+  std::string build_id_from_mmap = mmap->has_build_id() ? mmap->build_id() : "";
+
+  if (!build_id_from_mmap.empty()) {
+    return IsSameBuildId(build_id_from_filename.value, build_id_from_mmap)
+               ? BuildId(build_id_from_mmap, kBuildIdMmapSameFilename)
+               : BuildId(build_id_from_mmap, kBuildIdMmapDiffFilename);
+  } else if (!build_id_from_filename.value.empty()) {
+    return build_id_from_filename;
   }
+  // else, both build_id_from_mmap and build_id_from_filename.value are empty.
+
   if (HasPrefixString(filename, kKernelPrefix)) {
     // The build ID of a kernel non-module filename with its
     // quipper::PERF_RECORD_MISC_CPUMODE_MASK misc bits set to
@@ -524,9 +556,10 @@ std::string Normalizer::GetBuildId(
     // filename /usr/lib/debug/boot/vmlinux-4.16.0-1-amd64 as referenced in the
     // github issue(https://github.com/google/perf_data_converter/issues/36),
     // will be used when [kernel.kallsyms] has no buildid.
-    return maybe_kernel_build_id_;
+    return BuildId(maybe_kernel_build_id_, kBuildIdKernelPrefix);
   }
-  return "";
+
+  return {"", kBuildIdMissing};
 }
 
 static bool IsVirtualMapping(const std::string& map_name) {
@@ -754,6 +787,13 @@ std::string PerfDataHandler::NameOrMd5Prefix(std::string name,
 
 std::string PerfDataHandler::MappingFilename(const Mapping* m) {
   return NameOrMd5Prefix(m->filename, m->filename_md5_prefix);
+}
+
+void PerfDataHandler::IncBuildIdStats(uint32_t pid,
+                                      const PerfDataHandler::Mapping* mapping) {
+  BuildIdSource source =
+      mapping != nullptr ? mapping->build_id.source : kBuildIdNoMmap;
+  process_build_id_stats_[pid][source]++;
 }
 
 }  // namespace perftools

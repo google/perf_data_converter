@@ -104,7 +104,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
-    std::string actual_build_id = mmap.mapping->build_id;
+    std::string actual_build_id = mmap.mapping->build_id.value;
     std::string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
         _expected_filename_to_build_id.find(actual_filename);
@@ -112,9 +112,6 @@ class TestPerfDataHandler : public PerfDataHandler {
       EXPECT_EQ(actual_build_id, expected_build_id_it->second)
           << "Build ID mismatch for the filename " << actual_filename;
       _seen_filenames.insert(actual_filename);
-    } else {
-      EXPECT_EQ(actual_build_id, "")
-          << "Unexpected build ID for the filename " << actual_filename;
     }
   }
 
@@ -334,6 +331,59 @@ TEST(PerfDataHandlerTest, AddressMappingIsSet) {
   EXPECT_EQ(0x3000, mapping->start);
   EXPECT_EQ(0x4000, mapping->limit);
   EXPECT_EQ(0x1000, mapping->file_offset);
+}
+
+TEST(PerfDataHandlerTest, MappingBuildIdAndSourceAreSet) {
+  quipper::PerfDataProto proto;
+
+  // File attrs are required for sample event processing.
+  uint64_t file_attr_id = 0;
+  auto* file_attr = proto.add_file_attrs();
+  file_attr->add_ids(file_attr_id);
+
+  // Add a buildid-mmap event.
+  auto* mmap_event = proto.add_events()->mutable_mmap_event();
+  mmap_event->set_filename("/usr/lib/foo");
+  mmap_event->set_pid(100);
+  mmap_event->set_tid(100);
+  mmap_event->set_start(0x1000);
+  mmap_event->set_len(0x500);
+  mmap_event->set_pgoff(0);
+  mmap_event->set_build_id("abcdef0001");
+
+  // Add a non-buildid-mmap event.
+  mmap_event = proto.add_events()->mutable_mmap_event();
+  mmap_event->set_filename("/usr/lib/foo");
+  mmap_event->set_pid(100);
+  mmap_event->set_tid(100);
+  mmap_event->set_start(0x3000);
+  mmap_event->set_len(0x500);
+  mmap_event->set_pgoff(0x1000);
+
+  // Add a sample event whose address is in the range of the first mmap.
+  auto* sample_event = proto.add_events()->mutable_sample_event();
+  sample_event->set_ip(200);
+  sample_event->set_pid(100);
+  sample_event->set_tid(100);
+  sample_event->set_addr(0x1010);
+
+  // Add a sample event whose address is in the range of the second mmap.
+  sample_event = proto.add_events()->mutable_sample_event();
+  sample_event->set_ip(200);
+  sample_event->set_pid(100);
+  sample_event->set_tid(100);
+  sample_event->set_addr(0x3010);
+
+  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                              std::unordered_map<std::string, std::string>{});
+  PerfDataHandler::Process(proto, &handler);
+  auto& mappings = handler.SeenAddrMappings();
+
+  // Expect mmap events have their build ID and sources set.
+  EXPECT_EQ(mappings[0]->build_id.value, "abcdef0001");
+  EXPECT_EQ(mappings[0]->build_id.source, kBuildIdMmapDiffFilename);
+  EXPECT_EQ(mappings[1]->build_id.value, "");
+  EXPECT_EQ(mappings[1]->build_id.source, kBuildIdMissing);
 }
 
 }  // namespace perftools

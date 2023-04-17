@@ -8,11 +8,57 @@
 #ifndef PERFTOOLS_PERF_DATA_HANDLER_H_
 #define PERFTOOLS_PERF_DATA_HANDLER_H_
 
+#include <unordered_map>
 #include <vector>
 
 #include "src/quipper/perf_data.pb.h"
 
 namespace perftools {
+
+// The source of a build ID. It is supposed to be used in conjunction with the
+// build ID to label how the build ID is derived.
+enum BuildIdSource {
+  kUnknown = 0,
+  // The build ID is from the buildid-mmap event, and its value is the same from
+  // the filename_to_build_id_ of Normalizer. This is expected to be the common
+  // case.
+  kBuildIdMmapSameFilename = 1,
+  // The build ID is from the buildid-mmap event, and its value is
+  // different from the filename_to_build_id_ of Normalizer. This
+  // indicates that the item suffers from build-ID-mismatch.
+  kBuildIdMmapDiffFilename = 2,
+  // The build ID is from the filename_to_build_id_ of Normalizer. This
+  // means that the build ID is missing in the buildid-mmap events.
+  kBuildIdFilename = 3,
+  // Same as kBuildIdFilename, except the build ID event is not from the
+  // perf.data but injected from a filename->build ID map as a parameter for
+  // perf_data_converter.
+  kBuildIdFilenameInjected = 4,
+  // Same as kBuildIdFilename, except the filename -> build ID entry was
+  // overwritten by different build ID values (e.g., there exists multiple build
+  // ID events having the same file name but different build IDs).
+  kBuildIdFilenameAmbiguous = 5,
+  // The build ID is from a pre-defined kernel prefix. This means that
+  // the build ID is missing in the buildid-mmap events.
+  kBuildIdKernelPrefix = 6,
+  // The build ID cannot be found for the corresponding mmap
+  // event of this item.
+  kBuildIdMissing = 7,
+  // There is no mmap event found for this item.
+  kBuildIdNoMmap = 8,
+};
+
+typedef std::unordered_map<BuildIdSource, int64_t> BuildIdStats;
+
+// The wrapper class to wrap a build ID string with a source label.
+struct BuildId {
+ public:
+  BuildId(std::string v, BuildIdSource s) : value(v), source(s) {}
+  BuildId() : value(""), source(kUnknown) {}
+
+  std::string value;
+  BuildIdSource source;
+};
 
 // PerfDataHandler defines an interface for processing PerfDataProto
 // with normalized sample fields (i.e., materializing mappings,
@@ -29,18 +75,18 @@ class PerfDataHandler {
  public:
   struct Mapping {
    public:
-    Mapping(const std::string& filename, const std::string& build_id,
+    Mapping(const std::string& filename, const BuildId& build_id,
             uint64_t start, uint64_t limit, uint64_t file_offset,
             uint64_t filename_md5_prefix)
         : filename(filename),
-          build_id(build_id),
+          build_id(build_id.value, build_id.source),
           start(start),
           limit(limit),
           file_offset(file_offset),
           filename_md5_prefix(filename_md5_prefix) {}
 
     std::string filename;  // Empty if missing.
-    std::string build_id;  // Empty if missing.
+    BuildId build_id;      // build_id.value is empty if missing
     uint64_t start;
     uint64_t limit;  // limit=ceiling.
     uint64_t file_offset;
@@ -157,6 +203,13 @@ class PerfDataHandler {
 
  protected:
   PerfDataHandler();
+
+  // The build ID source count of each process; key by process ID.
+  std::unordered_map<uint32_t, BuildIdStats> process_build_id_stats_;
+
+  // Increments the counter of the corresponding Build ID Stat of the process
+  // according to the given mapping.
+  void IncBuildIdStats(uint32_t pid, const PerfDataHandler::Mapping* mapping);
 };
 
 }  // namespace perftools
