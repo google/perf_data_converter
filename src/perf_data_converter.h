@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "src/profile.pb.h"
+#include "src/perf_data_handler.h"
 
 namespace quipper {
 class PerfDataProto;
@@ -110,6 +111,11 @@ struct ProcessProfile {
   int64_t min_sample_time_ns = 0;
   // Max timestamp of a sample, in nanoseconds since boot, or 0 if unknown.
   int64_t max_sample_time_ns = 0;
+  // Number of frames + IPs belonging to the given source of the build ID,
+  // see go/gwp-buildid-mmap. The sum in the map is always exactly
+  // equal to the total number of frames + IP in the profile, weighted by
+  // sample count.
+  BuildIdStats build_id_stats;
 };
 
 // Type alias for a random access sequence of owned ProcessProfile objects.

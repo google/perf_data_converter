@@ -1225,6 +1225,7 @@ TEST(PerfSerializerTest, SerializesAndDeserializesBuildIDs) {
   for (int i = 0; i < perf_data_proto.build_ids_size(); ++i) {
     EXPECT_TRUE(perf_data_proto.build_ids(i).has_filename());
     EXPECT_TRUE(perf_data_proto.build_ids(i).has_build_id_hash());
+    EXPECT_TRUE(perf_data_proto.build_ids(i).is_injected());
   }
 
   // Verify that the serialized build IDs have had their trailing zeroes

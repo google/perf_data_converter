@@ -1,0 +1,276 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0x00000000
+    size: 0x00000060
+    config: 0x0000000000000000
+    sample_period: 0x0000000000000001
+    sample_type: 0x0000000000000fff  # many types of samples, including PERF_SAMPLE_CALLCHAIN
+    precise_ip: 0x00000000
+  }
+}
+event_types: {
+  id: 0x0123456
+  name: "some_fact"
+}
+
+events: {
+  header: {
+    type: 0xa
+    misc: 0x4002  # buildid-mmap misc
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x1000
+    len: 0x500
+    pgoff: 0x1000
+    filename: "/usr/lib/foo"
+    build_id: "abcdef0010"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x4002  # buildid-mmap misc
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x2000
+    len: 0x500
+    pgoff: 0x2000
+    filename: "/usr/lib/bar"
+    build_id: "abcdef0020"
+  }
+}
+events: {
+  # This sample in between two same-filename mmap events should get the build ID
+  # of the previous mmap
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x2010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x4002  # buildid-mmap misc
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x2000
+    len: 0x500
+    pgoff: 0x2000
+    filename: "/usr/lib/bar"
+    build_id: "abcdef0021"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x2
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x3000
+    len: 0x500
+    pgoff: 0x3000
+    filename: "/usr/lib/baz"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x2
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x4000
+    len: 0x500
+    pgoff: 0x4000
+    filename: "/usr/lib/qux"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x2
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x5000
+    len: 0x500
+    pgoff: 0x5000
+    filename: "/usr/lib/quux"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x2
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x6000
+    len: 0x500
+    pgoff: 0x6000
+    filename: "[kernel.kallsyms]_text"
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x2
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x7000
+    len: 0x500
+    pgoff: 0x7000
+    filename: "filename-not-exist"
+  }
+}
+
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x1010
+    pid: 0x2
+    tid: 0x2
+    callchain: 0x1010
+    callchain: 0x1014
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x2020
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x3010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x4010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x5010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x6010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x7010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x8010
+    pid: 0x3
+    tid: 0x3
+  }
+}
+
+# Mask for HEADER_BUILD_ID
+metadata_mask: 4
+
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x10"
+  filename: "/usr/lib/foo"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x22"
+  filename: "/usr/lib/bar"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x23"
+  filename: "/usr/lib/bar"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x30"
+  filename: "/usr/lib/baz"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x50"
+  filename: "/usr/lib/quux"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x51"
+  filename: "/usr/lib/quux"
+}

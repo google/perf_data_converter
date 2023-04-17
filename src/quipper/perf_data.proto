@@ -877,7 +877,7 @@ message PerfDataProto {
     optional uint64 tracing_data_md5_prefix = 2 [deprecated = true];
   }
 
-  // Next tag: 7
+  // Next tag: 8
   message PerfBuildID {
     // Misc field in perf_event_header.
     optional uint32 misc = 1;
@@ -897,6 +897,11 @@ message PerfDataProto {
 
     // Build id size.
     optional uint32 size = 6;
+
+    // If the build ID event is injected through a filename -> build ID map
+    // of quipper's PerfReader::InjectBuildIDs(), i.e., the Build ID event is
+    // not in the original perf.data.
+    optional bool is_injected = 7;
   }
 
   // Next tag: 6

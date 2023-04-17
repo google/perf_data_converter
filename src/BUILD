@@ -71,6 +71,8 @@ cc_test(
     srcs = ["perf_data_converter_test.cc"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
+        "//src/testdata:perf-buildid-mmap-events.textproto",
+        "//src/testdata:perf-buildid-stats.textproto",
         "//src/testdata:perf-callchain-non-pebs.textproto",
         "//src/testdata:perf-callchain-pebs.textproto",
         "//src/testdata:perf-cgroup-events.textproto",
@@ -99,6 +101,7 @@ cc_test(
     deps = [
         ":intervalmap",
         ":perf_data_converter",
+        ":perf_data_handler",
         "//src/compat:test_compat",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_parser",

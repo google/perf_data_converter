@@ -638,6 +638,7 @@ bool PerfReader::InjectBuildIDs(
       return false;
     }
     build_id.set_build_id_hash(build_id_data.data(), build_id_data.size());
+    build_id.set_is_injected(true);
 
     updated_filenames.insert(build_id.filename());
   }
@@ -668,10 +669,12 @@ bool PerfReader::InjectBuildIDs(
     std::string build_id = it->second;
     malloced_unique_ptr<build_id_event> event =
         CreateBuildIDEvent(build_id, filename, new_misc);
-    if (!serializer_.SerializeBuildIDEvent(event, proto_->add_build_ids())) {
+    auto build_id_proto = proto_->add_build_ids();
+    if (!serializer_.SerializeBuildIDEvent(event, build_id_proto)) {
       LOG(ERROR) << "Could not serialize build ID event with ID " << build_id;
       return false;
     }
+    build_id_proto->set_is_injected(true);
   }
   return true;
 }

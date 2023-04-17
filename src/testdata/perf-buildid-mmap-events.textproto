@@ -1,0 +1,87 @@
+# proto-file: src/quipper/perf_data.proto
+# proto-message: quipper.PerfDataProto
+file_attrs: {
+  attr: {
+    type: 0x00000000
+    size: 0x00000060
+    config: 0x0000000000000000
+    sample_period: 0x0000000000000001
+    sample_type: 0x0000000000000fff
+    precise_ip: 0x00000000
+  }
+}
+event_types: {
+  id: 0x0123456
+  name: "some_fact"
+}
+
+events: {
+  header: {
+    type: 0xa
+    misc: 0x4002  # buildid-mmap misc
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x2000
+    len: 0x500
+    pgoff: 0x2000
+    filename: "/usr/lib/bar"
+    build_id: "abcdef0020"
+  }
+}
+events: {
+  # This sample in between two same-filename mmap events should get the build ID
+  # of the previous mmap
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x2010
+    pid: 0x2
+    tid: 0x2
+  }
+}
+events: {
+  header: {
+    type: 0xa
+    misc: 0x4002  # buildid-mmap misc
+  }
+  mmap_event: {
+    pid: 0x2
+    tid: 0x2
+    start: 0x2000
+    len: 0x500
+    pgoff: 0x2000
+    filename: "/usr/lib/bar"
+    build_id: "abcdef0021"
+  }
+}
+events: {
+  header: {
+    type: 0x9
+    misc: 0x1
+  }
+  sample_event: {
+    ip: 0x2020
+    pid: 0x2
+    tid: 0x2
+  }
+}
+
+# Mask for HEADER_BUILD_ID
+metadata_mask: 4
+
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x22"
+  filename: "/usr/lib/bar"
+}
+build_ids {
+  misc: 0x4002
+  pid: 0x2
+  build_id_hash: "\xab\xcd\xef\x00\x23"
+  filename: "/usr/lib/bar"
+}
