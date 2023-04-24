@@ -785,9 +785,9 @@ bool PerfReader::ReadHeader(DataReader* data) {
   if (piped_header_.magic != kPerfMagic &&
       piped_header_.magic != bswap_64(kPerfMagic)) {
     // clang-format off
-    LOG(ERROR) << "Read wrong magic. Expected: 0x" << std::hex << kPerfMagic
-               << " or 0x" << std::hex << bswap_64(kPerfMagic)
-               << " Got: 0x" << std::hex << piped_header_.magic;
+    LOG(ERROR) << "Read wrong magic. Expected: " << std::hex << kPerfMagic
+               << " or " << std::hex << bswap_64(kPerfMagic)
+               << " Got: " << std::hex << piped_header_.magic;
     // clang-format on
     return false;
   }
