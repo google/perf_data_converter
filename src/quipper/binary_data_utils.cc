@@ -4,16 +4,15 @@
 
 #include "binary_data_utils.h"
 
+#include <openssl/evp.h>
 #include <openssl/md5.h>
 #include <sys/stat.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>  
-#include <iomanip>
-
-#include "base/logging.h"
 
 namespace {
 
@@ -29,15 +28,15 @@ static uint64_t Md5Prefix(const unsigned char* data,
   uint64_t digest_prefix = 0;
   unsigned char digest[MD5_DIGEST_LENGTH + 1];
 
-  MD5(data, length, digest);
+  EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+  EVP_DigestInit_ex(ctx, EVP_md5(), NULL);
+  EVP_DigestUpdate(ctx, data, length);
+  EVP_DigestFinal(ctx, digest, NULL);
+  EVP_MD_CTX_free(ctx);
   // We need 64-bits / # of bits in a byte.
-  std::stringstream ss;
-  for (size_t i = 0; i < sizeof(uint64_t); i++)
-    // The setw(2) and setfill('0') calls are needed to make sure we output 2
-    // hex characters for every 8-bits of the hash.
-    ss << std::hex << std::setw(2) << std::setfill('0')
-       << static_cast<unsigned int>(digest[i]);
-  ss >> digest_prefix;
+  for (size_t i = 0; i < sizeof(uint64_t) / sizeof(unsigned char); i++) {
+    digest_prefix = digest_prefix << (sizeof(unsigned char) * 8) | digest[i];
+  }
   return digest_prefix;
 }
 
