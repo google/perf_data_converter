@@ -16,8 +16,9 @@ const size_t kHexArraySize = 8;
 }  // namespace
 
 TEST(BinaryDataUtilsTest, MD5) {
-  ASSERT_EQ(Md5Prefix(""), 0xd41d8cd98f00b204LL);
-  ASSERT_EQ(Md5Prefix("The quick brown fox jumps over the lazy dog."),
+  EXPECT_EQ(Md5Prefix(""), 0xd41d8cd98f00b204LL);
+  EXPECT_EQ(Md5Prefix("jk8ssl"), 0x0000000018e6137aLL);
+  EXPECT_EQ(Md5Prefix("The quick brown fox jumps over the lazy dog."),
             0xe4d909c290d0fb1cLL);
 }
 
