@@ -34,8 +34,8 @@ static uint64_t Md5Prefix(const unsigned char* data,
   EVP_DigestFinal(ctx, digest, NULL);
   EVP_MD_CTX_free(ctx);
   // We need 64-bits / # of bits in a byte.
-  for (size_t i = 0; i < sizeof(uint64_t) / sizeof(unsigned char); i++) {
-    digest_prefix = digest_prefix << (sizeof(unsigned char) * 8) | digest[i];
+  for (size_t i = 0; i < sizeof(uint64_t); i++) {
+    digest_prefix = (digest_prefix << 8) | digest[i];
   }
   return digest_prefix;
 }
