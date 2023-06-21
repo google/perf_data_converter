@@ -226,9 +226,12 @@ struct regs_dump {
 };
 
 struct stack_dump {
-  u16 offset;
-  u64 size;
-  char *data;
+  u64  size;
+  void *data;
+  u64  *dyn_size;
+
+  stack_dump() : size(0), data(nullptr), dyn_size(nullptr) {}
+  ~stack_dump() { delete[] reinterpret_cast<char *>(data); ; delete dyn_size; }
 };
 
 struct sample_read_value {
