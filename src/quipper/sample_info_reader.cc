@@ -225,6 +225,45 @@ bool ReadBranchStack(DataReader* reader, struct perf_sample* sample) {
   return true;
 }
 
+// Reads user sample regs info from perf data. Corresponds to sample format
+// type PERF_SAMPLE_REGS_USER. Returns true when user sample regs data is
+// read completely. Otherwise, returns false.
+bool ReadSampleRegsUser(DataReader* reader,
+                        const struct perf_event_attr& attr,
+                        struct perf_sample* sample) {
+  // Make sure there is no existing allocated memory in |sample->user_regs|.
+  CHECK_EQ(static_cast<void*>(NULL), sample->user_regs);
+
+  // abi can only be 0, 1, or 2.
+  uint64_t abi = 3;
+  if (!reader->ReadUint64(&abi) || abi > 2) {
+    LOG(ERROR) << "Failed to read the abi.";
+    return false;
+  }
+
+  // If abi is 0, there's no regs recorded. Refer to perf_sample_regs_user() and
+  // perf_output_sample() in kernel/events/core.c.
+  if (abi == 0) {
+    return true;
+  }
+
+  std::bitset<64> b(attr.sample_regs_user);
+  size_t regs_size = b.count();
+
+  sample->user_regs =
+      reinterpret_cast<struct regs_dump*>(new uint64_t[regs_size + 1]);
+  sample->user_regs->abi = abi;
+
+  for (size_t i = 0; i < regs_size; ++i) {
+        if (!reader->ReadUint64(&sample->user_regs->regs[i])) {
+          LOG(ERROR) << "Failed to read the cpu registers: " << i << " " << regs_size;
+          return false;
+        }
+  }
+
+  return true;
+}
+
 // Reads perf sample info data from |event| into |sample|.
 // |attr| is the event attribute struct, which contains info such as which
 // sample info fields are present.
@@ -399,8 +438,10 @@ bool ReadPerfSampleFromData(const event_t& event,
   // { u64                   abi; # enum perf_sample_regs_abi
   //   u64                   regs[weight(mask)]; } && PERF_SAMPLE_REGS_USER
   if (sample_fields & PERF_SAMPLE_REGS_USER) {
-    LOG(ERROR) << "PERF_SAMPLE_REGS_USER is not yet supported.";
-    return false;
+    if (!ReadSampleRegsUser(&reader, attr, sample)) {
+      LOG(ERROR) << "Couldn't read PERF_SAMPLE_REGS_USER";
+      return false;
+    }
   }
 
   // { u64                   size;

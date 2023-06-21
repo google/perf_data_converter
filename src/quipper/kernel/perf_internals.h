@@ -220,6 +220,11 @@ struct regs_dump {
 };
 #endif
 
+struct regs_dump {
+  u64 abi;
+  u64 regs[0];
+};
+
 struct stack_dump {
   u16 offset;
   u64 size;
@@ -307,8 +312,8 @@ struct perf_sample {
   void *raw_data;
   struct ip_callchain *callchain;
   struct branch_stack *branch_stack;
-  // struct regs_dump  user_regs;  // See struct regs_dump above.
-  struct stack_dump user_stack;
+  struct regs_dump    *user_regs;
+  struct stack_dump   user_stack;
   struct sample_read read;
   u64 physical_addr;
   u64 cgroup;
@@ -334,6 +339,7 @@ struct perf_sample {
         raw_data(nullptr),
         callchain(nullptr),
         branch_stack(nullptr),
+        user_regs(nullptr),
         user_stack({}),
         read({}),
         physical_addr(0),
@@ -343,6 +349,7 @@ struct perf_sample {
   ~perf_sample() {
     delete[] callchain;
     delete[] branch_stack;
+    delete[] user_regs;
     delete[] reinterpret_cast<char *>(raw_data);
   }
 };
