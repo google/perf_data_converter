@@ -7,8 +7,8 @@
 
 #include <sys/mman.h>
 
-#include <memory>
 #include <ostream>  
+#include <string>
 #include <vector>
 
 #include "binary_data_utils.h"
@@ -529,11 +529,11 @@ class ExampleStringMetadata : public StreamWriteable {
     return StreamWriteable::WithCrossEndianness(value);
   }
 
+  static const int kStringAlignSize = 64;
+
  private:
   std::string data_;
   MetadataIndexEntry index_entry_;
-
-  static const int kStringAlignSize = 64;
 };
 
 // Produces sample string metadata event for piped mode.
@@ -551,6 +551,38 @@ class ExampleStringMetadataEvent : public StreamWriteable {
   std::string data_;
 
   static const int kStringAlignSize = 64;
+};
+
+// Produces sample CPU topology metadata, and corresponding metadata index
+// entry.
+class ExampleCPUTopologyMetadata : public StreamWriteable {
+ public:
+  explicit ExampleCPUTopologyMetadata(u32 num_core_siblings,
+                                      std::vector<std::string> core_siblings,
+                                      u32 num_thread_siblings,
+                                      std::vector<std::string> thread_siblings,
+                                      size_t offset)
+      : num_core_siblings_(num_core_siblings),
+        core_siblings_(std::move(core_siblings)),
+        num_thread_siblings_(num_thread_siblings),
+        thread_siblings_(std::move(thread_siblings)),
+        index_entry_(offset, IndexEntrySize()) {}
+
+  size_t IndexEntrySize() const {
+    return sizeof(u32) * 2 /* num_core_siblings & num_thread_siblings */ +
+           (sizeof(u32) + ExampleStringMetadata::kStringAlignSize) *
+               (core_siblings_.size() + thread_siblings_.size());
+  }
+
+  void WriteTo(std::ostream* out) const override;
+  const MetadataIndexEntry& index_entry() { return index_entry_; }
+
+ private:
+  u32 num_core_siblings_;
+  std::vector<std::string> core_siblings_;
+  u32 num_thread_siblings_;
+  std::vector<std::string> thread_siblings_;
+  MetadataIndexEntry index_entry_;
 };
 
 // Produces sample tracing metadata, and corresponding metadata index entry.
