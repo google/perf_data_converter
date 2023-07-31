@@ -347,10 +347,11 @@ message PerfDataProto {
     optional uint32 spec = 9;
   }
 
-  // WeightStruct is microarchitecture-dependant field and only for special
-  // events. For example, for Sapphire Rapids the first field of WeightStruct is
-  // the instruction latency, and the second is the cache latency, but it can
-  // vary.
+  // WeightStruct is microarchitecture-dependant field, and represents sample
+  // weights for some special events.
+  // For example, for Sapphire Rapids with load latency events, the first field
+  // of WeightStruct is the cache latency, and the second is the instruction
+  // latency.
   // Next tag: 4
   message WeightStruct {
     // First weight factor.
