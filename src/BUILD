@@ -89,6 +89,8 @@ cc_test(
         "//src/testdata:perf-overlapping-kernel-mapping.textproto",
         "//src/testdata:perf-unmapped-callchain-ip.textproto",
         "//src/testdata:perf-unmapped-sample-and-branch-stack.textproto",
+        "//src/testdata:perf-weight.textproto",
+        "//src/testdata:perf-weight-struct.textproto",
         "//src/testdata:profile-with-data-addresses-callchain.textproto",
         "//src/testdata:profile-with-data-addresses-flat.textproto",
         "//src/testdata:single-event-multi-process.perf.data",
