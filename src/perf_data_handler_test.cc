@@ -386,6 +386,94 @@ TEST(PerfDataHandlerTest, MappingBuildIdAndSourceAreSet) {
   EXPECT_EQ(mappings[1]->build_id.source, kBuildIdMissing);
 }
 
+TEST(PerfDataHandlerTest, LostSampleEventsAreHandledInNewerPerf) {
+  for (auto perf_version :
+       {"7.0.93.934.asdfa.avava", "6.1.456", "6.123-google"}) {
+    quipper::PerfDataProto proto;
+
+    // File attrs are required for sample event processing.
+    auto* file_attr = proto.add_file_attrs();
+    file_attr->add_ids(1);
+    file_attr->add_ids(2);
+    proto.add_file_attrs();
+
+    // Set the perf_version to a version that supports counting lost samples
+    // from lost_samples_event.
+    proto.mutable_string_metadata()->mutable_perf_version()->set_value(
+        perf_version);
+
+    // Add a lost_samples_event.
+    auto* lost_samples_event = proto.add_events()->mutable_lost_samples_event();
+    lost_samples_event->mutable_sample_info()->set_id(1);
+    lost_samples_event->mutable_sample_info()->set_pid(100);
+    lost_samples_event->mutable_sample_info()->set_tid(100);
+    lost_samples_event->set_num_lost(5);
+
+    // Add a lost_event, which should not be handled in perf data with newer
+    // version.
+    auto* lost_event = proto.add_events()->mutable_lost_event();
+    lost_event->mutable_sample_info()->set_id(2);
+    lost_event->mutable_sample_info()->set_pid(100);
+    lost_event->mutable_sample_info()->set_tid(100);
+    lost_event->set_lost(10);
+
+    // Add a lost_samples_event, which should not be handled if the sample ID is
+    // not in the corresponding file attribute.
+    auto* lost_samples_event2 =
+        proto.add_events()->mutable_lost_samples_event();
+    lost_samples_event2->mutable_sample_info()->set_id(3);
+    lost_samples_event2->mutable_sample_info()->set_pid(100);
+    lost_samples_event2->mutable_sample_info()->set_tid(100);
+    lost_samples_event2->set_num_lost(3);
+
+    TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                                std::unordered_map<std::string, std::string>{});
+    PerfDataHandler::Process(proto, &handler);
+
+    EXPECT_EQ(handler.SeenAddrMappings().size(), 5)
+        << " perf_version:" << perf_version;
+  }
+}
+
+TEST(PerfDataHandlerTest, LostEventsAreHandledInOlderPerf) {
+  for (auto perf_version : {"6.0.456", "random-string", ""}) {
+    quipper::PerfDataProto proto;
+
+    // File attrs are required for sample event processing.
+    auto* file_attr = proto.add_file_attrs();
+    file_attr->add_ids(1);
+    file_attr->add_ids(2);
+
+    // Set the perf_version to a version that supports counting lost samples
+    // from lost_samples_event.
+    proto.mutable_string_metadata()->mutable_perf_version()->set_value(
+        perf_version);
+
+    // Add a lost_samples_event, which should not be handled in perf data with
+    // older version
+    auto* lost_samples_event = proto.add_events()->mutable_lost_samples_event();
+    lost_samples_event->mutable_sample_info()->set_id(1);
+    lost_samples_event->mutable_sample_info()->set_pid(100);
+    lost_samples_event->mutable_sample_info()->set_tid(100);
+    lost_samples_event->set_num_lost(5);
+
+    // Add a lost_event, which should be handled in perf data with older
+    // version.
+    auto* lost_event = proto.add_events()->mutable_lost_event();
+    lost_event->mutable_sample_info()->set_id(2);
+    lost_event->mutable_sample_info()->set_pid(100);
+    lost_event->mutable_sample_info()->set_tid(100);
+    lost_event->set_lost(10);
+
+    TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                                std::unordered_map<std::string, std::string>{});
+    PerfDataHandler::Process(proto, &handler);
+
+    EXPECT_EQ(handler.SeenAddrMappings().size(), 10)
+        << " perf_version: " << perf_version;
+  }
+}
+
 }  // namespace perftools
 
 int main(int argc, char** argv) {
