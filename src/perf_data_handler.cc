@@ -316,6 +316,15 @@ static constexpr char kLostMappingFilename[] = "[lost]";
 static const uint64_t kLostMd5Prefix = quipper::Md5Prefix(kLostMappingFilename);
 
 void Normalizer::Normalize() {
+  // Perf keeps the tracking bits (e.g. comm_exec) in only one of the events'
+  // file_attrs.
+  bool has_comm_exec_support = false;
+  for (const auto& fa : perf_proto_.file_attrs()) {
+    if (fa.attr().comm_exec()) {
+      has_comm_exec_support = true;
+      break;
+    }
+  }
   for (const auto& event_proto : perf_proto_.events()) {
     if (event_proto.has_mmap_event()) {
       UpdateMapsWithMMapEvent(&event_proto.mmap_event());
@@ -323,7 +332,7 @@ void Normalizer::Normalize() {
     } else if (event_proto.has_comm_event()) {
       PerfDataHandler::CommContext comm_context;
       if (event_proto.comm_event().pid() == event_proto.comm_event().tid()) {
-        if (!perf_proto_.file_attrs()[0].attr().comm_exec() ||
+        if (!has_comm_exec_support ||
             event_proto.header().misc() & quipper::PERF_RECORD_MISC_COMM_EXEC ||
             pid_had_any_mmap_.find(event_proto.comm_event().pid()) ==
                 pid_had_any_mmap_.end()) {
@@ -360,7 +369,7 @@ void Normalizer::Normalize() {
           // exec() happened, (3) no mmap event for this pid has been found,
           // meaning this is the first comm event after an exec().
           pid_to_executable_mmap_.erase(event_proto.comm_event().pid());
-          // is_exec is true if the comm event happenes due to exec(), this flag
+          // is_exec is true if the comm event happened due to exec(), this flag
           // is passed to perf_data_converter and used to modify PerPidInfo.
           comm_context.is_exec = true;
         }
