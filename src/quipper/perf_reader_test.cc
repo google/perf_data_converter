@@ -6,17 +6,13 @@
 
 #include <byteswap.h>
 
-#include <algorithm>
-#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "base/logging.h"
-#include "compat/test.h"
 #include "file_utils.h"
 #include "perf_test_files.h"
-#include "scoped_temp_path.h"
 #include "test_perf_data.h"
 #include "test_utils.h"
 
@@ -1667,6 +1663,71 @@ TEST(PerfReaderTest, ReadsAndWritesMmap2Events) {
     EXPECT_EQ(1 | 2, event.mmap_event().prot());
     EXPECT_EQ(2, event.mmap_event().flags());
   }
+}
+
+TEST(PerfReaderTest, ReadCPUTopologyMetadata) {
+  std::stringstream input;
+  const std::vector<std::string> core_siblings = {"0-7"};
+  const std::vector<std::string> thread_siblings = {"0-1", "2-3", "4",
+                                                    "5",   "6",   "7"};
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(1 << HEADER_CPU_TOPOLOGY);
+  file_header.WithAttrCount(1);
+  file_header.WriteTo(&input);
+  const perf_file_header& header = file_header.header();
+
+  // attrs
+  ASSERT_EQ(header.attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(0, false /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // metadata
+  size_t metadata_offset = file_header.data_end() + sizeof(perf_file_section);
+  testing::ExampleCPUTopologyMetadata cpu_topology_metadata(
+      core_siblings.size(), core_siblings, thread_siblings.size(),
+      thread_siblings, metadata_offset);
+  cpu_topology_metadata.index_entry().WriteTo(&input);
+  cpu_topology_metadata.WriteTo(&input);
+
+  //
+  // Parse input
+  //
+
+  PerfReader pr;
+  ASSERT_TRUE(pr.ReadFromString(input.str()));
+  auto cpu_topology = pr.proto().cpu_topology();
+  EXPECT_EQ(cpu_topology.core_siblings()[0], "0-7");
+  EXPECT_EQ(cpu_topology.thread_siblings()[0], "0-1");
+  EXPECT_EQ(cpu_topology.thread_siblings()[5], "7");
+}
+
+// Regression test for https://github.com/google/perf_data_converter/issues/143.
+TEST(PerfReaderTest, CheckNumSiblingsForCPUTopology) {
+  std::stringstream input;
+  const std::vector<std::string> core_siblings = {"0-3"};
+  const std::vector<std::string> thread_siblings = {"0-1", "2-3"};
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(1 << HEADER_CPU_TOPOLOGY);
+  file_header.WithAttrCount(1);
+  file_header.WriteTo(&input);
+  const perf_file_header& header = file_header.header();
+
+  // attrs
+  ASSERT_EQ(header.attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(0, false /*sample_id_all*/)
+      .WriteTo(&input);
+  size_t metadata_offset = file_header.data_end() + sizeof(perf_file_section);
+  testing::ExampleCPUTopologyMetadata cpu_topology_metadata(
+      core_siblings.size(), core_siblings, 1000, thread_siblings,
+      metadata_offset);
+  cpu_topology_metadata.index_entry().WriteTo(&input);
+  cpu_topology_metadata.WriteTo(&input);
+
+  // Read input should fail
+  PerfReader pr;
+  EXPECT_FALSE(pr.ReadFromString(input.str()));
 }
 
 // Regression test for http://crbug.com/493533

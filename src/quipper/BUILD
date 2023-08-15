@@ -110,7 +110,6 @@ cc_library(
     hdrs = ["dso.h"],
     visibility = ["//src:__subpackages__"],
     deps = [
-        ":compat",
         ":data_reader",
         ":file_reader",
         ":base",
@@ -125,7 +124,6 @@ cc_library(
     hdrs = ["dso_test_utils.h"],
     deps = [
         ":binary_data_utils",
-        ":compat",
         ":base",
     ],
     linkopts = ["-lelf"],
@@ -242,7 +240,6 @@ cc_library(
     hdrs = ["binary_data_utils.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
         ":kernel",
         ":base",
         "@boringssl//:crypto",
@@ -286,7 +283,6 @@ cc_library(
     hdrs = ["data_reader.h"],
     deps = [
         ":binary_data_utils",
-        ":compat",
         ":base",
     ],
 )
@@ -296,7 +292,6 @@ cc_library(
     srcs = ["data_writer.cc"],
     hdrs = ["data_writer.h"],
     deps = [
-        ":compat",
         ":perf_data_utils",
         ":base",
     ],
@@ -317,7 +312,6 @@ cc_library(
     hdrs = ["file_utils.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
         ":file_reader",
     ],
 )
@@ -338,7 +332,6 @@ cc_library(
     hdrs = ["perf_buildid.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
         ":base",
     ],
 )
@@ -361,7 +354,6 @@ cc_library(
     srcs = ["perf_option_parser.cc"],
     hdrs = ["perf_option_parser.h"],
     deps = [
-        ":compat",
         ":string_utils",
     ],
 )
@@ -371,7 +363,6 @@ cc_library(
     srcs = ["run_command.cc"],
     hdrs = ["run_command.h"],
     deps = [
-        ":compat",
         ":base",
     ],
 )
@@ -395,7 +386,6 @@ cc_library(
     srcs = ["scoped_temp_path.cc"],
     hdrs = ["scoped_temp_path.h"],
     deps = [
-        ":compat",
         ":base",
     ],
 )
@@ -406,7 +396,6 @@ cc_library(
     hdrs = ["string_utils.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
     ],
 )
 
@@ -486,7 +475,6 @@ cc_library(
     srcs = ["quipper_lib.cc"],
     hdrs = ["quipper_lib.h"],
     deps = [
-        ":compat",
         ":perf_option_parser",
     ],
 )
@@ -506,7 +494,6 @@ cc_binary(
     srcs = ["quipper.cc"],
     visibility = ["//src:__subpackages__"],
     deps = [
-        ":compat",
         ":file_utils",
         ":perf_protobuf_io",
         ":perf_recorder",

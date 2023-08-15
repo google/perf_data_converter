@@ -9,10 +9,14 @@
 
 #include <cstring>
 #include <iomanip>
+#include <iostream>
 #include <memory>
+#include <regex>  
 #include <sstream>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "src/intervalmap.h"
@@ -103,6 +107,27 @@ class Normalizer {
       }
     }
 
+    // We will use LOST_SAMPLE events to count lost samples for perf version
+    // 6.1 or newer.
+    // The following code converts the first two parts of the full perf version
+    // string into two integers (for example, assume perf_version="6.123.456",
+    // then v1=6, v2=123), and decides if the version is 6.1 or newer.
+    const std::string& perf_version =
+        perf_proto_.string_metadata().has_perf_version()
+            ? perf_proto_.string_metadata().perf_version().value()
+            : "";
+    std::regex rx(R"(([0-9]+)\.([0-9]+).*)");
+    std::cmatch cm;
+    std::regex_match(perf_version.c_str(), cm, rx);
+
+    if (cm.size() == 3) {
+      int v1 = std::stoi(cm[1]);
+      int v2 = std::stoi(cm[2]);
+      use_lost_sample_ = std::make_pair(v1, v2) >= std::make_pair(6, 1);
+    } else {
+      LOG(WARNING) << "Invalid perf version: " << perf_version;
+    }
+
     uint64_t current_event_index = 0;
     for (const auto& attr : perf_proto_.file_attrs()) {
       for (uint64_t id : attr.ids()) {
@@ -142,6 +167,9 @@ class Normalizer {
 
   // Normalize the sample_event in event_proto and call handler_->Sample
   void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& event_proto);
+
+  // Handles the perf LOST event or LOST_SAMPLE event.
+  void HandleLost(const quipper::PerfDataProto::PerfEvent& event_proto);
 
   // Get a memoized fake mapping by specified attributes or add one. Never
   // returns nullptr. The returned pointer is owned by the normalizer and
@@ -235,6 +263,16 @@ class Normalizer {
   // map from cgroup id to pathname.
   std::unordered_map<uint64_t, const std::string> cgroup_map_;
 
+  // Whether we should use lost_samples_event event to count lost samples.
+  // Difference between lost_event and lost_samples_event: lost_event can be
+  // from all types of lost events, including samples, mmap, comm, etc. So
+  // counting lost_event would have the issue of over counting other events
+  // against lost samples. We don't have a solution to solve this problem until
+  // perf 6.1, which makes the lost_samples_event that counts only lost samples.
+  // We still keep the code to count lost_event for backward compatibility of
+  // older perf data.
+  bool use_lost_sample_ = false;
+
   struct {
     int64_t samples = 0;
     int64_t samples_with_addr = 0;
@@ -278,6 +316,15 @@ static constexpr char kLostMappingFilename[] = "[lost]";
 static const uint64_t kLostMd5Prefix = quipper::Md5Prefix(kLostMappingFilename);
 
 void Normalizer::Normalize() {
+  // Perf keeps the tracking bits (e.g. comm_exec) in only one of the events'
+  // file_attrs.
+  bool has_comm_exec_support = false;
+  for (const auto& fa : perf_proto_.file_attrs()) {
+    if (fa.attr().comm_exec()) {
+      has_comm_exec_support = true;
+      break;
+    }
+  }
   for (const auto& event_proto : perf_proto_.events()) {
     if (event_proto.has_mmap_event()) {
       UpdateMapsWithMMapEvent(&event_proto.mmap_event());
@@ -285,7 +332,7 @@ void Normalizer::Normalize() {
     } else if (event_proto.has_comm_event()) {
       PerfDataHandler::CommContext comm_context;
       if (event_proto.comm_event().pid() == event_proto.comm_event().tid()) {
-        if (!perf_proto_.file_attrs()[0].attr().comm_exec() ||
+        if (!has_comm_exec_support ||
             event_proto.header().misc() & quipper::PERF_RECORD_MISC_COMM_EXEC ||
             pid_had_any_mmap_.find(event_proto.comm_event().pid()) ==
                 pid_had_any_mmap_.end()) {
@@ -322,7 +369,7 @@ void Normalizer::Normalize() {
           // exec() happened, (3) no mmap event for this pid has been found,
           // meaning this is the first comm event after an exec().
           pid_to_executable_mmap_.erase(event_proto.comm_event().pid());
-          // is_exec is true if the comm event happenes due to exec(), this flag
+          // is_exec is true if the comm event happened due to exec(), this flag
           // is passed to perf_data_converter and used to modify PerPidInfo.
           comm_context.is_exec = true;
         }
@@ -336,42 +383,9 @@ void Normalizer::Normalize() {
     } else if (event_proto.has_cgroup_event()) {
       const auto& cgroup = event_proto.cgroup_event();
       cgroup_map_.insert({cgroup.id(), cgroup.path()});
-    } else if (event_proto.has_lost_event()) {
-      stat_.samples += event_proto.lost_event().lost();
-      stat_.missing_main_mmap += event_proto.lost_event().lost();
-      quipper::PerfDataProto::SampleEvent sample;
-      sample.set_id(event_proto.lost_event().id());
-      sample.set_pid(event_proto.lost_event().sample_info().pid());
-      sample.set_tid(event_proto.lost_event().sample_info().tid());
-      auto event_index = GetEventIndexForSample(sample);
-      if (event_index == -1) {
-        ++stat_.no_event_errors;
-        continue;
-      }
-
-      // Use a special address and associated mapping for synthesized lost
-      // samples, so we can differentiate them from actual unmapped samples, see
-      // b/195154469. The chosen address avoids potential collisions with the
-      // address space when quipper's do_remap option is set to true or false.
-      // With remapping enabled, the address is guaranteed to be larger than the
-      // mapped quipper space. Without remapping, the address is in a reserved
-      // address range. Kernel addresses on x86 and ARM have the high 16 bits
-      // set, while PowerPC has a reserved space from 0x1000000000000000 to
-      // 0xBFFFFFFFFFFFFFFF. Quipper sets the highest byte of callchain unmapped
-      // addresses to 0x8 to avoid spurious symbolization in the presence of
-      // remapping. Here, we set the highest byte of the synthesized lost sample
-      // addresses to 0x9, to avoid any collisions.
-      sample.set_ip(9ULL << 60);
-      quipper::PerfDataProto::EventHeader header;
-      PerfDataHandler::SampleContext context(header, sample);
-      context.file_attrs_index = event_index;
-      context.sample_mapping = GetOrAddFakeMapping(kLostMappingFilename,
-                                                   BuildId("", kBuildIdMissing),
-                                                   kLostMd5Prefix, sample.ip());
-      for (uint64_t i = 0; i < event_proto.lost_event().lost(); ++i) {
-        handler_->Sample(context);
-      }
-      stat_.synthesized_lost_samples += event_proto.lost_event().lost();
+    } else if (event_proto.has_lost_samples_event() ||
+               event_proto.has_lost_event()) {
+      HandleLost(event_proto);
     } else if (event_proto.has_sample_event()) {
       InvokeHandleSample(event_proto);
     }
@@ -494,6 +508,67 @@ const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
       comm, build_id, start_addr, start_addr + 1, 0, comm_md5_prefix));
   return fake_mappings_.insert({key, owned_mappings_.back().get()})
       .first->second;
+}
+
+void Normalizer::HandleLost(
+    const quipper::PerfDataProto::PerfEvent& event_proto) {
+  quipper::PerfDataProto::SampleEvent sample;
+  uint64_t num_lost = 0;
+
+  // See the definition of this variable for details on how we process
+  // lost_samples_event or lost_event.
+  if (use_lost_sample_) {
+    if (!event_proto.has_lost_samples_event()) {
+      return;
+    }
+    num_lost = event_proto.lost_samples_event().num_lost();
+    stat_.samples += num_lost;
+    stat_.missing_main_mmap += num_lost;
+    sample.set_id(event_proto.lost_samples_event().sample_info().id());
+    sample.set_pid(event_proto.lost_samples_event().sample_info().pid());
+    sample.set_tid(event_proto.lost_samples_event().sample_info().tid());
+  } else {
+    // As mentioned in the definition, for backward compatibility.
+    if (!event_proto.has_lost_event()) {
+      return;
+    }
+    num_lost = event_proto.lost_event().lost();
+    stat_.samples += num_lost;
+    stat_.missing_main_mmap += num_lost;
+    sample.set_id(event_proto.lost_event().id());
+    sample.set_pid(event_proto.lost_event().sample_info().pid());
+    sample.set_tid(event_proto.lost_event().sample_info().tid());
+  }
+
+  int64_t event_index = GetEventIndexForSample(sample);
+  if (event_index == -1) {
+    ++stat_.no_event_errors;
+    return;
+  }
+
+  // Use a special address and associated mapping for synthesized lost
+  // samples, so we can differentiate them from actual unmapped samples, see
+  // b/195154469. The chosen address avoids potential collisions with the
+  // address space when quipper's do_remap option is set to true or false.
+  // With remapping enabled, the address is guaranteed to be larger than the
+  // mapped quipper space. Without remapping, the address is in a reserved
+  // address range. Kernel addresses on x86 and ARM have the high 16 bits
+  // set, while PowerPC has a reserved space from 0x1000000000000000 to
+  // 0xBFFFFFFFFFFFFFFF. Quipper sets the highest byte of callchain unmapped
+  // addresses to 0x8 to avoid spurious symbolization in the presence of
+  // remapping. Here, we set the highest byte of the synthesized lost sample
+  // addresses to 0x9, to avoid any collisions.
+  sample.set_ip(9ULL << 60);
+  quipper::PerfDataProto::EventHeader header;
+  PerfDataHandler::SampleContext context(header, sample);
+  context.file_attrs_index = event_index;
+  context.sample_mapping =
+      GetOrAddFakeMapping(kLostMappingFilename, BuildId("", kBuildIdMissing),
+                          kLostMd5Prefix, sample.ip());
+  for (uint64_t i = 0; i < num_lost; ++i) {
+    handler_->Sample(context);
+  }
+  stat_.synthesized_lost_samples += num_lost;
 }
 
 static void CheckStat(int64_t num, int64_t denom, const std::string& desc) {

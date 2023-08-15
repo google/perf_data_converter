@@ -9,7 +9,55 @@ file_attrs: {
     sample_type: 0x0000000000000087
     read_format: 0x0000000000000000
     disabled: true
-    inherit: true
+    inherit: false
+    pinned: true
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: true
+    exclude_idle: false
+    mmap: false
+    comm: false
+    freq: false
+    inherit_stat: false
+    enable_on_exec: false
+    task: false
+    watermark: false
+    precise_ip: 0x00000000
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: false
+    wakeup_events: 0x00000000
+    bp_type: 0x00000000
+    bp_addr: 0x0000000000000000
+    bp_len: 0x0000000000000000
+    branch_sample_type: 0x0000000000000000
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0x0000000000000000
+    sample_stack_user: 0x00000000
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
+  }
+  ids : [ 0x00000000327e1ebf, 0x00000000327e1ec0 ]
+}
+file_attrs: {
+  # dummy event
+  attr: {
+    type: 0x00000001
+    size: 0x00000060
+    config: 0x0000000000000009
+    sample_period: 0x00000000000f4243
+    sample_type: 0x0000000000000087
+    read_format: 0x0000000000000000
+    disabled: false
+    inherit: false
     pinned: false
     exclusive: false
     exclude_user: false
@@ -27,7 +75,7 @@ file_attrs: {
     mmap_data: false
     sample_id_all: true
     exclude_host: false
-    exclude_guest: true
+    exclude_guest: false
     wakeup_events: 0x00000000
     bp_type: 0x00000000
     bp_addr: 0x0000000000000000
@@ -43,7 +91,9 @@ file_attrs: {
     context_switch: false
     write_backward: false
     namespaces: false
+    cgroup: true
   }
+  ids : [ 0x00000000327e1ec1, 0x00000000327e1ec2]
 }
 events: {
   header: {
@@ -137,6 +187,7 @@ events: {
     pid: 0x000001a9
     tid: 0x000001a9
     sample_time_ns: 0x000313856b16ddba
+    id: 0x00000000327e1ebf
     cpu: 0x00000001
   }
   timestamp: 0x000313856b16ddba
@@ -169,6 +220,7 @@ events: {
     pid: 0x000001a9
     tid: 0x000001a9
     sample_time_ns: 0x000313856b22eadd
+    id: 0x00000000327e1ebf
     cpu: 0x00000001
   }
   timestamp: 0x000313856b22eadd
@@ -265,6 +317,7 @@ events: {
     pid: 0x00005c25
     tid: 0x00005c25
     sample_time_ns: 0x0003138567f2d69d
+    id: 0x00000000327e1ebf
     cpu: 0x00000001
   }
   timestamp: 0x0003138567f2d69d
@@ -297,6 +350,7 @@ events: {
     pid: 0x00005c25
     tid: 0x00005c25
     sample_time_ns: 0x000313856804d574
+    id: 0x00000000327e1ebf
     cpu: 0x00000001
   }
   timestamp: 0x000313856804d574

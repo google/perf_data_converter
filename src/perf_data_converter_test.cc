@@ -892,6 +892,95 @@ TEST_F(PerfDataConverterTest, ConvertsNoCodeDataPageSize) {
   EXPECT_THAT(data_counts, IsEmpty());
 }
 
+TEST_F(PerfDataConverterTest, WeightBitSet) {
+  const std::string ascii_pb(GetContents(GetResource("perf-weight.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  // Round-trip deserialize/serialize, so we can make sure the test case
+  // represent a valid perf.data file.
+  std::string str;
+  quipper::PerfReader reader;
+  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+  ASSERT_TRUE(reader.WriteToString(&str));
+}
+
+TEST_F(PerfDataConverterTest, WeightStructBitSet) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-weight-struct.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  // Round-trip deserialize/serialize, so we can make sure the test case
+  // represents a valid perf.data file.
+  std::string str;
+  quipper::PerfReader reader;
+  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+  ASSERT_TRUE(reader.WriteToString(&str));
+}
+
+TEST_F(PerfDataConverterTest, ConvertsWeight) {
+  const std::string ascii_pb(GetContents(GetResource("perf-weight.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCacheLatencyLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  const auto counts_pair = ExtractCounts(pps, CacheLatencyLabelKey);
+  const auto total_samples = std::get<0>(counts_pair);
+  const auto& counts = std::get<1>(counts_pair);
+  const std::unordered_map<uint64_t, uint64_t> expected_counts{
+      {146, 1},
+      {352, 2},
+  };
+  EXPECT_EQ(total_samples, 3);
+  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+}
+
+TEST_F(PerfDataConverterTest, ConvertsWeightStruct) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-weight-struct.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCacheLatencyLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  const auto counts_pair = ExtractCounts(pps, CacheLatencyLabelKey);
+  const auto total_samples = std::get<0>(counts_pair);
+  const auto& counts = std::get<1>(counts_pair);
+  const std::unordered_map<uint64_t, uint64_t> expected_counts{
+      {146, 1},
+      {352, 2},
+  };
+  EXPECT_EQ(total_samples, 4);
+  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+}
+
+// Test with a perf data doesn't have weight info.
+TEST_F(PerfDataConverterTest, ConvertsNoWeight) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-code-data-page-sizes.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kCacheLatencyLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  auto counts_pair1 = ExtractCounts(pps, CacheLatencyLabelKey);
+  const auto total_samples1 = std::get<0>(counts_pair1);
+  const auto& weight_counts = std::get<1>(counts_pair1);
+  EXPECT_EQ(total_samples1, 5);
+  EXPECT_THAT(weight_counts, IsEmpty());
+}
+
 TEST_F(PerfDataConverterTest, HandlesAlternateKernelNames) {
   std::string ascii_pb =
       GetContents(GetResource("perf-kernel-mapping-by-name.textproto"));

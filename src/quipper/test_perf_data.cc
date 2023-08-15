@@ -11,8 +11,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "binary_data_utils.h"
-#include "compat/test.h"
 #include "kernel/perf_internals.h"
 #include "perf_data_utils.h"
 
@@ -483,6 +481,33 @@ void ExampleTracingMetadata::Data::WriteTo(std::ostream* out) const {
   out->write(kTraceMetadata.data(), kTraceMetadata.size());
   CHECK_EQ(static_cast<u64>(out->tellp()),
            index_entry.offset + index_entry.size);
+}
+
+void ExampleCPUTopologyMetadata::WriteTo(std::ostream* out) const {
+  const perf_file_section& index_entry = index_entry_.index_entry_;
+  CHECK_EQ(static_cast<u64>(out->tellp()), index_entry.offset);
+
+  size_t offset = index_entry.offset;
+  const u32 num_core_siblings_value = MaybeSwap32(num_core_siblings_);
+  out->write(reinterpret_cast<const char*>(&num_core_siblings_value),
+             sizeof(num_core_siblings_value));
+  offset += sizeof(u32);  // num_core_siblings
+  for (const auto& sibling : core_siblings_) {
+    ExampleStringMetadata cs(sibling, offset);
+    cs.WriteTo(out);
+    offset += cs.size();
+  }
+  const u32 num_thread_siblings_value = MaybeSwap32(num_thread_siblings_);
+  out->write(reinterpret_cast<const char*>(&num_thread_siblings_value),
+             sizeof(num_thread_siblings_value));
+  offset += sizeof(u32);  // num_thread_siblings
+  for (int i = 0; i < thread_siblings_.size(); ++i) {
+    ExampleStringMetadata ts(thread_siblings_[i], offset);
+    ts.WriteTo(out);
+    offset += ts.size();
+  }
+  CHECK_EQ(static_cast<u64>(out->tellp()),
+           index_entry.offset + IndexEntrySize());
 }
 
 size_t ExampleAuxtraceEvent::GetSize() const {

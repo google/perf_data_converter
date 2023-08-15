@@ -1562,6 +1562,10 @@ bool PerfReader::ReadCPUTopologyMetadata(DataReader* data, size_t size) {
     LOG(ERROR) << "Error reading num core siblings.";
     return false;
   }
+  if (num_core_siblings > size) {
+    LOG(ERROR) << "Num core siblings is too large: " << num_core_siblings;
+    return false;
+  }
 
   PerfCPUTopologyMetadata cpu_topology;
   cpu_topology.core_siblings.resize(num_core_siblings);
@@ -1572,7 +1576,11 @@ bool PerfReader::ReadCPUTopologyMetadata(DataReader* data, size_t size) {
 
   num_siblings_type num_thread_siblings;
   if (!data->ReadUint32(&num_thread_siblings)) {
-    LOG(ERROR) << "Error reading num core siblings.";
+    LOG(ERROR) << "Error reading num thread siblings.";
+    return false;
+  }
+  if (num_thread_siblings > size) {
+    LOG(ERROR) << "Num thread siblings is too large: " << num_thread_siblings;
     return false;
   }
 

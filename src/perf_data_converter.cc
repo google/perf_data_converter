@@ -110,6 +110,7 @@ struct SampleKey {
   uint64_t code_page_size = 0;
   uint64_t data_page_size = 0;
   uint32_t cpu = 0;
+  uint64_t weight = 0;
   LocationIdVector stack;
 };
 
@@ -121,7 +122,7 @@ struct SampleKeyEqualityTester {
             (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
             (a.code_page_size == b.code_page_size) &&
             (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
-            (a.stack == b.stack));
+            (a.weight == b.weight) && (a.stack == b.stack));
   }
 };
 
@@ -139,6 +140,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64_t>()(k.code_page_size);
     hash ^= std::hash<uint64_t>()(k.data_page_size);
     hash ^= std::hash<uint32_t>()(k.cpu);
+    hash ^= std::hash<uint64_t>()(k.weight);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64_t>()(id);
     }
@@ -294,6 +296,11 @@ class PerfDataConverter : public PerfDataHandler {
   // Returns whether CPU labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
   bool IncludeCpuLabels() const { return (sample_labels_ & kCpuLabel); }
+  // Returns whether cache latency labels were requested for inclusion in the
+  // profile.proto's Sample.Weight field.
+  bool IncludeCacheLatencyLabel() const {
+    return (sample_labels_ & kCacheLatencyLabel);
+  }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
@@ -372,6 +379,17 @@ SampleKey PerfDataConverter::MakeSampleKey(
   }
   sample_key.cpu =
       (IncludeCpuLabels() && sample.sample.has_cpu()) ? sample.sample.cpu() : 0;
+  // If sample has a weight_struct, we use its var1_dw field, which is the cache
+  // latency. Otherwise, we use the weight field.
+  if (IncludeCacheLatencyLabel()) {
+    if (sample.sample.has_weight_struct() &&
+        sample.sample.weight_struct().has_var1_dw()) {
+      sample_key.weight =
+          static_cast<uint64_t>(sample.sample.weight_struct().var1_dw());
+    } else if (sample.sample.has_weight()) {
+      sample_key.weight = sample.sample.weight();
+    }
+  }
   return sample_key;
 }
 
@@ -570,6 +588,12 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(CpuLabelKey));
       label->set_num(static_cast<int64_t>(context.sample.cpu()));
       label->set_num_unit(builder->StringId("cpu"));
+    }
+    if (IncludeCacheLatencyLabel() && sample_key.weight != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(CacheLatencyLabelKey));
+      label->set_num(sample_key.weight);
+      label->set_num_unit(builder->StringId("cycles"));
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
