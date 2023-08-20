@@ -47,12 +47,12 @@ http_archive(
 # zlib is a dependency of protobuf.
 http_archive(
     name = "zlib",
-    sha256 = "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
+    sha256 = "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
     # This is the zlib BUILD file used in kythe:
     # https://github.com/kythe/kythe/blob/v0.0.30/third_party/zlib.BUILD
     build_file = "zlib.BUILD",
-    urls = ["https://www.zlib.net/zlib-1.2.13.tar.gz"],
-    strip_prefix = "zlib-1.2.13",
+    urls = ["https://www.zlib.net/zlib-1.3.tar.gz"],
+    strip_prefix = "zlib-1.3",
 )
 
 http_archive(
