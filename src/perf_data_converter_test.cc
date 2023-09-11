@@ -981,6 +981,50 @@ TEST_F(PerfDataConverterTest, ConvertsNoWeight) {
   EXPECT_THAT(weight_counts, IsEmpty());
 }
 
+TEST_F(PerfDataConverterTest, DataSrcBitSet) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-datasrc.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  // Round-trip deserialize/serialize, so we can make sure the test case
+  // represents a valid perf.data file.
+  std::string str;
+  quipper::PerfReader reader;
+  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+  ASSERT_TRUE(reader.WriteToString(&str));
+}
+
+TEST_F(PerfDataConverterTest, ConvertsDataSrc) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-datasrc.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kDataSrcLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  std::unordered_map<std::string, uint64_t> counts_by_datasrc;
+  const auto& p = pps[0]->data;
+  for (const auto& sample : p.sample()) {
+    std::string datasrc;
+    for (const auto& label : sample.label()) {
+      if (p.string_table(label.key()) == DataSrcLabelKey) {
+        datasrc = p.string_table(label.str());
+        counts_by_datasrc[datasrc]++;
+      }
+    }
+  }
+  const std::unordered_map<std::string, uint64_t> expected_counts{
+      {"L1", 1},
+      {"L2", 1},
+      {"L3", 1},
+  };
+  EXPECT_THAT(counts_by_datasrc, UnorderedPointwise(Eq(), expected_counts));
+}
+
 TEST_F(PerfDataConverterTest, HandlesAlternateKernelNames) {
   std::string ascii_pb =
       GetContents(GetResource("perf-kernel-mapping-by-name.textproto"));

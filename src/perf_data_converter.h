@@ -63,6 +63,9 @@ enum SampleLabels {
   // Adds a label with CacheLatencyLabelKey and number value set to the cache
   // latency.
   kCacheLatencyLabel = 1 << 11,
+  // Adds a label with DataSrcLabelKey and string value set to the level of
+  // caches.
+  kDataSrcLabel = 1 << 12,
 };
 
 // Sample label key names.
@@ -78,6 +81,7 @@ const char CodePageSizeLabelKey[] = "code_page_size";
 const char DataPageSizeLabelKey[] = "data_page_size";
 const char CpuLabelKey[] = "cpu";
 const char CacheLatencyLabelKey[] = "cache_latency";
+const char DataSrcLabelKey[] = "data_src";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";

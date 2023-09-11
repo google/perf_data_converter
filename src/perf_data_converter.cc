@@ -111,6 +111,7 @@ struct SampleKey {
   uint64_t data_page_size = 0;
   uint32_t cpu = 0;
   uint64_t weight = 0;
+  uint64_t data_src = 0;
   LocationIdVector stack;
 };
 
@@ -122,7 +123,8 @@ struct SampleKeyEqualityTester {
             (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
             (a.code_page_size == b.code_page_size) &&
             (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
-            (a.weight == b.weight) && (a.stack == b.stack));
+            (a.weight == b.weight) && (a.data_src == b.data_src) &&
+            (a.stack == b.stack));
   }
 };
 
@@ -141,6 +143,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64_t>()(k.data_page_size);
     hash ^= std::hash<uint32_t>()(k.cpu);
     hash ^= std::hash<uint64_t>()(k.weight);
+    hash ^= std::hash<uint64_t>()(k.data_src);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64_t>()(id);
     }
@@ -301,6 +304,9 @@ class PerfDataConverter : public PerfDataHandler {
   bool IncludeCacheLatencyLabel() const {
     return (sample_labels_ & kCacheLatencyLabel);
   }
+  // Returns whether data source labels were requested for inclusion in the
+  // profile.proto's Sample.DataSrc field.
+  bool IncludeDataSrcLabels() const { return (sample_labels_ & kDataSrcLabel); }
 
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
@@ -388,6 +394,37 @@ SampleKey PerfDataConverter::MakeSampleKey(
           static_cast<uint64_t>(sample.sample.weight_struct().var1_dw());
     } else if (sample.sample.has_weight()) {
       sample_key.weight = sample.sample.weight();
+    }
+  }
+  // If sample has a data_src, we decode it to find the data source.
+  if (IncludeDataSrcLabels() && sample.sample.has_data_src()) {
+    quipper::perf_mem_data_src ds;
+    std::string cache_lvl;
+    ds.val = static_cast<uint64_t>(sample.sample.data_src());
+    if (ds.mem_lvl & quipper::PERF_MEM_LVL_HIT) {
+      if (ds.mem_lvl & quipper::PERF_MEM_LVL_L1)
+        cache_lvl = "L1";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_LFB)
+        cache_lvl = "LFB";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_L2)
+        cache_lvl = "L2";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_L3)
+        cache_lvl = "L3";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_LOC_RAM)
+        cache_lvl = "Local DRAM";
+      else if (ds.mem_lvl & (quipper::PERF_MEM_LVL_REM_RAM1 |
+                             quipper::PERF_MEM_LVL_REM_RAM2))
+        cache_lvl = "Remote DRAM";
+      else if (ds.mem_lvl & (quipper::PERF_MEM_LVL_REM_CCE1 |
+                             quipper::PERF_MEM_LVL_REM_CCE2))
+        cache_lvl = "Remote Cache";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_IO)
+        cache_lvl = "IO Memory";
+      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_UNC)
+        cache_lvl = "Uncached Memory";
+      else
+        cache_lvl = "Unknown Level";
+      sample_key.data_src = UTF8StringId(cache_lvl, builder);
     }
   }
   return sample_key;
@@ -594,6 +631,11 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_key(builder->StringId(CacheLatencyLabelKey));
       label->set_num(sample_key.weight);
       label->set_num_unit(builder->StringId("cycles"));
+    }
+    if (IncludeDataSrcLabels() && sample_key.data_src != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(DataSrcLabelKey));
+      label->set_str(sample_key.data_src);
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).

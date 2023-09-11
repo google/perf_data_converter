@@ -80,6 +80,7 @@ cc_test(
         "//src/testdata:perf-comm-and-task-comm.textproto",
         "//src/testdata:perf-cpu.textproto",
         "//src/testdata:perf-cros-kernel-3_18-mapping.textproto",
+        "//src/testdata:perf-datasrc.textproto",
         "//src/testdata:perf-include-comm-md5-prefix.textproto",
         "//src/testdata:perf-java-classes-jsa.textproto",
         "//src/testdata:perf-kernel-mapping-by-name.textproto",
