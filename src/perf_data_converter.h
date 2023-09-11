@@ -82,6 +82,7 @@ const char DataPageSizeLabelKey[] = "data_page_size";
 const char CpuLabelKey[] = "cpu";
 const char CacheLatencyLabelKey[] = "cache_latency";
 const char DataSrcLabelKey[] = "data_src";
+const char SnoopStatusLabelKey[] = "snoop_status";
 
 // Execution mode label values.
 const char ExecutionModeHostKernel[] = "Host Kernel";

@@ -8,6 +8,7 @@
 #include "src/perf_data_converter.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <deque>
 #include <map>
 #include <sstream>
@@ -112,6 +113,7 @@ struct SampleKey {
   uint32_t cpu = 0;
   uint64_t weight = 0;
   uint64_t data_src = 0;
+  uint64_t snoop_status = 0;
   LocationIdVector stack;
 };
 
@@ -124,7 +126,7 @@ struct SampleKeyEqualityTester {
             (a.code_page_size == b.code_page_size) &&
             (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
             (a.weight == b.weight) && (a.data_src == b.data_src) &&
-            (a.stack == b.stack));
+            (a.snoop_status == b.snoop_status) && (a.stack == b.stack));
   }
 };
 
@@ -144,6 +146,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint32_t>()(k.cpu);
     hash ^= std::hash<uint64_t>()(k.weight);
     hash ^= std::hash<uint64_t>()(k.data_src);
+    hash ^= std::hash<uint64_t>()(k.snoop_status);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64_t>()(id);
     }
@@ -396,7 +399,8 @@ SampleKey PerfDataConverter::MakeSampleKey(
       sample_key.weight = sample.sample.weight();
     }
   }
-  // If sample has a data_src, we decode it to find the data source.
+  // If sample has a data_src, we decode it to find the data source and snoop
+  // status.
   if (IncludeDataSrcLabels() && sample.sample.has_data_src()) {
     quipper::perf_mem_data_src ds;
     std::string cache_lvl;
@@ -426,6 +430,20 @@ SampleKey PerfDataConverter::MakeSampleKey(
         cache_lvl = "Unknown Level";
       sample_key.data_src = UTF8StringId(cache_lvl, builder);
     }
+    // Obtain the snoop status
+    std::string snoop_status;
+    if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_NONE) {
+      snoop_status = "None";
+    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_HIT) {
+      snoop_status = "Hit";
+    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_MISS) {
+      snoop_status = "Miss";
+    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_HITM) {
+      snoop_status = "HitM";
+    } else {
+      snoop_status = "Unknown Status";
+    }
+    sample_key.snoop_status = UTF8StringId(snoop_status, builder);
   }
   return sample_key;
 }
@@ -632,10 +650,17 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_num(sample_key.weight);
       label->set_num_unit(builder->StringId("cycles"));
     }
-    if (IncludeDataSrcLabels() && sample_key.data_src != 0) {
-      auto* label = sample->add_label();
-      label->set_key(builder->StringId(DataSrcLabelKey));
-      label->set_str(sample_key.data_src);
+    if (IncludeDataSrcLabels()) {
+      if (sample_key.data_src != 0) {
+        auto* label = sample->add_label();
+        label->set_key(builder->StringId(DataSrcLabelKey));
+        label->set_str(sample_key.data_src);
+      }
+      if (sample_key.snoop_status != 0) {
+        auto* label = sample->add_label();
+        label->set_key(builder->StringId(SnoopStatusLabelKey));
+        label->set_str(sample_key.snoop_status);
+      }
     }
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).

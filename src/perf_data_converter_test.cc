@@ -1025,6 +1025,36 @@ TEST_F(PerfDataConverterTest, ConvertsDataSrc) {
   EXPECT_THAT(counts_by_datasrc, UnorderedPointwise(Eq(), expected_counts));
 }
 
+TEST_F(PerfDataConverterTest, ConvertsSnoop) {
+  const std::string ascii_pb(
+      GetContents(GetResource("perf-datasrc.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  const ProcessProfiles pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kDataSrcLabel);
+  ASSERT_EQ(pps.size(), 1);
+
+  std::unordered_map<std::string, uint64_t> counts_by_snoop;
+  const auto& p = pps[0]->data;
+  for (const auto& sample : p.sample()) {
+    std::string snoop_status;
+    for (const auto& label : sample.label()) {
+      if (p.string_table(label.key()) == SnoopStatusLabelKey) {
+        snoop_status = p.string_table(label.str());
+        counts_by_snoop[snoop_status]++;
+      }
+    }
+  }
+  const std::unordered_map<std::string, uint64_t> expected_counts{
+      {"Hit", 1},
+      {"Miss", 1},
+      {"HitM", 1},
+  };
+  EXPECT_THAT(counts_by_snoop, UnorderedPointwise(Eq(), expected_counts));
+}
+
 TEST_F(PerfDataConverterTest, HandlesAlternateKernelNames) {
   std::string ascii_pb =
       GetContents(GetResource("perf-kernel-mapping-by-name.textproto"));
