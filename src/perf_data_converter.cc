@@ -345,6 +345,34 @@ class PerfDataConverter : public PerfDataHandler {
   std::unordered_map<Tid, std::string> thread_types_;
 };
 
+// Test the bit and return the data_src string for sample key.
+std::string DataSrcString(uint64_t mem_lvl) {
+  if (!(mem_lvl & quipper::PERF_MEM_LVL_HIT)) return "";
+  if (mem_lvl & quipper::PERF_MEM_LVL_L1) return "L1";
+  if (mem_lvl & quipper::PERF_MEM_LVL_LFB) return "LFB";
+  if (mem_lvl & quipper::PERF_MEM_LVL_L2) return "L2";
+  if (mem_lvl & quipper::PERF_MEM_LVL_L3) return "L3";
+  if (mem_lvl & quipper::PERF_MEM_LVL_LOC_RAM) return "Local DRAM";
+  if (mem_lvl &
+      (quipper::PERF_MEM_LVL_REM_RAM1 | quipper::PERF_MEM_LVL_REM_RAM2))
+    return "Remote DRAM";
+  if (mem_lvl &
+      (quipper::PERF_MEM_LVL_REM_CCE1 | quipper::PERF_MEM_LVL_REM_CCE2))
+    return "Remote Cache";
+  if (mem_lvl & quipper::PERF_MEM_LVL_IO) return "IO Memory";
+  if (mem_lvl & quipper::PERF_MEM_LVL_UNC) return "Uncached Memory";
+  return "Unknown Level";
+}
+
+// Test the bit and return the snoop_status string for sample key.
+std::string SnoopStatusString(uint64_t mem_snoop) {
+  if (mem_snoop & quipper::PERF_MEM_SNOOP_NONE) return "None";
+  if (mem_snoop & quipper::PERF_MEM_SNOOP_HIT) return "Hit";
+  if (mem_snoop & quipper::PERF_MEM_SNOOP_MISS) return "Miss";
+  if (mem_snoop & quipper::PERF_MEM_SNOOP_HITM) return "HitM";
+  return "Unknown Status";
+}
+
 SampleKey PerfDataConverter::MakeSampleKey(
     const PerfDataHandler::SampleContext& sample, ProfileBuilder* builder) {
   SampleKey sample_key;
@@ -403,47 +431,10 @@ SampleKey PerfDataConverter::MakeSampleKey(
   // status.
   if (IncludeDataSrcLabels() && sample.sample.has_data_src()) {
     quipper::perf_mem_data_src ds;
-    std::string cache_lvl;
     ds.val = static_cast<uint64_t>(sample.sample.data_src());
-    if (ds.mem_lvl & quipper::PERF_MEM_LVL_HIT) {
-      if (ds.mem_lvl & quipper::PERF_MEM_LVL_L1)
-        cache_lvl = "L1";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_LFB)
-        cache_lvl = "LFB";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_L2)
-        cache_lvl = "L2";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_L3)
-        cache_lvl = "L3";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_LOC_RAM)
-        cache_lvl = "Local DRAM";
-      else if (ds.mem_lvl & (quipper::PERF_MEM_LVL_REM_RAM1 |
-                             quipper::PERF_MEM_LVL_REM_RAM2))
-        cache_lvl = "Remote DRAM";
-      else if (ds.mem_lvl & (quipper::PERF_MEM_LVL_REM_CCE1 |
-                             quipper::PERF_MEM_LVL_REM_CCE2))
-        cache_lvl = "Remote Cache";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_IO)
-        cache_lvl = "IO Memory";
-      else if (ds.mem_lvl & quipper::PERF_MEM_LVL_UNC)
-        cache_lvl = "Uncached Memory";
-      else
-        cache_lvl = "Unknown Level";
-      sample_key.data_src = UTF8StringId(cache_lvl, builder);
-    }
-    // Obtain the snoop status
-    std::string snoop_status;
-    if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_NONE) {
-      snoop_status = "None";
-    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_HIT) {
-      snoop_status = "Hit";
-    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_MISS) {
-      snoop_status = "Miss";
-    } else if (ds.mem_snoop & quipper::PERF_MEM_SNOOP_HITM) {
-      snoop_status = "HitM";
-    } else {
-      snoop_status = "Unknown Status";
-    }
-    sample_key.snoop_status = UTF8StringId(snoop_status, builder);
+    sample_key.data_src = UTF8StringId(DataSrcString(ds.mem_lvl), builder);
+    sample_key.snoop_status =
+        UTF8StringId(SnoopStatusString(ds.mem_snoop), builder);
   }
   return sample_key;
 }
