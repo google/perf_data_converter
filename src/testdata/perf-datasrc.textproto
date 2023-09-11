@@ -60,8 +60,8 @@ events {
     period: 3170393
     cpu: 0
     weight: 352
-    # Set hit level bit and L1 bit
-    data_src: 320
+    # Set hit level bit and L1 bit and Snoop_hit bit
+    data_src: 2097472
   }
 }
 events {
@@ -78,8 +78,8 @@ events {
     period: 3170393
     cpu: 0
     weight: 146
-    # Set hit level bit and L2 bit
-    data_src: 1088
+    # Set hit level bit and L2 bit and Snoop_miss bit
+    data_src: 4195392
   }
 }
 events {
@@ -96,8 +96,8 @@ events {
     period: 3170393
     cpu: 0
     weight: 352
-    # Set hit level bit and L3 bit
-    data_src: 2112
+    # Set hit level bit and L3 bit and Snoop_HitM bit
+    data_src: 8390720
   }
 }
 timestamp_sec: 0
