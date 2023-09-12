@@ -136,6 +136,11 @@ bool CompareProto(std::unique_ptr<MessageDifferencer> differencer, T actual,
   return differencer->Compare(expected, actual);
 }
 
+// Returns a concatenated binary trace from the given descriptive hexadecimal
+// strings. For example: GenerateBinaryTrace({"ab cd", "12"}) = 0xabcd12 binary
+// trace in string format.
+std::string GenerateBinaryTrace(const std::vector<std::string>& packets);
+
 }  // namespace quipper
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_TEST_UTILS_H_
