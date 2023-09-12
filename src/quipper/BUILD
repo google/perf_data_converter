@@ -471,6 +471,28 @@ cc_test(
 )
 
 cc_library(
+    name = "arm_spe_decoder",
+    srcs = ["arm_spe_decoder.cc"],
+    hdrs = ["arm_spe_decoder.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":binary_data_utils",
+    ],
+)
+
+cc_test(
+    name = "arm_spe_decoder_test",
+    srcs = ["arm_spe_decoder_test.cc"],
+    deps = [
+        ":arm_spe_decoder",
+        ":compat_gunit",
+        ":test_runner",
+        ":test_utils",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "quipper_lib",
     srcs = ["quipper_lib.cc"],
     hdrs = ["quipper_lib.h"],

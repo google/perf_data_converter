@@ -315,4 +315,18 @@ PerfParserOptions GetMinimalProcessingOptions() {
   return options;
 }
 
+std::string GenerateBinaryTrace(const std::vector<std::string>& packets) {
+  std::string trace("");
+  for (const std::string& packet : packets) {
+    std::stringstream ss(packet);
+    std::string byte_str;
+    while (ss >> byte_str) {
+      trace += (char)std::strtol(
+          byte_str.data(), nullptr,
+          16);  
+    }
+  }
+  return trace;
+}
+
 }  // namespace quipper
