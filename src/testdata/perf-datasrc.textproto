@@ -89,6 +89,24 @@ events {
     size: 64
   }
   sample_event {
+    ip: 0x5dc
+    pid: 100
+    tid: 100
+    sample_time_ns: 100000000010
+    period: 3170393
+    cpu: 0
+    weight: 146
+    # Set memory level hit bit and L1 cache hit bit and Snoop_none bit
+    data_src: 0x10250100142
+  }
+}
+events {
+  header {
+    type: 9
+    misc: 1
+    size: 64
+  }
+  sample_event {
     ip: 0x1f4
     pid: 100
     tid: 100
