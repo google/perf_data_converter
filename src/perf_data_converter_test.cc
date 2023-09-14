@@ -1018,7 +1018,7 @@ TEST_F(PerfDataConverterTest, ConvertsDataSrc) {
     }
   }
   const std::unordered_map<std::string, uint64_t> expected_counts{
-      {"L1", 1},
+      {"L1", 2},
       {"L2", 1},
       {"L3", 1},
   };
@@ -1051,6 +1051,7 @@ TEST_F(PerfDataConverterTest, ConvertsSnoop) {
       {"Hit", 1},
       {"Miss", 1},
       {"HitM", 1},
+      {"None", 1},
   };
   EXPECT_THAT(counts_by_snoop, UnorderedPointwise(Eq(), expected_counts));
 }
