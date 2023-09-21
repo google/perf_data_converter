@@ -21,7 +21,8 @@
 #include <utility>
 #include <vector>
 
-#include "src/compat/test_compat.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include "src/intervalmap.h"
 #include "src/perf_data_handler.h"
 #include "src/quipper/perf_parser.h"

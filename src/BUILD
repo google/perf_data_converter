@@ -58,7 +58,7 @@ cc_test(
     srcs = ["perf_data_handler_test.cc"],
     deps = [
         ":perf_data_handler",
-        "//src/compat:test_compat",
+        "@com_google_googletest//:gtest_main",
         "//src/quipper:binary_data_utils",
         "//src/quipper:kernel",
         "//src/quipper:perf_buildid",
@@ -105,7 +105,7 @@ cc_test(
         ":intervalmap",
         ":perf_data_converter",
         ":perf_data_handler",
-        "//src/compat:test_compat",
+        "@com_google_googletest//:gtest_main",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_parser",
         "//src/quipper:perf_reader",
@@ -118,7 +118,7 @@ cc_test(
     srcs = ["intervalmap_test.cc"],
     deps = [
         ":intervalmap",
-        "//src/compat:test_compat",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
@@ -153,7 +153,7 @@ cc_test(
     deps = [
         ":perf_to_profile_lib",
         "//src/quipper:base",
-        "//src/compat:test_compat",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
