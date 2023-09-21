@@ -11,7 +11,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "src/compat/test_compat.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include "src/path_matching.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/kernel/perf_event.h"

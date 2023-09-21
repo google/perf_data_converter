@@ -13,7 +13,8 @@
 #include <utility>
 #include <vector>
 
-#include "src/compat/test_compat.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace perftools {
 namespace {
