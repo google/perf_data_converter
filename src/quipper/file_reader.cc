@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "base/logging.h"
+
 namespace quipper {
 
 FileReader::FileReader(const std::string& filename) {

@@ -13,8 +13,6 @@
 #include <map>
 #include <sstream>
 
-#include "src/quipper/base/logging.h"
-
 namespace perftools {
 
 template <class V>

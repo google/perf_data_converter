@@ -8,7 +8,7 @@
 #include <errno.h>   // for errno
 #include <string.h>  // for strerror
 
-#include <iostream>  
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -112,11 +112,17 @@ class VLog : public LogBase {
 
 }  // namespace logging
 
-// These macros are for LOG() and related logging commands.
+// These macros are for LOG() and related logging commands. Define them if not
+// defined already.
+#ifndef LOG
 #define LOG(level) logging::Log(level, #level, __FILE__, __LINE__)
 #define PLOG(level) logging::PLog(level, #level, __FILE__, __LINE__)
 #define VLOG(level) logging::VLog(level, __FILE__, __LINE__)
+#endif  // LOG
 
+// These macros are for LOG() and related logging commands. Define them if not
+// defined already.
+#ifndef CHECK
 // Some macros from libbase that we use.
 #define CHECK(x) \
   if (!(x)) LOG(FATAL) << #x
@@ -140,5 +146,6 @@ class VLog : public LogBase {
 #define DCHECK_LE(x, y) CHECK_LE(x, y)
 #define DCHECK_NE(x, y) CHECK_NE(x, y)
 #define DCHECK_EQ(x, y) CHECK_EQ(x, y)
+#endif  // CHECK
 
 #endif  // CHROMIUMOS_WIDE_PROFILING_MYBASE_BASE_LOGGING_H_

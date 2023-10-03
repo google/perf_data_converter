@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "src/quipper/base/logging.h"
 #include "src/perf_data_converter.h"
 #include "src/quipper/perf_data.pb.h"
 

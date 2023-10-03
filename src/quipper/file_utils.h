@@ -5,9 +5,8 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_FILE_UTILS_H_
 #define CHROMIUMOS_WIDE_PROFILING_FILE_UTILS_H_
 
+#include <string>
 #include <vector>
-
-#include "base/logging.h"
 
 namespace quipper {
 
