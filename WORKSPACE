@@ -16,23 +16,30 @@ http_archive(
      strip_prefix = "googletest-release-1.11.0",
 )
 
-# rules_python is a dependency for protobuf.
-http_archive(
-    name = "rules_python",
-    urls = ["https://codeload.github.com/bazelbuild/rules_python/tar.gz/main"],
-    strip_prefix = "rules_python-main",
-    type = "tar.gz",
-)
-
-# proto_library, cc_proto_library, and java_proto_library rules implicitly
-# depend on @com_google_protobuf for protoc and proto runtimes.
+# Proto rules for Bazel and Protobuf
 # TODO(b/210576094): Unpin dependency after fixing compatibility.
 http_archive(
     name = "com_google_protobuf",
-    urls = ["https://codeload.github.com/protocolbuffers/protobuf/zip/3.19.x"],
-    strip_prefix = "protobuf-3.19.x",
-    type = "zip",
+    sha256 = "8b28fdd45bab62d15db232ec404248901842e5340299a57765e48abe8a80d930",
+    strip_prefix = "protobuf-3.20.1",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.20.1.tar.gz"],
 )
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
+
+http_archive(
+    name = "rules_proto",
+    sha256 = "66bfdf8782796239d3875d37e7de19b1d94301e8972b3cbd2446b332429b4df1",
+    strip_prefix = "rules_proto-4.0.0",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0.tar.gz",
+    ],
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+rules_proto_dependencies()
+rules_proto_toolchains()
 
 http_archive(
     name = "boringssl",  # Must match upstream workspace name.

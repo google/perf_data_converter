@@ -8,6 +8,7 @@
 #ifndef PERFTOOLS_INTERVALMAP_H_
 #define PERFTOOLS_INTERVALMAP_H_
 
+#include <cstdint>
 #include <cstdlib>
 #include <iterator>
 #include <map>
