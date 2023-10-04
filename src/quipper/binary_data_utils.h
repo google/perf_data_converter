@@ -13,32 +13,13 @@
 #include <type_traits>
 #include <vector>
 
-#include "base/logging.h"
 #include "kernel/perf_internals.h"
 
 namespace quipper {
 
 // Swaps the byte order of 16-bit, 32-bit, and 64-bit unsigned integers.
 template <class T>
-void ByteSwap(T* input) {
-  switch (sizeof(T)) {
-    case sizeof(uint8_t):
-      LOG(WARNING) << "Attempting to byte swap on a single byte.";
-      break;
-    case sizeof(uint16_t):
-      *input = bswap_16(*input);
-      break;
-    case sizeof(uint32_t):
-      *input = bswap_32(*input);
-      break;
-    case sizeof(uint64_t):
-      *input = bswap_64(*input);
-      break;
-    default:
-      LOG(FATAL) << "Invalid size for byte swap: " << sizeof(T) << " bytes";
-      break;
-  }
-}
+void ByteSwap(T* input);
 
 // Swaps byte order of |value| if the |swap| flag is set. This function is
 // trivial but it avoids filling code with "if (swap) { ... } " statements.

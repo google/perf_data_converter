@@ -14,6 +14,8 @@
 #include <cstring>
 #include <fstream>  
 
+#include "base/logging.h"
+
 namespace {
 
 // Number of hex digits in a byte.
@@ -81,5 +83,35 @@ bool HexStringToRawData(const std::string& str, u8* array, size_t length) {
   }
   return true;
 }
+
+template <class T>
+void ByteSwap(T* input) {
+  switch (sizeof(T)) {
+    case sizeof(uint8_t):
+      LOG(WARNING) << "Attempting to byte swap on a single byte.";
+      break;
+    case sizeof(uint16_t):
+      *input = bswap_16(*input);
+      break;
+    case sizeof(uint32_t):
+      *input = bswap_32(*input);
+      break;
+    case sizeof(uint64_t):
+      *input = bswap_64(*input);
+      break;
+    default:
+      LOG(FATAL) << "Invalid size for byte swap: " << sizeof(T) << " bytes";
+      break;
+  }
+}
+
+template void ByteSwap<uint8_t>(uint8_t*);
+template void ByteSwap<uint16_t>(uint16_t*);
+template void ByteSwap<uint32_t>(uint32_t*);
+template void ByteSwap<uint64_t>(uint64_t*);
+template void ByteSwap<int32_t>(int32_t*);
+
+template void ByteSwap<unsigned long long>(unsigned long long*);
+
 
 }  // namespace quipper

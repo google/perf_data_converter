@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 
+#include "base/logging.h"
 #include "binary_data_utils.h"
 #include "compat/proto.h"
 #include "perf_option_parser.h"
