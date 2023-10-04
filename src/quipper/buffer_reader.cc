@@ -8,6 +8,8 @@
 
 #include <cstdint>
 
+#include "base/logging.h"
+
 namespace quipper {
 
 bool BufferReader::SeekSet(size_t offset) {

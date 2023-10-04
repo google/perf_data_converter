@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "src/quipper/base/logging.h"
 #include "src/builder.h"
 #include "src/perf_data_handler.h"
 #include "src/quipper/perf_data.pb.h"
