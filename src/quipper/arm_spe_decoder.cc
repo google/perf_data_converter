@@ -383,7 +383,6 @@ bool ArmSpeDecoder::SetPayloadAndSize(struct Packet* p) {
   }
 
   size_t header_size = p->ext_header != 0x0 ? 2 : 1;
-  uint64_t payload = 0;
   size_t payload_size = GetPayloadSize(buf_[buf_i_ + header_size - 1]);
 
   if (buf_.size() - buf_i_ < header_size + payload_size) {
@@ -394,26 +393,28 @@ bool ArmSpeDecoder::SetPayloadAndSize(struct Packet* p) {
   size_t pos = buf_i_ + header_size;
   switch (payload_size) {
     case 1: {
+      uint8_t payload;
+      memcpy(&payload, buf_.data() + pos, sizeof(payload));
       // No need to swap when there is only one byte.
-      payload = *(reinterpret_cast<const uint8_t*>(buf_.data() + pos));
+      p->payload = payload;
       break;
     }
     case 2: {
-      payload = MaybeSwap<uint16_t>(
-          *(reinterpret_cast<const uint16_t*>(buf_.data() + pos)),
-          is_cross_endian_);
+      uint16_t payload;
+      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      p->payload = MaybeSwap<uint16_t>(payload, is_cross_endian_);
       break;
     }
     case 4: {
-      payload = MaybeSwap<uint32_t>(
-          *(reinterpret_cast<const uint32_t*>(buf_.data() + pos)),
-          is_cross_endian_);
+      uint32_t payload;
+      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      p->payload = MaybeSwap<uint32_t>(payload, is_cross_endian_);
       break;
     }
     case 8: {
-      payload = MaybeSwap<uint64_t>(
-          *(reinterpret_cast<const uint64_t*>(buf_.data() + pos)),
-          is_cross_endian_);
+      uint64_t payload;
+      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      p->payload = MaybeSwap<uint64_t>(payload, is_cross_endian_);
       break;
     }
     default: {
@@ -422,7 +423,6 @@ bool ArmSpeDecoder::SetPayloadAndSize(struct Packet* p) {
     }
   }
 
-  p->payload = payload;
   p->payload_size = payload_size;
   p->size = header_size + p->payload_size;
   return true;
