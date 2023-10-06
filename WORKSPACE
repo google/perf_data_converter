@@ -41,14 +41,12 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 rules_proto_toolchains()
 
+# TODO(b/303695580): Unpin this dependency after fixing compatibility.
 http_archive(
-    name = "boringssl",  # Must match upstream workspace name.
-    # Gitiles creates gzip files with an embedded timestamp, so we cannot use
-    # sha256 to validate the archives.  We must rely on the commit hash and
-    # https. Commits must come from the master-with-bazel branch.
-    urls = ["https://codeload.github.com/google/boringssl/zip/master-with-bazel"],
-    strip_prefix = "boringssl-master-with-bazel",
-    type = "zip",
+    name = "boringssl",
+    sha256 = "0a2b7a10fdce3d5ccdc6abf4f5701dca24b97efa75b00d203c50221269605476",
+    strip_prefix = "boringssl-ea4425fbb276871cfec5c4e19c12796b3cd1c9ab",
+    urls = ["https://github.com/google/boringssl/archive/ea4425fbb276871cfec5c4e19c12796b3cd1c9ab.tar.gz"],
 )
 
 # zlib is a dependency of protobuf.

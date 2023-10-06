@@ -7,6 +7,7 @@
 
 #include <sys/mman.h>
 
+#include <cstring>
 #include <ostream>  
 #include <string>
 #include <vector>
