@@ -11,10 +11,6 @@ if [ -z "${PDC_ROOT:-}" ]; then
   PDC_ROOT="$(realpath $(dirname ${0})/..)"
 fi
 
-if [ -z "${STD:-}" ]; then
-  STD="c++17"
-fi
-
 # This container is a reasonable start but is missing some prerequisite libs and
 # an installation of linux_perf. We'll manually add them below.
 readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20210617"
@@ -26,7 +22,7 @@ time docker run \
     --rm \
     -i \
     -e CC="/opt/llvm/clang/bin/clang" \
-    -e BAZEL_CXXOPTS="-std=${STD}:-nostdinc++" \
+    -e BAZEL_CXXOPTS="-nostdinc++" \
     -e BAZEL_LINKOPTS="-L/opt/llvm/libcxx/lib:-lc++:-lc++abi:-lm:-Wl,-rpath=/opt/llvm/libcxx/lib" \
     -e CPLUS_INCLUDE_PATH="/opt/llvm/libcxx/include/c++/v1" \
     ${DOCKER_EXTRA_ARGS:-} \
