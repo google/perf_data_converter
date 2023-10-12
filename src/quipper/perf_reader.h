@@ -107,6 +107,7 @@ class PerfReader {
   // Call Serialize() instead of this function to acquire an "official" protobuf
   // with a timestamp.
   const PerfDataProto& proto() const { return *proto_; }
+  PerfDataProto* mutable_proto() { return proto_; }
 
   const RepeatedPtrField<PerfDataProto_PerfFileAttr>& attrs() const {
     return proto_->file_attrs();
