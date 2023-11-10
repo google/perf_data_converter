@@ -148,6 +148,7 @@ cc_library(
         ":perf_buildid",
         ":perf_data_utils",
         ":sample_info_reader",
+        ":string_utils",
         ":base",
     ],
 )
@@ -770,6 +771,17 @@ cc_test(
         ":scoped_temp_path",
         ":test_runner",
         ":base",
+    ],
+)
+
+cc_test(
+    name = "string_utils_test",
+    size = "small",
+    srcs = ["string_utils_test.cc"],
+    deps = [
+        ":compat_gunit",
+        ":string_utils",
+        ":test_runner",
     ],
 )
 
