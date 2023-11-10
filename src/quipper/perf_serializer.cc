@@ -19,25 +19,11 @@
 #include "perf_data_utils.h"
 #include "perf_parser.h"
 #include "perf_reader.h"
+#include "string_utils.h"
 
 namespace quipper {
 
 namespace {
-
-// Extract the first two levels of directories of |filename| starting from root.
-std::string RootPath(const std::string& filename) {
-  if (filename[0] != '/') return "";
-  std::string root_path = "";
-  size_t pos = 1;
-  while (pos < filename.size() && filename[pos] == '/') ++pos;
-  for (int i = 1; i < 3; ++i) {
-    size_t next = filename.find('/', pos);
-    if (next == std::string::npos) break;
-    while (next < filename.size() && filename[next] == '/') ++next;
-    pos = next;
-  }
-  return filename.substr(0, pos - 1);
-}
 
 constexpr int kHexCharsPerByte = 2;
 

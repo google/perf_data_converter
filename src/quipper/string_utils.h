@@ -6,6 +6,7 @@
 #define CHROMIUMOS_WIDE_PROFILING_STRING_UTILS_H_
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace quipper {
@@ -16,6 +17,9 @@ void TrimWhitespace(std::string* str);
 // Splits a character array by |delimiter| into a vector of strings tokens.
 void SplitString(const std::string& str, char delimiter,
                  std::vector<std::string>* tokens);
+
+// Extract the first two levels of directories of |filename| starting from root.
+std::string RootPath(const std::string& filename);
 
 }  // namespace quipper
 
