@@ -26,17 +26,22 @@ void SplitString(const std::string& str, char delimiter,
 }
 
 std::string RootPath(const std::string& filename) {
+  // Handle named VMAs, like "[anon:...]" that are named using PR_SET_VMA, or
+  // like "/memfd:..." that are created using memfd_create, by generating
+  // custom root paths for them..
+  if (filename.rfind("[anon:", 0) == 0) return "[anon:";
+  if (filename.rfind("/memfd:", 0) == 0) return "/memfd:";
   if (filename[0] != '/') return "";
   std::string root_path = "";
   size_t pos = 1;
   while (pos < filename.size() && filename[pos] == '/') ++pos;
-  for (int i = 1; i < 3; ++i) {
-    size_t next = filename.find('/', pos);
-    if (next == std::string::npos) break;
+  for (int i = 1, next = pos; i < 3; ++i) {
     while (next < filename.size() && filename[next] == '/') ++next;
+    next = filename.find('/', next);
+    if (next == std::string::npos) break;
     pos = next;
   }
-  return filename.substr(0, pos - 1);
+  return filename.substr(0, pos);
 }
 
 }  // namespace quipper
