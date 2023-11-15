@@ -10,6 +10,7 @@
 #include <sys/time.h>
 
 #include <algorithm>
+#include <limits>
 #include <vector>
 
 #include "base/logging.h"
@@ -1511,6 +1512,10 @@ bool PerfReader::ReadEventDescMetadata(DataReader* data) {
   u32 nr_events;
   if (!data->ReadUint32(&nr_events)) {
     LOG(ERROR) << "Error reading event_desc nr_events.";
+    return false;
+  }
+  if (nr_events > std::numeric_limits<int>::max()) {
+    LOG(ERROR) << "Parsed nr_events exceeds the max representable int value.";
     return false;
   }
 
