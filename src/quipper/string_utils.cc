@@ -31,6 +31,8 @@ std::string RootPath(const std::string& filename) {
   // custom root paths for them..
   if (filename.rfind("[anon:", 0) == 0) return "[anon:";
   if (filename.rfind("/memfd:", 0) == 0) return "/memfd:";
+  // For temporary files and directory, capture only the top level directory.
+  if (filename.rfind("/tmp/", 0) == 0) return "/tmp";
   if (filename[0] != '/') return "";
   std::string root_path = "";
   size_t pos = 1;

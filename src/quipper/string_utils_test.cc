@@ -20,6 +20,9 @@ TEST(StringUtilsTest, RootPathExtraction) {
   EXPECT_EQ(RootPath("[vdso]"), "");
   EXPECT_EQ(RootPath("[anon:Mem0x20000]"), "[anon:");
   EXPECT_EQ(RootPath("/memfd:temp_file (deleted)"), "/memfd:");
+  EXPECT_EQ(RootPath("/tmp/aa)"), "/tmp");
+  EXPECT_EQ(RootPath("/tmp/aa/bb)"), "/tmp");
+  EXPECT_EQ(RootPath("/tmpdir/aa/bb)"), "/tmpdir/aa");
 }
 
 }  // namespace quipper
