@@ -105,12 +105,18 @@ void ByteSwap(T* input) {
   }
 }
 
-template void ByteSwap<uint8_t>(uint8_t*);
-template void ByteSwap<uint16_t>(uint16_t*);
-template void ByteSwap<uint32_t>(uint32_t*);
-template void ByteSwap<uint64_t>(uint64_t*);
-template void ByteSwap<int32_t>(int32_t*);
+template void ByteSwap<signed char>(signed char*);
+template void ByteSwap<unsigned char>(unsigned char*);
+template void ByteSwap<int>(int*);
+template void ByteSwap<unsigned int>(unsigned int*);
+// For portability we make explicit specialization on all integer types
+// instead of using exact-width types.
 
+template void ByteSwap<short>(short*);
+template void ByteSwap<unsigned short>(unsigned short*);
+template void ByteSwap<long>(long*);
+template void ByteSwap<unsigned long>(unsigned long*);
+template void ByteSwap<long long>(long long*);
 template void ByteSwap<unsigned long long>(unsigned long long*);
 
 
