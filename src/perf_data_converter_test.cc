@@ -773,9 +773,9 @@ TEST_F(PerfDataConverterTest, ConvertsCgroup) {
   EXPECT_EQ(expected_counts.size(), counts_by_cgroup.size());
   for (const auto& expected_count : expected_counts) {
     EXPECT_EQ(expected_count.second, counts_by_cgroup[expected_count.first])
-        << "Different counts for cgroup: " << expected_count.first << std::endl
-        << "Expected: " << expected_count.second << std::endl
-        << "Actual: " << counts_by_cgroup[expected_count.first] << std::endl;
+        << "Different counts for cgroup: " << expected_count.first << '\n'
+        << "Expected: " << expected_count.second << '\n'
+        << "Actual: " << counts_by_cgroup[expected_count.first] << '\n';
   }
 }
 
