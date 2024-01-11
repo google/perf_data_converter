@@ -6,15 +6,19 @@
 
 #include <string.h>
 
-#include <algorithm>
+#include <cstdint>
 #include <cstdlib>
+#include <map>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include <gflags/gflags.h>
 #include "base/logging.h"
 #include "compat/proto.h"
 #include "file_reader.h"
 #include "file_utils.h"
+#include "perf_parser.h"
 #include "perf_protobuf_io.h"
 #include "run_command.h"
 #include "string_utils.h"
@@ -78,29 +82,6 @@ bool ReadExistingProtobufText(const std::string& filename,
     return false;
   }
   output_string->assign(&output_buffer[0], output_buffer.size());
-  return true;
-}
-
-// Given a perf data file, return its protobuf representation as a text string
-// and/or a serialized data stream.
-bool PerfDataToProtoRepresentation(const std::string& filename,
-                                   std::string* output_text,
-                                   std::string* output_data) {
-  PerfDataProto perf_data_proto;
-  quipper::PerfParserOptions options = quipper::GetMinimalProcessingOptions();
-  if (!SerializeFromFileWithOptions(filename, options, &perf_data_proto)) {
-    return false;
-  }
-  // Reset the timestamp field since it causes reproducability issues when
-  // testing.
-  perf_data_proto.set_timestamp_sec(0);
-
-  if (output_text && !TextFormat::PrintToString(perf_data_proto, output_text)) {
-    return false;
-  }
-  if (output_data && !perf_data_proto.SerializeToString(output_data))
-    return false;
-
   return true;
 }
 
@@ -223,7 +204,7 @@ bool MaybeWriteGolden(const Message& proto,
   }
   std::string protobuf_representation;
   if (!TextFormat::PrintToString(proto, &protobuf_representation)) {
-    LOG(ERROR) << "Failed to serialize new proto to string.";
+    LOG(ERROR) << "Failed to serialize new proto to textproto string.";
     return false;
   }
   return MaybeWriteGolden(protobuf_representation, golden_filename);
@@ -232,9 +213,9 @@ bool MaybeWriteGolden(const Message& proto,
 bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
                                   const std::string& baseline_filename,
                                   std::string* difference) {
-  std::string extension = FLAGS_use_protobuf_data_format
-                              ? kProtobufDataExtension
-                              : kProtobufTextExtension;
+  bool use_protobuf_data_format = FLAGS_use_protobuf_data_format;
+  std::string extension = use_protobuf_data_format ? kProtobufDataExtension
+                                                   : kProtobufTextExtension;
   std::string golden_name = baseline_filename;
   if (baseline_filename.empty()) {
     golden_name = basename(perfdata_filepath.c_str());
@@ -245,36 +226,38 @@ bool CheckPerfDataAgainstBaseline(const std::string& perfdata_filepath,
   }
 
   bool matches_baseline = false;
-  std::string protobuf_representation, baseline;
+  std::string baseline;
   if (!ReadExistingProtobufText(golden_path, &baseline)) {
     LOG(ERROR) << "Failed to read existing golden file: " << golden_path;
   }
-  if (FLAGS_use_protobuf_data_format) {
-    if (!PerfDataToProtoRepresentation(perfdata_filepath, nullptr,
-                                       &protobuf_representation)) {
-      LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
-      return false;
-    }
-    matches_baseline = (baseline == protobuf_representation);
-    if (!matches_baseline) {
-      MaybeWriteGolden(protobuf_representation, golden_name + extension);
+  PerfDataProto actual, expected;
+  PerfParserOptions options = GetMinimalProcessingOptions();
+  if (!SerializeFromFileWithOptions(perfdata_filepath, options, &actual)) {
+    LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
+    return false;
+  }
+  // Reset the timestamp field because it causes reproducibility issues when
+  // testing.
+  actual.set_timestamp_sec(0);
+  if (use_protobuf_data_format) {
+    if (!expected.ParseFromString(baseline)) {
+      LOG(ERROR) << "Failed to parse proto from golden protobuf format.";
     }
   } else {
-    PerfDataProto actual, expected;
-    PerfParserOptions options = GetMinimalProcessingOptions();
-    if (!SerializeFromFileWithOptions(perfdata_filepath, options, &actual)) {
-      LOG(ERROR) << "Failed to parse perfdata file: " << perfdata_filepath;
-      return false;
-    }
-    // Reset the timestamp field because it causes reproducability issues when
-    // testing.
-    actual.set_timestamp_sec(0);
-
     if (!TextFormat::ParseFromString(baseline, &expected)) {
       LOG(ERROR) << "Failed to parse proto from golden text proto.";
     }
-    matches_baseline = EqualsProto(actual, expected, difference);
-    if (!matches_baseline) {
+  }
+  matches_baseline = EqualsProto(actual, expected, difference);
+  if (!matches_baseline) {
+    if (use_protobuf_data_format) {
+      std::string protobuf_representation;
+      if (!actual.SerializeToString(&protobuf_representation)) {
+        LOG(ERROR) << "Failed to serialize new proto to protobuf string.";
+        return false;
+      }
+      MaybeWriteGolden(protobuf_representation, golden_name + extension);
+    } else {
       MaybeWriteGolden(actual, golden_name + extension);
     }
   }
