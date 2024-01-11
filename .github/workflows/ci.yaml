@@ -12,6 +12,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-22.04
+    env:
+      USE_BAZEL_VERSION: 6.4.0
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
