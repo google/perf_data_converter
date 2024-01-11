@@ -231,6 +231,7 @@ class PerfReader {
   bool ReadPMUMappingsMetadata(DataReader* data, size_t size);
   bool ReadGroupDescMetadata(DataReader* data);
   bool ReadEventDescMetadata(DataReader* data);
+  bool ReadHybridTopologyMetadata(DataReader* data, size_t size);
 
   // Read perf data from file perf output data.
   bool ReadFileData(DataReader* data);
@@ -279,6 +280,7 @@ class PerfReader {
   bool WriteNUMATopologyMetadata(DataWriter* data) const;
   bool WritePMUMappingsMetadata(DataWriter* data) const;
   bool WriteGroupDescMetadata(DataWriter* data) const;
+  bool WriteHybridTopologyMetadata(DataWriter* data) const;
 
   // For reading event blocks within piped perf data.
   bool ReadAttrEventBlock(DataReader* data, size_t size);
@@ -299,6 +301,7 @@ class PerfReader {
   size_t GetNUMATopologyMetadataSize() const;
   size_t GetPMUMappingsMetadataSize() const;
   size_t GetGroupDescMetadataSize() const;
+  size_t GetHybridTopologyMetadataSize() const;
 
   // Returns true if we should write the number of strings for the string
   // metadata of type |type|.

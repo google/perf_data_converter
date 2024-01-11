@@ -29,6 +29,7 @@ struct PerfEventStats;
 struct PerfParserOptions;
 struct PerfUint32Metadata;
 struct PerfUint64Metadata;
+struct PerfHybridTopologyMetadata;
 
 class SampleInfoReader;
 
@@ -246,6 +247,13 @@ class PerfSerializer {
   bool DeserializeGroupDescMetadata(
       const PerfDataProto_PerfGroupDescMetadata& proto_metadata,
       PerfGroupDescMetadata* metadata) const;
+
+  bool SerializeHybridTopologyMetadata(
+      const PerfHybridTopologyMetadata& metadata,
+      PerfDataProto_PerfHybridTopologyMetadata* proto_metadata) const;
+  bool DeserializeHybridTopologyMetadata(
+      const PerfDataProto_PerfHybridTopologyMetadata& proto_metadata,
+      PerfHybridTopologyMetadata* metadata) const;
 
   static void SerializeParserStats(const PerfEventStats& stats,
                                    PerfDataProto* perf_data_proto);

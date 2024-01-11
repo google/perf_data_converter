@@ -5,6 +5,8 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_PERF_DATA_STRUCTURES_H_
 #define CHROMIUMOS_WIDE_PROFILING_PERF_DATA_STRUCTURES_H_
 
+#include <cstdint>
+#include <string>
 #include <vector>
 
 #include "kernel/perf_event.h"
@@ -57,6 +59,12 @@ struct PerfGroupDescMetadata {
   std::string name;
   uint32_t leader_idx;
   uint32_t num_members;
+};
+
+struct PerfHybridTopologyMetadata {
+  std::string pmu_name;
+  std::string cpus;
+  std::vector<uint32_t> cpu_list;
 };
 
 }  // namespace quipper

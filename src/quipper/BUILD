@@ -396,8 +396,6 @@ cc_library(
     srcs = ["string_utils.cc"],
     hdrs = ["string_utils.h"],
     visibility = ["//visibility:public"],
-    deps = [
-    ],
 )
 
 cc_library(

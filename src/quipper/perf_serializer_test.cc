@@ -6,6 +6,7 @@
 
 #include <sys/time.h>
 
+#include <cstdint>
 #include <map>
 #include <sstream>
 #include <string>
@@ -105,7 +106,6 @@ void DeserializeAndSerialize(const PerfDataProto& input,
   reader1.WriteToString(&buf);
 
   PerfReader reader2;
-  PerfDataProto perf_data_proto_2;
   reader2.ReadFromString(buf);
   ASSERT_TRUE(reader2.Serialize(output));
 }
@@ -593,6 +593,33 @@ TEST(PerfSerializerTest, SerializesAndDeserializesPerfFileAttr) {
   }
 
   EXPECT_EQ(0, perf_data_proto.events().size());
+}
+
+TEST(PerfSerializerTest, TestHybridTopology) {
+  const std::string test_file = "perf.data.hybrid_topology";
+  const std::string input_perf_data = GetTestInputFilePath(test_file);
+
+  PerfDataProto perf_data_proto;
+  EXPECT_TRUE(SerializeFromFile(input_perf_data, &perf_data_proto));
+  ASSERT_FALSE(perf_data_proto.hybrid_topology().empty());
+  std::vector<std::string> want_cpus(perf_data_proto.hybrid_topology_size());
+
+  for (int i = 0; i < perf_data_proto.hybrid_topology_size(); ++i) {
+    PerfDataProto_PerfHybridTopologyMetadata& ht =
+        *perf_data_proto.mutable_hybrid_topology(i);
+    ASSERT_FALSE(ht.cpu_list().empty());
+    want_cpus[i] = ht.cpus();
+    ht.clear_cpus();
+    ht.clear_pmu_name();
+  }
+
+  PerfDataProto perf_data_proto_2;
+  DeserializeAndSerialize(perf_data_proto, &perf_data_proto_2);
+  EXPECT_EQ(perf_data_proto_2.hybrid_topology_size(),
+            perf_data_proto.hybrid_topology_size());
+  for (int i = 0; i < perf_data_proto_2.hybrid_topology_size(); ++i) {
+    EXPECT_EQ(perf_data_proto_2.hybrid_topology(i).cpus(), want_cpus[i]);
+  }
 }
 
 TEST(PerfSerializerTest, SerializesAndDeserializesMmapEvents) {

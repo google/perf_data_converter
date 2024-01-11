@@ -4,6 +4,12 @@
 
 #include "string_utils.h"
 
+#include <stdlib.h>
+
+#include <cstdint>
+#include <sstream>
+#include <string>
+
 namespace quipper {
 
 void TrimWhitespace(std::string* str) {
@@ -44,6 +50,75 @@ std::string RootPath(const std::string& filename) {
     pos = next;
   }
   return filename.substr(0, pos);
+}
+
+bool Stou32(const std::string& str, uint32_t& result) {
+  char* end;
+  
+  result = strtoul(str.c_str(), &end, 10);
+  if (*end) return false;
+  return true;
+}
+
+bool ParseCPUNumbers(const std::string& cpus, std::vector<uint32_t>& result) {
+  std::vector<std::string> tokens;
+  SplitString(cpus, ',', &tokens);
+  if (tokens.empty()) return false;
+
+  for (const auto& token : tokens) {
+    std::vector<std::string> range_tokens;
+    SplitString(token, '-', &range_tokens);
+
+    if (range_tokens.size() > 2) {
+      return false;
+    }
+
+    if (range_tokens.size() == 1) {
+      uint32_t cpu;
+      if (!Stou32(token, cpu)) {
+        return false;
+      }
+      result.push_back(cpu);
+      continue;
+    }
+
+    uint32_t cpu_start, cpu_end;
+    if (!Stou32(range_tokens[0], cpu_start) ||
+        !Stou32(range_tokens[1], cpu_end)) {
+      return false;
+    }
+
+    if (cpu_end <= cpu_start) {
+      return false;
+    }
+
+    for (uint32_t i = cpu_start; i <= cpu_end; ++i) {
+      result.push_back(i);
+    }
+  }
+
+  return true;
+}
+
+std::string FormatCPUNumbers(const std::vector<uint32_t>& cpus) {
+  if (cpus.empty()) return "";
+
+  std::stringstream tokens;
+
+  for (int i = 0; i < cpus.size();) {
+    uint32_t start = cpus[i];
+    int j;
+    for (j = i + 1; j < cpus.size(); ++j) {
+      if (cpus[j] > cpus[j - 1] + 1) break;
+    }
+    if (i > 0) tokens << ",";
+    if (j - i == 1)
+      tokens << cpus[i];
+    else
+      tokens << start << '-' << cpus[j - 1];
+    i = j;
+  }
+  return tokens.str();
 }
 
 }  // namespace quipper
