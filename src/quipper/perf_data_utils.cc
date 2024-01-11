@@ -4,6 +4,8 @@
 
 #include "perf_data_utils.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -174,6 +176,32 @@ std::string GetMetadataName(uint32_t type) {
       return "HEADER_PMU_MAPPINGS";
     case HEADER_GROUP_DESC:
       return "HEADER_GROUP_DESC";
+    case HEADER_AUXTRACE:
+      return "HEADER_AUXTRACE";
+    case HEADER_STAT:
+      return "HEADER_STAT";
+    case HEADER_CACHE:
+      return "HEADER_CACHE";
+    case HEADER_SAMPLE_TIME:
+      return "HEADER_SAMPLE_TIME";
+    case HEADER_MEM_TOPOLOGY:
+      return "HEADER_MEM_TOPOLOGY";
+    case HEADER_CLOCKID:
+      return "HEADER_CLOCKID";
+    case HEADER_DIR_FORMAT:
+      return "HEADER_DIR_FORMAT";
+    case HEADER_BPF_PROG_INFO:
+      return "HEADER_BPF_PROG_INFO";
+    case HEADER_BPF_BTF:
+      return "HEADER_BPF_BTF";
+    case HEADER_COMPRESSED:
+      return "HEADER_COMPRESSED";
+    case HEADER_CPU_PMU_CAPS:
+      return "HEADER_PMU_CAPS";
+    case HEADER_CLOCK_DATA:
+      return "HEADER_CLOCK_DATA";
+    case HEADER_HYBRID_TOPOLOGY:
+      return "HEADER_HYBRID_TOPOLOGY";
     case HEADER_LAST_FEATURE:
       return "HEADER_LAST_FEATURE";
   }

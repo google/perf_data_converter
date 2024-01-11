@@ -1444,6 +1444,28 @@ bool PerfSerializer::DeserializeGroupDescMetadata(
   return true;
 }
 
+bool PerfSerializer::SerializeHybridTopologyMetadata(
+    const PerfHybridTopologyMetadata& metadata,
+    PerfDataProto_PerfHybridTopologyMetadata* proto_metadata) const {
+  proto_metadata->set_pmu_name(metadata.pmu_name);
+  proto_metadata->set_pmu_name_md5_prefix(Md5Prefix(metadata.pmu_name));
+  proto_metadata->set_cpus(metadata.cpus);
+  proto_metadata->mutable_cpu_list()->Assign(metadata.cpu_list.begin(),
+                                             metadata.cpu_list.end());
+  return true;
+}
+
+bool PerfSerializer::DeserializeHybridTopologyMetadata(
+    const PerfDataProto_PerfHybridTopologyMetadata& proto_metadata,
+    PerfHybridTopologyMetadata* metadata) const {
+  metadata->pmu_name = proto_metadata.pmu_name();
+  metadata->cpus = proto_metadata.cpus();
+  metadata->cpu_list.clear();
+  metadata->cpu_list.assign(proto_metadata.cpu_list().begin(),
+                            proto_metadata.cpu_list().end());
+  return true;
+}
+
 // static
 void PerfSerializer::SerializeParserStats(const PerfEventStats& stats,
                                           PerfDataProto* perf_data_proto) {

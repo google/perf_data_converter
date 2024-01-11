@@ -7,6 +7,8 @@
 #include <stddef.h>     // For NULL
 #include <sys/types.h>  // For pid_t
 
+#include <cstdint>
+
 #include "kernel/perf_event.h"
 
 namespace quipper {
@@ -41,6 +43,19 @@ enum {
   HEADER_BRANCH_STACK,
   HEADER_PMU_MAPPINGS,
   HEADER_GROUP_DESC,
+  HEADER_AUXTRACE,
+  HEADER_STAT,
+  HEADER_CACHE,
+  HEADER_SAMPLE_TIME,
+  HEADER_MEM_TOPOLOGY,
+  HEADER_CLOCKID,
+  HEADER_DIR_FORMAT,
+  HEADER_BPF_PROG_INFO,
+  HEADER_BPF_BTF,
+  HEADER_COMPRESSED,
+  HEADER_CPU_PMU_CAPS,
+  HEADER_CLOCK_DATA,
+  HEADER_HYBRID_TOPOLOGY,
   HEADER_LAST_FEATURE,
   HEADER_FEAT_BITS = 256,
 };

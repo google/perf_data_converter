@@ -510,6 +510,26 @@ void ExampleCPUTopologyMetadata::WriteTo(std::ostream* out) const {
            index_entry.offset + IndexEntrySize());
 }
 
+void ExampleHybridTopologyMetadata::WriteTo(std::ostream* out) const {
+  const perf_file_section& index_entry = index_entry_.index_entry_;
+  CHECK_EQ(static_cast<u64>(out->tellp()), index_entry.offset);
+
+  size_t offset = index_entry.offset;
+  const u32 num_records = MaybeSwap32(records_.size());
+  out->write(reinterpret_cast<const char*>(&num_records), sizeof(num_records));
+  offset += sizeof(u32);  // nr
+  for (const auto& record : records_) {
+    ExampleStringMetadata pmu_name(record.first, offset);
+    pmu_name.WriteTo(out);
+    offset += pmu_name.size();
+    ExampleStringMetadata cpus(record.second, offset);
+    cpus.WriteTo(out);
+    offset += cpus.size();
+  }
+  CHECK_EQ(static_cast<u64>(out->tellp()),
+           index_entry.offset + IndexEntrySize());
+}
+
 size_t ExampleAuxtraceEvent::GetSize() const {
   return sizeof(struct auxtrace_event);
 }

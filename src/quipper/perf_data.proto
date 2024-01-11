@@ -13,7 +13,7 @@ option cc_enable_arenas = true;
 //
 // See $kernel/tools/perf/design.txt for more details.
 
-// Next tag: 17
+// Next tag: 18
 message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
@@ -973,6 +973,19 @@ message PerfDataProto {
     optional uint32 num_members = 4;
   }
 
+  // Next tag: 5
+  message PerfHybridTopologyMetadata {
+    // Name of the PMU device, e.g. software, cpu, cs_etm, etc.
+    optional string pmu_name = 1;
+    optional uint64 pmu_name_md5_prefix = 2;
+
+    // A range of cpu numbers returned in various /sys/devices locations.
+    // e.g. "0-3", "0,3".
+    optional string cpus = 3;
+    // Same content as above, but as a list of numbers for ease of use.
+    repeated uint32 cpu_list = 4 [packed = true];
+  }
+
   repeated PerfFileAttr file_attrs = 1;
   repeated PerfEvent events = 2;
 
@@ -1005,6 +1018,8 @@ message PerfDataProto {
   repeated PerfPMUMappingsMetadata pmu_mappings = 15;
 
   repeated PerfGroupDescMetadata group_desc = 16;
+
+  repeated PerfHybridTopologyMetadata hybrid_topology = 17;
 
   // Next tag: 9
   message StringMetadata {

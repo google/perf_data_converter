@@ -6,12 +6,14 @@
 
 #include <byteswap.h>
 
+#include <cstdint>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "base/logging.h"
 #include "file_utils.h"
+#include "kernel/perf_internals.h"
 #include "perf_test_files.h"
 #include "test_perf_data.h"
 #include "test_utils.h"
@@ -1728,6 +1730,52 @@ TEST(PerfReaderTest, CheckNumSiblingsForCPUTopology) {
   // Read input should fail
   PerfReader pr;
   EXPECT_FALSE(pr.ReadFromString(input.str()));
+}
+
+TEST(PerfReaderTest, ReadsAndWritesHybridTopologyMetadata) {
+  std::stringstream input;
+  const std::vector<std::string> pmu_names = {"cpu_core", "cpu_atom"};
+  const std::vector<std::string> cpus = {"0-1", "2-5"};
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(1 << HEADER_HYBRID_TOPOLOGY);
+  file_header.WithAttrCount(1);
+  file_header.WriteTo(&input);
+  const perf_file_header& header = file_header.header();
+
+  // attrs
+  ASSERT_EQ(header.attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(0, false /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // metadata
+  size_t metadata_offset = file_header.data_end() + sizeof(perf_file_section);
+  testing::ExampleHybridTopologyMetadata hybrid_topology_metadata(
+      pmu_names, cpus, metadata_offset);
+  hybrid_topology_metadata.index_entry().WriteTo(&input);
+  hybrid_topology_metadata.WriteTo(&input);
+
+  //
+  // Parse input
+  //
+
+  PerfReader pr;
+  std::vector<uint32_t> want_cpu_cores = {0, 1};
+  std::vector<uint32_t> want_cpu_atoms = {2, 3, 4, 5};
+  ASSERT_TRUE(pr.ReadFromString(input.str()));
+  auto hybrid_topology = pr.proto().hybrid_topology();
+  EXPECT_EQ(hybrid_topology[0].pmu_name(), "cpu_core");
+  EXPECT_EQ(hybrid_topology[0].cpus(), "0-1");
+  EXPECT_EQ(hybrid_topology[0].cpu_list().size(), want_cpu_cores.size());
+  for (int i = 0; i < want_cpu_cores.size(); ++i) {
+    EXPECT_EQ(hybrid_topology[0].cpu_list(i), want_cpu_cores[i]);
+  }
+  EXPECT_EQ(hybrid_topology[1].pmu_name(), "cpu_atom");
+  EXPECT_EQ(hybrid_topology[1].cpus(), "2-5");
+  EXPECT_EQ(hybrid_topology[1].cpu_list().size(), want_cpu_atoms.size());
+  for (int i = 0; i < want_cpu_atoms.size(); ++i) {
+    EXPECT_EQ(hybrid_topology[1].cpu_list(i), want_cpu_atoms[i]);
+  }
 }
 
 // Regression test for http://crbug.com/493533

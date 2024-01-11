@@ -10,20 +10,29 @@
 #include <sys/time.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
+#include <map>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "base/logging.h"
 #include "binary_data_utils.h"
 #include "buffer_reader.h"
 #include "buffer_writer.h"
+#include "compat/proto.h"
 #include "file_reader.h"
 #include "file_utils.h"
+#include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
+#include "perf_serializer.h"
 #include "sample_info_reader.h"
+#include "string_utils.h"
 
 namespace quipper {
 
@@ -58,14 +67,14 @@ typedef u32 group_desc_num_groups_type;
 
 // A mask that is applied to |metadata_mask()| in order to get a mask for
 // only the metadata supported by quipper.
-const uint32_t kSupportedMetadataMask =
+const uint64_t kSupportedMetadataMask =
     1 << HEADER_TRACING_DATA | 1 << HEADER_BUILD_ID | 1 << HEADER_HOSTNAME |
     1 << HEADER_OSRELEASE | 1 << HEADER_VERSION | 1 << HEADER_ARCH |
     1 << HEADER_NRCPUS | 1 << HEADER_CPUDESC | 1 << HEADER_CPUID |
     1 << HEADER_TOTAL_MEM | 1 << HEADER_CMDLINE | 1 << HEADER_EVENT_DESC |
     1 << HEADER_CPU_TOPOLOGY | 1 << HEADER_NUMA_TOPOLOGY |
     1 << HEADER_BRANCH_STACK | 1 << HEADER_PMU_MAPPINGS |
-    1 << HEADER_GROUP_DESC;
+    1 << HEADER_GROUP_DESC | 1 << HEADER_HYBRID_TOPOLOGY;
 
 // By default, the build ID event has PID = -1.
 const uint32_t kDefaultBuildIDEventPid = static_cast<uint32_t>(-1);
@@ -563,6 +572,7 @@ size_t PerfReader::GetSize() const {
   total_size += GetNUMATopologyMetadataSize();
   total_size += GetPMUMappingsMetadataSize();
   total_size += GetGroupDescMetadataSize();
+  total_size += GetHybridTopologyMetadataSize();
   return total_size;
 }
 
@@ -1307,6 +1317,8 @@ bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
         return ReadPMUMappingsMetadata(data, size);
       case HEADER_GROUP_DESC:
         return ReadGroupDescMetadata(data);
+      case HEADER_HYBRID_TOPOLOGY:
+        return ReadHybridTopologyMetadata(data, size);
       default:
         is_supported_metadata = false;
         LOG(INFO) << "Unsupported metadata type, skipping: "
@@ -1727,6 +1739,34 @@ bool PerfReader::ReadTracingMetadata(DataReader* data, size_t size) {
   return true;
 }
 
+bool PerfReader::ReadHybridTopologyMetadata(DataReader* data, size_t size) {
+  // Structure:
+  // u32 nr;
+  // struct {
+  //   char pmu_name[];
+  //   char cpus[];
+  // } [nr]; /* Variable length records */
+
+  u32 num_hybrid_pmus;
+  if (!data->ReadUint32(&num_hybrid_pmus)) {
+    LOG(ERROR) << "Error reading the number of hybrid topology pmus.";
+    return false;
+  }
+
+  for (u32 i = 0; i < num_hybrid_pmus; ++i) {
+    PerfHybridTopologyMetadata hybrid_topology;
+    if (!data->ReadStringWithSizeFromData(&hybrid_topology.pmu_name) ||
+        !data->ReadStringWithSizeFromData(&hybrid_topology.cpus)) {
+      LOG(ERROR) << "Error reading hybrid topology info for pmu #" << i;
+      return false;
+    }
+    ParseCPUNumbers(hybrid_topology.cpus, hybrid_topology.cpu_list);
+    serializer_.SerializeHybridTopologyMetadata(hybrid_topology,
+                                                proto_->add_hybrid_topology());
+  }
+  return true;
+}
+
 bool PerfReader::ReadFileData(DataReader* data) {
   // Make sure sections are within the size of the file. This check prevents
   // more obscure messages later when attempting to read from one of these
@@ -2041,6 +2081,9 @@ bool PerfReader::WriteMetadata(const struct perf_file_header& header,
       case HEADER_GROUP_DESC:
         if (!WriteGroupDescMetadata(data)) return false;
         break;
+      case HEADER_HYBRID_TOPOLOGY:
+        if (!WriteHybridTopologyMetadata(data)) return false;
+        break;
       default:
         LOG(ERROR) << "Unsupported metadata: " << GetMetadataName(type);
         return false;
@@ -2275,6 +2318,25 @@ bool PerfReader::WriteGroupDescMetadata(DataWriter* data) const {
   return true;
 }
 
+bool PerfReader::WriteHybridTopologyMetadata(DataWriter* data) const {
+  u32 num_pmus = proto_->hybrid_topology().size();
+  if (!data->WriteDataValue(&num_pmus, sizeof(num_pmus), "num pmus"))
+    return false;
+
+  for (const auto& pmu_proto : proto_->hybrid_topology()) {
+    PerfHybridTopologyMetadata metadata;
+    serializer_.DeserializeHybridTopologyMetadata(pmu_proto, &metadata);
+    if (!data->WriteStringWithSizeToData(metadata.pmu_name)) return false;
+    if (!metadata.cpus.empty()) {
+      if (!data->WriteStringWithSizeToData(metadata.cpus)) return false;
+    } else if (!data->WriteStringWithSizeToData(
+                   FormatCPUNumbers(metadata.cpu_list))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool PerfReader::ReadAttrEventBlock(DataReader* data, size_t size) {
   const size_t initial_offset = data->Tell();
   PerfFileAttr attr;
@@ -2470,6 +2532,20 @@ size_t PerfReader::GetGroupDescMetadataSize() const {
     size += ExpectedStorageSizeOf(group.name());
     size += sizeof(group.leader_idx());
     size += sizeof(group.num_members());
+  }
+  return size;
+}
+
+size_t PerfReader::GetHybridTopologyMetadataSize() const {
+  size_t size = sizeof(u32);  // size of nr
+  for (const auto& ht : proto_->hybrid_topology()) {
+    size += ExpectedStorageSizeOf(ht.pmu_name());
+    if (ht.has_cpus()) {
+      size += ExpectedStorageSizeOf(ht.cpus());
+    } else {
+      size += ExpectedStorageSizeOf(FormatCPUNumbers(
+          std::vector<uint32_t>(ht.cpu_list().begin(), ht.cpu_list().end())));
+    }
   }
   return size;
 }

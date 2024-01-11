@@ -10,6 +10,7 @@
 #include <cstring>
 #include <ostream>  
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "binary_data_utils.h"
@@ -583,6 +584,33 @@ class ExampleCPUTopologyMetadata : public StreamWriteable {
   std::vector<std::string> core_siblings_;
   u32 num_thread_siblings_;
   std::vector<std::string> thread_siblings_;
+  MetadataIndexEntry index_entry_;
+};
+
+class ExampleHybridTopologyMetadata : public StreamWriteable {
+ public:
+  // pmu_name and cpus have 1-to-1 mapping.
+  explicit ExampleHybridTopologyMetadata(std::vector<std::string> pmu_name,
+                                         std::vector<std::string> cpus,
+                                         size_t offset)
+      : index_entry_(offset, IndexEntrySize()) {
+    records_.reserve(pmu_name.size());
+    for (int i = 0; i < pmu_name.size(); ++i) {
+      records_.push_back(std::make_pair(pmu_name[i], cpus[i]));
+    }
+  }
+
+  size_t IndexEntrySize() const {
+    return sizeof(u32) /* nr */ +
+           (sizeof(u32) + ExampleStringMetadata::kStringAlignSize) * 2 *
+               (records_.size());
+  }
+
+  void WriteTo(std::ostream* out) const override;
+  const MetadataIndexEntry& index_entry() { return index_entry_; }
+
+ private:
+  std::vector<std::pair<std::string, std::string>> records_;
   MetadataIndexEntry index_entry_;
 };
 

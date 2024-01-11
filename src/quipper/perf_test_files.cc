@@ -4,6 +4,8 @@
 
 #include "perf_test_files.h"
 
+#include <vector>
+
 namespace perf_test_files {
 
 const std::vector<const char*>& GetPerfDataFiles() {
@@ -171,6 +173,12 @@ const std::vector<const char*>& GetPerfDataFiles() {
          perf5 record --event=rc4 -c 50 -b -o perf.data -- /usr/bin/lsattr
       */
       "perf.data.branch_stack_spec",
+      /* Perf data file with hybrid topology recorded from Intel AlderLake
+         microarchitecture.
+         Command:
+         perf record -e cycles:ppp -o perf.data -- sleep 1
+      */
+      "perf.data.hybrid_topology",
   };
   return *files;
 }

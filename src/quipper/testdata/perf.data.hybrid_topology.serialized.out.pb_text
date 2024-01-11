@@ -1,0 +1,728 @@
+file_attrs {
+  attr {
+    type: 0
+    size: 96
+    config: 17179869184
+    sample_period: 4000
+    sample_type: 327
+    read_format: 4
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: false
+    comm: false
+    freq: true
+    inherit_stat: false
+    enable_on_exec: true
+    task: false
+    watermark: false
+    precise_ip: 3
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
+  }
+  ids: 29
+  ids: 30
+  ids: 31
+  ids: 32
+}
+file_attrs {
+  attr {
+    type: 0
+    size: 96
+    config: 30064771072
+    sample_period: 4000
+    sample_type: 327
+    read_format: 4
+    disabled: true
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: false
+    comm: false
+    freq: true
+    inherit_stat: false
+    enable_on_exec: true
+    task: false
+    watermark: false
+    precise_ip: 3
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: true
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: false
+    comm_exec: false
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
+  }
+  ids: 33
+  ids: 34
+  ids: 35
+  ids: 36
+  ids: 37
+  ids: 38
+  ids: 39
+  ids: 40
+}
+file_attrs {
+  attr {
+    type: 1
+    size: 96
+    config: 9
+    sample_period: 4000
+    sample_type: 327
+    read_format: 4
+    disabled: false
+    inherit: true
+    pinned: false
+    exclusive: false
+    exclude_user: false
+    exclude_kernel: false
+    exclude_hv: false
+    exclude_idle: false
+    mmap: true
+    comm: true
+    freq: true
+    inherit_stat: false
+    enable_on_exec: false
+    task: true
+    watermark: false
+    precise_ip: 0
+    mmap_data: false
+    sample_id_all: true
+    exclude_host: false
+    exclude_guest: false
+    wakeup_events: 0
+    bp_type: 0
+    bp_addr: 0
+    bp_len: 0
+    branch_sample_type: 0
+    exclude_callchain_kernel: false
+    exclude_callchain_user: false
+    mmap2: true
+    comm_exec: true
+    sample_regs_user: 0
+    sample_stack_user: 0
+    use_clockid: false
+    context_switch: false
+    write_backward: false
+    namespaces: false
+    cgroup: false
+  }
+  ids: 41
+  ids: 42
+  ids: 43
+  ids: 44
+  ids: 45
+  ids: 46
+  ids: 47
+  ids: 48
+  ids: 49
+  ids: 50
+  ids: 51
+  ids: 52
+}
+events {
+  header {
+    type: 79
+    misc: 0
+    size: 56
+  }
+  timestamp: 0
+  time_conv_event {
+    time_shift: 31
+    time_mult: 798915047
+    time_zero: 18446744060329204437
+    time_cycles: 0
+    time_mask: 0
+    cap_user_time_zero: true
+    cap_user_time_short: false
+  }
+}
+events {
+  header {
+    type: 1
+    misc: 1
+    size: 88
+  }
+  mmap_event {
+    pid: 4294967295
+    tid: 0
+    start: 18446744072296071168
+    len: 16790594
+    pgoff: 18446744072296071168
+    filename: "[kernel.kallsyms]_text"
+    filename_md5_prefix: 9918483331179727898
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      id: 0
+    }
+    root_path_md5_prefix: 15284527576400310788
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 73
+    misc: 0
+    size: 40
+  }
+  timestamp: 0
+  thread_map_event {
+    entries {
+      pid: 7213
+      comm: ""
+      comm_md5_prefix: 15284527576400310788
+    }
+  }
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 56
+  }
+  comm_event {
+    pid: 7213
+    tid: 7213
+    comm: "perf-exec"
+    comm_md5_prefix: 6375561754421997525
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+      id: 0
+    }
+  }
+  timestamp: 0
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072296355459
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132490336
+    id: 32
+    period: 1
+  }
+  timestamp: 101132490336
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072304121879
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132492900
+    id: 32
+    period: 1
+  }
+  timestamp: 101132492900
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072304121924
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132493913
+    id: 32
+    period: 11
+  }
+  timestamp: 101132493913
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072304121924
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132494868
+    id: 32
+    period: 335
+  }
+  timestamp: 101132494868
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072296289437
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132495594
+    id: 32
+    period: 11142
+  }
+  timestamp: 101132495594
+}
+events {
+  header {
+    type: 3
+    misc: 8192
+    size: 48
+  }
+  comm_event {
+    pid: 7213
+    tid: 7213
+    comm: "sleep"
+    comm_md5_prefix: 14554142227159335212
+    sample_info {
+      pid: 7213
+      tid: 7213
+      sample_time_ns: 101132497199
+      id: 44
+    }
+  }
+  timestamp: 101132497199
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072309571702
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132498085
+    id: 32
+    period: 488029
+  }
+  timestamp: 101132498085
+}
+events {
+  header {
+    type: 9
+    misc: 16385
+    size: 48
+  }
+  sample_event {
+    ip: 18446744072296128633
+    pid: 7213
+    tid: 7213
+    sample_time_ns: 101132592926
+    id: 32
+    period: 6549429
+  }
+  timestamp: 101132592926
+}
+events {
+  header {
+    type: 3
+    misc: 0
+    size: 48
+  }
+  comm_event {
+    pid: 7213
+    tid: 7213
+    comm: "sleep"
+    comm_md5_prefix: 14554142227159335212
+    sample_info {
+      pid: 7213
+      tid: 7213
+      sample_time_ns: 101132860000
+      id: 44
+    }
+  }
+  timestamp: 101132860000
+}
+events {
+  header {
+    type: 4
+    misc: 0
+    size: 56
+  }
+  exit_event {
+    pid: 7213
+    ppid: 7212
+    tid: 7213
+    ptid: 7212
+    fork_time_ns: 102133178379
+    sample_info {
+      pid: 7213
+      tid: 7213
+      sample_time_ns: 102133177403
+      id: 44
+    }
+  }
+  timestamp: 102133177403
+}
+timestamp_sec: 0
+stats {
+  num_sample_events: 7
+  num_mmap_events: 1
+  num_fork_events: 0
+  num_exit_events: 1
+  num_sample_events_mapped: 7
+  did_remap: false
+}
+metadata_mask: 1073823740
+build_ids {
+  misc: 32769
+  pid: 4294967295
+  build_id_hash: "M\215\247F\036\336BG\257\t:\364s\361\310\335\252+\242B"
+  filename: "[kernel.kallsyms]"
+  filename_md5_prefix: 280564236321828871
+  size: 20
+}
+build_ids {
+  misc: 32770
+  pid: 4294967295
+  build_id_hash: "r\322\346\260N\335\335\276`\236<\347\217\014\026\240?Qk5"
+  filename: "[vdso]"
+  filename_md5_prefix: 2667416218816914640
+  size: 20
+}
+uint32_metadata {
+  type: 7
+  data: 12
+  data: 12
+}
+uint64_metadata {
+  type: 10
+  data: 7911756
+}
+event_types {
+  id: 17179869184
+  name: "cpu_core/cycles:ppp/"
+  name_md5_prefix: 10625283475878734247
+}
+event_types {
+  id: 30064771072
+  name: "cpu_atom/cycles:ppp/"
+  name_md5_prefix: 4136256843414986930
+}
+event_types {
+  id: 9
+  name: "dummy:HG"
+  name_md5_prefix: 4616764810112742998
+}
+cpu_topology {
+  core_siblings: "0-11"
+  core_siblings_md5_prefix: 5611340837010840115
+  thread_siblings: "0-1"
+  thread_siblings: "2-3"
+  thread_siblings: "4"
+  thread_siblings: "5"
+  thread_siblings: "6"
+  thread_siblings: "7"
+  thread_siblings: "8"
+  thread_siblings: "9"
+  thread_siblings: "10"
+  thread_siblings: "11"
+  thread_siblings_md5_prefix: 14045363986529205085
+  thread_siblings_md5_prefix: 13991663921307637384
+  thread_siblings_md5_prefix: 12141694122699515677
+  thread_siblings_md5_prefix: 16490558405368226629
+  thread_siblings_md5_prefix: 1619335558399004591
+  thread_siblings_md5_prefix: 10310116547102381690
+  thread_siblings_md5_prefix: 14551403719088974737
+  thread_siblings_md5_prefix: 5027297901218201533
+  thread_siblings_md5_prefix: 15265307625460613721
+  thread_siblings_md5_prefix: 7283091646525908704
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 0
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 4
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 8
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 9
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 10
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 11
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 12
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 13
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 14
+    socket_id: 0
+  }
+  available_cpus {
+    core_id: 15
+    socket_id: 0
+  }
+}
+string_metadata {
+  hostname {
+    value: "localhost"
+    value_md5_prefix: 4763305433620259622
+  }
+  kernel_version {
+    value: "5.15.140-21013-ge5249718105d"
+    value_md5_prefix: 9640918505577532495
+  }
+  perf_version {
+    value: "5.15.68"
+    value_md5_prefix: 6348074782717990531
+  }
+  architecture {
+    value: "x86_64"
+    value_md5_prefix: 11246003006864564
+  }
+  cpu_description {
+    value: "13th Gen Intel(R) Core(TM) i7-1365U"
+    value_md5_prefix: 7811506391766781868
+  }
+  cpu_id {
+    value: "GenuineIntel,6,186,3"
+    value_md5_prefix: 14960940073694923184
+  }
+  perf_command_line_token {
+    value: "/usr/bin/perf"
+    value_md5_prefix: 17155547145735550491
+  }
+  perf_command_line_token {
+    value: "record"
+    value_md5_prefix: 16003524724320237622
+  }
+  perf_command_line_token {
+    value: "-e"
+    value_md5_prefix: 5793861197931060347
+  }
+  perf_command_line_token {
+    value: "cycles:ppp"
+    value_md5_prefix: 5968173510929201826
+  }
+  perf_command_line_token {
+    value: "--"
+    value_md5_prefix: 14964084598567107715
+  }
+  perf_command_line_token {
+    value: "sleep"
+    value_md5_prefix: 14554142227159335212
+  }
+  perf_command_line_token {
+    value: "1"
+    value_md5_prefix: 14180219187711517570
+  }
+  perf_command_line_whole {
+    value: "/usr/bin/perf record -e cycles:ppp -- sleep 1"
+    value_md5_prefix: 1570450303968863040
+  }
+}
+pmu_mappings {
+  type: 1
+  name: "software"
+  name_md5_prefix: 18012728053178608889
+}
+pmu_mappings {
+  type: 21
+  name: "uncore_imc_free_running_1"
+  name_md5_prefix: 9366043710123424858
+}
+pmu_mappings {
+  type: 15
+  name: "uncore_arb_0"
+  name_md5_prefix: 4973910505613596977
+}
+pmu_mappings {
+  type: 4
+  name: "cpu_core"
+  name_md5_prefix: 3273707202803009658
+}
+pmu_mappings {
+  type: 17
+  name: "uncore_clock"
+  name_md5_prefix: 60042898135095620
+}
+pmu_mappings {
+  type: 19
+  name: "uncore_imc_1"
+  name_md5_prefix: 12651025630865212914
+}
+pmu_mappings {
+  type: 6
+  name: "uprobe"
+  name_md5_prefix: 10272799137701582342
+}
+pmu_mappings {
+  type: 8
+  name: "intel_bts"
+  name_md5_prefix: 14909216758315093572
+}
+pmu_mappings {
+  type: 7
+  name: "cpu_atom"
+  name_md5_prefix: 18443353566423090348
+}
+pmu_mappings {
+  type: 22
+  name: "cstate_core"
+  name_md5_prefix: 7698971831218560044
+}
+pmu_mappings {
+  type: 13
+  name: "uncore_cbox_2"
+  name_md5_prefix: 6352787395518547156
+}
+pmu_mappings {
+  type: 5
+  name: "breakpoint"
+  name_md5_prefix: 15231791590021874039
+}
+pmu_mappings {
+  type: 16
+  name: "uncore_arb_1"
+  name_md5_prefix: 117562178459017024
+}
+pmu_mappings {
+  type: 11
+  name: "uncore_cbox_0"
+  name_md5_prefix: 1137124233652450800
+}
+pmu_mappings {
+  type: 2
+  name: "tracepoint"
+  name_md5_prefix: 1021014226246753557
+}
+pmu_mappings {
+  type: 23
+  name: "cstate_pkg"
+  name_md5_prefix: 1518627369180422309
+}
+pmu_mappings {
+  type: 20
+  name: "uncore_imc_free_running_0"
+  name_md5_prefix: 13236158338993465552
+}
+pmu_mappings {
+  type: 18
+  name: "uncore_imc_0"
+  name_md5_prefix: 6555461393347138523
+}
+pmu_mappings {
+  type: 24
+  name: "i915"
+  name_md5_prefix: 13154036045344048840
+}
+pmu_mappings {
+  type: 10
+  name: "msr"
+  name_md5_prefix: 4085670281987242153
+}
+pmu_mappings {
+  type: 14
+  name: "uncore_cbox_3"
+  name_md5_prefix: 2187759798192569009
+}
+pmu_mappings {
+  type: 9
+  name: "intel_pt"
+  name_md5_prefix: 14362431286216788648
+}
+pmu_mappings {
+  type: 12
+  name: "uncore_cbox_1"
+  name_md5_prefix: 15013062577747304375
+}
+hybrid_topology {
+  pmu_name: "cpu_core"
+  pmu_name_md5_prefix: 3273707202803009658
+  cpus: "0-3"
+  cpu_list: 0
+  cpu_list: 1
+  cpu_list: 2
+  cpu_list: 3
+}
+hybrid_topology {
+  pmu_name: "cpu_atom"
+  pmu_name_md5_prefix: 18443353566423090348
+  cpus: "4-11"
+  cpu_list: 4
+  cpu_list: 5
+  cpu_list: 6
+  cpu_list: 7
+  cpu_list: 8
+  cpu_list: 9
+  cpu_list: 10
+  cpu_list: 11
+}

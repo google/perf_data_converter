@@ -4,7 +4,13 @@
 
 #include "string_utils.h"
 
-#include "compat/test.h"
+#include <cstdint>
+#include <vector>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+using ::testing::ElementsAre;
 
 namespace quipper {
 
@@ -23,6 +29,32 @@ TEST(StringUtilsTest, RootPathExtraction) {
   EXPECT_EQ(RootPath("/tmp/aa)"), "/tmp");
   EXPECT_EQ(RootPath("/tmp/aa/bb)"), "/tmp");
   EXPECT_EQ(RootPath("/tmpdir/aa/bb)"), "/tmpdir/aa");
+}
+
+TEST(StringUtilsTest, ParseCPUNumbers) {
+  std::vector<uint32_t> result;
+  ParseCPUNumbers("0", result);
+  EXPECT_THAT(result, ElementsAre(0));
+  result.clear();
+  ParseCPUNumbers("0,3", result);
+  EXPECT_THAT(result, ElementsAre(0, 3));
+  result.clear();
+  ParseCPUNumbers("0-3", result);
+  EXPECT_THAT(result, ElementsAre(0, 1, 2, 3));
+  result.clear();
+  ParseCPUNumbers("0-3,5-7", result);
+  EXPECT_THAT(result, ElementsAre(0, 1, 2, 3, 5, 6, 7));
+  result.clear();
+  EXPECT_FALSE(ParseCPUNumbers("", result));
+  EXPECT_FALSE(ParseCPUNumbers("a", result));
+  EXPECT_FALSE(ParseCPUNumbers("0,1-2-3", result));
+}
+
+TEST(StringUtilsTest, FormatCPUNumbers) {
+  EXPECT_EQ(FormatCPUNumbers({0}), "0");
+  EXPECT_EQ(FormatCPUNumbers({0, 3}), "0,3");
+  EXPECT_EQ(FormatCPUNumbers({0, 1, 2, 3}), "0-3");
+  EXPECT_EQ(FormatCPUNumbers({0, 1, 2, 3, 5, 6, 7}), "0-3,5-7");
 }
 
 }  // namespace quipper
