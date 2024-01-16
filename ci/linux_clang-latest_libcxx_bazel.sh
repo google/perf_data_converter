@@ -13,7 +13,7 @@ fi
 
 # This container is a reasonable start but is missing some prerequisite libs and
 # an installation of linux_perf. We'll manually add them below.
-readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20210617"
+readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20231218"
 
 time docker run \
     --volume="${PDC_ROOT}:/perf_data_converter:ro" \
@@ -30,10 +30,9 @@ time docker run \
     bash <<EOF
       apt-get -y update
       apt-get -y install linux-perf
-      # /usr/bin/perf has heuristics that reason perf_5.0 exists in this image.
-      ln -s /usr/bin/perf_5.10 /usr/bin/perf_5.0
       rm -rf ~/.cache/bazel
       apt-get -y install g++ git libelf-dev libcap-dev
+      git config --global --add safe.directory /perf_data_converter
       git submodule init
       git submodule update
       /usr/local/bin/bazel build src:all
