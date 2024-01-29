@@ -639,7 +639,9 @@ BuildId Normalizer::GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap) {
 
 static bool IsVirtualMapping(const std::string& map_name) {
   return HasPrefixString(map_name, "//") ||
-         (HasPrefixString(map_name, "[") && HasSuffixString(map_name, "]"));
+         (HasPrefixString(map_name, "[") && HasSuffixString(map_name, "]")) ||
+         HasPrefixString(map_name, "/memfd:") ||
+         HasPrefixString(map_name, "[anon:");
 }
 
 void Normalizer::UpdateMapsWithMMapEvent(
