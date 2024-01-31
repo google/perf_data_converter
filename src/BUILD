@@ -17,11 +17,11 @@ cc_library(
     ],
     deps = [
         ":intervalmap",
+        "//src/quipper:arm_spe_decoder",
         "//src/quipper:binary_data_utils",
         "//src/quipper:dso",
         "//src/quipper:kernel",
         "//src/quipper:perf_data_cc_proto",
-        "//src/quipper:perf_reader",
     ],
 )
 
@@ -35,6 +35,7 @@ cc_library(
         ":perf_data_handler",
         ":builder",
         ":profile_cc_proto",
+        "//src/quipper:arm_spe_decoder",
         "//src/quipper:kernel",
         "//src/quipper:perf_data_cc_proto",
         "//src/quipper:perf_parser",
@@ -62,6 +63,7 @@ cc_test(
         "//src/quipper:binary_data_utils",
         "//src/quipper:kernel",
         "//src/quipper:perf_buildid",
+        "//src/quipper:test_utils",
     ],
 )
 

@@ -11,6 +11,7 @@
 
 #include <unistd.h>
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -1114,7 +1115,7 @@ TEST_F(PerfDataConverterTest, BuildIdFromMmapEvents) {
   }
 
   // If we change buildid-mmap events back to normal mmap events, then we will
-  // see thoes two samples being assigned the same build ID (the injected one).
+  // see those two samples being assigned the same build ID (the injected one).
   {
     for (size_t i = 0; i < perf_data_proto.events().size(); ++i) {
       auto event = perf_data_proto.mutable_events()->Mutable(i);

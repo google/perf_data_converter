@@ -409,6 +409,7 @@ cc_library(
         "test_perf_data.h",
         "test_utils.h",
     ],
+    visibility = ["//src:__subpackages__"],
     deps = [
         ":binary_data_utils",
         ":compat",
@@ -515,6 +516,8 @@ cc_binary(
     srcs = ["quipper.cc"],
     visibility = ["//src:__subpackages__"],
     deps = [
+        ":arm_spe_decoder",
+        ":compat",
         ":file_utils",
         ":perf_protobuf_io",
         ":perf_recorder",
