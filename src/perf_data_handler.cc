@@ -7,6 +7,7 @@
 
 #include "src/perf_data_handler.h"
 
+#include <cstdint>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -21,10 +22,11 @@
 
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
+#include "src/quipper/arm_spe_decoder.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/dso.h"
 #include "src/quipper/kernel/perf_event.h"
-#include "src/quipper/perf_reader.h"
+#include "src/quipper/kernel/perf_internals.h"
 
 using quipper::PerfDataProto;
 using quipper::PerfDataProto_MMapEvent;
@@ -50,9 +52,40 @@ bool HasSuffixString(const std::string& s, const char* substr) {
          s.compare(s_len - substr_len, substr_len, substr) == 0;
 }
 
-// Normalizer processes a PerfDataProto and maintains tables to the
-// current metadata for each process.  It drives callbacks to
-// PerfDataHandler with samples in a fully normalized form.
+// Checks if the auxtrace events contain Arm SPE data.
+bool HasArmSPEAuxtrace(const PerfDataProto& perf_proto) {
+  for (const auto& event_proto : perf_proto.events()) {
+    if (event_proto.has_auxtrace_info_event()) {
+      if (event_proto.auxtrace_info_event().type() ==
+          quipper::PERF_AUXTRACE_ARM_SPE) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Creates a tid->pid mapping through fork & comm events.
+std::unordered_map<uint32_t, uint32_t> TidToPidMapping(
+    const PerfDataProto& perf_proto) {
+  std::unordered_map<uint32_t, uint32_t> t2p;
+  for (const auto& event_proto : perf_proto.events()) {
+    if (event_proto.has_fork_event()) {
+      const auto& fork = event_proto.fork_event();
+      t2p[fork.tid()] = fork.pid();
+    } else if (event_proto.has_comm_event()) {
+      const auto& comm = event_proto.comm_event();
+      t2p[comm.tid()] = comm.pid();
+    }
+  }
+  return t2p;
+}
+
+// Normalizer iterates through the events and metadata of the given
+// PerfDataProto to create its own tables and metadata for each process. During
+// the iteration, it drives callbacks to PerfDataHandler with samples in a fully
+// normalized form (e.g. samples with their corresponding metadata like their
+// mappings, call chains, branch stacks etc.).
 class Normalizer {
  public:
   Normalizer(const PerfDataProto& perf_proto, PerfDataHandler* handler)
@@ -135,6 +168,11 @@ class Normalizer {
       }
       current_event_index++;
     }
+
+    has_spe_auxtrace_ = HasArmSPEAuxtrace(perf_proto_);
+    if (has_spe_auxtrace_) {
+      tid_to_pid_ = TidToPidMapping(perf_proto_);
+    }
   }
 
   Normalizer(const Normalizer&) = delete;
@@ -142,7 +180,7 @@ class Normalizer {
 
   ~Normalizer() {}
 
-  // Convert to a protobuf using quipper and then aggregate the results.
+  // Converts to a protobuf using quipper and then aggregate the results.
   void Normalize();
 
  private:
@@ -165,8 +203,16 @@ class Normalizer {
   void UpdateMapsWithForkEvent(const quipper::PerfDataProto_ForkEvent& fork);
   void LogStats();
 
-  // Normalize the sample_event in event_proto and call handler_->Sample
-  void InvokeHandleSample(const quipper::PerfDataProto::PerfEvent& event_proto);
+  // Handles the sample_event in event_proto and call handler_->Sample.
+  // TODO(b/277114009): replace use_first_file_attr with a proper file_attr
+  // index when we have feasible way to tell which file attribute is for certain
+  // event (e.g. Arm SPE).
+  void HandleSample(const quipper::PerfDataProto::PerfEvent& event_proto,
+                    bool use_first_file_attr);
+
+  // Handles the auxtrace event in event_proto that contains the Arm SPE
+  // records to parse potential samples.
+  void HandleSpeAuxtrace(const quipper::PerfDataProto::PerfEvent& event_proto);
 
   // Handles the perf LOST event or LOST_SAMPLE event.
   void HandleLost(const quipper::PerfDataProto::PerfEvent& event_proto);
@@ -273,6 +319,13 @@ class Normalizer {
   // older perf data.
   bool use_lost_sample_ = false;
 
+  // Whether the following auxtrace events contain Arm SPE data.
+  bool has_spe_auxtrace_ = false;
+
+  // map from thread ID to process ID. It is used for parsing SPE records into
+  // samples.
+  std::unordered_map<uint32_t, uint32_t> tid_to_pid_;
+
   struct {
     int64_t samples = 0;
     int64_t samples_with_addr = 0;
@@ -280,6 +333,7 @@ class Normalizer {
     int64_t missing_main_mmap = 0;
     int64_t missing_sample_mmap = 0;
     int64_t missing_addr_mmap = 0;
+    int64_t missing_pid = 0;
 
     int64_t callchain_ips = 0;
     int64_t missing_callchain_mmap = 0;
@@ -387,20 +441,35 @@ void Normalizer::Normalize() {
                event_proto.has_lost_event()) {
       HandleLost(event_proto);
     } else if (event_proto.has_sample_event()) {
-      InvokeHandleSample(event_proto);
+      HandleSample(event_proto, false);
+    } else if (event_proto.has_auxtrace_event()) {
+      if (has_spe_auxtrace_) {
+        HandleSpeAuxtrace(event_proto);
+      }
+    } else if (event_proto.has_auxtrace_error_event()) {
+      LOG(WARNING) << "auxtrace_error event: "
+                   << event_proto.auxtrace_error_event().msg();
     }
   }
 
   LogStats();
 }
 
-void Normalizer::InvokeHandleSample(
-    const quipper::PerfDataProto::PerfEvent& event_proto) {
+void Normalizer::HandleSample(
+    const quipper::PerfDataProto::PerfEvent& event_proto,
+    bool use_first_file_attribute) {
   CHECK(event_proto.has_sample_event());
   const auto& sample = event_proto.sample_event();
   PerfDataHandler::SampleContext context(event_proto.header(),
                                          event_proto.sample_event());
-  context.file_attrs_index = GetEventIndexForSample(context.sample);
+  if (use_first_file_attribute) {
+    // This is for the situation like SPE-record generated sample, where we want
+    // to use the first file_attrs_index instead of finding it through ID,
+    // because such synthesized sample does not have sample.id.
+    context.file_attrs_index = 0;
+  } else {
+    context.file_attrs_index = GetEventIndexForSample(context.sample);
+  }
   if (context.file_attrs_index == -1) {
     ++stat_.no_event_errors;
     return;
@@ -589,6 +658,7 @@ void Normalizer::LogStats() {
             "missing_callchain_mmap");
   CheckStat(stat_.missing_branch_stack_mmap, stat_.branch_stack_ips,
             "missing_branch_stack_mmap");
+  CheckStat(stat_.missing_pid, stat_.samples, "missing_pid");
   CheckStat(stat_.no_event_errors, 1, "unknown event id");
 }
 
@@ -816,6 +886,40 @@ int64_t Normalizer::GetEventIndexForSample(
   }
   return it->second;
 }
+
+void Normalizer::HandleSpeAuxtrace(
+    const quipper::PerfDataProto::PerfEvent& event_proto) {
+  const quipper::PerfDataProto::AuxtraceEvent& auxtrace_event =
+      event_proto.auxtrace_event();
+  if (!auxtrace_event.has_trace_data()) {
+    return;
+  }
+
+  quipper::ArmSpeDecoder::Record record;
+  quipper::ArmSpeDecoder decoder(auxtrace_event.trace_data(), false);
+  while (decoder.NextRecord(&record)) {
+    // Synthesize a perf data sample with from the SPE record.
+    uint32_t tid = record.context.id;
+    uint32_t pid = 0;
+    if (tid != 0) {
+      auto pid_it = tid_to_pid_.find(tid);
+      if (pid_it == tid_to_pid_.end()) {
+        stat_.missing_pid++;
+        LOG(WARNING) << "tid->pid mapping does not contain tid " << tid;
+      } else {
+        pid = pid_it->second;
+      }
+    }
+
+    quipper::PerfDataProto::PerfEvent event_proto;
+    auto& sample = *event_proto.mutable_sample_event();
+    sample.set_tid(tid);
+    sample.set_pid(pid);
+    sample.set_ip(record.ip.addr);
+    HandleSample(event_proto, true);
+  }
+}
+
 }  // namespace
 
 // Finds needle in haystack starting at cursor. It then returns the index

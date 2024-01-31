@@ -7,8 +7,12 @@
 
 #include "src/perf_data_handler.h"
 
+#include <cstdint>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <gmock/gmock.h>
@@ -16,7 +20,9 @@
 #include "src/path_matching.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/kernel/perf_event.h"
+#include "src/quipper/kernel/perf_internals.h"
 #include "src/quipper/perf_buildid.h"
+#include "src/quipper/test_utils.h"
 
 using BranchStackEntry = quipper::PerfDataProto::BranchStackEntry;
 
@@ -81,8 +87,8 @@ class TestPerfDataHandler : public PerfDataHandler {
   TestPerfDataHandler(std::vector<BranchStackEntry> expected_branch_stack,
                       std::unordered_map<std::string, std::string>
                           expected_filename_to_build_id)
-      : _expected_branch_stack(std::move(expected_branch_stack)),
-        _expected_filename_to_build_id(
+      : expected_branch_stack_(std::move(expected_branch_stack)),
+        expected_filename_to_build_id_(
             std::move(expected_filename_to_build_id)) {}
   TestPerfDataHandler(const TestPerfDataHandler&) = delete;
   TestPerfDataHandler& operator=(const TestPerfDataHandler&) = delete;
@@ -90,17 +96,18 @@ class TestPerfDataHandler : public PerfDataHandler {
 
   // Callbacks for PerfDataHandler
   void Sample(const SampleContext& sample) override {
+    seen_sample_events_.push_back(sample.sample);
     if (sample.addr_mapping != nullptr) {
       const Mapping* m = sample.addr_mapping;
-      _seen_addr_mappings.push_back(std::unique_ptr<Mapping>(
+      seen_addr_mappings_.push_back(std::unique_ptr<Mapping>(
           new Mapping(m->filename, m->build_id, m->start, m->limit,
                       m->file_offset, m->filename_md5_prefix)));
     } else {
-      _seen_addr_mappings.push_back(nullptr);
+      seen_addr_mappings_.push_back(nullptr);
     }
-    EXPECT_EQ(_expected_branch_stack.size(), sample.branch_stack.size());
+    EXPECT_EQ(expected_branch_stack_.size(), sample.branch_stack.size());
     for (size_t i = 0; i < sample.branch_stack.size(); i++) {
-      CheckBranchEquality(_expected_branch_stack[i], sample.branch_stack[i]);
+      CheckBranchEquality(expected_branch_stack_[i], sample.branch_stack[i]);
     }
   }
   void Comm(const CommContext& comm) override {}
@@ -108,24 +115,29 @@ class TestPerfDataHandler : public PerfDataHandler {
     std::string actual_build_id = mmap.mapping->build_id.value;
     std::string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
-        _expected_filename_to_build_id.find(actual_filename);
-    if (expected_build_id_it != _expected_filename_to_build_id.end()) {
+        expected_filename_to_build_id_.find(actual_filename);
+    if (expected_build_id_it != expected_filename_to_build_id_.end()) {
       EXPECT_EQ(actual_build_id, expected_build_id_it->second)
           << "Build ID mismatch for the filename " << actual_filename;
-      _seen_filenames.insert(actual_filename);
+      seen_filenames_.insert(actual_filename);
     }
   }
 
   void CheckSeenFilenames() {
-    EXPECT_EQ(_expected_filename_to_build_id.size(), _seen_filenames.size());
-    for (auto const& filename : _seen_filenames) {
-      EXPECT_TRUE(_expected_filename_to_build_id.find(filename) !=
-                  _expected_filename_to_build_id.end());
+    EXPECT_EQ(expected_filename_to_build_id_.size(), seen_filenames_.size());
+    for (auto const& filename : seen_filenames_) {
+      EXPECT_TRUE(expected_filename_to_build_id_.find(filename) !=
+                  expected_filename_to_build_id_.end());
     }
   }
 
   const std::vector<std::unique_ptr<Mapping>>& SeenAddrMappings() const {
-    return _seen_addr_mappings;
+    return seen_addr_mappings_;
+  }
+
+  const std::vector<quipper::PerfDataProto::SampleEvent>& SeenSampleEvents()
+      const {
+    return seen_sample_events_;
   }
 
  private:
@@ -141,10 +153,11 @@ class TestPerfDataHandler : public PerfDataHandler {
     EXPECT_EQ(expected.abort(), actual.abort);
     EXPECT_EQ(expected.cycles(), actual.cycles);
   }
-  std::vector<BranchStackEntry> _expected_branch_stack;
-  std::unordered_map<std::string, std::string> _expected_filename_to_build_id;
-  std::unordered_set<std::string> _seen_filenames;
-  std::vector<std::unique_ptr<Mapping>> _seen_addr_mappings;
+  std::vector<BranchStackEntry> expected_branch_stack_;
+  std::unordered_map<std::string, std::string> expected_filename_to_build_id_;
+  std::unordered_set<std::string> seen_filenames_;
+  std::vector<std::unique_ptr<Mapping>> seen_addr_mappings_;
+  std::vector<quipper::PerfDataProto::SampleEvent> seen_sample_events_;
 };
 
 TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
@@ -473,6 +486,68 @@ TEST(PerfDataHandlerTest, LostEventsAreHandledInOlderPerf) {
     EXPECT_EQ(handler.SeenAddrMappings().size(), 10)
         << " perf_version: " << perf_version;
   }
+}
+
+TEST(PerfDataHandlerTest, SpeAuxtraceIntoSamples) {
+  quipper::PerfDataProto proto;
+
+  // File attrs are required for sample event processing.
+  uint64_t file_attr_id = 0;
+  auto* file_attr = proto.add_file_attrs();
+  file_attr->add_ids(file_attr_id);
+
+  // Add a fork and a comm events for tid->pid mapping .
+  auto* fork = proto.add_events()->mutable_fork_event();
+  fork->set_tid(0x5f80);
+  fork->set_pid(0x1);
+  auto* comm = proto.add_events()->mutable_comm_event();
+  comm->set_tid(0xe);
+  comm->set_pid(2);
+
+  // Add an auxtrace info event.
+  proto.add_events()->mutable_auxtrace_info_event()->set_type(
+      quipper::PERF_AUXTRACE_ARM_SPE);
+
+  // Add an auxtrace event.
+  auto* auxtrace_event = proto.add_events()->mutable_auxtrace_event();
+  std::string trace_data = quipper::GenerateBinaryTrace({
+      ///////////////////////////////// record 0
+      "b0 d0 c2 a1 ed 66 ba ff c0",  // PC 0xffba66eda1c2d0 el2 ns=1
+      "00 00 00 00 00",              // PAD
+      "65 80 5f 00 00",              // CONTEXT 0x5f80 el2
+      "49 00",                       // LD GP-REG
+      "52 16 00",                    // EV RETIRED L1D-ACCESS TLB-ACCESS
+      "99 04 00",                    // LAT 4 ISSUE
+      "98 0c 00",                    // LAT 12 TOT
+      "b2 28 6b 09 03 37 0e ff 00",  // VA 0xff0e3703096b28
+      "9a 01 00",                    // LAT 1 XLAT
+      "00 00 00 00 00 00 00 00 00",  // PAD
+      "43 00",                       // DATA-SOURCE 0
+      "00 00",                       // PAD
+      "71 2e 65 2f 6a 0a 00 00 00",  // TS 44731163950
+      ///////////////////////////////// record 1
+      "b0 e0 b0 ef ed 66 ba ff c0",  // PC 0xffba66edefb0e0 el2 ns=1
+      "00 00 00 00 00",              // PAD
+      "65 0e 00 00 00",              // CONTEXT 0xe el2
+      "4a 01",                       // B COND
+      "52 42 00",                    // EV RETIRED NOT-TAKEN
+      "99 10 00",                    // LAT 16 ISSUE
+      "98 11 00",                    // LAT 17 TOT
+      "b1 e4 b0 ef ed 66 ba ff c0",  // TGT 0xffba66edefb0e4 el2 ns=1
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",  // PAD
+      "71 8d 65 2f 6a 0a 00 00 00",                       // TS 44731164045
+  });
+  auxtrace_event->set_trace_data(trace_data);
+
+  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                              std::unordered_map<std::string, std::string>{});
+  PerfDataHandler::Process(proto, &handler);
+
+  const auto& sample_events = handler.SeenSampleEvents();
+  ASSERT_EQ(sample_events.size(), 2);
+  // Match to the correct pids.
+  EXPECT_EQ(sample_events[0].pid(), 1);
+  EXPECT_EQ(sample_events[1].pid(), 2);
 }
 
 }  // namespace perftools

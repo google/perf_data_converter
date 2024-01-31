@@ -548,6 +548,16 @@ enum {
   PERF_STAT_ROUND_TYPE__FINAL = 1,
 };
 
+enum auxtrace_type {
+  PERF_AUXTRACE_UNKNOWN,
+  PERF_AUXTRACE_INTEL_PT,
+  PERF_AUXTRACE_INTEL_BTS,
+  PERF_AUXTRACE_CS_ETM,
+  PERF_AUXTRACE_ARM_SPE,
+  PERF_AUXTRACE_S390_CPUMSF,
+  PERF_AUXTRACE_HISI_PTT,
+};
+
 struct stat_round_event {
   struct perf_event_header header;
   u64 type;
