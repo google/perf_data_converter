@@ -1564,7 +1564,6 @@ const SampleInfoReader* PerfSerializer::GetSampleInfoReaderForEvent(
   switch (event_id_pos) {
     case EventIdPosition::Uninitialized:
       LOG(FATAL) << "Position of event id was not initialized!";
-      return nullptr;
     case EventIdPosition::NotPresent:
       event_id = 0;
       break;
