@@ -45,7 +45,6 @@ void ReadFromFd(int fd, std::vector<char>* output) {
     } while (read_sz < 0 && errno == EINTR);
     if (read_sz < 0) {
       PLOG(FATAL) << "read";
-      break;
     }
     read_off += read_sz;
   } while (read_sz > 0);
