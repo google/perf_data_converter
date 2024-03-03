@@ -5,6 +5,7 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_STRING_UTILS_H_
 #define CHROMIUMOS_WIDE_PROFILING_STRING_UTILS_H_
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
