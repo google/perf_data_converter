@@ -427,8 +427,7 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
 }  // namespace
 
 PerfReader::PerfReader()
-    : proto_(Arena::CreateMessage<PerfDataProto>(&arena_)),
-      is_cross_endian_(false) {
+    : proto_(Arena::Create<PerfDataProto>(&arena_)), is_cross_endian_(false) {
   // The metadata mask is stored in |proto_|. It should be initialized to 0
   // since it is used heavily.
   proto_->add_metadata_mask(0);
