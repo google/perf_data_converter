@@ -16,6 +16,18 @@ http_archive(
      strip_prefix = "googletest-release-1.11.0",
 )
 
+# zlib is a dependency of protobuf.
+# Before proto, so that it is found with the latest version.
+http_archive(
+    name = "zlib",
+    sha256 = "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+    # This is the zlib BUILD file used in kythe:
+    # https://github.com/kythe/kythe/blob/v0.0.30/third_party/zlib.BUILD
+    build_file = "zlib.BUILD",
+    urls = ["https://www.zlib.net/zlib-1.3.1.tar.gz"],
+    strip_prefix = "zlib-1.3.1",
+)
+
 # Proto rules for Bazel and Protobuf
 # TODO(b/210576094): Unpin dependency after fixing compatibility.
 http_archive(
@@ -47,17 +59,6 @@ http_archive(
     sha256 = "0a2b7a10fdce3d5ccdc6abf4f5701dca24b97efa75b00d203c50221269605476",
     strip_prefix = "boringssl-ea4425fbb276871cfec5c4e19c12796b3cd1c9ab",
     urls = ["https://github.com/google/boringssl/archive/ea4425fbb276871cfec5c4e19c12796b3cd1c9ab.tar.gz"],
-)
-
-# zlib is a dependency of protobuf.
-http_archive(
-    name = "zlib",
-    sha256 = "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
-    # This is the zlib BUILD file used in kythe:
-    # https://github.com/kythe/kythe/blob/v0.0.30/third_party/zlib.BUILD
-    build_file = "zlib.BUILD",
-    urls = ["https://www.zlib.net/zlib-1.3.tar.gz"],
-    strip_prefix = "zlib-1.3",
 )
 
 http_archive(
