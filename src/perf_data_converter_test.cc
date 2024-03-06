@@ -67,7 +67,7 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
         key_stream << profile.string_table(main.filename()) << ":"
                    << profile.string_table(main.build_id());
         if (locations[id]->mapping_id() != 0) {
-          const Mapping* dso;
+          const Mapping* dso = nullptr;
           uint64_t addr = locations[id]->address();
           CHECK(mappings.Lookup(addr, &dso));
           key_stream << "+" << profile.string_table(dso->filename()) << ":"
