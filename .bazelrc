@@ -1,10 +1,12 @@
 # Require c++17 for c++ files.
 build --cxxopt='-std=c++17'
-# Disable warnings building zlib.
-build --copt='-Wno-deprecated-non-prototype'
+build --copt='-Wno-sign-compare'
 
 # Disable Bzlmod, a new external dependency management system on by default
 # since Bazel 7.0.0. This breaks compilation of protobuf by pulling in an older
 # version than what is specified in WORKSPACE.
 # TODO(b/319726507): Remove this when we have a better fix or move to Bzlmod.
 build --noenable_bzlmod
+
+# Load user-specific configuration, if any.
+try-import %workspace%/user.bazelrc

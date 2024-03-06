@@ -3,6 +3,8 @@
 *.d
 *.o
 *.log
+*~
+user.bazelrc
 
 quipper
 perf_converter
