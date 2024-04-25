@@ -22,6 +22,10 @@
 #include "compat/proto.h"
 #include "dso.h"
 #include "huge_page_deducer.h"
+#include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
+#include "perf_data_utils.h"
+#include "perf_reader.h"
 
 namespace quipper {
 
@@ -244,6 +248,12 @@ bool PerfParser::ProcessEvents() {
             std::make_pair(event.comm_event().pid(), event.comm_event().tid());
         pidtid_to_comm_map_[pidtid] =
             &(*commands_.find(event.comm_event().comm()));
+        break;
+      }
+      case PERF_RECORD_KSYMBOL: {
+        VLOG(1) << "Parsed event type: " << GetEventName(event.header().type())
+                << ". Doing nothing.";
+        ++stats_.num_ksymbol_events;
         break;
       }
       case PERF_RECORD_LOST:

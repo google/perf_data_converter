@@ -42,6 +42,7 @@ file_attrs {
     write_backward: false
     namespaces: true
     cgroup: false
+    ksymbol: false
   }
 }
 events {

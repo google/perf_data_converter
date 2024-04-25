@@ -111,6 +111,8 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
       return &event.namespaces_event().sample_info();
     case PERF_RECORD_CGROUP:
       return &event.cgroup_event().sample_info();
+    case PERF_RECORD_KSYMBOL:
+      return &event.ksymbol_event().sample_info();
   }
   return nullptr;
 }
@@ -278,6 +280,8 @@ std::string GetEventName(uint32_t type) {
       return "PERF_RECORD_HEADER_FEATURE";
     case PERF_RECORD_CGROUP:
       return "PERF_RECORD_CGROUP";
+    case PERF_RECORD_KSYMBOL:
+      return "PERF_RECORD_KSYMBOL";
   }
   return "UNKNOWN_EVENT_" + std::to_string(type);
 }
@@ -355,6 +359,9 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
     case PERF_RECORD_CGROUP:
       *size = offsetof(struct cgroup_event, path);
       return true;
+    case PERF_RECORD_KSYMBOL:
+      *size = offsetof(struct ksymbol_event, name);
+      return true;
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(type);
   }
@@ -411,6 +418,15 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
       size_t max_path_size = std::min<size_t>(remaining_event_size, PATH_MAX);
       if (!GetUint64AlignedStringLength(event.cgroup.path, max_path_size,
                                         "cgroup.path", size)) {
+        return false;
+      }
+      break;
+    }
+    case PERF_RECORD_KSYMBOL: {
+      size_t max_name_size =
+          std::min<size_t>(remaining_event_size, kMaxKsymNameLen);
+      if (!GetUint64AlignedStringLength(event.ksymbol.name, max_name_size,
+                                        "ksymbol.name", size)) {
         return false;
       }
       break;
@@ -580,6 +596,9 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
       break;
     case PERF_RECORD_CGROUP:
       *size = GetUint64AlignedStringLength(event.cgroup_event().path().size());
+      break;
+    case PERF_RECORD_KSYMBOL:
+      *size = GetUint64AlignedStringLength(event.ksymbol_event().name().size());
       break;
     // The below event gained new fields in new kernel versions. Return the size
     // difference if any of the new fields are present.

@@ -147,6 +147,7 @@ struct mmap2_event {
 // We still cap the max size of comm name in thread_map_event at 16 characters.
 const u16 kMaxCommSize = PATH_MAX;
 const u16 kMaxThreadCommSize = 16;
+const u16 kMaxKsymNameLen = 512;
 
 struct comm_event {
   struct perf_event_header header;
@@ -165,6 +166,15 @@ struct cgroup_event {
   struct perf_event_header header;
   u64 id;
   char path[PATH_MAX];
+};
+
+struct ksymbol_event {
+  struct perf_event_header header;
+  u64 addr;
+  u32 len;
+  u16 ksym_type;
+  u16 flags;
+  char name[kMaxKsymNameLen];
 };
 
 struct fork_event {
@@ -327,6 +337,7 @@ struct perf_sample {
   struct sample_read read;
   u64 physical_addr;
   u64 cgroup;
+  u64 ksymbol;
   u64 data_page_size;
   u64 code_page_size;
 
@@ -353,6 +364,7 @@ struct perf_sample {
         read({}),
         physical_addr(0),
         cgroup(0),
+        ksymbol(0),
         data_page_size(0),
         code_page_size(0) {}
   ~perf_sample() {
@@ -590,6 +602,7 @@ union perf_event {
   struct comm_event comm;
   struct namespaces_event namespaces;
   struct cgroup_event cgroup;
+  struct ksymbol_event ksymbol;
   struct fork_event fork;
   struct lost_event lost;
   struct lost_samples_event lost_samples;

@@ -130,6 +130,7 @@ struct PerfEventStats {
   uint32_t num_comm_events;
   uint32_t num_fork_events;
   uint32_t num_exit_events;
+  uint32_t num_ksymbol_events;
 
   // Number of sample events whose code addresses were successfully mapped using
   // the address mapper. The mapping is recorded regardless of whether the

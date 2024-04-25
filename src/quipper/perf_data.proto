@@ -18,7 +18,7 @@ message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
   // $kernel/include/uapi/linux/perf_event.h.
-  // Next tag: 47
+  // Next tag: 48
   message PerfEventAttr {
     // Type of the event. Type is an enumeration and can be one of the values
     // described at: $kernel/include/linux/perf_event.h.
@@ -138,6 +138,9 @@ message PerfDataProto {
 
     // Include cgroup data.
     optional bool cgroup = 46;
+
+    // Include ksymbol data.
+    optional bool ksymbol = 47;
 
     // Contains the number of events after which we wake up.
     optional uint32 wakeup_events = 28;
@@ -298,6 +301,28 @@ message PerfDataProto {
 
     // Info about the perf sample containing this event.
     optional SampleInfo sample_info = 8;
+  }
+
+  // Next tag: 7
+  message KsymbolEvent {
+    // Address of kernel symbol.
+    optional uint64 addr = 1;
+    // Address length of kernel symbol.
+    optional uint32 len = 2;
+    // Type of the kernel symbol. Currently the following types are available:
+    // PERF_RECORD_KSYMBOL_TYPE_BPF. More info in documentation:
+    // https://screenshot.googleplex.com/VZsTDGmoGqgHRDJ
+    optional uint32 ksym_type = 3;
+    // Ksymbol flags. PERF_RECORD_KSYMBOL_FLAGS_UNREGISTER is the only supported
+    // flag. More info in documentation:
+    // https://screenshot.googleplex.com/VZsTDGmoGqgHRDJ
+    optional uint32 flags = 4;
+
+    // Ksymbol name.
+    optional string name = 5;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 6;
   }
 
   // Next tag: 4
@@ -794,7 +819,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 25
+  // Next tag: 26
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -824,6 +849,7 @@ message PerfDataProto {
       StatEvent stat_event = 22;
       StatRoundEvent stat_round_event = 23;
       CgroupEvent cgroup_event = 24;
+      KsymbolEvent ksymbol_event = 25;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

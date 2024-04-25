@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
 #include "perf_data_utils.h"
 
@@ -145,6 +146,7 @@ void ExamplePerfEventAttrEvent_Hardware::WriteTo(std::ostream* out) const {
   attr.write_backward = write_backward_;
   attr.namespaces = namespaces_;
   attr.cgroup = cgroup_;
+  attr.ksymbol = ksymbol_;
 
   const size_t event_size = sizeof(perf_event_header) + attr.size +
                             ids_.size() * sizeof(decltype(ids_)::value_type);
@@ -187,6 +189,7 @@ void ExamplePerfFileAttr_Hardware::WriteTo(std::ostream* out) const {
   attr.write_backward = write_backward_;
   attr.namespaces = namespaces_;
   attr.cgroup = cgroup_;
+  attr.ksymbol = ksymbol_;
 
   if (is_cross_endian()) {
     // The order of operations here is for native-to-cross-endian conversion.
@@ -867,6 +870,38 @@ void ExampleCgroupEvent::WriteTo(std::ostream* out) const {
   out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_cgroup_offset;
+  CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleKsymbolEvent::GetSize() const {
+  return offsetof(struct ksymbol_event, name) +
+         GetUint64AlignedStringLength(name_.size()) +
+         sample_id_.size();  // sample_id_all
+}
+
+void ExampleKsymbolEvent::WriteTo(std::ostream* out) const {
+  const size_t name_aligned_length = GetUint64AlignedStringLength(name_.size());
+  const size_t event_size = GetSize();
+  struct ksymbol_event event = {
+      .header =
+          {
+              .type = MaybeSwap32(PERF_RECORD_KSYMBOL),
+              .misc = 0,
+              .size = MaybeSwap16(static_cast<u16>(event_size)),
+          },
+      .addr = addr_,
+      .len = len_,
+      .ksym_type = static_cast<u16>(ksym_type_),
+      .flags = static_cast<u16>(flags_),
+  };
+
+  const size_t pre_ksymbol_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(&event),
+             offsetof(struct ksymbol_event, name));
+  *out << name_ << std::string(name_aligned_length - name_.size(), '\0');
+  out->write(sample_id_.data(), sample_id_.size());
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_ksymbol_offset;
   CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
 }
 

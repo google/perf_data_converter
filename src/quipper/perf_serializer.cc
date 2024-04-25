@@ -14,6 +14,7 @@
 #include "binary_data_utils.h"
 #include "compat/proto.h"
 #include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
@@ -51,6 +52,7 @@ bool PerfSerializer::IsSupportedKernelEventType(uint32_t type) {
     case PERF_RECORD_SWITCH_CPU_WIDE:
     case PERF_RECORD_NAMESPACES:
     case PERF_RECORD_CGROUP:
+    case PERF_RECORD_KSYMBOL:
       return true;
   }
   return false;
@@ -209,6 +211,7 @@ bool PerfSerializer::SerializePerfEventAttr(
   S(write_backward);
   S(namespaces);
   S(cgroup);
+  S(ksymbol);
   if (perf_event_attr_proto->watermark())
     S(wakeup_watermark);
   else
@@ -266,6 +269,7 @@ bool PerfSerializer::DeserializePerfEventAttr(
   S(write_backward);
   S(namespaces);
   S(cgroup);
+  S(ksymbol);
   if (perf_event_attr->watermark)
     S(wakeup_watermark);
   else
@@ -361,6 +365,8 @@ bool PerfSerializer::SerializeKernelEvent(
                                       event_proto->mutable_namespaces_event());
     case PERF_RECORD_CGROUP:
       return SerializeCgroupEvent(event, event_proto->mutable_cgroup_event());
+    case PERF_RECORD_KSYMBOL:
+      return SerializeKsymbolEvent(event, event_proto->mutable_ksymbol_event());
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(event.header.type);
   }
@@ -482,6 +488,8 @@ bool PerfSerializer::DeserializeKernelEvent(
       return DeserializeNamespacesEvent(event_proto.namespaces_event(), event);
     case PERF_RECORD_CGROUP:
       return DeserializeCgroupEvent(event_proto.cgroup_event(), event);
+    case PERF_RECORD_KSYMBOL:
+      return DeserializeKsymbolEvent(event_proto.ksymbol_event(), event);
       break;
   }
   return false;
@@ -955,6 +963,28 @@ bool PerfSerializer::DeserializeCgroupEvent(
   struct cgroup_event& cgroup = event->cgroup;
   cgroup.id = sample.id();
   snprintf(cgroup.path, PATH_MAX, "%s", sample.path().c_str());
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
+bool PerfSerializer::SerializeKsymbolEvent(
+    const event_t& event, PerfDataProto_KsymbolEvent* sample) const {
+  const struct ksymbol_event& ksymbol = event.ksymbol;
+  sample->set_addr(ksymbol.addr);
+  sample->set_len(ksymbol.len);
+  sample->set_ksym_type(ksymbol.ksym_type);
+  sample->set_flags(ksymbol.flags);
+  sample->set_name(ksymbol.name);
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeKsymbolEvent(
+    const PerfDataProto_KsymbolEvent& sample, event_t* event) const {
+  struct ksymbol_event& ksymbol = event->ksymbol;
+  ksymbol.addr = sample.addr();
+  ksymbol.len = sample.len();
+  ksymbol.ksym_type = static_cast<u16>(sample.ksym_type());
+  ksymbol.flags = static_cast<u16>(sample.flags());
+  snprintf(ksymbol.name, kMaxKsymNameLen, "%s", sample.name().c_str());
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
 

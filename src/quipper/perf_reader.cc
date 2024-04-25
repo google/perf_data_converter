@@ -253,6 +253,11 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->mmap2.prot);
       ByteSwap(&event->mmap2.flags);
       return true;
+    case PERF_RECORD_KSYMBOL:
+      ByteSwap(&event->ksymbol.addr);
+      ByteSwap(&event->ksymbol.len);
+      ByteSwap(&event->ksymbol.flags);
+      return true;
     case PERF_RECORD_FORK:
     case PERF_RECORD_EXIT:
       ByteSwap(&event->fork.pid);
@@ -395,6 +400,7 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     // don't require byteswapping of the variable payload fields.
     case PERF_RECORD_MMAP:
     case PERF_RECORD_MMAP2:
+    case PERF_RECORD_KSYMBOL:
     case PERF_RECORD_FORK:
     case PERF_RECORD_EXIT:
     case PERF_RECORD_COMM:
