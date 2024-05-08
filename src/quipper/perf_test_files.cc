@@ -236,6 +236,15 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
          cat &> /tmp/perf.data.pipedctx_switch_namespaces-4.14
        */
       "perf.data.piped.ctx_switch_namespaces-4.14",
+
+      /* Perf data that contains a HEADER_GROUP_DESCR feature in the
+       * PERF_RECORD_HEADER_FEATURE events, generated in piped mode from perf
+       * 6.8.
+       * Command:
+       * perf record -e "{cycles,instructions}" -o - -- echo "Hello, World!" | \
+       * cat &> /tmp/perf.data.piped.header_feautres_group_desc-6.8
+       */
+      "perf.data.piped.header_feautres_group_desc-6.8",
   };
   return *files;
 }

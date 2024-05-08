@@ -2411,7 +2411,6 @@ bool PerfReader::ReadHeaderFeature(DataReader* data,
     case HEADER_TRACING_DATA:
     case HEADER_BUILD_ID:
     case HEADER_BRANCH_STACK:
-    case HEADER_GROUP_DESC:
       LOG(WARNING)
           << "Header feature type " << event->feat_id << " is not expected"
           << " in PERF_RECORD_HEADER_FEATURE; feature information is generated"
