@@ -42,6 +42,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: true
   }
   ids: 531962
   ids: 531963
@@ -960,6 +961,946 @@ events {
       pid: 147221
       comm: ""
       comm_md5_prefix: 15284527576400310788
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 96
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638203272
+    len: 72
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_530f69190e63cfa0_fentry_blk_account_io_start"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 96
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638272932
+    len: 72
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_530f69190e63cfa0_fentry_blk_start_request"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 96
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638024304
+    len: 3797
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_1b71ec9633e0e8da_fentry_blk_account_io_done"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 104
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638185912
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_write_rq_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 104
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638279976
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_write_dma_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 96
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638416472
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_m_rq_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 96
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638423932
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_m_dma_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 104
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638431364
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_read_rq_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 104
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638441756
+    len: 249
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_e4786557e500f424___hm_read_dma_histo_charge_func"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638488804
+    len: 489
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_f66e1c6c5618b8c1_netcg_bind4"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638498060
+    len: 493
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_4739cb865434c7ac_netcg_bind6"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638505872
+    len: 3083
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_6f5720f4a4384119_netcg_setsockopt"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638513208
+    len: 764
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_407fd617630b239d_netcg_getsockopt"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638531532
+    len: 490
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_7c5e07b6859d59e9_netcg_sock"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638540508
+    len: 161
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_83ab8adf8845a1ff_netcg_sk_create"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638549308
+    len: 330
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_625b2787a6768fe9_netcg_sk_bind"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638555052
+    len: 582
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_f2ae6973934814ce__dissect"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638564312
+    len: 4906
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_3c8dc640c7cd486d_bpf_func_IP"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638576940
+    len: 4772
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_99cedc45e1a51972_bpf_func_IPV6"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638590320
+    len: 4684
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_81d49dc476dacd31_bpf_func_IPV6OP"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638601296
+    len: 4721
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_bc4278b5d2c82b8b_bpf_func_IPV6FR"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638481724
+    len: 294
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_84a2c298ce4aedad_bpf_func_MPLS"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638612288
+    len: 1629
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_bb93c586c278500e_bpf_func_VLAN"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638621804
+    len: 5185
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_1b4a0e07cb7ae7b0_bpf_func_GUE"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639340684
+    len: 10244
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_edee751fdb7701cf_hn_transport"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639017076
+    len: 3468
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_a6ba87a0d34702e7_hn_count_dscp"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639358616
+    len: 13678
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_ed7502296a883fce_hn_uhaul"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639426876
+    len: 20035
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_ae8f3ce1771e2a60_hn_egress"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638735152
+    len: 1543
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_fc7eab2eb693b552_hn_etp"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638976632
+    len: 3305
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_b60df92b0477fc60_ct_sockops"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638521480
+    len: 3554
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_2bda4902803ac84a_ct_egress"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639377540
+    len: 2443
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_900745e730bea494_ct_udp4_skb"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639389552
+    len: 3796
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_7c974e8c69d3c295_ct_udp6_skb"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639451928
+    len: 2664
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_3d7080e32455f37c_ct_setsockopt"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639459912
+    len: 188
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_3aa112d4d9d1fd27_ct_getsockopt"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639469364
+    len: 67
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_6b46fe63f809100b_ct_sock_create"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639568952
+    len: 945
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_0ea9864e2a0b87b4_ct_spe4_log"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639576496
+    len: 970
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_29babd40b98c77c6_ct_spe4_block"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639582368
+    len: 1181
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_4509ffccbe15978f_ct_spe6_log"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 80
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639592200
+    len: 1194
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_174c184fc84a6fd7_ct_spe6_block"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 88
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639599880
+    len: 2186
+    ksym_type: 1
+    flags: 0
+    name: "bpf_prog_b11fd9f5ab05d0e2_ct_spe_connect"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638464000
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442503993_0"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638193664
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442504046_0"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072638210048
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442504043_0"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639614976
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442548221_6"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639606784
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442547754_6"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
+    }
+  }
+}
+events {
+  header {
+    type: 17
+    misc: 0
+    size: 72
+  }
+  timestamp: 0
+  ksymbol_event {
+    addr: 18446744072639623168
+    len: 4096
+    ksym_type: 1
+    flags: 0
+    name: "bpf_trampoline_6442551017_6"
+    sample_info {
+      pid: 0
+      tid: 0
+      sample_time_ns: 0
     }
   }
 }

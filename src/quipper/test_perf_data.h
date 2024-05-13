@@ -114,7 +114,8 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
         context_switch_(false),
         write_backward_(false),
         namespaces_(false),
-        cgroup_(false) {}
+        cgroup_(false),
+        ksymbol_(false) {}
   SelfT& WithConfig(u64 config) {
     config_ = config;
     return *this;
@@ -156,6 +157,10 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
     cgroup_ = cgroup;
     return *this;
   }
+  SelfT& WithKsymbol(bool ksymbol) {
+    ksymbol_ = ksymbol;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -170,6 +175,7 @@ class ExamplePerfEventAttrEvent_Hardware : public StreamWriteable {
   bool write_backward_;
   bool namespaces_;
   bool cgroup_;
+  bool ksymbol_;
 };
 
 class AttrIdsSection : public StreamWriteable {
@@ -209,7 +215,8 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
         context_switch_(false),
         write_backward_(false),
         namespaces_(false),
-        cgroup_(false) {}
+        cgroup_(false),
+        ksymbol_(false) {}
   SelfT& WithAttrSize(u32 size) {
     attr_size_ = size;
     return *this;
@@ -246,6 +253,10 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
     cgroup_ = cgroup;
     return *this;
   }
+  SelfT& WithKsymbol(bool ksymbol) {
+    ksymbol_ = ksymbol;
+    return *this;
+  }
   void WriteTo(std::ostream* out) const override;
 
  private:
@@ -260,6 +271,7 @@ class ExamplePerfFileAttr_Hardware : public StreamWriteable {
   bool write_backward_;
   bool namespaces_;
   bool cgroup_;
+  bool ksymbol_;
 };
 
 // Produces a struct perf_file_attr with a perf_event_attr describing a
@@ -879,6 +891,29 @@ class ExampleCgroupEvent : public StreamWriteable {
  private:
   const u64 id_;
   const std::string path_;
+  const SampleInfo sample_id_;
+};
+
+// Produces PERF_RECORD_KSYMBOL event.
+class ExampleKsymbolEvent : public StreamWriteable {
+ public:
+  ExampleKsymbolEvent(u64 addr, u32 len, u32 ksym_type, u32 flags,
+                      std::string name, const SampleInfo& sample_id)
+      : addr_(addr),
+        len_(len),
+        ksym_type_(ksym_type),
+        flags_(flags),
+        name_(name),
+        sample_id_(sample_id) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const u64 addr_;
+  const u32 len_;
+  const u32 ksym_type_;
+  const u32 flags_;
+  const std::string name_;
   const SampleInfo sample_id_;
 };
 

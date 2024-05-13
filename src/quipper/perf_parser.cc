@@ -12,16 +12,23 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <set>
 #include <sstream>
+#include <utility>
 
 #include "base/logging.h"
 #include "address_mapper.h"
 #include "binary_data_utils.h"
+#include "compat/cleanup.h"
 #include "compat/proto.h"
 #include "dso.h"
 #include "huge_page_deducer.h"
+#include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
+#include "perf_data_utils.h"
+#include "perf_reader.h"
 
 namespace quipper {
 
@@ -145,11 +152,14 @@ bool PerfParser::ProcessUserEvents(PerfEvent& event) {
 bool PerfParser::ProcessEvents() {
   stats_ = {0};
 
-  stats_.did_remap = false;  // Explicitly clear the remap flag.
+  // Explicitly clear the remap flag, and recover it on all exit paths.
+  stats_.did_remap = false;
+  compat::Cleanup restore_remap(
+      [&]() { stats_.did_remap = options_.do_remap; });
 
   // Pid 0 is called the swapper process. Even though perf does not record a
-  // COMM event for pid 0, we act like we did receive a COMM event for it. Perf
-  // does this itself, example:
+  // COMM event for pid 0, we act like we did receive a COMM event for it.
+  // Perf does this itself, example:
   //   http://lxr.free-electrons.com/source/tools/perf/util/session.c#L1120
   commands_.insert(kSwapperCommandName);
   pidtid_to_comm_map_[std::make_pair(kSwapperPid, kSwapperPid)] =
@@ -230,8 +240,7 @@ bool PerfParser::ProcessEvents() {
         // clang-format on
         ++stats_.num_exit_events;
         break;
-      case PERF_RECORD_COMM:
-      {
+      case PERF_RECORD_COMM: {
         // clang-format off
         VLOG(1) << "COMM: " << event.comm_event().pid()
                 << ":" << event.comm_event().tid() << ": "
@@ -244,6 +253,12 @@ bool PerfParser::ProcessEvents() {
             std::make_pair(event.comm_event().pid(), event.comm_event().tid());
         pidtid_to_comm_map_[pidtid] =
             &(*commands_.find(event.comm_event().comm()));
+        break;
+      }
+      case PERF_RECORD_KSYMBOL: {
+        VLOG(1) << "Parsed event type: " << GetEventName(event.header().type())
+                << ". Doing nothing.";
+        ++stats_.num_ksymbol_events;
         break;
       }
       case PERF_RECORD_LOST:
@@ -303,7 +318,6 @@ bool PerfParser::ProcessEvents() {
                << "at least " << static_cast<int>(threshold) << "%";
     return false;
   }
-  stats_.did_remap = options_.do_remap;
   return true;
 }
 

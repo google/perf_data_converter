@@ -205,6 +205,10 @@ class PerfSerializer {
                             PerfDataProto_CgroupEvent* sample) const;
   bool DeserializeCgroupEvent(const PerfDataProto_CgroupEvent& sample,
                               event_t* event) const;
+  bool SerializeKsymbolEvent(const event_t& event,
+                             PerfDataProto_KsymbolEvent* sample) const;
+  bool DeserializeKsymbolEvent(const PerfDataProto_KsymbolEvent& sample,
+                               event_t* event) const;
 
   bool SerializeSingleUint32Metadata(
       const PerfUint32Metadata& metadata,

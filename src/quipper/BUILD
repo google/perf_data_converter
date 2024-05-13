@@ -73,6 +73,7 @@ cc_library(
     name = "compat",
     srcs = ["compat/log_level.cc"],
     hdrs = [
+        "compat/cleanup.h",
         "compat/log_level.h",
         "compat/proto.h",
     ],

@@ -42,6 +42,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 289
   ids: 290
@@ -90,6 +91,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 291
   ids: 292
@@ -138,6 +140,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 293
   ids: 294

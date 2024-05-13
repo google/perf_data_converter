@@ -992,7 +992,7 @@ enum perf_record_ksymbol_type {
   PERF_RECORD_KSYMBOL_TYPE_MAX /* non-ABI */
 };
 
-#define PERF_RECORD_KSYMBOL_FLAGS_UNREGISTER (1 << 0)
+const u64 PERF_RECORD_KSYMBOL_FLAGS_UNREGISTER = 1UL << 0;
 
 enum perf_bpf_event_type {
   PERF_BPF_EVENT_UNKNOWN = 0,

@@ -42,6 +42,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 49
   ids: 50
@@ -92,6 +93,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 53
   ids: 54
@@ -142,6 +144,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 57
   ids: 58
@@ -192,6 +195,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 61
   ids: 62
@@ -242,6 +246,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 65
   ids: 66
@@ -292,6 +297,7 @@ file_attrs {
     write_backward: false
     namespaces: false
     cgroup: false
+    ksymbol: false
   }
   ids: 69
   ids: 70
