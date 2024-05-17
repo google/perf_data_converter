@@ -7,10 +7,15 @@
 
 #include "src/perf_data_handler.h"
 
+#include <sys/mman.h>
+
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <regex>  
 #include <sstream>
@@ -196,6 +201,10 @@ class Normalizer {
   // finds the build ID according to the filename from the mmap.
   BuildId GetBuildId(const quipper::PerfDataProto_MMapEvent* mmap);
 
+  void ConvertMmapFromKsymbol(
+      const quipper::PerfDataProto_KsymbolEvent& ksymbol_event, uint32_t prot,
+      quipper::PerfDataProto_MMapEvent* mmap);
+
   // Copy the parent's mmaps/comm if they exist.  Otherwise, items
   // will be lazily populated.
   void UpdateMapsWithMMapEvent(const quipper::PerfDataProto_MMapEvent* mmap);
@@ -213,6 +222,9 @@ class Normalizer {
   // Handles the auxtrace event in event_proto that contains the Arm SPE
   // records to parse potential samples.
   void HandleSpeAuxtrace(const quipper::PerfDataProto::PerfEvent& event_proto);
+
+  // Handles the ksymbol event in event_proto.
+  void HandleKsymbol(const quipper::PerfDataProto::PerfEvent& event_proto);
 
   // Handles the perf LOST event or LOST_SAMPLE event.
   void HandleLost(const quipper::PerfDataProto::PerfEvent& event_proto);
@@ -449,6 +461,8 @@ void Normalizer::Normalize() {
     } else if (event_proto.has_auxtrace_error_event()) {
       LOG(WARNING) << "auxtrace_error event: "
                    << event_proto.auxtrace_error_event().msg();
+    } else if (event_proto.has_ksymbol_event()) {
+      HandleKsymbol(event_proto);
     }
   }
 
@@ -535,7 +549,7 @@ void Normalizer::HandleSample(
   context.branch_stack.resize(sample.branch_stack_size());
   for (int i = 0; i < sample.branch_stack_size(); ++i) {
     stat_.branch_stack_ips += 2;
-    auto entry = sample.branch_stack(i);
+    const auto& entry = sample.branch_stack(i);
     // from
     context.branch_stack[i].from.ip = entry.from_ip();
     context.branch_stack[i].from.mapping =
@@ -712,6 +726,25 @@ static bool IsVirtualMapping(const std::string& map_name) {
          (HasPrefixString(map_name, "[") && HasSuffixString(map_name, "]")) ||
          HasPrefixString(map_name, "/memfd:") ||
          HasPrefixString(map_name, "[anon:");
+}
+
+void Normalizer::ConvertMmapFromKsymbol(
+    const quipper::PerfDataProto_KsymbolEvent& ksymbol_event, uint32_t prot,
+    quipper::PerfDataProto_MMapEvent* mmap) {
+  uint32_t pid = 1;
+  uint32_t tid = 1;
+  uint32_t flags = 0;
+  uint64_t pgoff = 0;
+  mmap->set_pid(pid);
+  mmap->set_tid(tid);
+  mmap->set_flags(flags);
+  mmap->set_pgoff(pgoff);
+  mmap->set_prot(prot);
+  mmap->set_start(ksymbol_event.addr());
+  mmap->set_len(ksymbol_event.len());
+  // TODO(go/gwp-bpf-name-breakdown): Need to do post-processing on `filename`.
+  mmap->set_filename(ksymbol_event.name());
+  *mmap->mutable_sample_info() = ksymbol_event.sample_info();
 }
 
 void Normalizer::UpdateMapsWithMMapEvent(
@@ -917,6 +950,18 @@ void Normalizer::HandleSpeAuxtrace(
     sample.set_pid(pid);
     sample.set_ip(record.ip.addr);
     HandleSample(event_proto, true);
+  }
+}
+
+void Normalizer::HandleKsymbol(
+    const quipper::PerfDataProto::PerfEvent& event_proto) {
+  quipper::PerfDataProto_MMapEvent mmap;
+  if (event_proto.ksymbol_event().ksym_type() ==
+          quipper::PERF_RECORD_KSYMBOL_TYPE_BPF &&
+      event_proto.ksymbol_event().flags() == 0) {
+    uint32_t prot = PROT_EXEC | PROT_READ;
+    ConvertMmapFromKsymbol(event_proto.ksymbol_event(), prot, &mmap);
+    UpdateMapsWithMMapEvent(&mmap);
   }
 }
 
