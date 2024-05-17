@@ -131,6 +131,14 @@ class TestPerfDataHandler : public PerfDataHandler {
     }
   }
 
+  void CheckNotEmptyFilenames() {
+    EXPECT_EQ(1, seen_filenames_.size());
+    for (auto const& filename : seen_filenames_) {
+      EXPECT_TRUE(expected_filename_to_build_id_.find(filename) !=
+                  expected_filename_to_build_id_.end());
+    }
+  }
+
   const std::vector<std::unique_ptr<Mapping>>& SeenAddrMappings() const {
     return seen_addr_mappings_;
   }
@@ -548,6 +556,31 @@ TEST(PerfDataHandlerTest, SpeAuxtraceIntoSamples) {
   // Match to the correct pids.
   EXPECT_EQ(sample_events[0].pid(), 1);
   EXPECT_EQ(sample_events[1].pid(), 2);
+}
+
+TEST(PerfDataHandlerTest, KsymbolIntoMappings) {
+  quipper::PerfDataProto proto;
+  std::string mock_filename = "bpf_prog_bec4c5629f7c7e2d_netcg_bind4";
+
+  // File attrs are required for sample event processing.
+  uint64_t file_attr_id = 0;
+  auto* file_attr = proto.add_file_attrs();
+  file_attr->add_ids(file_attr_id);
+
+  // Add a ksymbol event.
+  auto* ksymbol_event = proto.add_events()->mutable_ksymbol_event();
+  ksymbol_event->set_addr(0x1000);
+  ksymbol_event->set_len(0x500);
+  ksymbol_event->set_ksym_type(quipper::PERF_RECORD_KSYMBOL_TYPE_BPF);
+  ksymbol_event->set_flags(0);
+  ksymbol_event->set_name(mock_filename);
+
+  std::unordered_map<std::string, std::string> expected_filename_to_build_id;
+  expected_filename_to_build_id[mock_filename] = "";
+  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+                              expected_filename_to_build_id);
+  PerfDataHandler::Process(proto, &handler);
+  handler.CheckSeenFilenames();
 }
 
 }  // namespace perftools
