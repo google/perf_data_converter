@@ -212,12 +212,9 @@ class Normalizer {
   void UpdateMapsWithForkEvent(const quipper::PerfDataProto_ForkEvent& fork);
   void LogStats();
 
-  // Handles the sample_event in event_proto and call handler_->Sample.
-  // TODO(b/277114009): replace use_first_file_attr with a proper file_attr
-  // index when we have feasible way to tell which file attribute is for certain
-  // event (e.g. Arm SPE).
-  void HandleSample(const quipper::PerfDataProto::PerfEvent& event_proto,
-                    bool use_first_file_attr);
+  // Handles the sample_event in event_proto (wrapped in the sample context) and
+  // call handler_->Sample.
+  void HandleSample(PerfDataHandler::SampleContext* context);
 
   // Handles the auxtrace event in event_proto that contains the Arm SPE
   // records to parse potential samples.
@@ -453,7 +450,9 @@ void Normalizer::Normalize() {
                event_proto.has_lost_event()) {
       HandleLost(event_proto);
     } else if (event_proto.has_sample_event()) {
-      HandleSample(event_proto, false);
+      PerfDataHandler::SampleContext sample_context(event_proto.header(),
+                                                    event_proto.sample_event());
+      HandleSample(&sample_context);
     } else if (event_proto.has_auxtrace_event()) {
       if (has_spe_auxtrace_) {
         HandleSpeAuxtrace(event_proto);
@@ -469,43 +468,43 @@ void Normalizer::Normalize() {
   LogStats();
 }
 
-void Normalizer::HandleSample(
-    const quipper::PerfDataProto::PerfEvent& event_proto,
-    bool use_first_file_attribute) {
-  CHECK(event_proto.has_sample_event());
-  const auto& sample = event_proto.sample_event();
-  PerfDataHandler::SampleContext context(event_proto.header(),
-                                         event_proto.sample_event());
-  if (use_first_file_attribute) {
+void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
+  CHECK(context != nullptr);
+  if (context->spe.is_spe) {
     // This is for the situation like SPE-record generated sample, where we want
     // to use the first file_attrs_index instead of finding it through ID,
-    // because such synthesized sample does not have sample.id.
-    context.file_attrs_index = 0;
+    // because such synthesized sample does not have sample.id to find file
+    // attribute index.
+    // TODO(b/277114009): replace this with a proper file attr when we have
+    // feasible way to tell which file attribute is for certain event (e.g. Arm
+    // SPE).
+    context->file_attrs_index = 0;
   } else {
-    context.file_attrs_index = GetEventIndexForSample(context.sample);
+    context->file_attrs_index = GetEventIndexForSample(context->sample);
   }
-  if (context.file_attrs_index == -1) {
+  if (context->file_attrs_index == -1) {
     ++stat_.no_event_errors;
     return;
   }
   ++stat_.samples;
 
+  const auto& sample = context->sample;
   uint32_t pid = sample.pid();
 
-  context.sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
-  stat_.missing_sample_mmap += context.sample_mapping == nullptr;
+  context->sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
+  stat_.missing_sample_mmap += context->sample_mapping == nullptr;
 
   if (sample.has_addr()) {
     ++stat_.samples_with_addr;
-    context.addr_mapping = GetMappingFromPidAndIP(pid, sample.addr(), false);
-    stat_.missing_addr_mmap += context.addr_mapping == nullptr;
+    context->addr_mapping = GetMappingFromPidAndIP(pid, sample.addr(), false);
+    stat_.missing_addr_mmap += context->addr_mapping == nullptr;
   }
 
-  context.main_mapping = GetMainMMapFromPid(pid);
+  context->main_mapping = GetMainMMapFromPid(pid);
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
-  if (context.main_mapping == nullptr &&
-      (event_proto.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
+  if (context->main_mapping == nullptr &&
+      (context->header.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
           quipper::PERF_RECORD_MISC_KERNEL) {
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
@@ -518,20 +517,20 @@ void Normalizer::HandleSample(
       // The comm_md5_prefix is used for the filename_md5_prefix field in the
       // fake mapping. This allows recovery of the process name (execname) by
       // resolving its md5 prefix when the comm string is nil or empty.
-      context.main_mapping =
+      context->main_mapping =
           GetOrAddFakeMapping(comm_it->second->comm(), build_id,
                               comm_it->second->comm_md5_prefix(), 0);
     } else if (pid == 0 && kernel_it != pid_to_executable_mmap_.end()) {
       // PID is 0 for the per-CPU idle tasks. Attribute these to the kernel.
-      context.main_mapping = kernel_it->second;
+      context->main_mapping = kernel_it->second;
     }
   }
 
-  stat_.missing_main_mmap += context.main_mapping == nullptr;
+  stat_.missing_main_mmap += context->main_mapping == nullptr;
 
   bool ip_in_user_context = false;
   // Normalize the callchain.
-  context.callchain.resize(sample.callchain_size());
+  context->callchain.resize(sample.callchain_size());
   for (int i = 0; i < sample.callchain_size(); ++i) {
     ++stat_.callchain_ips;
     if (sample.callchain(i) == quipper::PERF_CONTEXT_USER) {
@@ -539,44 +538,44 @@ void Normalizer::HandleSample(
     } else if (sample.callchain(i) >= quipper::PERF_CONTEXT_MAX) {
       ip_in_user_context = false;
     }
-    context.callchain[i].ip = sample.callchain(i);
-    context.callchain[i].mapping =
+    context->callchain[i].ip = sample.callchain(i);
+    context->callchain[i].mapping =
         GetMappingFromPidAndIP(pid, sample.callchain(i), ip_in_user_context);
-    stat_.missing_callchain_mmap += context.callchain[i].mapping == nullptr;
+    stat_.missing_callchain_mmap += context->callchain[i].mapping == nullptr;
   }
 
   // Normalize the branch_stack.
-  context.branch_stack.resize(sample.branch_stack_size());
+  context->branch_stack.resize(sample.branch_stack_size());
   for (int i = 0; i < sample.branch_stack_size(); ++i) {
     stat_.branch_stack_ips += 2;
     const auto& entry = sample.branch_stack(i);
     // from
-    context.branch_stack[i].from.ip = entry.from_ip();
-    context.branch_stack[i].from.mapping =
+    context->branch_stack[i].from.ip = entry.from_ip();
+    context->branch_stack[i].from.mapping =
         GetMappingFromPidAndIP(pid, entry.from_ip(), false);
     stat_.missing_branch_stack_mmap +=
-        context.branch_stack[i].from.mapping == nullptr;
+        context->branch_stack[i].from.mapping == nullptr;
     // to
-    context.branch_stack[i].to.ip = entry.to_ip();
-    context.branch_stack[i].to.mapping =
+    context->branch_stack[i].to.ip = entry.to_ip();
+    context->branch_stack[i].to.mapping =
         GetMappingFromPidAndIP(pid, entry.to_ip(), false);
     stat_.missing_branch_stack_mmap +=
-        context.branch_stack[i].to.mapping == nullptr;
-    context.branch_stack[i].mispredicted = entry.mispredicted();
-    context.branch_stack[i].predicted = entry.predicted();
-    context.branch_stack[i].in_transaction = entry.in_transaction();
-    context.branch_stack[i].abort = entry.abort();
-    context.branch_stack[i].cycles = entry.cycles();
-    context.branch_stack[i].spec = entry.spec();
+        context->branch_stack[i].to.mapping == nullptr;
+    context->branch_stack[i].mispredicted = entry.mispredicted();
+    context->branch_stack[i].predicted = entry.predicted();
+    context->branch_stack[i].in_transaction = entry.in_transaction();
+    context->branch_stack[i].abort = entry.abort();
+    context->branch_stack[i].cycles = entry.cycles();
+    context->branch_stack[i].spec = entry.spec();
   }
 
   if (sample.has_cgroup()) {
     auto cgrp_it = cgroup_map_.find(sample.cgroup());
     if (cgrp_it != cgroup_map_.end()) {
-      context.cgroup = &cgrp_it->second;
+      context->cgroup = &cgrp_it->second;
     }
   }
-  handler_->Sample(context);
+  handler_->Sample(*context);
 }
 
 const PerfDataHandler::Mapping* Normalizer::GetOrAddFakeMapping(
@@ -949,7 +948,11 @@ void Normalizer::HandleSpeAuxtrace(
     sample.set_tid(tid);
     sample.set_pid(pid);
     sample.set_ip(record.ip.addr);
-    HandleSample(event_proto, true);
+
+    PerfDataHandler::SampleContext context(event_proto.header(), sample);
+    context.spe.is_spe = true;
+    context.spe.record = record;
+    HandleSample(&context);
   }
 }
 

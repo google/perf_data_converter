@@ -85,7 +85,7 @@ bool CheckEqual(const quipper::ArmSpeDecoder::Record& actual,
   // record latenties
   EXPECT_FIELD_EQ(actual, expected, total_lat, all_equal);
   EXPECT_FIELD_EQ(actual, expected, issue_lat, all_equal);
-  EXPECT_FIELD_EQ(actual, expected, trans_lat, all_equal);
+  EXPECT_FIELD_EQ(actual, expected, translation_lat, all_equal);
   // record.ip
   EXPECT_FIELD_EQ(actual, expected, ip.addr, all_equal);
   EXPECT_FIELD_EQ(actual, expected, ip.el, all_equal);
@@ -141,7 +141,7 @@ TEST(ArmSpeDecoderTest, CorrectlyParseRecords) {
           .op = {.is_ldst = true, .ldst = {.ld = true, .gp_reg = true}},
           .total_lat = 12,
           .issue_lat = 4,
-          .trans_lat = 1,
+          .translation_lat = 1,
           .ip = {.addr = 0xffffba66eda1c2d0, .el = 2, .ns = 1},
           .virt = {.addr = 0xffff0e3703096b28},
           .timestamp = 44731163950,

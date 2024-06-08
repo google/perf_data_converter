@@ -102,7 +102,7 @@ class ArmSpeDecoder {
     RecordOp op;
     uint32_t total_lat;
     uint32_t issue_lat;
-    uint32_t trans_lat;
+    uint32_t translation_lat;
     RecordIP ip;
     RecordIP tgt_br_ip;
     RecordIP prev_br_ip;

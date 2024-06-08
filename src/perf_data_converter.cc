@@ -116,6 +116,18 @@ struct SampleKey {
   uint64_t data_src = 0;
   uint64_t snoop_status = 0;
   LocationIdVector stack;
+  // Cycle count from the start of the sampled operation up to the point where
+  // the operation has finished execution and is no longer capable of stalling
+  // any instruction that consumes its output.
+  uint32_t total_lat;
+  // Cycle count from the start of the sampled operation up to the point when at
+  // least one part of the sampled operation starts executing. A sampled
+  // operation might be delayed, for example, because the input operands were
+  // not available.
+  uint32_t issue_lat;
+  // Cycle count from a virtual address being passed to the MMU for translation,
+  // to the result of the translation being available.
+  uint32_t translation_lat;
 };
 
 struct SampleKeyEqualityTester {
@@ -127,7 +139,9 @@ struct SampleKeyEqualityTester {
             (a.code_page_size == b.code_page_size) &&
             (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
             (a.weight == b.weight) && (a.data_src == b.data_src) &&
-            (a.snoop_status == b.snoop_status) && (a.stack == b.stack));
+            (a.snoop_status == b.snoop_status) && (a.stack == b.stack) &&
+            (a.total_lat == b.total_lat) && (a.issue_lat == b.issue_lat) &&
+            (a.translation_lat == b.translation_lat));
   }
 };
 
@@ -151,6 +165,9 @@ struct SampleKeyHasher {
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64_t>()(id);
     }
+    hash ^= std::hash<uint32_t>()(k.total_lat);
+    hash ^= std::hash<uint32_t>()(k.issue_lat);
+    hash ^= std::hash<uint32_t>()(k.translation_lat);
     return hash;
   }
 };
@@ -312,6 +329,24 @@ class PerfDataConverter : public PerfDataHandler {
   // profile.proto's Sample.DataSrc field.
   bool IncludeDataSrcLabels() const { return (sample_labels_ & kDataSrcLabel); }
 
+  // Returns whether total latency labels were requested for inclusion in the
+  // profile.proto's label.
+  bool IncludeTotalLatencyLabels() const {
+    return (sample_labels_ & kTotalLatencyLabel);
+  }
+
+  // Returns whether issue latency labels were requested for inclusion in the
+  // profile.proto's label.
+  bool IncludeIssueLatencyLabels() const {
+    return (sample_labels_ & kIssueLatencyLabel);
+  }
+
+  // Returns whether translation latency labels were requested for inclusion in
+  // the profile.proto's label.
+  bool IncludeTranslationLatencyLabels() const {
+    return (sample_labels_ & kTranslationLatencyLabel);
+  }
+
   SampleKey MakeSampleKey(const PerfDataHandler::SampleContext& sample,
                           ProfileBuilder* builder);
 
@@ -437,6 +472,22 @@ SampleKey PerfDataConverter::MakeSampleKey(
     sample_key.snoop_status =
         UTF8StringId(SnoopStatusString(ds.mem_snoop), builder);
   }
+
+  sample_key.total_lat = 0;
+  sample_key.issue_lat = 0;
+  sample_key.translation_lat = 0;
+  if (sample.spe.is_spe) {
+    if (IncludeTotalLatencyLabels()) {
+      sample_key.total_lat = sample.spe.record.total_lat;
+    }
+    if (IncludeIssueLatencyLabels()) {
+      sample_key.issue_lat = sample.spe.record.issue_lat;
+    }
+    if (IncludeTranslationLatencyLabels()) {
+      sample_key.translation_lat = sample.spe.record.translation_lat;
+    }
+  }
+
   return sample_key;
 }
 
@@ -654,6 +705,29 @@ void PerfDataConverter::AddOrUpdateSample(
         label->set_str(sample_key.snoop_status);
       }
     }
+
+    if (context.spe.is_spe) {
+      if (IncludeTotalLatencyLabels() && sample_key.total_lat != 0) {
+        auto* label = sample->add_label();
+        label->set_key(builder->StringId(TotalLatencyLabelKey));
+        label->set_num(sample_key.total_lat);
+        label->set_num_unit(builder->StringId("cycles"));
+      }
+      if (IncludeIssueLatencyLabels() && sample_key.issue_lat != 0) {
+        auto* label = sample->add_label();
+        label->set_key(builder->StringId(IssueLatencyLabelKey));
+        label->set_num(sample_key.issue_lat);
+        label->set_num_unit(builder->StringId("cycles"));
+      }
+      if (IncludeTranslationLatencyLabels() &&
+          sample_key.translation_lat != 0) {
+        auto* label = sample->add_label();
+        label->set_key(builder->StringId(TranslationLatencyLabelKey));
+        label->set_num(sample_key.translation_lat);
+        label->set_num_unit(builder->StringId("cycles"));
+      }
+    }
+
     // Two values per collected event: the first is sample counts, the second is
     // event counts (unsampled weight for each sample).
     for (int event_id = 0; event_id < perf_data_.file_attrs_size();

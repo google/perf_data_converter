@@ -369,7 +369,7 @@ bool ArmSpeDecoder::HandlePacketCounter(struct Packet* p, struct Record* r) {
       break;
     }
     case 0x2: {
-      r->trans_lat = p->payload;
+      r->translation_lat = p->payload;
       break;
     }
   }
