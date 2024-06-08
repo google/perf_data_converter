@@ -97,6 +97,7 @@ events {
     cpu: 0
     weight_struct: {
       var1_dw: 146
+      var2_w: 257
     }
   }
 }

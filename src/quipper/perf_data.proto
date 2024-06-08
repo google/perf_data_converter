@@ -372,11 +372,14 @@ message PerfDataProto {
     optional uint32 spec = 9;
   }
 
-  // WeightStruct is microarchitecture-dependant field, and represents sample
+  // WeightStruct is microarchitecture-dependent field, and represents sample
   // weights for some special events.
-  // For example, for Sapphire Rapids with load latency events, the first field
-  // of WeightStruct is the cache latency, and the second is the instruction
-  // latency.
+  // On Intel Sapphire Rapids and newer, with load latency events, the first
+  // field is the cache latency, and the second is the "total" instruction
+  // issue-to-retirement latency.
+  // On AMD, for IBS collections and only on load instructions, the first
+  // field is the cache latency, and the second is the "total" instruction
+  // issue-to-retirement latency.
   // Next tag: 4
   message WeightStruct {
     // First weight factor.
@@ -439,7 +442,11 @@ message PerfDataProto {
     // optional RegsUser regs_user = 13;
     // optional StackUser stack_user = 14;
 
-    // Sample weight for special events.
+    // Sample weight for special events. Microarchitecture-dependent.
+    // On Intel Icelake and older, for load latency events, this is the "total"
+    // instruction issue-to-retire latency.
+    // On AMD, for IBS collections and load instructions, this is the cache
+    // latency.
     optional uint64 weight = 15;
 
     // Sample data source flags.
