@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "src/path_matching.h"
+#include "src/quipper/arm_spe_decoder.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/kernel/perf_event.h"
 #include "src/quipper/kernel/perf_internals.h"
@@ -109,6 +110,9 @@ class TestPerfDataHandler : public PerfDataHandler {
     for (size_t i = 0; i < sample.branch_stack.size(); i++) {
       CheckBranchEquality(expected_branch_stack_[i], sample.branch_stack[i]);
     }
+    if (sample.spe.is_spe) {
+      seen_arm_spe_records_.push_back(sample.spe.record);
+    }
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
@@ -148,6 +152,10 @@ class TestPerfDataHandler : public PerfDataHandler {
     return seen_sample_events_;
   }
 
+  const std::vector<quipper::ArmSpeDecoder::Record>& SeenArmSpeRecords() const {
+    return seen_arm_spe_records_;
+  }
+
  private:
   // Ensure necessary information contained in the BranchStackEntry is also
   // present in the resulting profile.
@@ -166,6 +174,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   std::unordered_set<std::string> seen_filenames_;
   std::vector<std::unique_ptr<Mapping>> seen_addr_mappings_;
   std::vector<quipper::PerfDataProto::SampleEvent> seen_sample_events_;
+  std::vector<quipper::ArmSpeDecoder::Record> seen_arm_spe_records_;
 };
 
 TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
@@ -556,6 +565,14 @@ TEST(PerfDataHandlerTest, SpeAuxtraceIntoSamples) {
   // Match to the correct pids.
   EXPECT_EQ(sample_events[0].pid(), 1);
   EXPECT_EQ(sample_events[1].pid(), 2);
+
+  const auto& spe_records = handler.SeenArmSpeRecords();
+  ASSERT_EQ(spe_records.size(), 2);
+  EXPECT_EQ(spe_records[0].total_lat, 12);
+  EXPECT_EQ(spe_records[0].issue_lat, 4);
+  EXPECT_EQ(spe_records[0].translation_lat, 1);
+  EXPECT_EQ(spe_records[1].total_lat, 17);
+  EXPECT_EQ(spe_records[1].issue_lat, 16);
 }
 
 TEST(PerfDataHandlerTest, KsymbolIntoMappings) {

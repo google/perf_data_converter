@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "src/quipper/arm_spe_decoder.h"
 #include "src/quipper/perf_data.pb.h"
 
 namespace perftools {
@@ -137,12 +138,13 @@ class PerfDataHandler {
           sample_mapping(nullptr),
           addr_mapping(nullptr),
           file_attrs_index(-1),
-          cgroup(nullptr) {}
+          cgroup(nullptr),
+          spe{false, quipper::ArmSpeDecoder::Record()} {}
 
     // The event's header.
-    const quipper::PerfDataProto::EventHeader &header;
+    const quipper::PerfDataProto::EventHeader& header;
     // An event.
-    const quipper::PerfDataProto::SampleEvent &sample;
+    const quipper::PerfDataProto::SampleEvent& sample;
     // The mapping for the main binary for this program.
     const Mapping* main_mapping;
     // The mapping in which event.ip is found.
@@ -158,6 +160,11 @@ class PerfDataHandler {
     int64_t file_attrs_index;
     // Cgroup pathname
     const std::string* cgroup;
+    // The attributes for the sample if it comes from Arm SPE.
+    struct {
+      bool is_spe;
+      quipper::ArmSpeDecoder::Record record;
+    } spe;
   };
 
   struct CommContext {
