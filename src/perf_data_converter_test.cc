@@ -240,8 +240,7 @@ TEST_F(PerfDataConverterTest, Converts) {
 
     // Test PerfDataProto input.
     const auto perf_data_proto = ToPerfDataProto(raw_perf_data);
-    pps = PerfDataProtoToProfiles(
-        &perf_data_proto, kNoLabels, kNoOptions);
+    pps = PerfDataProtoToProfiles(&perf_data_proto, kNoLabels, kNoOptions);
     counts = GetMapCounts(pps);
     EXPECT_EQ(c.key_count, counts.size()) << casename;
     total_exclusive = 0;
@@ -265,8 +264,8 @@ TEST_F(PerfDataConverterTest, ConvertsGroupPid) {
   ASSERT_FALSE(raw_perf_data.empty()) << multiple_profile;
   // Test PerfDataProto input.
   const auto perf_data_proto = ToPerfDataProto(raw_perf_data);
-  const auto pps = PerfDataProtoToProfiles(
-      &perf_data_proto, kPidAndTidLabels, kGroupByPids);
+  const auto pps =
+      PerfDataProtoToProfiles(&perf_data_proto, kPidAndTidLabels, kGroupByPids);
 
   uint64_t total_samples = 0;
   // Samples were collected for 6 pids in this case, so the outer vector should
@@ -928,10 +927,10 @@ TEST_F(PerfDataConverterTest, ConvertsWeight) {
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
 
   const ProcessProfiles pps =
-      PerfDataProtoToProfiles(&perf_data_proto, kCacheLatencyLabel);
+      PerfDataProtoToProfiles(&perf_data_proto, kTotalLatencyLabel);
   ASSERT_EQ(pps.size(), 1);
 
-  const auto counts_pair = ExtractCounts(pps, CacheLatencyLabelKey);
+  const auto counts_pair = ExtractCounts(pps, TotalLatencyLabelKey);
   const auto total_samples = std::get<0>(counts_pair);
   const auto& counts = std::get<1>(counts_pair);
   const std::unordered_map<uint64_t, uint64_t> expected_counts{
@@ -949,19 +948,28 @@ TEST_F(PerfDataConverterTest, ConvertsWeightStruct) {
   PerfDataProto perf_data_proto;
   ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
 
-  const ProcessProfiles pps =
-      PerfDataProtoToProfiles(&perf_data_proto, kCacheLatencyLabel);
+  const ProcessProfiles pps = PerfDataProtoToProfiles(
+      &perf_data_proto, kCacheLatencyLabel | kTotalLatencyLabel);
   ASSERT_EQ(pps.size(), 1);
 
-  const auto counts_pair = ExtractCounts(pps, CacheLatencyLabelKey);
-  const auto total_samples = std::get<0>(counts_pair);
-  const auto& counts = std::get<1>(counts_pair);
-  const std::unordered_map<uint64_t, uint64_t> expected_counts{
+  const auto cache_counts_pair = ExtractCounts(pps, CacheLatencyLabelKey);
+  const auto total_samples = std::get<0>(cache_counts_pair);
+  EXPECT_EQ(total_samples, 4);
+
+  const auto& cache_counts = std::get<1>(cache_counts_pair);
+  const std::unordered_map<uint64_t, uint64_t> expected_cache_counts{
       {146, 1},
       {352, 2},
   };
-  EXPECT_EQ(total_samples, 4);
-  EXPECT_THAT(counts, UnorderedPointwise(Eq(), expected_counts));
+  EXPECT_THAT(cache_counts, UnorderedPointwise(Eq(), expected_cache_counts));
+
+  const auto total_counts_pair = ExtractCounts(pps, TotalLatencyLabelKey);
+  const auto& total_counts = std::get<1>(total_counts_pair);
+  const std::unordered_map<uint64_t, uint64_t> expected_total_counts{
+      {257, 1},
+      {1000, 1},
+  };
+  EXPECT_THAT(total_counts, UnorderedPointwise(Eq(), expected_total_counts));
 }
 
 // Test with a perf data doesn't have weight info.
@@ -978,9 +986,9 @@ TEST_F(PerfDataConverterTest, ConvertsNoWeight) {
 
   auto counts_pair1 = ExtractCounts(pps, CacheLatencyLabelKey);
   const auto total_samples1 = std::get<0>(counts_pair1);
-  const auto& weight_counts = std::get<1>(counts_pair1);
+  const auto& cache_latency_counts = std::get<1>(counts_pair1);
   EXPECT_EQ(total_samples1, 5);
-  EXPECT_THAT(weight_counts, IsEmpty());
+  EXPECT_THAT(cache_latency_counts, IsEmpty());
 }
 
 TEST_F(PerfDataConverterTest, DataSrcBitSet) {

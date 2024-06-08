@@ -112,22 +112,22 @@ struct SampleKey {
   uint64_t code_page_size = 0;
   uint64_t data_page_size = 0;
   uint32_t cpu = 0;
-  uint64_t weight = 0;
+  uint64_t cache_latency = 0;
   uint64_t data_src = 0;
   uint64_t snoop_status = 0;
   LocationIdVector stack;
   // Cycle count from the start of the sampled operation up to the point where
   // the operation has finished execution and is no longer capable of stalling
   // any instruction that consumes its output.
-  uint32_t total_lat;
+  uint32_t total_latency = 0;
   // Cycle count from the start of the sampled operation up to the point when at
   // least one part of the sampled operation starts executing. A sampled
   // operation might be delayed, for example, because the input operands were
   // not available.
-  uint32_t issue_lat;
+  uint32_t issue_latency = 0;
   // Cycle count from a virtual address being passed to the MMU for translation,
   // to the result of the translation being available.
-  uint32_t translation_lat;
+  uint32_t translation_latency = 0;
 };
 
 struct SampleKeyEqualityTester {
@@ -138,10 +138,11 @@ struct SampleKeyEqualityTester {
             (a.thread_comm == b.thread_comm) && (a.cgroup == b.cgroup) &&
             (a.code_page_size == b.code_page_size) &&
             (a.data_page_size == b.data_page_size) && (a.cpu == b.cpu) &&
-            (a.weight == b.weight) && (a.data_src == b.data_src) &&
-            (a.snoop_status == b.snoop_status) && (a.stack == b.stack) &&
-            (a.total_lat == b.total_lat) && (a.issue_lat == b.issue_lat) &&
-            (a.translation_lat == b.translation_lat));
+            (a.cache_latency == b.cache_latency) &&
+            (a.data_src == b.data_src) && (a.snoop_status == b.snoop_status) &&
+            (a.stack == b.stack) && (a.total_latency == b.total_latency) &&
+            (a.issue_latency == b.issue_latency) &&
+            (a.translation_latency == b.translation_latency));
   }
 };
 
@@ -159,15 +160,15 @@ struct SampleKeyHasher {
     hash ^= std::hash<uint64_t>()(k.code_page_size);
     hash ^= std::hash<uint64_t>()(k.data_page_size);
     hash ^= std::hash<uint32_t>()(k.cpu);
-    hash ^= std::hash<uint64_t>()(k.weight);
+    hash ^= std::hash<uint64_t>()(k.cache_latency);
     hash ^= std::hash<uint64_t>()(k.data_src);
     hash ^= std::hash<uint64_t>()(k.snoop_status);
     for (const auto& id : k.stack) {
       hash ^= std::hash<uint64_t>()(id);
     }
-    hash ^= std::hash<uint32_t>()(k.total_lat);
-    hash ^= std::hash<uint32_t>()(k.issue_lat);
-    hash ^= std::hash<uint32_t>()(k.translation_lat);
+    hash ^= std::hash<uint32_t>()(k.total_latency);
+    hash ^= std::hash<uint32_t>()(k.issue_latency);
+    hash ^= std::hash<uint32_t>()(k.translation_latency);
     return hash;
   }
 };
@@ -321,12 +322,12 @@ class PerfDataConverter : public PerfDataHandler {
   // profile.proto's Sample.Label field.
   bool IncludeCpuLabels() const { return (sample_labels_ & kCpuLabel); }
   // Returns whether cache latency labels were requested for inclusion in the
-  // profile.proto's Sample.Weight field.
+  // profile.proto's Sample.Label field.
   bool IncludeCacheLatencyLabel() const {
     return (sample_labels_ & kCacheLatencyLabel);
   }
   // Returns whether data source labels were requested for inclusion in the
-  // profile.proto's Sample.DataSrc field.
+  // profile.proto's Sample.Label field.
   bool IncludeDataSrcLabels() const { return (sample_labels_ & kDataSrcLabel); }
 
   // Returns whether total latency labels were requested for inclusion in the
@@ -453,14 +454,28 @@ SampleKey PerfDataConverter::MakeSampleKey(
   sample_key.cpu =
       (IncludeCpuLabels() && sample.sample.has_cpu()) ? sample.sample.cpu() : 0;
   // If sample has a weight_struct, we use its var1_dw field, which is the cache
-  // latency. Otherwise, we use the weight field.
+  // latency on both Intel SPR+ and AMD.
   if (IncludeCacheLatencyLabel()) {
     if (sample.sample.has_weight_struct() &&
         sample.sample.weight_struct().has_var1_dw()) {
-      sample_key.weight =
+      sample_key.cache_latency =
           static_cast<uint64_t>(sample.sample.weight_struct().var1_dw());
+    }
+  }
+  // If sample has a weight_struct, we use its var2_w field, which is the total
+  // issue-to-retire latency on Intel SPR+ and AMD.
+  // Otherwise, we use the weight field, which is the total latency on Intel
+  // older than SPR.
+  // Note, there's some possible ambiguity, since AMD machines
+  // can put the cache latency in weight (if weight_struct is unavailable), but
+  // at least perf6 doesn't generate such files.
+  if (IncludeTotalLatencyLabels()) {
+    if (sample.sample.has_weight_struct() &&
+        sample.sample.weight_struct().has_var2_w()) {
+      sample_key.total_latency =
+          static_cast<uint64_t>(sample.sample.weight_struct().var2_w());
     } else if (sample.sample.has_weight()) {
-      sample_key.weight = sample.sample.weight();
+      sample_key.total_latency = sample.sample.weight();
     }
   }
   // If sample has a data_src, we decode it to find the data source and snoop
@@ -473,18 +488,18 @@ SampleKey PerfDataConverter::MakeSampleKey(
         UTF8StringId(SnoopStatusString(ds.mem_snoop), builder);
   }
 
-  sample_key.total_lat = 0;
-  sample_key.issue_lat = 0;
-  sample_key.translation_lat = 0;
+  // If a sample has an SPE record, use latency information from there.
+  // SPE samples shouldn't have weight or weight_struct set, so this is
+  // orhtogonal to the other latency sources above.
   if (sample.spe.is_spe) {
     if (IncludeTotalLatencyLabels()) {
-      sample_key.total_lat = sample.spe.record.total_lat;
+      sample_key.total_latency = sample.spe.record.total_lat;
     }
     if (IncludeIssueLatencyLabels()) {
-      sample_key.issue_lat = sample.spe.record.issue_lat;
+      sample_key.issue_latency = sample.spe.record.issue_lat;
     }
     if (IncludeTranslationLatencyLabels()) {
-      sample_key.translation_lat = sample.spe.record.translation_lat;
+      sample_key.translation_latency = sample.spe.record.translation_lat;
     }
   }
 
@@ -687,10 +702,10 @@ void PerfDataConverter::AddOrUpdateSample(
       label->set_num(static_cast<int64_t>(context.sample.cpu()));
       label->set_num_unit(builder->StringId("cpu"));
     }
-    if (IncludeCacheLatencyLabel() && sample_key.weight != 0) {
+    if (IncludeCacheLatencyLabel() && sample_key.cache_latency != 0) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(CacheLatencyLabelKey));
-      label->set_num(sample_key.weight);
+      label->set_num(sample_key.cache_latency);
       label->set_num_unit(builder->StringId("cycles"));
     }
     if (IncludeDataSrcLabels()) {
@@ -706,26 +721,24 @@ void PerfDataConverter::AddOrUpdateSample(
       }
     }
 
-    if (context.spe.is_spe) {
-      if (IncludeTotalLatencyLabels() && sample_key.total_lat != 0) {
-        auto* label = sample->add_label();
-        label->set_key(builder->StringId(TotalLatencyLabelKey));
-        label->set_num(sample_key.total_lat);
-        label->set_num_unit(builder->StringId("cycles"));
-      }
-      if (IncludeIssueLatencyLabels() && sample_key.issue_lat != 0) {
-        auto* label = sample->add_label();
-        label->set_key(builder->StringId(IssueLatencyLabelKey));
-        label->set_num(sample_key.issue_lat);
-        label->set_num_unit(builder->StringId("cycles"));
-      }
-      if (IncludeTranslationLatencyLabels() &&
-          sample_key.translation_lat != 0) {
-        auto* label = sample->add_label();
-        label->set_key(builder->StringId(TranslationLatencyLabelKey));
-        label->set_num(sample_key.translation_lat);
-        label->set_num_unit(builder->StringId("cycles"));
-      }
+    if (IncludeTotalLatencyLabels() && sample_key.total_latency != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(TotalLatencyLabelKey));
+      label->set_num(sample_key.total_latency);
+      label->set_num_unit(builder->StringId("cycles"));
+    }
+    if (IncludeIssueLatencyLabels() && sample_key.issue_latency != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(IssueLatencyLabelKey));
+      label->set_num(sample_key.issue_latency);
+      label->set_num_unit(builder->StringId("cycles"));
+    }
+    if (IncludeTranslationLatencyLabels() &&
+        sample_key.translation_latency != 0) {
+      auto* label = sample->add_label();
+      label->set_key(builder->StringId(TranslationLatencyLabelKey));
+      label->set_num(sample_key.translation_latency);
+      label->set_num_unit(builder->StringId("cycles"));
     }
 
     // Two values per collected event: the first is sample counts, the second is
