@@ -69,7 +69,7 @@ bool ParseCPUNumbers(const std::string& cpus, std::vector<uint32_t>& result) {
     std::vector<std::string> range_tokens;
     SplitString(token, '-', &range_tokens);
 
-    if (range_tokens.size() > 2) {
+    if (range_tokens.empty() || range_tokens.size() > 2) {
       return false;
     }
 

@@ -46,6 +46,7 @@ TEST(StringUtilsTest, ParseCPUNumbers) {
   EXPECT_THAT(result, ElementsAre(0, 1, 2, 3, 5, 6, 7));
   result.clear();
   EXPECT_FALSE(ParseCPUNumbers("", result));
+  EXPECT_FALSE(ParseCPUNumbers(",", result));
   EXPECT_FALSE(ParseCPUNumbers("a", result));
   EXPECT_FALSE(ParseCPUNumbers("0,1-2-3", result));
 }
