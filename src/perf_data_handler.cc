@@ -533,15 +533,23 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
   context->callchain.resize(sample.callchain_size());
   for (int i = 0; i < sample.callchain_size(); ++i) {
     ++stat_.callchain_ips;
-    if (sample.callchain(i) == quipper::PERF_CONTEXT_USER) {
+    uint64_t ip = sample.callchain(i);
+    if (ip == quipper::PERF_CONTEXT_USER) {
       ip_in_user_context = true;
-    } else if (sample.callchain(i) >= quipper::PERF_CONTEXT_MAX) {
+    } else if (ip >= quipper::PERF_CONTEXT_MAX) {
       ip_in_user_context = false;
     }
-    context->callchain[i].ip = sample.callchain(i);
-    context->callchain[i].mapping =
-        GetMappingFromPidAndIP(pid, sample.callchain(i), ip_in_user_context);
-    stat_.missing_callchain_mmap += context->callchain[i].mapping == nullptr;
+    const PerfDataHandler::Mapping* mapping;
+    if (ip >= quipper::PERF_CONTEXT_MAX) {
+      // This callchain frame is actually a context marker.
+      // Don't give it a mapping.
+      mapping = nullptr;
+      ++stat_.missing_callchain_mmap;
+    } else {
+      mapping = GetMappingFromPidAndIP(pid, ip, ip_in_user_context);
+    }
+    context->callchain[i].ip = ip;
+    context->callchain[i].mapping = mapping;
   }
 
   // Normalize the branch_stack.
@@ -863,13 +871,9 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32_t pid,
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
     uint32_t pid, uint64_t ip, bool ip_in_user_context) const {
-  if (ip >= quipper::PERF_CONTEXT_MAX || ip >> 60 == 0x8) {
-    // In case the ip is context hint or the highest 4 bits of ip is 1000,
-    // it has null mapping. For the latter case, we set the highest bit to mark
-    // the unmapped address. Kernel addresses in x86 and ARM have the high 16
-    // bits set, and for PowerPC the high 4 bits in range 0001 to 1011 is
-    // reserved space. So we would identify the unmapped address by checking
-    // its high four bits as 1000.
+  if (ip >> 60 == 0x8) {
+    // In case the highest 4 bits of ip is 1000, it has a null mapping. See
+    // the comment mentioning "highest 4 bits" in perf_parser.cc for details.
     return nullptr;
   }
   // First look up the mapping for the ip in the address space of the given pid.
