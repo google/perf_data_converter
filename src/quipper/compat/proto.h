@@ -5,7 +5,7 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_COMPAT_PROTO_H_
 #define CHROMIUMOS_WIDE_PROFILING_COMPAT_PROTO_H_
 
-#include "perf_data.pb.h"
+#include "src/quipper/perf_data.pb.h"
 #include "perf_parser_options.pb.h"
 #include "perf_stat.pb.h"
 #include "google/protobuf//arena.h"
