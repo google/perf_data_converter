@@ -654,8 +654,8 @@ bool PerfParser::MapIPAndPidAndGetNameAndOffset(
     // address is guaranteed to be larger than the mapped quipper space. When
     // options_.do_remap is false, the kernel addresses of x86 and ARM have
     // the high 16 bit set and PowerPC has a reserved space from
-    // 0x1000000000000000 to 0xBFFFFFFFFFFFFFFF. Thus, setting highest byte of
-    // the unmapped address, which starts with 0x8, should not collide with
+    // 0x1000000000000000 to 0xBFFFFFFFFFFFFFFF. Thus, setting highest 4 bits
+    // of the unmapped address, which starts with 0x8, should not collide with
     // any existing addresses or mapped quipper addresses.
     mapped_addr = (ip & ~(0xfULL << 60)) | 0x8ULL << 60;
   }
