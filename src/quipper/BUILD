@@ -230,6 +230,17 @@ cc_library(
 )
 
 cc_library(
+    name = "address_context",
+    srcs = ["address_context.cc"],
+    hdrs = ["address_context.h"],
+    visibility = ["//src:__subpackages__"],
+    deps = [
+        ":kernel",
+        ":perf_data_cc_proto",
+    ],
+)
+
+cc_library(
     name = "address_mapper",
     srcs = ["address_mapper.cc"],
     hdrs = ["address_mapper.h"],

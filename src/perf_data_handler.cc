@@ -27,6 +27,7 @@
 
 #include "src/intervalmap.h"
 #include "src/path_matching.h"
+#include "src/quipper/address_context.h"
 #include "src/quipper/arm_spe_decoder.h"
 #include "src/quipper/binary_data_utils.h"
 #include "src/quipper/dso.h"
@@ -239,11 +240,10 @@ class Normalizer {
   const PerfDataHandler::Mapping* TryLookupInPid(uint32_t pid,
                                                  uint64_t ip) const;
 
-  // Find the mapping for a given ip given a pid context (in user or kernel
-  // mappings) and whether the ip is in user context; returns nullptr if none
+  // Find the mapping for a given ip given a context; returns nullptr if none
   // can be found.
   const PerfDataHandler::Mapping* GetMappingFromPidAndIP(
-      uint32_t pid, uint64_t ip, bool ip_in_user_context) const;
+      uint32_t pid, uint64_t ip, quipper::AddressContext context) const;
 
   // Find the main MMAP event for this pid.  If no mapping is found,
   // nullptr is returned.
@@ -491,12 +491,14 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
   const auto& sample = context->sample;
   uint32_t pid = sample.pid();
 
-  context->sample_mapping = GetMappingFromPidAndIP(pid, sample.ip(), false);
+  context->sample_mapping = GetMappingFromPidAndIP(
+      pid, sample.ip(), quipper::AddressContext::kUnknown);
   stat_.missing_sample_mmap += context->sample_mapping == nullptr;
 
   if (sample.has_addr()) {
     ++stat_.samples_with_addr;
-    context->addr_mapping = GetMappingFromPidAndIP(pid, sample.addr(), false);
+    context->addr_mapping = GetMappingFromPidAndIP(
+        pid, sample.addr(), quipper::AddressContext::kUnknown);
     stat_.missing_addr_mmap += context->addr_mapping == nullptr;
   }
 
@@ -504,8 +506,8 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
   if (context->main_mapping == nullptr &&
-      (context->header.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
-          quipper::PERF_RECORD_MISC_KERNEL) {
+      quipper::ContextFromHeader(context->header) ==
+          quipper::AddressContext::kHostKernel) {
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
@@ -528,25 +530,24 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
 
   stat_.missing_main_mmap += context->main_mapping == nullptr;
 
-  bool ip_in_user_context = false;
   // Normalize the callchain.
   context->callchain.resize(sample.callchain_size());
+  quipper::AddressContext callchain_context = quipper::AddressContext::kUnknown;
   for (int i = 0; i < sample.callchain_size(); ++i) {
     ++stat_.callchain_ips;
     uint64_t ip = sample.callchain(i);
-    if (ip == quipper::PERF_CONTEXT_USER) {
-      ip_in_user_context = true;
-    } else if (ip >= quipper::PERF_CONTEXT_MAX) {
-      ip_in_user_context = false;
-    }
+    quipper::AddressContext current_context = quipper::ContextFromCallchain(
+        static_cast<quipper::perf_callchain_context>(ip));
+
     const PerfDataHandler::Mapping* mapping;
-    if (ip >= quipper::PERF_CONTEXT_MAX) {
+    if (current_context != quipper::AddressContext::kUnknown) {
       // This callchain frame is actually a context marker.
-      // Don't give it a mapping.
+      // Store the context for future frames, but don't give this one a mapping.
+      callchain_context = current_context;
       mapping = nullptr;
       ++stat_.missing_callchain_mmap;
     } else {
-      mapping = GetMappingFromPidAndIP(pid, ip, ip_in_user_context);
+      mapping = GetMappingFromPidAndIP(pid, ip, callchain_context);
     }
     context->callchain[i].ip = ip;
     context->callchain[i].mapping = mapping;
@@ -559,14 +560,14 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
     const auto& entry = sample.branch_stack(i);
     // from
     context->branch_stack[i].from.ip = entry.from_ip();
-    context->branch_stack[i].from.mapping =
-        GetMappingFromPidAndIP(pid, entry.from_ip(), false);
+    context->branch_stack[i].from.mapping = GetMappingFromPidAndIP(
+        pid, entry.from_ip(), quipper::AddressContext::kUnknown);
     stat_.missing_branch_stack_mmap +=
         context->branch_stack[i].from.mapping == nullptr;
     // to
     context->branch_stack[i].to.ip = entry.to_ip();
-    context->branch_stack[i].to.mapping =
-        GetMappingFromPidAndIP(pid, entry.to_ip(), false);
+    context->branch_stack[i].to.mapping = GetMappingFromPidAndIP(
+        pid, entry.to_ip(), quipper::AddressContext::kUnknown);
     stat_.missing_branch_stack_mmap +=
         context->branch_stack[i].to.mapping == nullptr;
     context->branch_stack[i].mispredicted = entry.mispredicted();
@@ -865,12 +866,12 @@ const PerfDataHandler::Mapping* Normalizer::TryLookupInPid(uint32_t pid,
   return mapping;
 }
 
-// Find the mapping for ip in the context of pid.  We might be looking
-// at a kernel IP, however (which can show up in any pid, and are
+// Find the mapping for ip in the context of pid and context.  We might be
+// looking at a kernel IP, however (which can show up in any pid, and are
 // stored in our map as pid = -1), so check there if the lookup fails
 // in our process.
 const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
-    uint32_t pid, uint64_t ip, bool ip_in_user_context) const {
+    uint32_t pid, uint64_t ip, quipper::AddressContext context) const {
   if (ip >> 60 == 0x8) {
     // In case the highest 4 bits of ip is 1000, it has a null mapping. See
     // the comment mentioning "highest 4 bits" in perf_parser.cc for details.
@@ -881,7 +882,7 @@ const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
   // -1. However, if the ip is guaranteed to be in user context, it will not be
   // looked up in the kernel space.
   const PerfDataHandler::Mapping* mapping = TryLookupInPid(pid, ip);
-  if (mapping == nullptr && !ip_in_user_context) {
+  if (mapping == nullptr && context != quipper::AddressContext::kHostUser) {
     mapping = TryLookupInPid(-1, ip);
   }
   if (mapping == nullptr) {

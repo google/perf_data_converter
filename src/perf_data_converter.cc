@@ -7,11 +7,13 @@
 
 #include "src/perf_data_converter.h"
 
-#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <map>
-#include <sstream>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -19,6 +21,7 @@
 #include "src/quipper/base/logging.h"
 #include "src/builder.h"
 #include "src/perf_data_handler.h"
+#include "src/quipper/address_context.h"
 #include "src/quipper/perf_data.pb.h"
 #include "src/quipper/perf_parser.h"
 #include "src/quipper/perf_reader.h"
@@ -32,49 +35,22 @@ typedef perftools::profiles::Builder ProfileBuilder;
 typedef uint32_t Pid;
 typedef uint32_t Tid;
 
-enum ExecutionMode {
-  Unknown,
-  HostKernel,
-  HostUser,
-  GuestKernel,
-  GuestUser,
-  Hypervisor
-};
-
-const char* ExecModeString(ExecutionMode mode) {
-  switch (mode) {
-    case HostKernel:
+const char* ExecModeString(quipper::AddressContext context) {
+  switch (context) {
+    case quipper::AddressContext::kHostKernel:
       return ExecutionModeHostKernel;
-    case HostUser:
+    case quipper::AddressContext::kHostUser:
       return ExecutionModeHostUser;
-    case GuestKernel:
+    case quipper::AddressContext::kGuestKernel:
       return ExecutionModeGuestKernel;
-    case GuestUser:
+    case quipper::AddressContext::kGuestUser:
       return ExecutionModeGuestUser;
-    case Hypervisor:
+    case quipper::AddressContext::kHypervisor:
       return ExecutionModeHypervisor;
     default:
-      LOG(ERROR) << "Execution mode not handled: " << mode;
+      LOG(ERROR) << "Execution mode not handled: " << static_cast<int>(context);
       return "";
   }
-}
-
-ExecutionMode PerfExecMode(const PerfDataHandler::SampleContext& sample) {
-  if (sample.header.has_misc()) {
-    switch (sample.header.misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) {
-      case quipper::PERF_RECORD_MISC_KERNEL:
-        return HostKernel;
-      case quipper::PERF_RECORD_MISC_USER:
-        return HostUser;
-      case quipper::PERF_RECORD_MISC_GUEST_KERNEL:
-        return GuestKernel;
-      case quipper::PERF_RECORD_MISC_GUEST_USER:
-        return GuestUser;
-      case quipper::PERF_RECORD_MISC_HYPERVISOR:
-        return Hypervisor;
-    }
-  }
-  return Unknown;
 }
 
 // Adds the string to the profile builder. If the UTF-8 library is included,
@@ -100,7 +76,7 @@ struct SampleKey {
   Pid pid = 0;
   Tid tid = 0;
   uint64_t time_ns = 0;
-  ExecutionMode exec_mode = Unknown;
+  quipper::AddressContext exec_mode = quipper::AddressContext::kUnknown;
   // The index of the sample's command in the profile's string table.
   uint64_t comm = 0;
   // The index of the sample's thread type in the profile's string table.
@@ -152,7 +128,7 @@ struct SampleKeyHasher {
     hash ^= std::hash<int32_t>()(k.pid);
     hash ^= std::hash<int32_t>()(k.tid);
     hash ^= std::hash<uint64_t>()(k.time_ns);
-    hash ^= std::hash<int>()(k.exec_mode);
+    hash ^= std::hash<int>()(static_cast<int>(k.exec_mode));
     hash ^= std::hash<uint64_t>()(k.comm);
     hash ^= std::hash<uint64_t>()(k.thread_type);
     hash ^= std::hash<uint64_t>()(k.thread_comm);
@@ -421,7 +397,7 @@ SampleKey PerfDataConverter::MakeSampleKey(
           ? sample.sample.sample_time_ns()
           : 0;
   if (IncludeExecutionModeLabels()) {
-    sample_key.exec_mode = PerfExecMode(sample);
+    sample_key.exec_mode = quipper::ContextFromHeader(sample.header);
   }
   if (IncludeCommLabels() && sample.sample.has_pid()) {
     Pid pid = sample.sample.pid();
@@ -666,7 +642,8 @@ void PerfDataConverter::AddOrUpdateSample(
           static_cast<int64_t>(context.sample.sample_time_ns());
       label->set_num(timestamp_ns_as_int64);
     }
-    if (IncludeExecutionModeLabels() && sample_key.exec_mode != Unknown) {
+    if (IncludeExecutionModeLabels() &&
+        sample_key.exec_mode != quipper::AddressContext::kUnknown) {
       auto* label = sample->add_label();
       label->set_key(builder->StringId(ExecutionModeLabelKey));
       label->set_str(builder->StringId(ExecModeString(sample_key.exec_mode)));
