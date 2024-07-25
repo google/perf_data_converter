@@ -15,6 +15,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <ios>
+#include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -32,6 +35,8 @@
 using perftools::ProcessProfiles;
 using perftools::profiles::Location;
 using perftools::profiles::Mapping;
+using perftools::profiles::Profile;
+using perftools::profiles::Sample;
 using quipper::PerfDataProto;
 using testing::Contains;
 using testing::Eq;
@@ -71,7 +76,7 @@ MapCounts GetMapCounts(const ProcessProfiles& pps) {
           uint64_t addr = locations[id]->address();
           CHECK(mappings.Lookup(addr, &dso));
           key_stream << "+" << profile.string_table(dso->filename()) << ":"
-                     << profile.string_table(dso->build_id()) << std::hex
+                     << profile.string_table(dso->build_id()) << "@" << std::hex
                      << (addr - dso->memory_start());
         }
         const auto& key = key_stream.str();
@@ -1172,6 +1177,48 @@ TEST_F(PerfDataConverterTest, BuildIdStats) {
   EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdKernelPrefix), 1);
   EXPECT_EQ(pps[0]->build_id_stats.at(kBuildIdMissing), 1);
   EXPECT_EQ(pps[1]->build_id_stats.at(kBuildIdNoMmap), 1);
+}
+
+TEST_F(PerfDataConverterTest, AddressContext) {
+  std::string ascii_pb(
+      GetContents(GetResource("perf-address-context.textproto")));
+  ASSERT_FALSE(ascii_pb.empty());
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+
+  std::string str;
+  quipper::PerfReader reader;
+  ASSERT_TRUE(reader.Deserialize(perf_data_proto));
+  ASSERT_TRUE(reader.WriteToString(&str));
+
+  ProcessProfiles pps = RawPerfDataToProfiles(str.data(), str.size(), {});
+  EXPECT_EQ(4, pps.size());
+
+  std::map<uint64_t, std::string> expected = {
+      {0xffffffff93a9a8fd, "[kernel.kallsyms]_text"},
+      {0x561c5e20bbbb, "/bin/vi"},
+      // Samples with no mapping (here, those from guest mode)
+      // get their addresses zeroed out.
+      {0, "<unset>"},
+  };
+
+  std::map<uint64_t, std::string> actual;
+
+  for (const auto& pp : pps) {
+    const Profile& profile = pp->data;
+
+    ASSERT_EQ(profile.sample_size(), 1);
+    const Sample& sample = profile.sample(0);
+    const Location& location = profile.location(sample.location_id(0) - 1);
+    std::string filename = "<unset>";
+    if (location.mapping_id() != 0) {
+      const Mapping& mapping = profile.mapping(location.mapping_id() - 1);
+      filename = profile.string_table(mapping.filename());
+    }
+    actual[location.address()] = filename;
+  }
+
+  EXPECT_THAT(actual, UnorderedPointwise(Eq(), expected));
 }
 
 }  // namespace perftools

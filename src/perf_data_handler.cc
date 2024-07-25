@@ -490,15 +490,17 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
 
   const auto& sample = context->sample;
   uint32_t pid = sample.pid();
+  quipper::AddressContext header_context =
+      quipper::ContextFromHeader(context->header);
 
-  context->sample_mapping = GetMappingFromPidAndIP(
-      pid, sample.ip(), quipper::AddressContext::kUnknown);
+  context->sample_mapping =
+      GetMappingFromPidAndIP(pid, sample.ip(), header_context);
   stat_.missing_sample_mmap += context->sample_mapping == nullptr;
 
   if (sample.has_addr()) {
     ++stat_.samples_with_addr;
-    context->addr_mapping = GetMappingFromPidAndIP(
-        pid, sample.addr(), quipper::AddressContext::kUnknown);
+    context->addr_mapping =
+        GetMappingFromPidAndIP(pid, sample.addr(), header_context);
     stat_.missing_addr_mmap += context->addr_mapping == nullptr;
   }
 
@@ -506,8 +508,7 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
   std::unique_ptr<PerfDataHandler::Mapping> fake;
   // Kernel samples might take some extra work.
   if (context->main_mapping == nullptr &&
-      quipper::ContextFromHeader(context->header) ==
-          quipper::AddressContext::kHostKernel) {
+      header_context == quipper::AddressContext::kHostKernel) {
     auto comm_it = pid_to_comm_event_.find(pid);
     auto kernel_it = pid_to_executable_mmap_.find(kKernelPid);
     if (comm_it != pid_to_comm_event_.end()) {
@@ -875,6 +876,14 @@ const PerfDataHandler::Mapping* Normalizer::GetMappingFromPidAndIP(
   if (ip >> 60 == 0x8) {
     // In case the highest 4 bits of ip is 1000, it has a null mapping. See
     // the comment mentioning "highest 4 bits" in perf_parser.cc for details.
+    return nullptr;
+  }
+  if (context == quipper::AddressContext::kGuestKernel ||
+      context == quipper::AddressContext::kGuestUser ||
+      context == quipper::AddressContext::kHypervisor) {
+    // Addresses from these contexts are meaningless in the host's context.
+    // If they are assigned a mapping, they would be symbolized against that
+    // mapping, which would be incorrect and confusing.
     return nullptr;
   }
   // First look up the mapping for the ip in the address space of the given pid.
