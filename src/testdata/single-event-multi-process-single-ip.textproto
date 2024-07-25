@@ -112,7 +112,7 @@ events: {
 events: {
   header: {
     type: 0x00000009
-    misc: 0x00000002
+    misc: 0x00000001
   }
   sample_event: {
     ip: 0x00000000000b0a81
@@ -140,7 +140,7 @@ events: {
 events: {
   header: {
     type: 0x00000009
-    misc: 0x00000002
+    misc: 0x00000001
   }
   sample_event: {
     ip: 0x00000000000b0a81
@@ -154,7 +154,7 @@ events: {
 events: {
   header: {
     type: 0x00000009
-    misc: 0x00000002
+    misc: 0x00000001
   }
   sample_event: {
     ip: 0x00000000000b0a81
@@ -168,7 +168,7 @@ events: {
 events: {
   header: {
     type: 0x00000009
-    misc: 0x00000002
+    misc: 0x00000001
   }
   sample_event: {
     ip: 0x00000000000b0a81

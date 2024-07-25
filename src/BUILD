@@ -75,6 +75,7 @@ cc_test(
     srcs = ["perf_data_converter_test.cc"],
     data = [
         "//src/testdata:multi-event-single-process.perf.data",
+        "//src/testdata:perf-address-context.textproto",
         "//src/testdata:perf-buildid-mmap-events.textproto",
         "//src/testdata:perf-buildid-stats.textproto",
         "//src/testdata:perf-callchain-non-pebs.textproto",
