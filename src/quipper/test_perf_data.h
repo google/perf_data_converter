@@ -310,6 +310,13 @@ class SampleInfo {
     AddField(flags);
     return *this;
   }
+  SampleInfo& ReadInfo_nr(u64 nr) { return AddField(nr); }
+  SampleInfo& ReadInfo_readvalue(u64 value, u64 id, u64 lost) {
+    AddField(value);
+    AddField(id);
+    AddField(lost);
+    return *this;
+  }
 
   const char* data() const {
     return reinterpret_cast<const char*>(fields_.data());

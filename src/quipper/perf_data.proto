@@ -334,6 +334,7 @@ message PerfDataProto {
     message ReadValue {
       optional uint64 value = 1;
       optional uint64 id = 2;
+      optional uint64 lost = 3;
     }
 
     // Based on the value of |PerfEventAttr::read_format & PERF_FORMAT_GROUP|,

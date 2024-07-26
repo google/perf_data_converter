@@ -39,6 +39,10 @@ bool ReadReadInfo(DataReader* reader, uint64_t read_format,
       !reader->ReadUint64(&sample->read.one.id)) {
     return false;
   }
+  if (read_format & PERF_FORMAT_LOST &&
+      !reader->ReadUint64(&sample->read.one.lost)) {
+    return false;
+  }
   return true;
 }
 
@@ -64,13 +68,15 @@ bool ReadGroupReadInfo(DataReader* reader, uint64_t read_format,
   // Make sure there is no existing allocated memory in
   // |sample->read.group.values|.
   CHECK_EQ(static_cast<void*>(NULL), sample->read.group.values);
-  size_t entry_size = 0;
+  // values { u64 value; };
+  size_t entry_size = sizeof(u64);
   if (read_format & PERF_FORMAT_ID) {
-    // values { u64 value; u64 id };
-    entry_size = sizeof(u64) * 2;
-  } else {
-    // values { u64 value; };
-    entry_size = sizeof(u64);
+    // values { u64 id; };
+    entry_size += sizeof(u64);
+  }
+  if (read_format & PERF_FORMAT_LOST) {
+    // values { u64 lost; };
+    entry_size += sizeof(u64);
   }
   // Calculate the maximum possible number of values assuming the rest of the
   // event as an array of the value struct.
@@ -88,6 +94,10 @@ bool ReadGroupReadInfo(DataReader* reader, uint64_t read_format,
       return false;
     }
     if (read_format & PERF_FORMAT_ID && !reader->ReadUint64(&values[i].id)) {
+      return false;
+    }
+    if (read_format & PERF_FORMAT_LOST &&
+        !reader->ReadUint64(&values[i].lost)) {
       return false;
     }
   }

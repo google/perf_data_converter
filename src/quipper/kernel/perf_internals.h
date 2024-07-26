@@ -254,6 +254,7 @@ struct stack_dump {
 struct sample_read_value {
   u64 value;
   u64 id;
+  u64 lost;
 };
 
 struct sample_read {

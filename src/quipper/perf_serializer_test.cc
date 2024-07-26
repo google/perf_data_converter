@@ -15,6 +15,7 @@
 #include "compat/proto.h"
 #include "compat/test.h"
 #include "file_utils.h"
+#include "kernel/perf_event.h"
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
@@ -1654,6 +1655,136 @@ TEST(PerfSerializerTest, DeserializeLegacyExitEvents) {
   EXPECT_EQ(4010, sample_info.pid());
   EXPECT_EQ(4020, sample_info.tid());
   EXPECT_EQ(433ULL * 1000000000, sample_info.sample_time_ns());
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesSampleEventRead) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(
+      PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_READ,
+      /*sample_id_all=*/true)
+      .WithId(401)
+      .WithReadFormat(PERF_FORMAT_ID | PERF_FORMAT_LOST)
+      .WriteTo(&input);
+
+  // PERF_RECORD_SAMPLE
+  testing::ExamplePerfSampleEvent(
+      testing::SampleInfo()
+          .Ip(0x00000000001c1000)
+          .Tid(401)
+          .ReadInfo_readvalue(/*value=*/0x103c5d0, /*id=*/402, /*lost=*/808))
+      .WriteTo(&input);
+
+  // Parse and serialize.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+  ASSERT_EQ(1, perf_data_proto.events_size());
+  {
+    const PerfDataProto_PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_SAMPLE, event.header().type());
+    ASSERT_TRUE(event.has_sample_event());
+    ASSERT_TRUE(event.sample_event().has_read_info());
+    const PerfDataProto_ReadInfo_ReadValue& read_value =
+        event.sample_event().read_info().read_value(0);
+    EXPECT_EQ(402, read_value.id());
+    EXPECT_EQ(808, read_value.lost());
+    EXPECT_EQ(0x103c5d0, read_value.value());
+  }
+
+  // Deserialize and verify events.
+  PerfReader out_reader;
+  ASSERT_TRUE(out_reader.Deserialize(perf_data_proto));
+  EXPECT_EQ(1, out_reader.events().size());
+  {
+    const PerfEvent& event = out_reader.events().Get(0);
+    EXPECT_EQ(PERF_RECORD_SAMPLE, event.header().type());
+    ASSERT_TRUE(event.has_sample_event());
+    ASSERT_TRUE(event.sample_event().has_read_info());
+    const PerfDataProto_ReadInfo_ReadValue& read_value =
+        event.sample_event().read_info().read_value(0);
+    EXPECT_EQ(402, read_value.id());
+    EXPECT_EQ(808, read_value.lost());
+    EXPECT_EQ(0x103c5d0, read_value.value());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesSampleEventReadWithGroup) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(
+      PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_READ,
+      /*sample_id_all=*/true)
+      .WithId(401)
+      .WithReadFormat(PERF_FORMAT_GROUP | PERF_FORMAT_ID | PERF_FORMAT_LOST)
+      .WriteTo(&input);
+
+  // PERF_RECORD_SAMPLE
+  testing::ExamplePerfSampleEvent(
+      testing::SampleInfo()
+          .Ip(0x00000000001c1000)
+          .Tid(401)
+          .ReadInfo_nr(2)
+          .ReadInfo_readvalue(/*value=*/0x103c5d0, /*id=*/402, /*lost=*/808)
+          .ReadInfo_readvalue(/*value=*/0x103c5e0, /*id=*/502, /*lost=*/908))
+      .WriteTo(&input);
+
+  // Parse and serialize.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+  ASSERT_EQ(1, perf_data_proto.events_size());
+  {
+    const PerfDataProto_PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_SAMPLE, event.header().type());
+    ASSERT_TRUE(event.has_sample_event());
+    ASSERT_TRUE(event.sample_event().has_read_info());
+    const PerfDataProto_ReadInfo_ReadValue& read_value_1 =
+        event.sample_event().read_info().read_value(0);
+    EXPECT_EQ(402, read_value_1.id());
+    EXPECT_EQ(808, read_value_1.lost());
+    EXPECT_EQ(0x103c5d0, read_value_1.value());
+    const PerfDataProto_ReadInfo_ReadValue& read_value_2 =
+        event.sample_event().read_info().read_value(1);
+    EXPECT_EQ(502, read_value_2.id());
+    EXPECT_EQ(908, read_value_2.lost());
+    EXPECT_EQ(0x103c5e0, read_value_2.value());
+  }
+
+  // Deserialize and verify events.
+  PerfReader out_reader;
+  ASSERT_TRUE(out_reader.Deserialize(perf_data_proto));
+  EXPECT_EQ(1, out_reader.events().size());
+  {
+    const PerfEvent& event = out_reader.events().Get(0);
+    EXPECT_EQ(PERF_RECORD_SAMPLE, event.header().type());
+    ASSERT_TRUE(event.has_sample_event());
+    ASSERT_TRUE(event.sample_event().has_read_info());
+    const PerfDataProto_ReadInfo_ReadValue& read_value_1 =
+        event.sample_event().read_info().read_value(0);
+    EXPECT_EQ(402, read_value_1.id());
+    EXPECT_EQ(808, read_value_1.lost());
+    EXPECT_EQ(0x103c5d0, read_value_1.value());
+    const PerfDataProto_ReadInfo_ReadValue& read_value_2 =
+        event.sample_event().read_info().read_value(1);
+    EXPECT_EQ(502, read_value_2.id());
+    EXPECT_EQ(908, read_value_2.lost());
+    EXPECT_EQ(0x103c5e0, read_value_2.value());
+  }
 }
 
 namespace {
