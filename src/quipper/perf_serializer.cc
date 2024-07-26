@@ -584,12 +584,16 @@ bool PerfSerializer::SerializeSampleEvent(
           read_value->set_value(sample_info.read.group.values[i].value);
           if (reader->event_attr().read_format & PERF_FORMAT_ID)
             read_value->set_id(sample_info.read.group.values[i].id);
+          if (reader->event_attr().read_format & PERF_FORMAT_LOST)
+            read_value->set_lost(sample_info.read.group.values[i].lost);
         }
       } else {
         auto read_value = read_info->add_read_value();
         read_value->set_value(sample_info.read.one.value);
         if (reader->event_attr().read_format & PERF_FORMAT_ID)
           read_value->set_id(sample_info.read.one.id);
+        if (reader->event_attr().read_format & PERF_FORMAT_LOST)
+          read_value->set_lost(sample_info.read.one.lost);
       }
     }
   }
@@ -1715,6 +1719,8 @@ void PerfSerializer::GetPerfSampleInfo(const PerfDataProto_SampleEvent& sample,
           sample_info->read.group.values[i].value =
               read_info.read_value(i).value();
           sample_info->read.group.values[i].id = read_info.read_value(i).id();
+          sample_info->read.group.values[i].lost =
+              read_info.read_value(i).lost();
         }
       } else if (read_info.read_value_size() == 1) {
         sample_info->read.one.value = read_info.read_value(0).value();

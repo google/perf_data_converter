@@ -308,7 +308,8 @@ TEST(SampleInfoReaderTest, ReadReadInfoAllFields) {
   struct perf_event_attr attr = {0};
   attr.sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_READ;
   attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
-                     PERF_FORMAT_TOTAL_TIME_RUNNING | PERF_FORMAT_ID;
+                     PERF_FORMAT_TOTAL_TIME_RUNNING | PERF_FORMAT_ID |
+                     PERF_FORMAT_LOST;
 
   SampleInfoReader reader(attr, false /* read_cross_endian */);
 
@@ -322,12 +323,14 @@ TEST(SampleInfoReaderTest, ReadReadInfoAllFields) {
       //     { u64  time_enabled; } && PERF_FORMAT_TOTAL_TIME_ENABLED
       //     { u64  time_running; } && PERF_FORMAT_TOTAL_TIME_RUNNING
       //     { u64  id;           } && PERF_FORMAT_ID
+      //     { u64  lost;         } && PERF_FORMAT_LOST
       //   } && !PERF_FORMAT_GROUP
       // };
       1000000,                     // READ: value
       1415837014 * 1000000000ULL,  // READ: time_enabled
       1234567890 * 1000000000ULL,  // READ: time_running
       0xabcdef,                    // READ: id
+      0xfedcba,                    // READ: lost
   };
   sample_event sample_event_struct = {
       .header = {
@@ -353,6 +356,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoAllFields) {
   EXPECT_EQ(1415837014 * 1000000000ULL, sample.read.time_enabled);
   EXPECT_EQ(1234567890 * 1000000000ULL, sample.read.time_running);
   EXPECT_EQ(0xabcdef, sample.read.one.id);
+  EXPECT_EQ(0xfedcba, sample.read.one.lost);
   EXPECT_EQ(1000000, sample.read.one.value);
 }
 
@@ -438,7 +442,7 @@ TEST(SampleInfoReaderTest, ReadReadInfoWithGroups) {
   struct perf_event_attr attr = {0};
   attr.sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_READ;
   // Omit the PERF_FORMAT_TOTAL_TIME_* fields.
-  attr.read_format = PERF_FORMAT_ID | PERF_FORMAT_GROUP;
+  attr.read_format = PERF_FORMAT_ID | PERF_FORMAT_GROUP | PERF_FORMAT_LOST;
 
   SampleInfoReader reader(attr, false /* read_cross_endian */);
 
@@ -449,10 +453,13 @@ TEST(SampleInfoReaderTest, ReadReadInfoWithGroups) {
       3,                                     // READ: nr
       1000000,                               // READ: values[0].value
       0xabcdef,                              // READ: values[0].id
+      0xfedcba,                              // READ: values[0].lost
       2000000,                               // READ: values[1].value
       0xdecaf0,                              // READ: values[1].id
+      0x0faced,                              // READ: values[1].lost
       3000000,                               // READ: values[2].value
       0xbeef00,                              // READ: values[2].id
+      0x00feeb,                              // READ: values[2].lost
   };
   sample_event sample_event_struct = {
       .header = {
@@ -478,10 +485,13 @@ TEST(SampleInfoReaderTest, ReadReadInfoWithGroups) {
   EXPECT_EQ(3, sample.read.group.nr);
   ASSERT_NE(static_cast<void*>(NULL), sample.read.group.values);
   EXPECT_EQ(0xabcdef, sample.read.group.values[0].id);
+  EXPECT_EQ(0xfedcba, sample.read.group.values[0].lost);
   EXPECT_EQ(1000000, sample.read.group.values[0].value);
   EXPECT_EQ(0xdecaf0, sample.read.group.values[1].id);
+  EXPECT_EQ(0x0faced, sample.read.group.values[1].lost);
   EXPECT_EQ(2000000, sample.read.group.values[1].value);
   EXPECT_EQ(0xbeef00, sample.read.group.values[2].id);
+  EXPECT_EQ(0x00feeb, sample.read.group.values[2].lost);
   EXPECT_EQ(3000000, sample.read.group.values[2].value);
 }
 
