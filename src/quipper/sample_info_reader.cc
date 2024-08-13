@@ -683,7 +683,10 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
         WriteData(sample.read.time_running);
       for (size_t i = 0; i < sample.read.group.nr; i++) {
         WriteData(sample.read.group.values[i].value);
-        if (attr.read_format & PERF_FORMAT_ID) WriteData(sample.read.one.id);
+        if (attr.read_format & PERF_FORMAT_ID)
+          WriteData(sample.read.group.values[i].id);
+        if (attr.read_format & PERF_FORMAT_LOST)
+          WriteData(sample.read.group.values[i].lost);
       }
     } else {
       WriteData(sample.read.one.value);
@@ -692,6 +695,7 @@ size_t PerfSampleDataWriter::Write(const struct perf_sample& sample,
       if (attr.read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
         WriteData(sample.read.time_running);
       if (attr.read_format & PERF_FORMAT_ID) WriteData(sample.read.one.id);
+      if (attr.read_format & PERF_FORMAT_LOST) WriteData(sample.read.one.lost);
     }
   }
 
