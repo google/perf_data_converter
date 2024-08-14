@@ -775,6 +775,33 @@ class ExampleAuxtraceErrorEvent : public StreamWriteable {
   const std::string msg_;
 };
 
+// Produces PERF_RECORD_ID_INDEX event.
+class ExampleIdIndexEvent : public StreamWriteable {
+ public:
+  ExampleIdIndexEvent() {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+  ExampleIdIndexEvent& WithEntry(u64 id, u64 idx, u64 cpu, u64 tid) {
+    entries_.push_back(entry{
+        .id = id,
+        .idx = idx,
+        .cpu = cpu,
+        .tid = tid,
+    });
+    return *this;
+  }
+
+ private:
+  struct entry {
+    u64 id;
+    u64 idx;
+    u64 cpu;
+    u64 tid;
+  };
+  std::vector<struct entry> entries_;
+};
+
 // Produces PERF_RECORD_THREAD_MAP event.
 class ExampleThreadMapEvent : public StreamWriteable {
  public:

@@ -488,6 +488,19 @@ struct aux_event {
   u64 flags;
 };
 
+struct id_index_event_entry {
+  u64 id;
+  u64 idx;
+  u64 cpu;
+  u64 tid;
+};
+
+struct id_index_event {
+  struct perf_event_header header;
+  u64 nr;
+  struct id_index_event_entry entries[];
+};
+
 struct itrace_start_event {
   struct perf_event_header header;
   u32 pid, tid;
@@ -618,6 +631,7 @@ union perf_event {
   struct auxtrace_event auxtrace;
   struct auxtrace_error_event auxtrace_error;
   struct aux_event aux;
+  struct id_index_event id_index;
   struct itrace_start_event itrace_start;
   struct context_switch_event context_switch;
   struct thread_map_event thread_map;

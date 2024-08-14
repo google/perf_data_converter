@@ -312,6 +312,9 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->auxtrace.tid);
       ByteSwap(&event->auxtrace.cpu);
       return true;
+    case PERF_RECORD_ID_INDEX:
+      ByteSwap(&event->id_index.nr);
+      return true;
     case PERF_RECORD_THREAD_MAP:
       ByteSwap(&event->thread_map.nr);
       return true;
@@ -376,6 +379,14 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
       }
       return true;
     }
+    case PERF_RECORD_ID_INDEX:
+      for (u64 i = 0; i < event->id_index.nr; ++i) {
+        ByteSwap(&event->id_index.entries[i].id);
+        ByteSwap(&event->id_index.entries[i].idx);
+        ByteSwap(&event->id_index.entries[i].cpu);
+        ByteSwap(&event->id_index.entries[i].tid);
+      }
+      return true;
     case PERF_RECORD_THREAD_MAP:
       for (u64 i = 0; i < event->thread_map.nr; ++i) {
         ByteSwap(&event->thread_map.entries[i].pid);

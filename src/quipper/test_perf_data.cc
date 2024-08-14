@@ -683,6 +683,34 @@ void ExampleAuxtraceErrorEvent::WriteTo(std::ostream* out) const {
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
+size_t ExampleIdIndexEvent::GetSize() const {
+  return offsetof(struct id_index_event, entries) +
+         entries_.size() * sizeof(struct id_index_event_entry);
+}
+
+void ExampleIdIndexEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<id_index_event> event(
+      reinterpret_cast<struct id_index_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_ID_INDEX);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+  event->nr = MaybeSwap64(entries_.size());
+
+  for (u64 i = 0; i < entries_.size(); ++i) {
+    event->entries[i].id = MaybeSwap64(entries_[i].id);
+    event->entries[i].idx = MaybeSwap64(entries_[i].idx);
+    event->entries[i].cpu = MaybeSwap64(entries_[i].cpu);
+    event->entries[i].tid = MaybeSwap64(entries_[i].tid);
+  }
+
+  const size_t pre_id_index_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - pre_id_index_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
+}
+
 size_t ExampleThreadMapEvent::GetSize() const {
   return offsetof(struct thread_map_event, entries) +
          entries_.size() * sizeof(struct thread_map_event_entry);
