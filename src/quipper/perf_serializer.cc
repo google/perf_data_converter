@@ -64,6 +64,7 @@ bool PerfSerializer::IsSupportedUserEventType(uint32_t type) {
     case PERF_RECORD_AUXTRACE_INFO:
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_AUXTRACE_ERROR:
+    case PERF_RECORD_ID_INDEX:
     case PERF_RECORD_THREAD_MAP:
     case PERF_RECORD_STAT_CONFIG:
     case PERF_RECORD_STAT:
@@ -389,6 +390,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_AUXTRACE_ERROR:
       return SerializeAuxtraceErrorEvent(
           event, event_proto->mutable_auxtrace_error_event());
+    case PERF_RECORD_ID_INDEX:
+      return SerializeIdIndexEvent(event,
+                                   event_proto->mutable_id_index_event());
     case PERF_RECORD_THREAD_MAP:
       return SerializeThreadMapEvent(event,
                                      event_proto->mutable_thread_map_event());
@@ -506,6 +510,8 @@ bool PerfSerializer::DeserializeUserEvent(
     case PERF_RECORD_AUXTRACE_ERROR:
       return DeserializeAuxtraceErrorEvent(event_proto.auxtrace_error_event(),
                                            event);
+    case PERF_RECORD_ID_INDEX:
+      return DeserializeIdIndexEvent(event_proto.id_index_event(), event);
     case PERF_RECORD_THREAD_MAP:
       return DeserializeThreadMapEvent(event_proto.thread_map_event(), event);
     case PERF_RECORD_STAT_CONFIG:
@@ -1210,6 +1216,32 @@ bool PerfSerializer::DeserializeAuxtraceErrorEvent(
   auxtrace_error.ip = sample.ip();
   snprintf(auxtrace_error.msg, MAX_AUXTRACE_ERROR_MSG, "%s",
            sample.msg().c_str());
+  return true;
+}
+
+bool PerfSerializer::SerializeIdIndexEvent(
+    const event_t& event, PerfDataProto_IdIndexEvent* id_index_event) const {
+  const struct id_index_event& id_index = event.id_index;
+  for (u64 i = 0; i < id_index.nr; ++i) {
+    auto entry = id_index_event->add_entries();
+    entry->set_id(id_index.entries[i].id);
+    entry->set_idx(id_index.entries[i].idx);
+    entry->set_cpu(id_index.entries[i].cpu);
+    entry->set_tid(id_index.entries[i].tid);
+  }
+  return true;
+}
+
+bool PerfSerializer::DeserializeIdIndexEvent(
+    const PerfDataProto_IdIndexEvent& id_index_event, event_t* event) const {
+  struct id_index_event& id_index = event->id_index;
+  id_index.nr = id_index_event.entries_size();
+  for (u64 i = 0; i < id_index.nr; ++i) {
+    id_index.entries[i].id = id_index_event.entries(i).id();
+    id_index.entries[i].idx = id_index_event.entries(i).idx();
+    id_index.entries[i].cpu = id_index_event.entries(i).cpu();
+    id_index.entries[i].tid = id_index_event.entries(i).tid();
+  }
   return true;
 }
 

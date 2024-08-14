@@ -16,6 +16,7 @@
 #include "compat/test.h"
 #include "file_utils.h"
 #include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
@@ -1784,6 +1785,70 @@ TEST(PerfSerializerTest, SerializesAndDeserializesSampleEventReadWithGroup) {
     EXPECT_EQ(502, read_value_2.id());
     EXPECT_EQ(908, read_value_2.lost());
     EXPECT_EQ(0x103c5e0, read_value_2.value());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesIdIndexEvents) {
+  std::stringstream input;
+
+  // header
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // data
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // PERF_RECORD_ID_INDEX
+  testing::ExampleIdIndexEvent()
+      .WithEntry(/*id=*/1234, /*idx=*/4321, /*cpu=*/1, /*tid=*/2)
+      .WithEntry(/*id=*/5678, /*idx=*/8765, /*cpu=*/3, /*tid=*/4)
+      .WriteTo(&input);
+
+  // Parse and serialize.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+
+  ASSERT_EQ(1, perf_data_proto.events_size());
+  {
+    const PerfDataProto_PerfEvent& event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_ID_INDEX, event.header().type());
+    ASSERT_TRUE(event.has_id_index_event());
+    const PerfDataProto::IdIndexEvent& id_index_event = event.id_index_event();
+    EXPECT_EQ(2, id_index_event.entries_size());
+    EXPECT_EQ(1234, id_index_event.entries(0).id());
+    EXPECT_EQ(4321, id_index_event.entries(0).idx());
+    EXPECT_EQ(1, id_index_event.entries(0).cpu());
+    EXPECT_EQ(2, id_index_event.entries(0).tid());
+    EXPECT_EQ(5678, id_index_event.entries(1).id());
+    EXPECT_EQ(8765, id_index_event.entries(1).idx());
+    EXPECT_EQ(3, id_index_event.entries(1).cpu());
+    EXPECT_EQ(4, id_index_event.entries(1).tid());
+  }
+
+  // Deserialize and verify events.
+  PerfReader out_reader;
+  ASSERT_TRUE(out_reader.Deserialize(perf_data_proto));
+  EXPECT_EQ(1, out_reader.events().size());
+  {
+    const PerfEvent& event = out_reader.events().Get(0);
+    EXPECT_EQ(PERF_RECORD_ID_INDEX, event.header().type());
+    ASSERT_TRUE(event.has_id_index_event());
+    const PerfDataProto::IdIndexEvent& id_index_event = event.id_index_event();
+    EXPECT_EQ(2, id_index_event.entries_size());
+    EXPECT_EQ(1234, id_index_event.entries(0).id());
+    EXPECT_EQ(4321, id_index_event.entries(0).idx());
+    EXPECT_EQ(1, id_index_event.entries(0).cpu());
+    EXPECT_EQ(2, id_index_event.entries(0).tid());
+    EXPECT_EQ(5678, id_index_event.entries(1).id());
+    EXPECT_EQ(8765, id_index_event.entries(1).idx());
+    EXPECT_EQ(3, id_index_event.entries(1).cpu());
+    EXPECT_EQ(4, id_index_event.entries(1).tid());
   }
 }
 
