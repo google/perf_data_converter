@@ -341,6 +341,9 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
     case PERF_RECORD_AUXTRACE_ERROR:
       *size = offsetof(struct auxtrace_error_event, msg);
       return true;
+    case PERF_RECORD_ID_INDEX:
+      *size = offsetof(struct id_index_event, entries);
+      return true;
     case PERF_RECORD_THREAD_MAP:
       *size = offsetof(struct thread_map_event, entries);
       return true;
@@ -470,6 +473,24 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
       *size = msg_size;
       break;
     }
+    case PERF_RECORD_ID_INDEX: {
+      size_t nr_id_index =
+          remaining_event_size / sizeof(struct id_index_event_entry);
+      if (event.id_index.nr != nr_id_index) {
+        LOG(ERROR) << "Number of ID index entries " << event.id_index.nr
+                   << " from event doesn't match number of ID index entries "
+                   << nr_id_index << " derived from remaining event size";
+        return false;
+      }
+      *size = event.id_index.nr * sizeof(struct id_index_event_entry);
+      if (*size != remaining_event_size) {
+        LOG(ERROR) << "Total ID index entries size " << *size
+                   << " doesn't match the remaining event size "
+                   << remaining_event_size;
+        return false;
+      }
+      break;
+    }
     case PERF_RECORD_THREAD_MAP: {
       size_t nr_thread_maps =
           remaining_event_size / sizeof(struct thread_map_event_entry);
@@ -585,6 +606,10 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
     case PERF_RECORD_AUXTRACE_ERROR:
       *size = GetUint64AlignedStringLength(
           event.auxtrace_error_event().msg().size());
+      break;
+    case PERF_RECORD_ID_INDEX:
+      *size = event.id_index_event().entries_size() *
+              sizeof(struct id_index_event_entry);
       break;
     case PERF_RECORD_THREAD_MAP:
       *size = event.thread_map_event().entries_size() *

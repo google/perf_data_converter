@@ -135,6 +135,160 @@ events {
 }
 events {
   header {
+    type: 69
+    misc: 0
+    size: 784
+  }
+  timestamp: 0
+  id_index_event {
+    entries {
+      id: 76
+      idx: 0
+      cpu: 0
+      tid: 3762587
+    }
+    entries {
+      id: 77
+      idx: 1
+      cpu: 1
+      tid: 3762587
+    }
+    entries {
+      id: 78
+      idx: 2
+      cpu: 2
+      tid: 3762587
+    }
+    entries {
+      id: 79
+      idx: 3
+      cpu: 3
+      tid: 3762587
+    }
+    entries {
+      id: 80
+      idx: 4
+      cpu: 4
+      tid: 3762587
+    }
+    entries {
+      id: 81
+      idx: 5
+      cpu: 5
+      tid: 3762587
+    }
+    entries {
+      id: 82
+      idx: 6
+      cpu: 6
+      tid: 3762587
+    }
+    entries {
+      id: 83
+      idx: 7
+      cpu: 7
+      tid: 3762587
+    }
+    entries {
+      id: 84
+      idx: 8
+      cpu: 8
+      tid: 3762587
+    }
+    entries {
+      id: 85
+      idx: 9
+      cpu: 9
+      tid: 3762587
+    }
+    entries {
+      id: 86
+      idx: 10
+      cpu: 10
+      tid: 3762587
+    }
+    entries {
+      id: 87
+      idx: 11
+      cpu: 11
+      tid: 3762587
+    }
+    entries {
+      id: 88
+      idx: 0
+      cpu: 0
+      tid: 3762587
+    }
+    entries {
+      id: 89
+      idx: 1
+      cpu: 1
+      tid: 3762587
+    }
+    entries {
+      id: 90
+      idx: 2
+      cpu: 2
+      tid: 3762587
+    }
+    entries {
+      id: 91
+      idx: 3
+      cpu: 3
+      tid: 3762587
+    }
+    entries {
+      id: 92
+      idx: 4
+      cpu: 4
+      tid: 3762587
+    }
+    entries {
+      id: 93
+      idx: 5
+      cpu: 5
+      tid: 3762587
+    }
+    entries {
+      id: 94
+      idx: 6
+      cpu: 6
+      tid: 3762587
+    }
+    entries {
+      id: 95
+      idx: 7
+      cpu: 7
+      tid: 3762587
+    }
+    entries {
+      id: 96
+      idx: 8
+      cpu: 8
+      tid: 3762587
+    }
+    entries {
+      id: 97
+      idx: 9
+      cpu: 9
+      tid: 3762587
+    }
+    entries {
+      id: 98
+      idx: 10
+      cpu: 10
+      tid: 3762587
+    }
+    entries {
+      id: 99
+      idx: 11
+      cpu: 11
+      tid: 3762587
+    }
+  }
+}
+events {
+  header {
     type: 73
     misc: 0
     size: 40

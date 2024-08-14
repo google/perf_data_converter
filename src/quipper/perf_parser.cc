@@ -134,6 +134,7 @@ bool PerfParser::ProcessUserEvents(PerfEvent& event) {
     case PERF_RECORD_AUXTRACE_INFO:
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_AUXTRACE_ERROR:
+    case PERF_RECORD_ID_INDEX:
     case PERF_RECORD_THREAD_MAP:
     case PERF_RECORD_STAT_CONFIG:
     case PERF_RECORD_STAT:
