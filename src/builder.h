@@ -1,8 +1,5 @@
-/*
- * Copyright (c) 2016, Google Inc.
+/* Copyright (c) 2016, Google Inc.
  * All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -11,11 +8,16 @@
 #define PERFTOOLS_PROFILES_PROTO_BUILDER_H_
 
 #include <stddef.h>
+
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
+
 #include <unordered_map>
+
 namespace perftools {
 namespace profiles {
 
@@ -23,12 +25,35 @@ typedef int64_t int64;
 typedef uint64_t uint64;
 typedef std::string string;
 
-}
-}
+typedef std::unordered_map<string, int64> StringIndexMap;
+
+class FunctionHasher {
+ public:
+  size_t operator()(const std::tuple<int64, int64, int64, int64> &f) const {
+    int64 hash = std::get<0>(f);
+    hash = hash + ((hash << 8) ^ std::get<1>(f));
+    hash = hash + ((hash << 8) ^ std::get<2>(f));
+    hash = hash + ((hash << 8) ^ std::get<3>(f));
+    return static_cast<size_t>(hash);
+  }
+};
+
+typedef std::unordered_map<std::tuple<int64, int64, int64, int64>, int64,
+                           FunctionHasher>
+    FunctionIndexMap;
+
+}  // namespace profiles
+}  // namespace perftools
+
 #include "src/profile.pb.h"
 
 namespace perftools {
 namespace profiles {
+
+enum CallstackType { kRegular = 0, kInterrupt = 1 };
+
+void AddCallstackToSample(Sample *sample, const void *const *stack, int depth,
+                          CallstackType type);
 
 // Provides mechanisms to facilitate the generation of profiles
 // on a compressed protobuf:
@@ -43,13 +68,13 @@ class Builder {
 
   // Adds a string to the profile string table if not already present.
   // Returns a unique integer id for this string.
-  int64 StringId(const char *str);
+  int64_t StringId(const char *str);
 
   // Adds a function with these attributes to the profile function
   // table, if not already present. Returns a unique integer id for
   // this function.
-  uint64 FunctionId(const char *name, const char *system_name,
-                    const char *file, int64 start_line);
+  uint64_t FunctionId(const char *name, const char *system_name,
+                      const char *file, int64_t start_line);
 
   // Adds mappings for the currently running binary to the profile.
   void AddCurrentMappings();
@@ -64,12 +89,12 @@ class Builder {
   // Serializes and compresses the profile into a string, replacing
   // its contents. It calls Finalize() and returns whether the
   // encoding was successful.
-  bool Emit(string *output);
+  bool Emit(std::string *output);
 
   // Serializes and compresses a profile into a string, replacing its
   // contents. Returns false if there were errors on the serialization
   // or compression, and the output string will not contain valid data.
-  static bool Marshal(const Profile &profile, string *output);
+  static bool Marshal(const Profile &profile, std::string *output);
 
   // Serializes and compresses a profile into a file represented by a
   // file descriptor. Returns false if there were errors on the
@@ -95,22 +120,9 @@ class Builder {
   Profile *mutable_profile() { return profile_.get(); }
 
  private:
-  // Holds the information about a function to facilitate deduplication.
-  typedef std::tuple<int64, int64, int64, int64> Function;
-  class FunctionHasher {
-   public:
-    size_t operator()(const Function &f) const {
-      int64 hash = std::get<0>(f);
-      hash = hash + ((hash << 8) ^ std::get<1>(f));
-      hash = hash + ((hash << 8) ^ std::get<2>(f));
-      hash = hash + ((hash << 8) ^ std::get<3>(f));
-      return static_cast<size_t>(hash);
-    }
-  };
-
-  // Hashes to deduplicate strings and functions.
-  std::unordered_map<string, int64> strings_;
-  std::unordered_map<Function, int64, FunctionHasher> functions_;
+  // Maps to deduplicate strings and functions.
+  StringIndexMap strings_;
+  FunctionIndexMap functions_;
 
   // Actual profile being updated.
   std::unique_ptr<Profile> profile_;
