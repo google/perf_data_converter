@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "third_party/absl/status/status.h"
+#include "third_party/absl/strings/match.h"
 #include "third_party/absl/strings/str_cat.h"
 
 #include <unordered_map>
@@ -107,8 +108,8 @@ uint64_t Builder::FunctionId(const char *name, const char *system_name,
 }
 
 void Builder::SetDocURL(absl::string_view url) {
-  if (!url.empty() && !url.starts_with("http://") &&
-      !url.starts_with("https://")) {
+  if (!url.empty() && !absl::StartsWith(url, "http://") &&
+      !absl::StartsWith(url, "https://")) {
     if (error_.ok()) {
       error_ = absl::InternalError(
           absl::StrCat("setting invalid profile doc URL '", url, "'"));
