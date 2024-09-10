@@ -16,6 +16,8 @@
 #include <tuple>
 #include <utility>
 
+#include "third_party/absl/status/status.h"
+
 #include <unordered_map>
 
 namespace perftools {
@@ -79,6 +81,9 @@ class Builder {
   // Adds mappings for the currently running binary to the profile.
   void AddCurrentMappings();
 
+  // Add documentation URL.
+  void SetDocURL(absl::string_view url);
+
   // Prepares the profile for encoding. Returns true on success.
   // If the profile has no locations, inserts location using the
   // location_ids from the samples as addresses.
@@ -120,12 +125,17 @@ class Builder {
   Profile *mutable_profile() { return profile_.get(); }
 
  private:
+  int64_t InternalStringId(absl::string_view str);
+
   // Maps to deduplicate strings and functions.
   StringIndexMap strings_;
   FunctionIndexMap functions_;
 
   // Actual profile being updated.
   std::unique_ptr<Profile> profile_;
+
+  // Any error that may have been encountered while building the profile.
+  absl::Status error_;
 };
 
 }  // namespace profiles
