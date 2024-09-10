@@ -14,8 +14,9 @@ int main(int argc, char** argv) {
   std::string input, output;
   bool overwriteOutput = false;
   bool allowUnalignedJitMappings = false;
+  bool followGoPgoRequirements = false;
   if (!ParseArguments(argc, const_cast<const char**>(argv), &input, &output,
-                      &overwriteOutput, &allowUnalignedJitMappings)) {
+                      &overwriteOutput, &allowUnalignedJitMappings, &followGoPgoRequirements)) {
     PrintUsage();
     return EXIT_FAILURE;
   }
@@ -23,6 +24,9 @@ int main(int argc, char** argv) {
   uint32_t options = perftools::kNoOptions;
   if (allowUnalignedJitMappings) {
     options |= perftools::ConversionOptions::kAllowUnalignedJitMappings;
+  }
+  if (followGoPgoRequirements) {
+    options |= perftools::ConversionOptions::kFollowGoPgoRequirements;
   }
   std::string data = ReadFileToString(input);
   const auto profiles = StringToProfiles(data, perftools::kNoLabels, options);

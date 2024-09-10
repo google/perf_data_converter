@@ -178,6 +178,10 @@ struct PerfParserOptions {
   // Handle unaligned MMAP events emited by VMs that dynamically generate
   // code objects.
   bool allow_unaligned_jit_mappings = false;
+  // The sample indices will be saved following Go's PGO requirements,
+  // with at least one of the indexes having type/unit samples/count
+  // or cpu/nanoseconds. https://go.dev/doc/pgo#alternative-sources
+  bool follow_go_pgo_requirements = false;
 };
 
 class PerfParser {

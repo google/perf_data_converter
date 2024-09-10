@@ -57,17 +57,23 @@ void PrintUsage() {
             << "profile.";
   LOG(INFO) << "If the -j option is given, allow unaligned MMAP events "
             << "required by perf data from VMs with JITs.";
+  LOG(INFO) << "If the -g option is given, saves the profile with sample "
+            << "indices that follow Go's PGO requirements: "
+            << "one of the indices should have the type/unit "
+            << "“samples”/“count” or “cpu”/“nanoseconds”.";
 }
 
 bool ParseArguments(int argc, const char* argv[], std::string* input,
                     std::string* output, bool* overwrite_output,
-                    bool* allow_unaligned_jit_mappings) {
+                    bool* allow_unaligned_jit_mappings,
+                    bool* follow_go_pgo_requirements) {
   *input = "";
   *output = "";
   *overwrite_output = false;
   *allow_unaligned_jit_mappings = false;
+  *follow_go_pgo_requirements = false;
   int opt;
-  while ((opt = getopt(argc, const_cast<char* const*>(argv), ":jfi:o:")) !=
+  while ((opt = getopt(argc, const_cast<char* const*>(argv), ":gjfi:o:")) !=
          -1) {
     switch (opt) {
       case 'i':
@@ -81,6 +87,9 @@ bool ParseArguments(int argc, const char* argv[], std::string* input,
         break;
       case 'j':
         *allow_unaligned_jit_mappings = true;
+        break;
+      case 'g':
+        *follow_go_pgo_requirements = true;
         break;
       case ':':
         LOG(ERROR) << "Must provide arguments for flags -i and -o";

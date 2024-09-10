@@ -115,6 +115,10 @@ enum ConversionOptions {
   // Whether to add sampled data addresses as leaf frames for converted
   // profiles.
   kAddDataAddressFrames = 8,
+  // Whether to save sample indices following Go's PGO requirements,
+  // with at least one of the indices having type/unit of samples/count
+  // or cpu/nanoseconds. https://go.dev/doc/pgo#alternative-sources
+  kFollowGoPgoRequirements = 16,
 };
 
 struct ProcessProfile {

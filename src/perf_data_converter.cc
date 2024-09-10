@@ -500,27 +500,37 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
     int unknown_event_idx = 0;
     for (int event_idx = 0; event_idx < perf_data_.file_attrs_size();
          ++event_idx) {
-      // Come up with an event name for this event.  perf.data will usually
-      // contain an event_types section of the same cardinality as its
-      // file_attrs; in this case we can just use the name there.  Otherwise
-      // we just give it an anonymous name.
-      std::string event_name = "";
-      if (perf_data_.file_attrs_size() == perf_data_.event_types_size()) {
-        const auto& event_type = perf_data_.event_types(event_idx);
-        if (event_type.has_name()) {
-          event_name = event_type.name() + "_";
+      if (options_ & kFollowGoPgoRequirements) {
+        auto sample_type = profile->add_sample_type();
+        sample_type->set_type(UTF8StringId("samples", builder));
+        sample_type->set_unit(builder->StringId("count"));
+        sample_type = profile->add_sample_type();
+        last_index = UTF8StringId("event", builder);
+        sample_type->set_type(last_index);
+        sample_type->set_unit(builder->StringId("count"));
+      } else {
+        // Come up with an event name for this event.  perf.data will usually
+        // contain an event_types section of the same cardinality as its
+        // file_attrs; in this case we can just use the name there.  Otherwise
+        // we just give it an anonymous name.
+        std::string event_name = "";
+        if (perf_data_.file_attrs_size() == perf_data_.event_types_size()) {
+          const auto& event_type = perf_data_.event_types(event_idx);
+          if (event_type.has_name()) {
+            event_name = event_type.name() + "_";
+          }
         }
+        if (event_name.empty()) {
+          event_name = "event_" + std::to_string(unknown_event_idx++) + "_";
+        }
+        auto sample_type = profile->add_sample_type();
+        sample_type->set_type(UTF8StringId(event_name + "sample", builder));
+        sample_type->set_unit(builder->StringId("count"));
+        sample_type = profile->add_sample_type();
+        last_index = UTF8StringId(event_name + "event", builder);
+        sample_type->set_type(last_index);
+        sample_type->set_unit(builder->StringId("count"));
       }
-      if (event_name.empty()) {
-        event_name = "event_" + std::to_string(unknown_event_idx++) + "_";
-      }
-      auto sample_type = profile->add_sample_type();
-      sample_type->set_type(UTF8StringId(event_name + "sample", builder));
-      sample_type->set_unit(builder->StringId("count"));
-      sample_type = profile->add_sample_type();
-      last_index = UTF8StringId(event_name + "event", builder);
-      sample_type->set_type(last_index);
-      sample_type->set_unit(builder->StringId("count"));
     }
     DCHECK_NE(last_index, 0);
     profile->set_default_sample_type(last_index);
@@ -945,6 +955,7 @@ ProcessProfiles RawPerfDataToProfiles(
   opts.deduce_huge_page_mappings = true;
   opts.combine_mappings = true;
   opts.allow_unaligned_jit_mappings = options & kAllowUnalignedJitMappings;
+  opts.follow_go_pgo_requirements = options & kFollowGoPgoRequirements;
   quipper::PerfParser parser(&reader, opts);
   if (!parser.ParseRawEvents()) {
     LOG(ERROR) << "Could not parse perf events.";
