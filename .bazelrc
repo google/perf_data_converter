@@ -2,11 +2,10 @@
 build --cxxopt='-std=c++17'
 build --copt='-Wno-sign-compare'
 
-# Disable Bzlmod, a new external dependency management system on by default
-# since Bazel 7.0.0. This breaks compilation of protobuf by pulling in an older
-# version than what is specified in WORKSPACE.
-# TODO(b/319726507): Remove this when we have a better fix or move to Bzlmod.
-build --noenable_bzlmod
+# Enable Bzlmod, a new external dependency management system. Bzlmod is on by
+# default starting in Bazel 7.0.0, but we explicitly enable it here for builds
+# using previous versions of Bazel.
+common --enable_bzlmod
 
 # Load user-specific configuration, if any.
 try-import %workspace%/user.bazelrc
