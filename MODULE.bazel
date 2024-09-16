@@ -11,7 +11,6 @@ bazel_dep(
 )
 
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
-# TODO(b/210576094): Unpin dependency after fixing compatibility.
 bazel_dep(
     name = "googletest",
     version = "1.11.0",
@@ -25,7 +24,6 @@ bazel_dep(
 )
 
 # Proto rules for Bazel and Protobuf
-# TODO(b/210576094): Unpin dependency after fixing compatibility.
 bazel_dep(
     name = "protobuf",
     version = "28.0",
@@ -37,7 +35,6 @@ bazel_dep(
     version = "4.0.0",
 )
 
-# TODO(b/303695580): Unpin this dependency after fixing compatibility.
 bazel_dep(
     name = "boringssl",
     version = "0.0.0-20240126-22d349c",
