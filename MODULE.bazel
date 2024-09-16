@@ -4,12 +4,6 @@ module(
     compatibility_level = 1,
 )
 
-# bazel_skylib is a dependency of protobuf.
-bazel_dep(
-    name = "bazel_skylib",
-    version = "1.0.3",
-)
-
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
 bazel_dep(
     name = "googletest",
