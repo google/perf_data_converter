@@ -227,7 +227,7 @@ class PerfDataConverter : public PerfDataHandler {
   ProcessProfiles Profiles();
 
   // Callbacks for PerfDataHandler
-  void Sample(const PerfDataHandler::SampleContext& sample) override;
+  bool Sample(const PerfDataHandler::SampleContext& sample) override;
   void Comm(const CommContext& comm) override;
   void MMap(const MMapContext& mmap) override;
 
@@ -791,12 +791,16 @@ void PerfDataConverter::MMap(const MMapContext& mmap) {
                 loc_map.lower_bound(mmap.mapping->limit));
 }
 
-void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
+bool PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   if (sample.file_attrs_index < 0 ||
       sample.file_attrs_index >= perf_data_.file_attrs_size()) {
     LOG(WARNING) << "out of bounds file_attrs_index: "
                  << sample.file_attrs_index;
-    return;
+    return false;
+  }
+
+  if (sample.lost && (options_ & kDropLostEvents)) {
+    return false;
   }
 
   Pid event_pid = sample.sample.pid();
@@ -889,6 +893,7 @@ void PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
     IncBuildIdStats(event_pid, frame.from.mapping);
   }
   AddOrUpdateSample(sample, event_pid, sample_key, builder);
+  return true;
 }
 
 ProcessProfiles PerfDataConverter::Profiles() {

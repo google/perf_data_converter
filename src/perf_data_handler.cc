@@ -653,14 +653,19 @@ void Normalizer::HandleLost(
   sample.set_ip(9ULL << 60);
   quipper::PerfDataProto::EventHeader header;
   PerfDataHandler::SampleContext context(header, sample);
+  context.lost = true;
   context.file_attrs_index = event_index;
   context.sample_mapping =
       GetOrAddFakeMapping(kLostMappingFilename, BuildId("", kBuildIdMissing),
                           kLostMd5Prefix, sample.ip());
+
+  int64_t synthesized_lost = 0;
   for (uint64_t i = 0; i < num_lost; ++i) {
-    handler_->Sample(context);
+    if (handler_->Sample(context)) {
+      synthesized_lost++;
+    }
   }
-  stat_.synthesized_lost_samples += num_lost;
+  stat_.synthesized_lost_samples += synthesized_lost;
 }
 
 static void CheckStat(int64_t num, int64_t denom, const std::string& desc) {

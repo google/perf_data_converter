@@ -115,6 +115,8 @@ enum ConversionOptions {
   // Whether to add sampled data addresses as leaf frames for converted
   // profiles.
   kAddDataAddressFrames = 8,
+  // Whether to drop synthetic samples representing lost events/lost samples.
+  kDropLostEvents = 16,
 };
 
 struct ProcessProfile {

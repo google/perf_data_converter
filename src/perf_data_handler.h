@@ -139,6 +139,7 @@ class PerfDataHandler {
           addr_mapping(nullptr),
           file_attrs_index(-1),
           cgroup(nullptr),
+          lost(false),
           spe{false, quipper::ArmSpeDecoder::Record()} {}
 
     // The event's header.
@@ -160,6 +161,8 @@ class PerfDataHandler {
     int64_t file_attrs_index;
     // Cgroup pathname
     const std::string* cgroup;
+    // True if this is a synthesized sample created to account for lost events.
+    bool lost;
     // The attributes for the sample if it comes from Arm SPE.
     struct {
       bool is_spe;
@@ -201,8 +204,8 @@ class PerfDataHandler {
   virtual ~PerfDataHandler() {}
 
   // Implement these callbacks:
-  // Called for every sample.
-  virtual void Sample(const SampleContext& sample) = 0;
+  // Called for every sample. Returns false if no action was taken.
+  virtual bool Sample(const SampleContext& sample) = 0;
   // When comm.pid()==comm.tid() it indicates an exec() happened.
   virtual void Comm(const CommContext& comm) = 0;
   // Called for every mmap event.
