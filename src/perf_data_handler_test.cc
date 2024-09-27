@@ -96,7 +96,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   ~TestPerfDataHandler() override {}
 
   // Callbacks for PerfDataHandler
-  void Sample(const SampleContext& sample) override {
+  bool Sample(const SampleContext& sample) override {
     seen_sample_events_.push_back(sample.sample);
     if (sample.addr_mapping != nullptr) {
       const Mapping* m = sample.addr_mapping;
@@ -113,6 +113,7 @@ class TestPerfDataHandler : public PerfDataHandler {
     if (sample.spe.is_spe) {
       seen_arm_spe_records_.push_back(sample.spe.record);
     }
+    return true;
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {

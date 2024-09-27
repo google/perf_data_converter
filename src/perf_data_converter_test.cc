@@ -41,6 +41,7 @@ using quipper::PerfDataProto;
 using testing::Contains;
 using testing::Eq;
 using testing::IsEmpty;
+using testing::Not;
 using testing::UnorderedPointwise;
 
 namespace {
@@ -593,6 +594,43 @@ TEST_F(PerfDataConverterTest, HandlesLostEvents) {
   // Lost samples.
   EXPECT_EQ(3, profile.sample(2).location_id(0));
   EXPECT_EQ(10, profile.sample(2).value(0));
+}
+
+TEST_F(PerfDataConverterTest, DropsLostEvents) {
+  const std::string path = GetResource("perf-lost-events.textproto");
+  const std::string ascii_pb = GetContents(path);
+  ASSERT_FALSE(ascii_pb.empty()) << path;
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(google::protobuf::TextFormat::ParseFromString(ascii_pb, &perf_data_proto));
+  ProcessProfiles pps = PerfDataProtoToProfiles(&perf_data_proto, kNoLabels,
+                                                kGroupByPids | kDropLostEvents);
+  EXPECT_EQ(1, pps.size());
+  const auto& profile = pps[0]->data;
+  // The input proto has 3 samples, corresponding to 2 locations and 2 mappings.
+  // Once we drop the lost samples and their corresponding data, we're left with
+  // 2 samples, 1 location, 1 mapping.
+  //
+  // Expecting 1 mapping. An explicit mapping.
+  EXPECT_THAT(profile.mapping(), testing::SizeIs(1));
+  EXPECT_EQ("/foo/bar", profile.string_table(profile.mapping(0).filename()));
+  EXPECT_EQ(0x100000, profile.mapping(0).memory_start());
+
+  // Expecting 2 locations: 1 for mapped samples, 1 for unmapped samples.
+  EXPECT_THAT(profile.location(), testing::SizeIs(2));
+  EXPECT_EQ(1, profile.location(0).mapping_id());
+  EXPECT_EQ(0, profile.location(1).mapping_id());
+
+  // Expecting 2 samples: 1 mapped with value 1, 1 unmapped with value 2.
+  EXPECT_THAT(profile.sample(), testing::SizeIs(2));
+  // Mapped samples.
+  EXPECT_EQ(1, profile.sample(0).location_id(0));
+  EXPECT_EQ(1, profile.sample(0).value(0));
+  // Unmapped samples.
+  EXPECT_EQ(2, profile.sample(1).location_id(0));
+  EXPECT_EQ(2, profile.sample(1).value(0));
+
+  // We shouldn't see [lost] anywhere in the string table after dropping.
+  EXPECT_THAT(profile.string_table(), Not(Contains("[lost]")));
 }
 
 TEST_F(PerfDataConverterTest, GroupsByComm) {
