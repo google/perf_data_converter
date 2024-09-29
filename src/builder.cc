@@ -17,10 +17,6 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/absl/status/status.h"
-#include "third_party/absl/strings/match.h"
-#include "third_party/absl/strings/str_cat.h"
-
 #include <unordered_map>
 #include <unordered_set>
 
@@ -70,7 +66,7 @@ int64_t Builder::StringId(const char *str) {
   return InternalStringId(str);
 }
 
-int64_t Builder::InternalStringId(absl::string_view str) {
+int64_t Builder::InternalStringId(const std::string &str) {
   const int64_t index = profile_->string_table_size();
   const auto inserted = strings_.emplace(str, index);
   if (!inserted.second) {
@@ -107,12 +103,16 @@ uint64_t Builder::FunctionId(const char *name, const char *system_name,
   return index;
 }
 
-void Builder::SetDocURL(absl::string_view url) {
-  if (!url.empty() && !absl::StartsWith(url, "http://") &&
-      !absl::StartsWith(url, "https://")) {
-    if (error_.ok()) {
-      error_ = absl::InternalError(
-          absl::StrCat("setting invalid profile doc URL '", url, "'"));
+void Builder::SetDocURL(const std::string &url) {
+  const std::string kHttp = "http://";
+  const std::string kHttps = "https://";
+
+  if (!url.empty() && url.compare(0, kHttp.size(), kHttp) != 0 &&
+      url.compare(0, kHttps.size(), kHttps) != 0) {
+    if (error_.empty()) {
+      error_ = "setting invalid profile doc URL '";
+      error_.append(url);
+      error_.append("'");
     }
     return;
   }
@@ -276,7 +276,7 @@ bool Builder::CheckValid(const Profile &profile) {
 // - Creates missing locations for unsymbolized profiles.
 // - Associates locations to the corresponding mappings.
 bool Builder::Finalize() {
-  if (!error_.ok()) {
+  if (!error_.empty()) {
     // We really should be returning an absl::Status instead of logging here.
     LOG(ERROR) << error_;
     return false;
