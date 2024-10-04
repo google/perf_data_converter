@@ -305,8 +305,8 @@ class Normalizer {
   // |pid_had_any_mmap_| stores the pids that have their mmap events found.
   std::unordered_set<uint32_t> pid_had_any_mmap_;
 
-  // map filenames to build-ids.
-  // TODO(b/250664624): remove this field when buildid-mmap is available to all.
+  // map filenames to build-ids, to deal with the situation where buildid-mmap
+  // is not available.
   std::unordered_map<std::string, BuildId> filename_to_build_id_;
 
   // maybe_kernel_build_id_ contains a possible kernel build id obtained from a
