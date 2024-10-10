@@ -579,6 +579,20 @@ void Normalizer::HandleSample(PerfDataHandler::SampleContext* context) {
     context->branch_stack[i].spec = entry.spec();
   }
 
+  // Add the branch stack pair for SPE sample if it is a branch instruction with
+  // target branch address.
+  if (context->spe.is_spe && context->spe.record.tgt_br_ip.addr != 0) {
+    const auto& record = context->spe.record;
+    PerfDataHandler::BranchStackPair br;
+    br.from.ip = context->sample.ip();
+    br.from.mapping = context->sample_mapping;
+    br.to.ip = context->spe.record.tgt_br_ip.addr;
+    br.to.mapping =
+        GetMappingFromPidAndIP(pid, record.tgt_br_ip.addr, header_context);
+    br.mispredicted = record.event.br_mis_pred;
+    context->branch_stack.push_back(br);
+  }
+
   if (sample.has_cgroup()) {
     auto cgrp_it = cgroup_map_.find(sample.cgroup());
     if (cgrp_it != cgroup_map_.end()) {

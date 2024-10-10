@@ -85,10 +85,11 @@ class PerfDataHandlerTest : public ::testing::Test {
 
 class TestPerfDataHandler : public PerfDataHandler {
  public:
-  TestPerfDataHandler(std::vector<BranchStackEntry> expected_branch_stack,
-                      std::unordered_map<std::string, std::string>
-                          expected_filename_to_build_id)
-      : expected_branch_stack_(std::move(expected_branch_stack)),
+  TestPerfDataHandler(
+      std::vector<std::vector<BranchStackEntry>> expected_branch_stack,
+      std::unordered_map<std::string, std::string>
+          expected_filename_to_build_id)
+      : expected_branch_stack_sequence_(std::move(expected_branch_stack)),
         expected_filename_to_build_id_(
             std::move(expected_filename_to_build_id)) {}
   TestPerfDataHandler(const TestPerfDataHandler&) = delete;
@@ -106,13 +107,22 @@ class TestPerfDataHandler : public PerfDataHandler {
     } else {
       seen_addr_mappings_.push_back(nullptr);
     }
-    EXPECT_EQ(expected_branch_stack_.size(), sample.branch_stack.size());
-    for (size_t i = 0; i < sample.branch_stack.size(); i++) {
-      CheckBranchEquality(expected_branch_stack_[i], sample.branch_stack[i]);
+
+    // If the expected branch stack sequence is not empty, then check it for
+    // each sample.
+    if (!expected_branch_stack_sequence_.empty()) {
+      const std::vector<BranchStackEntry>& expected_branch_stack =
+          expected_branch_stack_sequence_[seen_sample_events_.size() - 1];
+      EXPECT_EQ(expected_branch_stack.size(), sample.branch_stack.size());
+      for (size_t i = 0; i < sample.branch_stack.size(); i++) {
+        CheckBranchEquality(expected_branch_stack[i], sample.branch_stack[i]);
+      }
     }
+
     if (sample.spe.is_spe) {
       seen_arm_spe_records_.push_back(sample.spe.record);
     }
+
     return true;
   }
   void Comm(const CommContext& comm) override {}
@@ -170,7 +180,7 @@ class TestPerfDataHandler : public PerfDataHandler {
     EXPECT_EQ(expected.abort(), actual.abort);
     EXPECT_EQ(expected.cycles(), actual.cycles);
   }
-  std::vector<BranchStackEntry> expected_branch_stack_;
+  std::vector<std::vector<BranchStackEntry>> expected_branch_stack_sequence_;
   std::unordered_map<std::string, std::string> expected_filename_to_build_id_;
   std::unordered_set<std::string> seen_filenames_;
   std::vector<std::unique_ptr<Mapping>> seen_addr_mappings_;
@@ -257,8 +267,7 @@ TEST(PerfDataHandlerTest, KernelBuildIdWithDifferentFilename) {
   expected_filename_to_build_id["[kernel.kallsyms]"] = "17937e648e";
   expected_filename_to_build_id["chrome"] = "cac4b36db4d0";
 
-  TestPerfDataHandler handler(std::vector<BranchStackEntry>(),
-                              expected_filename_to_build_id);
+  TestPerfDataHandler handler({}, expected_filename_to_build_id);
   PerfDataHandler::Process(proto, &handler);
   handler.CheckSeenFilenames();
 }
@@ -301,7 +310,7 @@ TEST(PerfDataHandlerTest, SampleBranchStackMatches) {
   entry->set_cycles(5);
   branch_stack.push_back(*entry);
 
-  TestPerfDataHandler handler(branch_stack,
+  TestPerfDataHandler handler({branch_stack},
                               std::unordered_map<std::string, std::string>());
   PerfDataHandler::Process(proto, &handler);
 }
@@ -350,7 +359,7 @@ TEST(PerfDataHandlerTest, AddressMappingIsSet) {
   sample_event->set_period(1);
   sample_event->set_id(file_attr_id);
 
-  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+  TestPerfDataHandler handler({},
                               std::unordered_map<std::string, std::string>{});
   PerfDataHandler::Process(proto, &handler);
   auto& addr_mappings = handler.SeenAddrMappings();
@@ -406,7 +415,7 @@ TEST(PerfDataHandlerTest, MappingBuildIdAndSourceAreSet) {
   sample_event->set_tid(100);
   sample_event->set_addr(0x3010);
 
-  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+  TestPerfDataHandler handler({},
                               std::unordered_map<std::string, std::string>{});
   PerfDataHandler::Process(proto, &handler);
   auto& mappings = handler.SeenAddrMappings();
@@ -458,7 +467,7 @@ TEST(PerfDataHandlerTest, LostSampleEventsAreHandledInNewerPerf) {
     lost_samples_event2->mutable_sample_info()->set_tid(100);
     lost_samples_event2->set_num_lost(3);
 
-    TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+    TestPerfDataHandler handler({},
                                 std::unordered_map<std::string, std::string>{});
     PerfDataHandler::Process(proto, &handler);
 
@@ -497,7 +506,7 @@ TEST(PerfDataHandlerTest, LostEventsAreHandledInOlderPerf) {
     lost_event->mutable_sample_info()->set_tid(100);
     lost_event->set_lost(10);
 
-    TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+    TestPerfDataHandler handler({},
                                 std::unordered_map<std::string, std::string>{});
     PerfDataHandler::Process(proto, &handler);
 
@@ -557,7 +566,15 @@ TEST(PerfDataHandlerTest, SpeAuxtraceIntoSamples) {
   });
   auxtrace_event->set_trace_data(trace_data);
 
-  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
+  // There record 1 sample is a branch sample, so expecting one branch stack
+  // entry.
+  std::vector<BranchStackEntry> expected_br_entries;
+  BranchStackEntry br;
+  br.set_from_ip(0xffffba66edefb0e0);
+  br.set_to_ip(0xffffba66edefb0e4);
+  expected_br_entries.push_back(br);
+
+  TestPerfDataHandler handler({{}, expected_br_entries},
                               std::unordered_map<std::string, std::string>{});
   PerfDataHandler::Process(proto, &handler);
 
@@ -595,8 +612,7 @@ TEST(PerfDataHandlerTest, KsymbolIntoMappings) {
 
   std::unordered_map<std::string, std::string> expected_filename_to_build_id;
   expected_filename_to_build_id[mock_filename] = "";
-  TestPerfDataHandler handler(std::vector<BranchStackEntry>{},
-                              expected_filename_to_build_id);
+  TestPerfDataHandler handler({}, expected_filename_to_build_id);
   PerfDataHandler::Process(proto, &handler);
   handler.CheckSeenFilenames();
 }
