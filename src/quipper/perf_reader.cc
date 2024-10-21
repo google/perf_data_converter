@@ -2360,6 +2360,12 @@ bool PerfReader::ReadAttrEventBlock(DataReader* data, size_t size) {
 
   // attr.attr.size has been upgraded to the current size of perf_event_attr.
   const size_t actual_attr_size = data->Tell() - initial_offset;
+  if (size < actual_attr_size) {
+    LOG(ERROR) << "Declared payload size " << size << " of "
+               << "PERF_RECORD_HEADER_ATTR event is less than the number of "
+               << "bytes read for the attr_event struct " << actual_attr_size;
+    return false;
+  }
 
   const size_t num_ids =
       (size - actual_attr_size) / sizeof(decltype(attr.ids)::value_type);
