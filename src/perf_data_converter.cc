@@ -836,7 +836,7 @@ bool PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
   // LBR callstacks include only user call chains. If this is an LBR sample,
   // we get the kernel callstack from the sample's callchain, and the user
   // callstack from the sample's branch_stack.
-  const bool lbr_sample = !sample.branch_stack.empty();
+  const bool lbr_sample = !sample.branch_stack.empty() && !sample.spe.is_spe;
   bool skipped_dup = false;
   for (const auto& frame : sample.callchain) {
     if (lbr_sample && frame.ip == quipper::PERF_CONTEXT_USER) {
@@ -875,23 +875,28 @@ bool PerfDataConverter::Sample(const PerfDataHandler::SampleContext& sample) {
         AddOrGetLocation(event_pid, frame.ip - 1, frame.mapping, builder));
     IncBuildIdStats(event_pid, frame.mapping);
   }
-  for (const auto& frame : sample.branch_stack) {
-    // branch_stack entries are pairs of <from, to> locations corresponding to
-    // addresses of call instructions and target addresses of those calls.
-    // We need only the addresses of the function call instructions, stored in
-    // the 'from' field, to recover the call chains.
-    if (frame.from.mapping == nullptr) {
-      continue;
+
+  // Only add the frame from branch_stack if it is an LBR sample.
+  if (lbr_sample) {
+    for (const auto& frame : sample.branch_stack) {
+      // branch_stack entries are pairs of <from, to> locations corresponding to
+      // addresses of call instructions and target addresses of those calls. We
+      // need only the addresses of the function call instructions, stored in
+      // the 'from' field, to recover the call chains.
+      if (frame.from.mapping == nullptr) {
+        continue;
+      }
+      // An LBR entry includes the address of the call instruction, so we don't
+      // have to do any adjustments.
+      if (frame.from.ip < frame.from.mapping->start) {
+        continue;
+      }
+      sample_key.stack.push_back(AddOrGetLocation(event_pid, frame.from.ip,
+                                                  frame.from.mapping, builder));
+      IncBuildIdStats(event_pid, frame.from.mapping);
     }
-    // An LBR entry includes the address of the call instruction, so we don't
-    // have to do any adjustments.
-    if (frame.from.ip < frame.from.mapping->start) {
-      continue;
-    }
-    sample_key.stack.push_back(AddOrGetLocation(event_pid, frame.from.ip,
-                                                frame.from.mapping, builder));
-    IncBuildIdStats(event_pid, frame.from.mapping);
   }
+
   AddOrUpdateSample(sample, event_pid, sample_key, builder);
   return true;
 }
