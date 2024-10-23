@@ -364,14 +364,15 @@ std::string DataSrcString(uint64_t mem_lvl) {
   if (mem_lvl & quipper::PERF_MEM_LVL_L1) return "L1";
   if (mem_lvl & quipper::PERF_MEM_LVL_LFB) return "LFB";
   if (mem_lvl & quipper::PERF_MEM_LVL_L2) return "L2";
-  if (mem_lvl & quipper::PERF_MEM_LVL_L3) return "L3";
+  if (mem_lvl & quipper::PERF_MEM_LVL_L3) return "Local L3";
   if (mem_lvl & quipper::PERF_MEM_LVL_LOC_RAM) return "Local DRAM";
   if (mem_lvl &
       (quipper::PERF_MEM_LVL_REM_RAM1 | quipper::PERF_MEM_LVL_REM_RAM2))
     return "Remote DRAM";
-  if (mem_lvl &
-      (quipper::PERF_MEM_LVL_REM_CCE1 | quipper::PERF_MEM_LVL_REM_CCE2))
-    return "Remote Cache";
+  // AMD ZEN4+ (Genoa+) supports Near and Far L3 levels. For other AMD platforms
+  // Local and Near L3 both refer to Local L3.
+  if (mem_lvl & quipper::PERF_MEM_LVL_REM_CCE1) return "Near L3";
+  if (mem_lvl & quipper::PERF_MEM_LVL_REM_CCE2) return "Far L3";
   if (mem_lvl & quipper::PERF_MEM_LVL_IO) return "IO Memory";
   if (mem_lvl & quipper::PERF_MEM_LVL_UNC) return "Uncached Memory";
   return "Unknown Level";

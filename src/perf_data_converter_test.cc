@@ -1073,7 +1073,7 @@ TEST_F(PerfDataConverterTest, ConvertsDataSrc) {
   const std::unordered_map<std::string, uint64_t> expected_counts{
       {"L1", 2},
       {"L2", 1},
-      {"L3", 1},
+      {"Local L3", 1},
   };
   EXPECT_THAT(counts_by_datasrc, UnorderedPointwise(Eq(), expected_counts));
 }
