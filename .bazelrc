@@ -1,4 +1,5 @@
 # Require c++17 for c++ files.
+build --cxxopt='-xc++'
 build --cxxopt='-std=c++17'
 build --copt='-Wno-sign-compare'
 
@@ -6,6 +7,11 @@ build --copt='-Wno-sign-compare'
 # default starting in Bazel 7.0.0, but we explicitly enable it here for builds
 # using previous versions of Bazel.
 common --enable_bzlmod
+
+# For 3rd party code: Disable warnings entirely.
+# They are not actionable and just create noise.
+build --per_file_copt=external/.*@-w
+build --host_per_file_copt=external/.*@-w
 
 # Load user-specific configuration, if any.
 try-import %workspace%/user.bazelrc
