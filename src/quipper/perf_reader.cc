@@ -1330,7 +1330,7 @@ bool PerfReader::ReadMetadataWithoutHeader(DataReader* data, u32 type,
       case HEADER_BRANCH_STACK:
         return true;
       case HEADER_PMU_MAPPINGS:
-        return ReadPMUMappingsMetadata(data, size);
+        return ReadPMUMappingsMetadata(data);
       case HEADER_GROUP_DESC:
         return ReadGroupDescMetadata(data);
       case HEADER_HYBRID_TOPOLOGY:
@@ -1683,26 +1683,20 @@ bool PerfReader::ReadNUMATopologyMetadata(DataReader* data) {
   return true;
 }
 
-bool PerfReader::ReadPMUMappingsMetadata(DataReader* data, size_t size) {
+bool PerfReader::ReadPMUMappingsMetadata(DataReader* data) {
   pmu_mappings_num_mappings_type num_mappings;
-  auto begin_offset = data->Tell();
   if (!data->ReadUint32(&num_mappings)) {
     LOG(ERROR) << "Error reading the number of PMU mappings.";
     return false;
   }
 
-  // Check size of the data read in addition to the iteration based on the
-  // number of PMU mappings because the number of pmu mappings is always zero
-  // in piped perf.data file.
-  //
-  // The number of PMU mappings is initialized to zero and after all the
-  // mappings are wirtten to the perf.data files, this value is set to the
-  // number of PMU mappings written. This logic doesn't work in pipe mode. So,
-  // the number of PMU mappings is always zero.
-  // Fix to write the number of PMU mappings before writing the actual PMU
-  // mappings landed upstream in 4.14. But the check for size is required as
-  // long as there are machines with older version of perf.
-  for (u32 i = 0; i < num_mappings || data->Tell() - begin_offset < size; ++i) {
+  if (num_mappings == 0) {
+    LOG(ERROR) << "Found 0 PMU mappings. Expecting more. If this is a pre-4.14 "
+                  "perf.data file in pipe mode, it's unsupported now.";
+    return false;
+  }
+
+  for (u32 i = 0; i < num_mappings; ++i) {
     PerfPMUMappingsMetadata mapping;
     if (!data->ReadUint32(&mapping.type) ||
         !data->ReadStringWithSizeFromData(&mapping.name)) {
@@ -1711,10 +1705,6 @@ bool PerfReader::ReadPMUMappingsMetadata(DataReader* data, size_t size) {
     }
     serializer_.SerializePMUMappingsMetadata(mapping,
                                              proto_->add_pmu_mappings());
-  }
-  if (data->Tell() - begin_offset != size) {
-    LOG(ERROR) << "Size from the header doesn't match the read size";
-    return false;
   }
   return true;
 }

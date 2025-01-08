@@ -245,6 +245,14 @@ const std::vector<const char*>& GetPerfPipedDataFiles() {
        * cat &> /tmp/perf.data.piped.header_feautres_group_desc-6.8
        */
       "perf.data.piped.header_feautres_group_desc-6.8",
+
+      /* Perf data that contains an aligned HEADER_PMU_MAPPINGS
+       * PERF_RECORD_FEATURE, generated in piped mode from perf 6.12.
+       * Command:
+       * $ /tmp/perf record -e cycles -o - -- echo "Hello, World!" | \
+       * cat &> /tmp/perf.data.piped.header_features_aligned-6.12
+       */
+      "perf.data.piped.header_features_aligned-6.12",
   };
   return *files;
 }
