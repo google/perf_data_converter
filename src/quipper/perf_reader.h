@@ -228,7 +228,7 @@ class PerfReader {
   bool ReadUint64Metadata(DataReader* data, u32 type, size_t size);
   bool ReadCPUTopologyMetadata(DataReader* data, size_t size);
   bool ReadNUMATopologyMetadata(DataReader* data);
-  bool ReadPMUMappingsMetadata(DataReader* data, size_t size);
+  bool ReadPMUMappingsMetadata(DataReader* data);
   bool ReadGroupDescMetadata(DataReader* data);
   bool ReadEventDescMetadata(DataReader* data);
   bool ReadHybridTopologyMetadata(DataReader* data, size_t size);
