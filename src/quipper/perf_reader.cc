@@ -1171,7 +1171,7 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
 
   if (event->header.type == PERF_RECORD_MMAP ||
       event->header.type == PERF_RECORD_MMAP2) {
-    if (proto_->file_attrs(0).has_attr() &&
+    if (proto_->file_attrs_size() > 0 && proto_->file_attrs(0).has_attr() &&
         proto_->file_attrs(0).attr().exclude_kernel() &&
         event->header.misc & PERF_RECORD_MISC_KERNEL && event->mmap.len == 0) {
       // A buggy version of perf emits zero-length MMAP records for the kernel
