@@ -146,6 +146,7 @@ TEST(ArmSpeDecoderTest, CorrectlyParseRecords) {
           .virt = {.addr = 0xffff0e3703096b28},
           .timestamp = 44731163950,
           .context = {.id = 0x5f80, .el2 = true},
+          .source = {0},
       }));
 
   EXPECT_TRUE(CheckEqual(

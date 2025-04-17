@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string_view>
 
 namespace quipper {
@@ -110,7 +111,7 @@ class ArmSpeDecoder {
     RecordPA phys;
     uint64_t timestamp;
     RecordContext context;
-    uint64_t source;
+    std::optional<uint64_t> source;
   };
 
   ArmSpeDecoder(std::string_view buf, bool is_cross_endian);
