@@ -51,6 +51,7 @@ cc_library(
     ],
     deps = [
         "//src/quipper:base",
+        "@abseil-cpp//absl/container:btree",
     ],
 )
 

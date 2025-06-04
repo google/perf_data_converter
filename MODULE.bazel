@@ -20,17 +20,19 @@ bazel_dep(
 # Proto rules for Bazel and Protobuf
 bazel_dep(
     name = "protobuf",
-    version = "28.0",
+    version = "31.1",
     repo_name = "com_google_protobuf",
 )
-
 bazel_dep(
     name = "boringssl",
     version = "0.0.0-20240126-22d349c",
 )
-
 bazel_dep(
     name = "gflags",
     version = "2.2.2",
     repo_name = "com_github_gflags_gflags",
+)
+bazel_dep(
+    name = "abseil-cpp",
+    version = "20250512.0",
 )

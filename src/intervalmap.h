@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "src/quipper/base/logging.h"
+#include "absl/container/btree_map.h"
 
 namespace perftools {
 
@@ -54,10 +55,9 @@ class IntervalMap {
     V value;
   };
 
-  using MapIter = typename std::map<uint64_t, Value>::iterator;
+  using MapIter = typename absl::btree_map<uint64_t, Value>::iterator;
   using ConstMapIter =
-      typename std::map<uint64_t, Value>::const_iterator;
-  using MapImpl = std::map<uint64_t, Value>;
+      typename absl::btree_map<uint64_t, Value>::const_iterator;
 
   // Returns an iterator pointing to the interval containing the given key, or
   // end() if one was not found.
@@ -103,7 +103,7 @@ class IntervalMap {
 
   // Map from the start of the interval to the limit of the interval and the
   // corresponding value.
-  MapImpl interval_start_;
+  absl::btree_map<uint64_t, Value> interval_start_;
 };
 
 template <class V>
