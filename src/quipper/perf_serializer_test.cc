@@ -54,7 +54,7 @@ class SerializePerfDataProtoFiles
     : public ::testing::TestWithParam<const char*> {};
 
 // Gets the timestamp from an event field in PerfDataProto.
-const uint64_t GetSampleTimestampFromEventProto(
+uint64_t GetSampleTimestampFromEventProto(
     const PerfDataProto_PerfEvent& event) {
   // Get SampleInfo from the correct type-specific event field for the event.
   if (event.has_mmap_event()) {
