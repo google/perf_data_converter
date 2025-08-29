@@ -9,6 +9,7 @@
 #include <sys/mount.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -3499,4 +3500,71 @@ TEST(PerfParserTest, BranchStackEntries) {
   EXPECT_FALSE(branch2.predicted);
   EXPECT_EQ(expected_cycles2, branch2.cycles);
 }
+
+double GetCPUTimeSeconds() {
+  struct timespec ts;
+  if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) != 0) {
+    ADD_FAILURE() << "clock_gettime failed: " << strerror(errno);
+    return -1.0;  // Indicate an error
+  }
+  return (double)ts.tv_sec + (double)ts.tv_nsec / 1e9;
+}
+
+// It returns the time (in seconds) it takes to parse the events.
+double TestHelperLotsOfMmapEvents(uint64_t num_mmap_events, bool do_remap) {
+  std::stringstream input;
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+
+  // PERF_RECORD_HEADER_ATTR
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_IP | PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+
+  // PERF_RECORD_MMAP
+  for (uint64_t i = 0; i < num_mmap_events; ++i) {
+    testing::ExampleMmapEvent(1001, 0x1c1000 + i * 0x1000, 0x1000, 0,
+                              "/usr/lib/foo.so",
+                              testing::SampleInfo().Tid(1001))
+        .WriteTo(&input);
+  }
+
+  // Parse input.
+  PerfReader reader;
+  EXPECT_TRUE(reader.ReadFromString(input.str()));
+
+  // Set up the parser.
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = do_remap;
+  PerfParser parser(&reader, options);
+
+  // Measure the parsing time.
+  double start = GetCPUTimeSeconds();
+  parser.ParseRawEvents();
+  double end = GetCPUTimeSeconds();
+
+  EXPECT_EQ(num_mmap_events, parser.stats().num_mmap_events);
+  return end - start;
+}
+
+TEST(PerfParserTest, ScaleWellWithLotsOfMmapEventsd) {
+  auto duration_seconds_10K = TestHelperLotsOfMmapEvents(10000, false);
+  auto duration_seconds_100K = TestHelperLotsOfMmapEvents(100000, false);
+
+  // The underlying program should scale well when having lots of events. If it
+  // is anything equal or worse than O(N^2), then we have a problem, the test
+  // should fail. Using 50X instead of 100X to avoid flakiness.
+  EXPECT_LT(duration_seconds_100K, duration_seconds_10K * 50);
+}
+
+TEST(PerfParserTest, ScaleWellWithLotsOfMmapEventsdRemap) {
+  auto duration_seconds_10K = TestHelperLotsOfMmapEvents(10000, true);
+  auto duration_seconds_100K = TestHelperLotsOfMmapEvents(100000, true);
+
+  // The underlying program should scale well when having lots of events. If it
+  // is anything equal or worse than O(N^2), then we have a problem, the test
+  // should fail. Using 50X instead of 100X to avoid flakiness.
+  EXPECT_LT(duration_seconds_100K, duration_seconds_10K * 50);
+}
+
 }  // namespace quipper

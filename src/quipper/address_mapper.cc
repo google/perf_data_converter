@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <iterator>
 #include <vector>
 
 #include "base/logging.h"
@@ -167,9 +168,9 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
     return true;
   }
 
-  // Otherwise, search through the existing mappings for a free block after one
-  // of them.
-  for (auto iter = mappings_.begin(); iter != mappings_.end(); ++iter) {
+  // Helper function that tries adding the new range after the range in 'iter'.
+  // It returns true if successfully adding the range, otherwise returns false.
+  auto try_add_range_after = [&](MappingList::iterator iter) {
     MappedRange& existing_mapping = *iter;
     if (page_alignment_) {
       uint64_t end_of_existing_mapping =
@@ -191,7 +192,9 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
 
       // Check if there's enough room in the unmapped space following the
       // current existing mapping for the page-aligned mapping.
-      if (end_of_new_mapping > end_of_unmapped_space_after) continue;
+      if (end_of_new_mapping > end_of_unmapped_space_after) {
+        return false;
+      }
 
       range.mapped_addr = next_page_boundary + mapping_offset;
       range.unmapped_space_after =
@@ -199,7 +202,9 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
       existing_mapping.unmapped_space_after =
           range.mapped_addr - end_of_existing_mapping;
     } else {
-      if (existing_mapping.unmapped_space_after < range.size) continue;
+      if (existing_mapping.unmapped_space_after < range.size) {
+        return false;
+      }
       // Insert the new mapping range immediately after the existing one.
       range.mapped_addr = existing_mapping.mapped_addr + existing_mapping.size;
       range.unmapped_space_after =
@@ -211,6 +216,26 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
     --iter;
     real_addr_to_mapped_range_.insert(std::make_pair(range.real_addr, iter));
     return true;
+  };
+
+  // When we have more than 10K mmaps/ranges in the list, we don't want to
+  // linearly scan the list to figure out which page can fit the new range. We
+  // just simply try the page of the last range in the list. We are not aiming
+  // to generate the optimal (most compact) pages layout here, so just using the
+  // last range is good enough. Having UINT64_MAX "after space" gives us the
+  // confidence that this hueristic will not use up the space.
+
+  // TODO(b/420931141): Remove if we want a better solution.
+  if (mappings_.size() >= 10000) {
+    return try_add_range_after(std::prev(mappings_.end()));
+  }
+
+  // Otherwise, search through the existing mappings for a free block after one
+  // of them.
+  for (auto iter = mappings_.begin(); iter != mappings_.end(); ++iter) {
+    if (try_add_range_after(iter)) {
+      return true;
+    }
   }
 
   // If it still hasn't succeeded in mapping, it means there is no free space in
