@@ -577,12 +577,22 @@ bool PerfParser::MapBranchStack(
     }
   }
 
+  bool skip_first = false;
+  if (trimmed_size) {
+    // Skip the first entry if it corresponds to PMU IRQ
+    const BranchStackEntry& first_entry = branch_stack->Get(0);
+    if (first_entry.type() == PERF_BR_IRQ && !first_entry.to_ip()) {
+      skip_first = true;
+    }
+  }
+
   // Map branch stack addresses.
-  parsed_event->branch_stack.resize(trimmed_size);
+  parsed_event->branch_stack.resize(trimmed_size - skip_first);
   bool mapping_ok = true;
-  for (unsigned int i = 0; i < trimmed_size; ++i) {
+  for (unsigned int i = skip_first; i < trimmed_size; ++i) {
     BranchStackEntry* entry = branch_stack->Mutable(i);
-    ParsedEvent::BranchEntry& parsed_entry = parsed_event->branch_stack[i];
+    ParsedEvent::BranchEntry& parsed_entry =
+      parsed_event->branch_stack[i - skip_first];
 
     uint64_t from_mapped = 0;
     if (!MapIPAndPidAndGetNameAndOffset(entry->from_ip(), pidtid, &from_mapped,
