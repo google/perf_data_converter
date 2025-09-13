@@ -4,6 +4,8 @@ module(
     compatibility_level = 1,
 )
 
+bazel_dep(name = "rules_cc", version = "0.1.5")
+
 # GoogleTest/GoogleMock framework. Used by most unit-tests.
 bazel_dep(
     name = "googletest",
