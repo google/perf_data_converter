@@ -71,7 +71,7 @@ struct perf_file_attr {
 };
 
 #define BITS_PER_BYTE 8
-#define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
+#define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 #define BITS_TO_LONGS(nr) \
   DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))  
 
@@ -177,6 +177,22 @@ struct ksymbol_event {
   char name[kMaxKsymNameLen];
 };
 
+const u16 kMaxBPFMetadataKeyLen = 64;
+const u16 kMaxBPFMetadataValueLen = 256;
+const u16 kMaxBPFProgNameLen = kMaxKsymNameLen;
+
+struct bpf_metadata_entry {
+  char key[kMaxBPFMetadataKeyLen];
+  char value[kMaxBPFMetadataValueLen];
+};
+
+struct bpf_metadata_event {
+  struct perf_event_header header;
+  char prog_name[kMaxBPFProgNameLen];
+  u64 nr_entries;
+  struct bpf_metadata_entry entries[];
+};
+
 struct fork_event {
   struct perf_event_header header;
   u32 pid, ppid;
@@ -248,7 +264,7 @@ struct regs_dump {
 struct stack_dump {
   u16 offset;
   u64 size;
-  char *data;
+  char* data;
 };
 
 struct sample_read_value {
@@ -263,7 +279,7 @@ struct sample_read {
   struct {
     struct {
       u64 nr;
-      struct sample_read_value *values;
+      struct sample_read_value* values;
     } group;
     struct sample_read_value one;
   };
@@ -330,9 +346,9 @@ struct perf_sample {
   u32 flags;
   u16 insn_len;
   bool no_hw_idx; /* No hw_idx collected in branch_stack */
-  void *raw_data;
-  struct ip_callchain *callchain;
-  struct branch_stack *branch_stack;
+  void* raw_data;
+  struct ip_callchain* callchain;
+  struct branch_stack* branch_stack;
   // struct regs_dump  user_regs;  // See struct regs_dump above.
   struct stack_dump user_stack;
   struct sample_read read;
@@ -371,7 +387,7 @@ struct perf_sample {
   ~perf_sample() {
     delete[] callchain;
     delete[] branch_stack;
-    delete[] reinterpret_cast<char *>(raw_data);
+    delete[] reinterpret_cast<char*>(raw_data);
   }
 };
 
@@ -416,7 +432,11 @@ enum perf_user_event_type {
   PERF_RECORD_EVENT_UPDATE = 78,
   PERF_RECORD_TIME_CONV = 79,
   PERF_RECORD_HEADER_FEATURE = 80,
-  PERF_RECORD_HEADER_MAX = 81,
+  PERF_RECORD_COMPRESSED = 81,
+  PERF_RECORD_FINISHED_INIT = 82,
+  PERF_RECORD_COMPRESSED2 = 83,
+  PERF_RECORD_BPF_METADATA = 84,
+  PERF_RECORD_HEADER_MAX = 85,
 };
 
 enum auxtrace_error_type {
@@ -617,6 +637,7 @@ union perf_event {
   struct namespaces_event namespaces;
   struct cgroup_event cgroup;
   struct ksymbol_event ksymbol;
+  struct bpf_metadata_event bpf_metadata;
   struct fork_event fork;
   struct lost_event lost;
   struct lost_samples_event lost_samples;

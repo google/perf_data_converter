@@ -18,7 +18,7 @@ message PerfDataProto {
   // Perf event attribute. Stores the event description.
   // This data structure is defined in the linux kernel:
   // $kernel/include/uapi/linux/perf_event.h.
-  // Next tag: 48
+  // Next tag: 49
   message PerfEventAttr {
     // Type of the event. Type is an enumeration and can be one of the values
     // described at: $kernel/include/linux/perf_event.h.
@@ -141,6 +141,9 @@ message PerfDataProto {
 
     // Include ksymbol data.
     optional bool ksymbol = 47;
+
+    // Include BPF metadata.
+    optional bool bpf_metadata = 48;
 
     // Contains the number of events after which we wake up.
     optional uint32 wakeup_events = 28;
@@ -323,6 +326,19 @@ message PerfDataProto {
 
     // Info about the perf sample containing this event.
     optional SampleInfo sample_info = 6;
+  }
+
+  // Next tag: 4
+  message BpfMetadataEvent {
+    // The name of the BPF program.
+    optional string prog_name = 1;
+
+    // The BPF program's metadata. The map key is the type of metadata,
+    // and the value is the metadata value.
+    map<string, string> metadata = 2;
+
+    // Info about the perf sample containing this event.
+    optional SampleInfo sample_info = 3;
   }
 
   // Next tag: 4
@@ -846,7 +862,7 @@ message PerfDataProto {
     optional uint32 size = 3;
   }
 
-  // Next tag: 27
+  // Next tag: 28
   message PerfEvent {
     optional EventHeader header = 1;
     oneof event_type {
@@ -878,6 +894,7 @@ message PerfDataProto {
       StatRoundEvent stat_round_event = 23;
       CgroupEvent cgroup_event = 24;
       KsymbolEvent ksymbol_event = 25;
+      BpfMetadataEvent bpf_metadata_event = 27;
     }
     // Time after boot in nanoseconds corresponding to the event.
     optional uint64 timestamp = 10;

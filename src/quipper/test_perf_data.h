@@ -7,13 +7,16 @@
 
 #include <sys/mman.h>
 
+#include <cstdint>
 #include <cstring>
+#include <initializer_list>
 #include <ostream>  
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "binary_data_utils.h"
+#include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
 
 namespace quipper {
@@ -949,6 +952,20 @@ class ExampleKsymbolEvent : public StreamWriteable {
   const u32 flags_;
   const std::string name_;
   const SampleInfo sample_id_;
+};
+
+// Produces PERF_RECORD_BPF_METADATA event.
+class ExampleBpfMetadataEvent : public StreamWriteable {
+ public:
+  ExampleBpfMetadataEvent(std::string prog_name,
+                          std::vector<struct bpf_metadata_entry> entries)
+      : prog_name_(prog_name), entries_(std::move(entries)) {}
+  size_t GetSize() const;
+  void WriteTo(std::ostream* out) const override;
+
+ private:
+  const std::string prog_name_;
+  const std::vector<struct bpf_metadata_entry> entries_;
 };
 
 }  // namespace testing

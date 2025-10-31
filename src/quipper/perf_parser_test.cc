@@ -23,6 +23,7 @@
 #include "compat/thread.h"
 #include "dso_test_utils.h"
 #include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
 #include "perf_buildid.h"
 #include "perf_data_utils.h"
 #include "perf_reader.h"
@@ -1892,6 +1893,58 @@ TEST(PerfParserTest, PipedTimeConvEventsLarge) {
   EXPECT_EQ(true, events[0].event_ptr->time_conv_event().cap_user_time_zero());
   EXPECT_EQ(false,
             events[0].event_ptr->time_conv_event().cap_user_time_short());
+}
+
+TEST(PerfParserTest, BpfMetadataEvents) {
+  std::stringstream input;
+
+  // PERF_RECORD_BPF_METADATA
+  testing::ExampleBpfMetadataEvent event(
+      "test_prog",
+      {
+          {.key = "my_key", .value = "my_value"},
+          {.key = "longer_key", .value = "slightly_different_value"},
+      });
+
+  size_t data_size = event.GetSize();
+
+  // header
+  testing::ExamplePerfDataFileHeader file_header(0);
+  file_header.WithAttrCount(1).WithDataSize(data_size).WriteTo(&input);
+
+  // attrs
+  ASSERT_EQ(file_header.header().attrs.offset, static_cast<u64>(input.tellp()));
+  testing::ExamplePerfFileAttr_Hardware(PERF_SAMPLE_TID, /*sample_id_all=*/true)
+      .WriteTo(&input);
+
+  // data
+  ASSERT_EQ(file_header.header().data.offset, static_cast<u64>(input.tellp()));
+  event.WriteTo(&input);
+  ASSERT_EQ(file_header.header().data.offset + data_size,
+            static_cast<u64>(input.tellp()));
+
+  //
+  // Parse input.
+  //
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+
+  PerfParserOptions options;
+  options.sample_mapping_percentage_threshold = 0;
+  options.do_remap = true;
+  PerfParser parser(&reader, options);
+  EXPECT_TRUE(parser.ParseRawEvents());
+
+  const std::vector<ParsedEvent>& events = parser.parsed_events();
+  ASSERT_EQ(1, events.size());
+
+  EXPECT_EQ(PERF_RECORD_BPF_METADATA, events[0].event_ptr->header().type());
+  const PerfDataProto::BpfMetadataEvent& parsed_event =
+      events[0].event_ptr->bpf_metadata_event();
+  EXPECT_EQ("test_prog", parsed_event.prog_name());
+  EXPECT_EQ("my_value", parsed_event.metadata().at("my_key"));
+  EXPECT_EQ("slightly_different_value",
+            parsed_event.metadata().at("longer_key"));
 }
 
 TEST(PerfParserTest, CgroupEvents) {

@@ -12,11 +12,18 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <functional>
+#include <ios>
+#include <limits>
+#include <map>
 #include <memory>
 #include <set>
 #include <sstream>
+#include <string>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 #include "base/logging.h"
 #include "address_mapper.h"
@@ -140,6 +147,7 @@ bool PerfParser::ProcessUserEvents(PerfEvent& event) {
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
     case PERF_RECORD_TIME_CONV:
+    case PERF_RECORD_BPF_METADATA:
       VLOG(1) << "Parsed event: " << GetEventName(event.header().type())
               << ". Doing nothing.";
       break;

@@ -8,11 +8,14 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <vector>
 
 #include "compat/proto.h"
+#include "kernel/perf_event.h"
+#include "kernel/perf_internals.h"
 #include "perf_data_utils.h"
 
 struct perf_event_attr;
@@ -213,6 +216,10 @@ class PerfSerializer {
                              PerfDataProto_KsymbolEvent* sample) const;
   bool DeserializeKsymbolEvent(const PerfDataProto_KsymbolEvent& sample,
                                event_t* event) const;
+  bool SerializeBpfMetadataEvent(const event_t& event,
+                                 PerfDataProto_BpfMetadataEvent* sample) const;
+  bool DeserializeBpfMetadataEvent(const PerfDataProto_BpfMetadataEvent& sample,
+                                   event_t* event) const;
 
   bool SerializeSingleUint32Metadata(
       const PerfUint32Metadata& metadata,

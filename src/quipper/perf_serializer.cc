@@ -8,7 +8,13 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include <algorithm>  // for std::copy
+#include <algorithm>
+#include <cstddef>
+#include <cstring>
+#include <initializer_list>
+#include <iterator>
+#include <string>
+#include <vector>
 
 #include "base/logging.h"
 #include "binary_data_utils.h"
@@ -70,6 +76,7 @@ bool PerfSerializer::IsSupportedUserEventType(uint32_t type) {
     case PERF_RECORD_STAT:
     case PERF_RECORD_STAT_ROUND:
     case PERF_RECORD_TIME_CONV:
+    case PERF_RECORD_BPF_METADATA:
       return true;
   }
   return false;
@@ -407,6 +414,9 @@ bool PerfSerializer::SerializeUserEvent(
     case PERF_RECORD_TIME_CONV:
       return SerializeTimeConvEvent(event,
                                     event_proto->mutable_time_conv_event());
+    case PERF_RECORD_BPF_METADATA:
+      return SerializeBpfMetadataEvent(
+          event, event_proto->mutable_bpf_metadata_event());
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(event.header.type);
   }
@@ -522,6 +532,15 @@ bool PerfSerializer::DeserializeUserEvent(
       return DeserializeStatRoundEvent(event_proto.stat_round_event(), event);
     case PERF_RECORD_TIME_CONV:
       return DeserializeTimeConvEvent(event_proto.time_conv_event(), event);
+    case PERF_RECORD_BPF_METADATA:
+      return DeserializeBpfMetadataEvent(event_proto.bpf_metadata_event(),
+                                         event);
+    case PERF_RECORD_COMPRESSED:
+    case PERF_RECORD_FINISHED_INIT:
+    case PERF_RECORD_COMPRESSED2:
+      // These were propagated from tools/lib/perf/include/perf/event.h
+      // to quipper/kernel/perf_internals.h, but are not currently supported.
+      return false;
     default:
       // User type events are marked as deserialized because they don't
       // have non-header data in perf.data proto.
@@ -995,6 +1014,39 @@ bool PerfSerializer::DeserializeKsymbolEvent(
   ksymbol.ksym_type = static_cast<u16>(sample.ksym_type());
   ksymbol.flags = static_cast<u16>(sample.flags());
   snprintf(ksymbol.name, kMaxKsymNameLen, "%s", sample.name().c_str());
+  return DeserializeSampleInfo(sample.sample_info(), event);
+}
+
+bool PerfSerializer::SerializeBpfMetadataEvent(
+    const event_t& event, PerfDataProto_BpfMetadataEvent* sample) const {
+  const struct bpf_metadata_event& bpf_metadata = event.bpf_metadata;
+  char prog_name[kMaxBPFProgNameLen];
+  snprintf(prog_name, kMaxBPFProgNameLen, "%s", bpf_metadata.prog_name);
+  sample->set_prog_name(prog_name);
+  for (u64 i = 0; i < bpf_metadata.nr_entries; ++i) {
+    char key[kMaxBPFMetadataKeyLen], value[kMaxBPFMetadataValueLen];
+    snprintf(key, kMaxBPFMetadataKeyLen, "%s", bpf_metadata.entries[i].key);
+    snprintf(value, kMaxBPFMetadataValueLen, "%s",
+             bpf_metadata.entries[i].value);
+    sample->mutable_metadata()->insert({key, value});
+  }
+  return SerializeSampleInfo(event, sample->mutable_sample_info());
+}
+
+bool PerfSerializer::DeserializeBpfMetadataEvent(
+    const PerfDataProto_BpfMetadataEvent& sample, event_t* event) const {
+  struct bpf_metadata_event& bpf_metadata = event->bpf_metadata;
+  snprintf(bpf_metadata.prog_name, kMaxBPFProgNameLen, "%s",
+           sample.prog_name().c_str());
+  bpf_metadata.nr_entries = sample.metadata_size();
+  u32 nr_entries = 0;
+  for (const auto& [key, value] : sample.metadata()) {
+    snprintf(bpf_metadata.entries[nr_entries].key, kMaxBPFMetadataKeyLen, "%s",
+             key.c_str());
+    snprintf(bpf_metadata.entries[nr_entries].value, kMaxBPFMetadataValueLen,
+             "%s", value.c_str());
+    nr_entries++;
+  }
   return DeserializeSampleInfo(sample.sample_info(), event);
 }
 

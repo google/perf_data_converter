@@ -12,10 +12,13 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ios>
 #include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "base/logging.h"
@@ -258,6 +261,9 @@ bool ByteSwapEventDataFixedPayloadFields(event_t* event) {
       ByteSwap(&event->ksymbol.len);
       ByteSwap(&event->ksymbol.flags);
       return true;
+    case PERF_RECORD_BPF_METADATA:
+      ByteSwap(&event->bpf_metadata.nr_entries);
+      return true;
     case PERF_RECORD_FORK:
     case PERF_RECORD_EXIT:
       ByteSwap(&event->fork.pid);
@@ -412,6 +418,7 @@ bool ByteSwapEventDataVariablePayloadFields(event_t* event) {
     case PERF_RECORD_MMAP:
     case PERF_RECORD_MMAP2:
     case PERF_RECORD_KSYMBOL:
+    case PERF_RECORD_BPF_METADATA:
     case PERF_RECORD_FORK:
     case PERF_RECORD_EXIT:
     case PERF_RECORD_COMM:
