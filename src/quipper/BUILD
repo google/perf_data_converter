@@ -244,7 +244,9 @@ cc_library(
     name = "address_mapper",
     srcs = ["address_mapper.cc"],
     hdrs = ["address_mapper.h"],
-    deps = [":base"],
+    deps = [
+        ":base",
+    ],
 )
 
 cc_library(

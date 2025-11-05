@@ -631,12 +631,10 @@ bool PerfParser::MapIPAndPidAndGetNameAndOffset(
   // Sometimes the first event we see is a SAMPLE event and we don't have the
   // time to create an address mapper for a process. Example, for pid 0.
   AddressMapper* mapper = GetOrCreateProcessMapper(pidtid.first).first;
-  AddressMapper::MappingList::const_iterator ip_iter;
+  uint64_t id, offset;
   bool mapped =
-      mapper->GetMappedAddressAndListIterator(ip, &mapped_addr, &ip_iter);
+      mapper->GetMappedAddressIDAndOffset(ip, &mapped_addr, &id, &offset);
   if (mapped) {
-    uint64_t id = UINT64_MAX;
-    mapper->GetMappedIDAndOffset(ip, ip_iter, &id, &dso_and_offset->offset_);
     // Make sure the ID points to a valid event.
     CHECK_LE(id, parsed_events_.size());
     ParsedEvent& parsed_event = parsed_events_[id];
@@ -647,6 +645,7 @@ bool PerfParser::MapIPAndPidAndGetNameAndOffset(
     auto dso_iter = name_to_dso_.find(event->mmap_event().filename());
     CHECK(dso_iter != name_to_dso_.end());
     dso_and_offset->dso_info_ = &dso_iter->second;
+    dso_and_offset->offset_ = offset;
 
     dso_iter->second.hit = true;
     dso_iter->second.threads.insert(mergeTwoU32(pidtid.first, pidtid.second));
@@ -736,16 +735,14 @@ bool PerfParser::MapMmapEvent(PerfDataProto_MMapEvent* event, uint64_t id,
   if (options_.allow_unaligned_jit_mappings) {
     is_jit_event = event->filename().find("jitted-") != std::string::npos;
   }
-  if (!mapper->MapWithID(start, len, id, pgoff, true, is_jit_event)) {
+  if (!mapper->MapWithID(start, len, id, pgoff, is_jit_event)) {
     mapper->DumpToLog();
     return false;
   }
 
   if (options_.do_remap) {
     uint64_t mapped_addr;
-    AddressMapper::MappingList::const_iterator start_iter;
-    if (!mapper->GetMappedAddressAndListIterator(start, &mapped_addr,
-                                                 &start_iter)) {
+    if (!mapper->GetMappedAddress(start, &mapped_addr)) {
       LOG(ERROR) << "Failed to map starting address " << std::hex << start;
       return false;
     }
@@ -810,8 +807,7 @@ std::pair<AddressMapper*, bool> PerfParser::GetOrCreateProcessMapper(
   if (parent_mapper != process_mappers_.end()) {
     mapper.reset(new AddressMapper(*parent_mapper->second));
   } else {
-    mapper.reset(new AddressMapper());
-    mapper->set_page_alignment(kMmapPageAlignment);
+    mapper.reset(new AddressMapper(kMmapPageAlignment));
   }
 
   const auto inserted =
