@@ -11,85 +11,57 @@
 #include <list>
 #include <map>
 
+#include "base/logging.h"
+
 namespace quipper {
 
 class AddressMapper {
- private:
-  struct MappedRange;
-
  public:
-  AddressMapper() : page_alignment_(0) {}
+  // The "alignment" argument sets the page alignment size.
+  // It must be either zero or a power of 2.
+  explicit AddressMapper(uint64_t alignment = 0) : page_alignment_(alignment) {
+    CHECK(alignment == 0 || (alignment & (alignment - 1)) == 0)
+        << "Alignment must be 0 or a power of 2.";
+  }
 
-  // Copy constructor: copies mappings from |source| to this AddressMapper. This
-  // is useful for copying mappings from parent to child process upon fork(). It
-  // is also useful to copy kernel mappings to any process that is created.
   AddressMapper(const AddressMapper& other);
 
-  typedef std::list<MappedRange> MappingList;
-
   // Maps a new address range [real_addr, real_addr + length) to quipper space.
+  //
   // |id| is an identifier value to be stored along with the mapping.
   // AddressMapper does not care whether it is unique compared to all other IDs
   // passed in. That is up to the caller to keep track of.
+  //
   // |offset_base| represents the offset within the original region at which the
   // mapping begins. The original region can be much larger than the mapped
   // region.
-  // e.g. Given a mapped region with base/real_addr=0x4000 and size=0x2000
+  // e.g. Given a mapped region with real_addr=0x4000 and size=0x2000
   // mapped with offset_base=0x10000, then the address 0x5000 maps to an offset
   // of 0x11000 = (0x5000 - 0x4000 + 0x10000).
-  // |remove_existing_mappings|  indicates whether to remove old mappings that
-  // collide with the new range in real address space, indicating it has been
-  // unmapped.
-  // |allow_unaligned_split_mappings| indicates whether the newly mapped address
-  // originates from a dynamically created code object created by a JIT. These
-  // mapped ranges are not necessary page-aligned since they typically
-  // correspond to single small functions.
-  // Returns true if mapping was successful.
-  bool MapWithID(const uint64_t real_addr, const uint64_t size,
-                 const uint64_t id, const uint64_t offset_base,
-                 bool remove_existing_mappings,
-                 bool allow_unaligned_jit_mappings);
-
-  // Looks up |real_addr| and returns the mapped address and MappingList
-  // iterator.
-  bool GetMappedAddressAndListIterator(const uint64_t real_addr,
-                                       uint64_t* mapped_addr,
-                                       MappingList::const_iterator* iter) const;
-
-  // Uses MappingList iterator to fetch and return the mapping's ID and offset
-  // from the start of the mapped space.
-  // |real_addr_iter| must be valid and not at the end of the list.
-  void GetMappedIDAndOffset(const uint64_t real_addr,
-                            MappingList::const_iterator real_addr_iter,
-                            uint64_t* id, uint64_t* offset) const;
-
-  // Returns true if there are no mappings.
-  bool IsEmpty() const { return mappings_.empty(); }
-
-  // Returns the number of address ranges that are currently mapped.
-  size_t GetNumMappedRanges() const { return mappings_.size(); }
-
-  // Returns the maximum length of quipper space containing mapped areas.
-  // There may be gaps in between blocks.
-  // If the result is 2^64 (all of quipper space), this returns 0.  Call
-  // IsEmpty() to distinguish this from actual emptiness.
-  uint64_t GetMaxMappedLength() const;
-
-  // Sets the page alignment size. Set to 0 to disable page alignment.
-  // The alignment value must be a power of two. Any other value passed in will
-  // have no effect. Changing this value in between mappings results in
-  // undefined behavior.
-  void set_page_alignment(uint64_t alignment) {
-    // This also includes the case of 0.
-    if ((alignment & (alignment - 1)) == 0) page_alignment_ = alignment;
+  //
+  // If |allow_unaligned_mappings| is true, it is acceptable for "real_addr"
+  // to not be aligned to the alignment set in the constructor. If it is false,
+  // and "real_addr" is not aligned, the mapping will fail.
+  //
+  // Returns true if the mapping was successful, and false otherwise.
+  bool MapWithID(uint64_t real_addr, uint64_t size, uint64_t id,
+                 uint64_t offset_base, bool allow_unaligned_mappings) {
+    return MapWithIDInternal(real_addr, size, id, offset_base, true,
+                             allow_unaligned_mappings);
   }
+
+  // Looks up |real_addr| and returns the mapped address.
+  bool GetMappedAddress(uint64_t real_addr, uint64_t* mapped_addr) const;
+
+  // Looks up |real_addr| and returns the mapped address, the mapping's ID, and
+  // the offset from the start of the mapped space.
+  bool GetMappedAddressIDAndOffset(uint64_t real_addr, uint64_t* mapped_addr,
+                                   uint64_t* id, uint64_t* offset) const;
 
   // Dumps the state of the address mapper to logs. Useful for debugging.
   void DumpToLog() const;
 
  private:
-  typedef std::map<uint64_t, MappingList::iterator> MappingMap;
-
   struct MappedRange {
     uint64_t real_addr;
     uint64_t mapped_addr;
@@ -125,6 +97,19 @@ class AddressMapper {
       return (addr >= real_addr && addr <= real_addr + size - 1);
     }
   };
+
+  typedef std::list<MappedRange> MappingList;
+
+  typedef std::map<uint64_t, MappingList::iterator> MappingMap;
+
+  friend class AddressMapperTestPeer;
+
+  bool MapWithIDInternal(uint64_t real_addr, uint64_t size, uint64_t id,
+                         uint64_t offset_base, bool remove_existing_mappings,
+                         bool allow_unaligned_mappings);
+
+  // Returns true if there are no mappings.
+  bool IsEmpty() const { return mappings_.empty(); }
 
   // Returns an iterator to a MappedRange in |mappings_| that contains
   // |real_addr|. Returns |mappings_.end()| if no range contains |real_addr|.

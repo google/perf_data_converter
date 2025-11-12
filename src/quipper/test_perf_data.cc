@@ -7,7 +7,12 @@
 #include <stddef.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <ostream>  
+#include <string>
 #include <vector>
 
 #include "base/logging.h"
@@ -931,6 +936,34 @@ void ExampleKsymbolEvent::WriteTo(std::ostream* out) const {
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - pre_ksymbol_offset;
   CHECK_EQ(event.header.size, static_cast<u64>(written_event_size));
+}
+
+size_t ExampleBpfMetadataEvent::GetSize() const {
+  return offsetof(struct bpf_metadata_event, entries) +
+         entries_.size() * sizeof(struct bpf_metadata_entry);
+}
+
+void ExampleBpfMetadataEvent::WriteTo(std::ostream* out) const {
+  const size_t event_size = GetSize();
+  malloced_unique_ptr<bpf_metadata_event> event(
+      reinterpret_cast<struct bpf_metadata_event*>(calloc(1, event_size)));
+  event->header.type = MaybeSwap32(PERF_RECORD_BPF_METADATA);
+  event->header.misc = 0;
+  event->header.size = MaybeSwap16(static_cast<u16>(event_size));
+
+  snprintf(event->prog_name, sizeof(event->prog_name), "%s",
+           prog_name_.c_str());
+  event->nr_entries = MaybeSwap64(entries_.size());
+
+  for (u64 i = 0; i < entries_.size(); ++i) {
+    memcpy(&event->entries[i], &entries_[i], sizeof(event->entries[i]));
+  }
+
+  const size_t previous_offset = out->tellp();
+  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  const size_t written_event_size =
+      static_cast<size_t>(out->tellp()) - previous_offset;
+  CHECK_EQ(event_size, static_cast<u64>(written_event_size));
 }
 
 }  // namespace testing

@@ -244,7 +244,9 @@ cc_library(
     name = "address_mapper",
     srcs = ["address_mapper.cc"],
     hdrs = ["address_mapper.h"],
-    deps = [":base"],
+    deps = [
+        ":base",
+    ],
 )
 
 cc_library(
@@ -356,8 +358,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":binary_data_utils",
-        ":compat",
         ":kernel",
+        ":perf_data_cc_proto",
         ":base",
     ],
 )
@@ -724,12 +726,14 @@ cc_test(
         "not_run:arm",
     ],
     deps = [
+        ":binary_data_utils",
         ":compat",
         ":compat_gunit",
         ":file_utils",
         ":kernel",
         ":perf_buildid",
         ":perf_data_utils",
+        ":perf_parser",
         ":perf_protobuf_io",
         ":perf_reader",
         ":perf_serializer",

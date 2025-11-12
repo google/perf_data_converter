@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 
 #include "base/logging.h"
-#include "compat/proto.h"
 #include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
+#include "src/quipper/perf_data.pb.h"
+
 namespace quipper {
 
 namespace {
@@ -282,6 +284,8 @@ std::string GetEventName(uint32_t type) {
       return "PERF_RECORD_CGROUP";
     case PERF_RECORD_KSYMBOL:
       return "PERF_RECORD_KSYMBOL";
+    case PERF_RECORD_BPF_METADATA:
+      return "PERF_RECORD_BPF_METADATA";
   }
   return "UNKNOWN_EVENT_" + std::to_string(type);
 }
@@ -364,6 +368,9 @@ bool GetEventDataFixedPayloadSize(uint32_t type, size_t* size) {
       return true;
     case PERF_RECORD_KSYMBOL:
       *size = offsetof(struct ksymbol_event, name);
+      return true;
+    case PERF_RECORD_BPF_METADATA:
+      *size = offsetof(struct bpf_metadata_event, entries);
       return true;
     default:
       LOG(ERROR) << "Unsupported event " << GetEventName(type);
@@ -539,6 +546,18 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
       }
       break;
     }
+    case PERF_RECORD_BPF_METADATA: {
+      size_t actual_entries = event.bpf_metadata.nr_entries;
+      if (actual_entries * sizeof(struct bpf_metadata_entry) >
+          remaining_event_size) {
+        LOG(ERROR) << "Total bpf metadata entries size " << *size
+                   << " extends beyond the remaining event size "
+                   << remaining_event_size;
+        return false;
+      }
+      *size = remaining_event_size;
+      break;
+    }
     // The below events changed size between kernel versions,
     // so ensure the variable payload size completely exhausts
     // the remaining_event_size.
@@ -624,6 +643,10 @@ bool GetEventDataVariablePayloadSize(const PerfDataProto_PerfEvent& event,
       break;
     case PERF_RECORD_KSYMBOL:
       *size = GetUint64AlignedStringLength(event.ksymbol_event().name().size());
+      break;
+    case PERF_RECORD_BPF_METADATA:
+      *size = event.bpf_metadata_event().metadata_size() *
+              sizeof(struct bpf_metadata_entry);
       break;
     // The below event gained new fields in new kernel versions. Return the size
     // difference if any of the new fields are present.

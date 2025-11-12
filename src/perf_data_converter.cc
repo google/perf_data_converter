@@ -165,6 +165,9 @@ typedef std::unordered_map<SampleKey, perftools::profiles::Sample*,
 //
 typedef std::map<uint64_t, uint64_t> LocationMap;
 
+// Map from a function name and source file to a profile function ID.
+typedef std::map<std::pair<std::string, std::string>, uint64_t> FunctionMap;
+
 // Map from the handler mapping object to profile mapping ID. The mappings
 // the handler creates are immutable and reasonably shared (as in no new mapping
 // object is created per, say, each sample), so using the pointers is OK.
@@ -246,11 +249,22 @@ class PerfDataConverter : public PerfDataHandler {
                             const PerfDataHandler::Mapping* mapping,
                             ProfileBuilder* builder);
 
+  // Adds a new function to the profile if such function is not present in the
+  // profile, returning the ID of the function.
+  uint64_t AddOrGetFunction(const Pid& pid, const std::string& name,
+                            const std::string& source_file,
+                            ProfileBuilder* builder);
+
   // Adds a new mapping to the profile if such mapping is not present in the
   // profile, returning the ID of the mapping. It returns 0 to indicate that the
   // mapping was not added (only happens if smap == 0 currently).
   uint64_t AddOrGetMapping(const Pid& pid, const PerfDataHandler::Mapping* smap,
                            ProfileBuilder* builder);
+
+  // Sets the has_functions flag in the specified mapping.
+  void SetMappingHasFunctions(const Pid& pid,
+                              const PerfDataHandler::Mapping* smap,
+                              ProfileBuilder* builder);
 
   // Returns whether pid labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
@@ -339,6 +353,7 @@ class PerfDataConverter : public PerfDataHandler {
     ProfileBuilder* builder = nullptr;
     ProcessMeta* process_meta = nullptr;
     LocationMap location_map;
+    FunctionMap function_map;
     MappingMap mapping_map;
     std::unordered_map<Tid, std::string> tid_to_comm_map;
     SampleMap sample_map;
@@ -346,6 +361,7 @@ class PerfDataConverter : public PerfDataHandler {
       builder = nullptr;
       process_meta = nullptr;
       location_map.clear();
+      function_map.clear();
       mapping_map.clear();
       tid_to_comm_map.clear();
       sample_map.clear();
@@ -569,6 +585,21 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
   return per_pid.builder;
 }
 
+void PerfDataConverter::SetMappingHasFunctions(
+    const Pid& pid, const PerfDataHandler::Mapping* smap,
+    ProfileBuilder* builder) {
+  CHECK(builder != nullptr) << "Cannot modify mapping in null builder";
+  if (smap == nullptr) return;
+
+  MappingMap& mapmap = per_pid_[pid].mapping_map;
+  auto it = mapmap.find(smap);
+  CHECK(it != mapmap.end()) << "Mapping not found: " << smap->filename;
+
+  Profile* profile = builder->mutable_profile();
+  uint64_t mapping_id = it->second - 1;  // Mapping IDs start at 1.
+  profile->mutable_mapping(mapping_id)->set_has_functions(true);
+}
+
 uint64_t PerfDataConverter::AddOrGetMapping(
     const Pid& pid, const PerfDataHandler::Mapping* smap,
     ProfileBuilder* builder) {
@@ -591,11 +622,13 @@ uint64_t PerfDataConverter::AddOrGetMapping(
   mapping->set_memory_start(smap->start);
   mapping->set_memory_limit(smap->limit);
   mapping->set_file_offset(smap->file_offset);
-  if (!smap->build_id.value.empty()) {
-    mapping->set_build_id(UTF8StringId(smap->build_id.value, builder));
-  }
-  std::string mapping_filename = MappingFilename(smap);
+  std::string mapping_filename;
+    if (!smap->build_id.value.empty()) {
+      mapping->set_build_id(UTF8StringId(smap->build_id.value, builder));
+    }
+    mapping_filename = MappingFilename(smap);
   mapping->set_filename(UTF8StringId(mapping_filename, builder));
+  mapping->set_has_filenames(true);
   CHECK_LE(mapping->memory_start(), mapping->memory_limit())
       << "Mapping start must be strictly less than its limit: "
       << mapping->filename();
@@ -744,6 +777,30 @@ void PerfDataConverter::AddOrUpdateSample(
   sample->set_value(2 * event_index, sample->value(2 * event_index) + 1);
   sample->set_value(2 * event_index + 1,
                     sample->value(2 * event_index + 1) + weight);
+}
+
+uint64_t PerfDataConverter::AddOrGetFunction(const Pid& pid,
+                                             const std::string& name,
+                                             const std::string& source_file,
+                                             ProfileBuilder* builder) {
+  FunctionMap& func_map = per_pid_[pid].function_map;
+  const auto& key = std::make_pair(name, source_file);
+  auto func_it = func_map.find(key);
+  if (func_it != func_map.end()) {
+    return func_it->second;
+  }
+
+  Profile* profile = builder->mutable_profile();
+  perftools::profiles::Function* func = profile->add_function();
+  uint64_t func_id = profile->function_size();
+  func->set_id(func_id);
+  func->set_name(UTF8StringId(name, builder));
+  func->set_system_name(UTF8StringId(name, builder));
+  func->set_filename(UTF8StringId(source_file, builder));
+  VLOG(2) << "Added func ID=" << func_id << ", name=" << name
+          << ", filename=" << source_file;
+  func_map[key] = func_id;
+  return func_id;
 }
 
 uint64_t PerfDataConverter::AddOrGetLocation(

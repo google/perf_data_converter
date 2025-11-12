@@ -4,7 +4,9 @@
 
 #include "address_mapper.h"
 
-#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <ios>
 #include <memory>
 
 #include "base/logging.h"
@@ -67,6 +69,40 @@ uint64_t GetMappedAddressFromRanges(const Range* ranges,
 
 }  // namespace
 
+// A helper class that can access private members of AddressMapper for testing.
+class AddressMapperTestPeer {
+ public:
+  // Returns the number of address ranges that are currently mapped.
+  static size_t GetNumMappedRanges(const AddressMapper& mapper) {
+    return mapper.mappings_.size();
+  }
+
+  // Returns the maximum length of quipper space containing mapped areas.
+  // There may be gaps in between blocks.
+  // If the result is 2^64 (all of quipper space), this returns 0.
+  static uint64_t GetMaxMappedLength(const AddressMapper& mapper) {
+    if (mapper.IsEmpty()) return 0;
+
+    uint64_t min = mapper.mappings_.begin()->mapped_addr;
+
+    AddressMapper::MappingList::const_iterator iter = mapper.mappings_.end();
+    --iter;
+    uint64_t max = iter->mapped_addr + iter->size;
+
+    return max - min;
+  }
+
+  static bool MapWithIDInternal(AddressMapper& mapper, uint64_t real_addr,
+                                uint64_t size, uint64_t id,
+                                uint64_t offset_base,
+                                bool remove_existing_mappings,
+                                bool allow_unaligned_mappings) {
+    return mapper.MapWithIDInternal(real_addr, size, id, offset_base,
+                                    remove_existing_mappings,
+                                    allow_unaligned_mappings);
+  }
+};
+
 // The unit test class for AddressMapper.
 class AddressMapperTest : public ::testing::Test {
  public:
@@ -82,9 +118,9 @@ class AddressMapperTest : public ::testing::Test {
                 bool allow_unaligned_jit_mappings) {
     VLOG(1) << "Mapping range at " << std::hex << range.addr
             << " with length of " << range.size << " and id " << range.id;
-    return mapper_->MapWithID(range.addr, range.size, range.id,
-                              range.base_offset, remove_old_mappings,
-                              allow_unaligned_jit_mappings);
+    return AddressMapperTestPeer::MapWithIDInternal(
+        *mapper_, range.addr, range.size, range.id, range.base_offset,
+        remove_old_mappings, allow_unaligned_jit_mappings);
   }
 
   // Tests a range that has been mapped. |expected_mapped_addr| is the starting
@@ -93,7 +129,6 @@ class AddressMapperTest : public ::testing::Test {
   // Also checks lookup of ID and offset.
   void TestMappedRange(const Range& range, uint64_t expected_mapped_addr) {
     uint64_t mapped_addr = UINT64_MAX;
-    AddressMapper::MappingList::const_iterator addr_iter;
 
     VLOG(1) << "Testing range at " << std::hex << range.addr
             << " with length of " << std::hex << range.size;
@@ -102,21 +137,21 @@ class AddressMapperTest : public ::testing::Test {
     for (int i = 0; i < kNumRangeTestIntervals; ++i) {
       const uint64_t offset = i * (range.size / kNumRangeTestIntervals);
       uint64_t addr = range.addr + offset;
-      EXPECT_TRUE(mapper_->GetMappedAddressAndListIterator(addr, &mapped_addr,
-                                                           &addr_iter));
+      EXPECT_TRUE(mapper_->GetMappedAddress(addr, &mapped_addr));
       EXPECT_EQ(expected_mapped_addr + offset, mapped_addr);
 
+      uint64_t mapped_addr;
       uint64_t mapped_offset;
       uint64_t mapped_id;
-      mapper_->GetMappedIDAndOffset(addr, addr_iter, &mapped_id,
-                                    &mapped_offset);
+      EXPECT_TRUE(mapper_->GetMappedAddressIDAndOffset(
+          addr, &mapped_addr, &mapped_id, &mapped_offset));
       EXPECT_EQ(range.base_offset + offset, mapped_offset);
       EXPECT_EQ(range.id, mapped_id);
     }
 
     // Check address at end of the range.
-    EXPECT_TRUE(mapper_->GetMappedAddressAndListIterator(
-        range.addr + range.size - 1, &mapped_addr, &addr_iter));
+    EXPECT_TRUE(
+        mapper_->GetMappedAddress(range.addr + range.size - 1, &mapped_addr));
     EXPECT_EQ(expected_mapped_addr + range.size - 1, mapped_addr);
   }
 
@@ -128,21 +163,18 @@ TEST_F(AddressMapperTest, MapSingle) {
   for (const Range& range : kMapRanges) {
     mapper_.reset(new AddressMapper);
     ASSERT_TRUE(MapRange(range, false, false));
-    EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
+    EXPECT_EQ(1U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
     TestMappedRange(range, 0);
 
     // Check addresses before the mapped range, should be invalid.
     uint64_t mapped_addr;
-    AddressMapper::MappingList::const_iterator iter;
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(range.addr - 1,
-                                                          &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(range.addr - 0x100,
-                                                          &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(
-        range.addr + range.size, &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(
-        range.addr + range.size + 0x100, &mapped_addr, &iter));
-    EXPECT_EQ(range.size, mapper_->GetMaxMappedLength());
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr - 1, &mapped_addr));
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr - 0x100, &mapped_addr));
+    EXPECT_FALSE(
+        mapper_->GetMappedAddress(range.addr + range.size, &mapped_addr));
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr + range.size + 0x100,
+                                           &mapped_addr));
+    EXPECT_EQ(range.size, AddressMapperTestPeer::GetMaxMappedLength(*mapper_));
   }
 }
 
@@ -153,35 +185,32 @@ TEST_F(AddressMapperTest, MapAll) {
     ASSERT_TRUE(MapRange(range, false, false));
     size_mapped += range.size;
   }
-  EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
+  EXPECT_EQ(arraysize(kMapRanges),
+            AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // Check the max mapped length in quipper space.
-  EXPECT_EQ(size_mapped, mapper_->GetMaxMappedLength());
+  EXPECT_EQ(size_mapped, AddressMapperTestPeer::GetMaxMappedLength(*mapper_));
 
   // For each mapped range, test addresses at the start, middle, and end.
   // Also test the address right before and after each range.
   uint64_t mapped_addr;
-  AddressMapper::MappingList::const_iterator iter;
   for (const Range& range : kMapRanges) {
     TestMappedRange(range, GetMappedAddressFromRanges(
                                kMapRanges, arraysize(kMapRanges), range.addr));
 
     // Check addresses before and after the mapped range, should be invalid.
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(range.addr - 1,
-                                                          &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(range.addr - 0x100,
-                                                          &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(
-        range.addr + range.size, &mapped_addr, &iter));
-    EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(
-        range.addr + range.size + 0x100, &mapped_addr, &iter));
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr - 1, &mapped_addr));
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr - 0x100, &mapped_addr));
+    EXPECT_FALSE(
+        mapper_->GetMappedAddress(range.addr + range.size, &mapped_addr));
+    EXPECT_FALSE(mapper_->GetMappedAddress(range.addr + range.size + 0x100,
+                                           &mapped_addr));
   }
 
   // Test some addresses that are out of these ranges, should not be able to
   // get mapped addresses.
   for (uint64_t addr : kAddressesNotInRanges)
-    EXPECT_FALSE(
-        mapper_->GetMappedAddressAndListIterator(addr, &mapped_addr, &iter));
+    EXPECT_FALSE(mapper_->GetMappedAddress(addr, &mapped_addr));
 }
 
 // Map all the ranges at once and test looking up IDs and offsets.
@@ -189,10 +218,10 @@ TEST_F(AddressMapperTest, MapAllWithIDsAndOffsets) {
   for (const Range& range : kMapRanges) {
     LOG(INFO) << "Mapping range at " << std::hex << range.addr
               << " with length of " << std::hex << range.size;
-    ASSERT_TRUE(
-        mapper_->MapWithID(range.addr, range.size, range.id, 0, false, false));
+    ASSERT_TRUE(mapper_->MapWithID(range.addr, range.size, range.id, 0, false));
   }
-  EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
+  EXPECT_EQ(arraysize(kMapRanges),
+            AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // For each mapped range, test addresses at the start, middle, and end.
   // Also test the address right before and after each range.
@@ -225,7 +254,8 @@ TEST_F(AddressMapperTest, OverlapSimple) {
     new_range.size = range.size;
     EXPECT_TRUE(MapRange(new_range, true, false));
     // Make sure the number of ranges is unchanged (one deleted, one added).
-    EXPECT_EQ(arraysize(kMapRanges), mapper_->GetNumMappedRanges());
+    EXPECT_EQ(arraysize(kMapRanges),
+              AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
     // The range is shifted in real space but should still be the same in
     // quipper space.
@@ -247,7 +277,7 @@ TEST_F(AddressMapperTest, OverlapBig) {
   // Make sure overlap is detected before removing old ranges.
   ASSERT_FALSE(MapRange(kBigRegion, false, false));
   ASSERT_TRUE(MapRange(kBigRegion, true, false));
-  EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(1U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   TestMappedRange(kBigRegion, 0);
 
@@ -256,9 +286,7 @@ TEST_F(AddressMapperTest, OverlapBig) {
   // not mapped.
   for (uint64_t addr : kAddressesNotInRanges) {
     uint64_t mapped_addr = UINT64_MAX;
-    AddressMapper::MappingList::const_iterator addr_iter;
-    bool map_success = mapper_->GetMappedAddressAndListIterator(
-        addr, &mapped_addr, &addr_iter);
+    bool map_success = mapper_->GetMappedAddress(addr, &mapped_addr);
     if (kBigRegion.contains(addr)) {
       EXPECT_TRUE(map_success);
       EXPECT_EQ(addr - kBigRegion.addr, mapped_addr);
@@ -274,9 +302,7 @@ TEST_F(AddressMapperTest, OverlapBig) {
     for (uint64_t addr = range.addr; addr < range.addr + range.size;
          addr += range.size / kNumRangeTestIntervals) {
       uint64_t mapped_addr = UINT64_MAX;
-      AddressMapper::MappingList::const_iterator addr_iter;
-      bool map_success = mapper_->GetMappedAddressAndListIterator(
-          addr, &mapped_addr, &addr_iter);
+      bool map_success = mapper_->GetMappedAddress(addr, &mapped_addr);
       if (kBigRegion.contains(addr)) {
         EXPECT_TRUE(map_success);
         EXPECT_EQ(addr - kBigRegion.addr, mapped_addr);
@@ -286,7 +312,8 @@ TEST_F(AddressMapperTest, OverlapBig) {
     }
   }
 
-  EXPECT_EQ(kBigRegion.size, mapper_->GetMaxMappedLength());
+  EXPECT_EQ(kBigRegion.size,
+            AddressMapperTestPeer::GetMaxMappedLength(*mapper_));
 }
 
 // Test a mapping at the end of memory space.
@@ -295,7 +322,7 @@ TEST_F(AddressMapperTest, EndOfMemory) {
   const Range kEndRegion(0xffffffff00000000, 0x100000000, 0x3456, 0);
 
   ASSERT_TRUE(MapRange(kEndRegion, true, false));
-  EXPECT_EQ(1U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(1U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
   TestMappedRange(kEndRegion, 0);
 }
 
@@ -307,11 +334,10 @@ TEST_F(AddressMapperTest, OutOfBounds) {
 
   ASSERT_FALSE(MapRange(kOutOfBoundsRegion, false, false));
   ASSERT_FALSE(MapRange(kOutOfBoundsRegion, true, false));
-  EXPECT_EQ(0, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(0, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
   uint64_t mapped_addr;
-  AddressMapper::MappingList::const_iterator iter;
-  EXPECT_FALSE(mapper_->GetMappedAddressAndListIterator(
-      kOutOfBoundsRegion.addr + 0x100, &mapped_addr, &iter));
+  EXPECT_FALSE(
+      mapper_->GetMappedAddress(kOutOfBoundsRegion.addr + 0x100, &mapped_addr));
 }
 
 // Test mapping of a region that covers the entire memory space.  Then map other
@@ -322,7 +348,8 @@ TEST_F(AddressMapperTest, FullRange) {
 
   ASSERT_TRUE(MapRange(kFullRegion, false, false));
   size_t num_expected_ranges = 1;
-  EXPECT_EQ(num_expected_ranges, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(num_expected_ranges,
+            AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   TestMappedRange(kFullRegion, 0);
 
@@ -335,7 +362,8 @@ TEST_F(AddressMapperTest, FullRange) {
     // Make sure the number of mapped ranges has increased by two.  The mapping
     // should have split an existing range.
     num_expected_ranges += 2;
-    EXPECT_EQ(num_expected_ranges, mapper_->GetNumMappedRanges());
+    EXPECT_EQ(num_expected_ranges,
+              AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
   }
 }
 
@@ -359,7 +387,7 @@ TEST_F(AddressMapperTest, SplitRangeWithOffsetBase) {
 
   // The first range should have been split into two parts to make way for the
   // second range. There should be a total of three ranges.
-  EXPECT_EQ(3U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(3U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // Now make sure the mappings are correct.
 
@@ -377,7 +405,7 @@ TEST_F(AddressMapperTest, SplitRangeWithOffsetBase) {
 
 // Test mappings that are not aligned to mmap page boundaries.
 TEST_F(AddressMapperTest, NotPageAligned) {
-  mapper_->set_page_alignment(0x1000);
+  mapper_.reset(new AddressMapper(0x1000));
 
   // Some address ranges that do not begin on a page boundary.
   const Range kUnalignedRanges[] = {
@@ -391,7 +419,7 @@ TEST_F(AddressMapperTest, NotPageAligned) {
   for (const Range& range : kUnalignedRanges)
     ASSERT_TRUE(MapRange(range, true, false));
 
-  EXPECT_EQ(4U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(4U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // Now make sure the mappings are correct.
 
@@ -415,7 +443,7 @@ TEST_F(AddressMapperTest, NotPageAligned) {
 // Have one mapping in the middle of another, with a nonzero page alignment
 // parameter.
 TEST_F(AddressMapperTest, SplitRangeWithPageAlignment) {
-  mapper_->set_page_alignment(0x1000);
+  mapper_.reset(new AddressMapper(0x1000));
 
   // These should map just fine.
   const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0);
@@ -424,7 +452,7 @@ TEST_F(AddressMapperTest, SplitRangeWithPageAlignment) {
   EXPECT_TRUE(MapRange(kRange0, true, false));
   EXPECT_TRUE(MapRange(kRange1, true, false));
 
-  EXPECT_EQ(3U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(3U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // Determine the expected split mappings.
   const Range kRange0Head(0x3000, 0x2000, kRange0.id, 0);
@@ -439,7 +467,7 @@ TEST_F(AddressMapperTest, SplitRangeWithPageAlignment) {
 // Have one mapping in the middle of another, with a nonzero page alignment
 // parameter. The overlapping region will not be aligned to page boundaries.
 TEST_F(AddressMapperTest, MisalignedSplitRangeWithPageAlignment) {
-  mapper_->set_page_alignment(0x1000);
+  mapper_.reset(new AddressMapper(0x1000));
 
   const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0);
   const Range kMisalignedRange(0x4800, 0x2000, 0xfeedbabe, 0);
@@ -453,7 +481,7 @@ TEST_F(AddressMapperTest, MisalignedSplitRangeWithPageAlignment) {
 // Have one mapping in the middle of another, with a nonzero page alignment
 // parameter. The overlapping region will not be aligned to page boundaries.
 TEST_F(AddressMapperTest, MisalignedSplitRangeWithJitSupport) {
-  mapper_->set_page_alignment(0x1000);
+  mapper_.reset(new AddressMapper(0x1000));
 
   const Range kRange0(0x3000, 0x8000, 0xdeadbeef, 0x0);
   const Range kJittedRange(0x4800, 0x200, 0xffffffff, 0x10000);
@@ -462,7 +490,7 @@ TEST_F(AddressMapperTest, MisalignedSplitRangeWithJitSupport) {
   // With JIT support enabled, even unaligned ranges can split existing ranges.
   EXPECT_TRUE(MapRange(kJittedRange, true, true));
 
-  EXPECT_EQ(3U, mapper_->GetNumMappedRanges());
+  EXPECT_EQ(3U, AddressMapperTestPeer::GetNumMappedRanges(*mapper_));
 
   // Everything should be mapped and split as usual.
   const Range kRange0Head(0x3000, 0x1800, kRange0.id, 0x0);

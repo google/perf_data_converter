@@ -6,12 +6,15 @@
 
 #include <sys/time.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
+#include "binary_data_utils.h"
 #include "compat/proto.h"
 #include "compat/test.h"
 #include "file_utils.h"
@@ -20,6 +23,7 @@
 #include "perf_buildid.h"
 #include "perf_data_structures.h"
 #include "perf_data_utils.h"
+#include "perf_parser.h"
 #include "perf_protobuf_io.h"
 #include "perf_reader.h"
 #include "perf_test_files.h"
@@ -1849,6 +1853,54 @@ TEST(PerfSerializerTest, SerializesAndDeserializesIdIndexEvents) {
     EXPECT_EQ(8765, id_index_event.entries(1).idx());
     EXPECT_EQ(3, id_index_event.entries(1).cpu());
     EXPECT_EQ(4, id_index_event.entries(1).tid());
+  }
+}
+
+TEST(PerfSerializerTest, SerializesAndDeserializesBpfEvents) {
+  std::stringstream input;
+
+  testing::ExamplePipedPerfDataFileHeader().WriteTo(&input);
+  testing::ExamplePerfEventAttrEvent_Hardware(PERF_SAMPLE_TID,
+                                              true /*sample_id_all*/)
+      .WriteTo(&input);
+  testing::ExampleBpfMetadataEvent(
+      "test_prog",
+      {
+          {.key = "my_key", .value = "my_value"},
+          {.key = "longer_key", .value = "slightly_different_value"},
+      })
+      .WriteTo(&input);
+
+  // Serialize.
+  PerfReader reader;
+  ASSERT_TRUE(reader.ReadFromString(input.str()));
+  PerfDataProto perf_data_proto;
+  ASSERT_TRUE(reader.Serialize(&perf_data_proto));
+  EXPECT_EQ(1, perf_data_proto.events().size());
+  {
+    const PerfDataProto::PerfEvent& perf_event = perf_data_proto.events(0);
+    EXPECT_EQ(PERF_RECORD_BPF_METADATA, perf_event.header().type());
+    EXPECT_TRUE(perf_event.has_bpf_metadata_event());
+    const PerfDataProto::BpfMetadataEvent& event =
+        perf_event.bpf_metadata_event();
+    EXPECT_EQ("test_prog", event.prog_name());
+    EXPECT_EQ("my_value", event.metadata().at("my_key"));
+    EXPECT_EQ("slightly_different_value", event.metadata().at("longer_key"));
+  }
+
+  // Deserialize.
+  PerfReader out_reader;
+  ASSERT_TRUE(out_reader.Deserialize(perf_data_proto));
+  EXPECT_EQ(1, out_reader.events().size());
+  {
+    const PerfEvent& perf_event = out_reader.events().Get(0);
+    EXPECT_EQ(PERF_RECORD_BPF_METADATA, perf_event.header().type());
+    EXPECT_TRUE(perf_event.has_bpf_metadata_event());
+    const PerfDataProto::BpfMetadataEvent& event =
+        perf_event.bpf_metadata_event();
+    EXPECT_EQ("test_prog", event.prog_name());
+    EXPECT_EQ("my_value", event.metadata().at("my_key"));
+    EXPECT_EQ("slightly_different_value", event.metadata().at("longer_key"));
   }
 }
 

@@ -4,9 +4,10 @@
 
 #include "address_mapper.h"
 
-#include <stdint.h>
-
+#include <cstdint>
+#include <ios>
 #include <iterator>
+#include <utility>
 #include <vector>
 
 #include "base/logging.h"
@@ -24,17 +25,18 @@ AddressMapper::AddressMapper(const AddressMapper& other) {
   }
 }
 
-bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
-                              const uint64_t id, const uint64_t offset_base,
-                              bool remove_existing_mappings,
-                              bool allow_unaligned_jit_mappings) {
+bool AddressMapper::MapWithIDInternal(uint64_t real_addr, uint64_t size,
+                                      uint64_t id, uint64_t offset_base,
+                                      bool remove_existing_mappings,
+                                      bool allow_unaligned_mappings) {
   if (size == 0) {
     LOG(ERROR) << "Must allocate a nonzero-length address range.";
     return false;
   }
 
-  if (allow_unaligned_jit_mappings && !remove_existing_mappings) {
-    LOG(ERROR) << "JIT events have to be able to overwite existing mappings.";
+  if (allow_unaligned_mappings && !remove_existing_mappings) {
+    LOG(ERROR)
+        << "Unaligned mappings have to be able to overwite existing mappings.";
     return false;
   }
 
@@ -100,7 +102,7 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
     // or end, it will require the end of the old mapping range to be moved,
     // which is not allowed. Fake JIT events can map non-page-aligned addresses
     // for dynamically generated code.
-    if (!allow_unaligned_jit_mappings && page_alignment_) {
+    if (!allow_unaligned_mappings && page_alignment_) {
       uint64_t page_offset_start = GetAlignedOffset(range.real_addr);
       uint64_t page_offset_end = GetAlignedOffset(range.real_addr + range.size);
       if ((gap_before && page_offset_start) || (gap_after && page_offset_end)) {
@@ -111,8 +113,8 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
 
     // Split the existing old range and insert the new range:
     if (gap_before) {
-      if (!MapWithID(old_range.real_addr, gap_before, old_range.id,
-                     old_range.offset_base, false, false)) {
+      if (!MapWithIDInternal(old_range.real_addr, gap_before, old_range.id,
+                             old_range.offset_base, false, false)) {
         LOG(ERROR) << "Could not map old range from " << std::hex
                    << old_range.real_addr << " to "
                    << old_range.real_addr + gap_before;
@@ -120,17 +122,17 @@ bool AddressMapper::MapWithID(const uint64_t real_addr, const uint64_t size,
       }
     }
 
-    if (!MapWithID(range.real_addr, range.size, id, offset_base, false,
-                   false)) {
+    if (!MapWithIDInternal(range.real_addr, range.size, id, offset_base, false,
+                           false)) {
       LOG(ERROR) << "Could not map new range at " << std::hex << range.real_addr
                  << " to " << range.real_addr + range.size << " over old range";
       return false;
     }
 
     if (gap_after) {
-      if (!MapWithID(range.real_addr + range.size, gap_after, old_range.id,
-                     old_range.offset_base + gap_before + range.size, false,
-                     false)) {
+      if (!MapWithIDInternal(
+              range.real_addr + range.size, gap_after, old_range.id,
+              old_range.offset_base + gap_before + range.size, false, false)) {
         LOG(ERROR) << "Could not map old range from " << std::hex
                    << old_range.real_addr << " to "
                    << old_range.real_addr + gap_before;
@@ -256,39 +258,31 @@ void AddressMapper::DumpToLog() const {
   }
 }
 
-bool AddressMapper::GetMappedAddressAndListIterator(
-    const uint64_t real_addr, uint64_t* mapped_addr,
-    MappingList::const_iterator* iter) const {
-  CHECK(mapped_addr);
-  CHECK(iter);
+// Looks up |real_addr| and returns the mapped address.
+bool AddressMapper::GetMappedAddress(uint64_t real_addr,
+                                     uint64_t* mapped_addr) const {
+  AddressMapper::MappingList::const_iterator iter =
+      GetRangeContainingAddress(real_addr);
+  if (iter == mappings_.end()) return false;
 
-  *iter = GetRangeContainingAddress(real_addr);
-  if (*iter == mappings_.end()) return false;
-  *mapped_addr = (*iter)->mapped_addr + real_addr - (*iter)->real_addr;
+  *mapped_addr = iter->mapped_addr + real_addr - iter->real_addr;
   return true;
 }
 
-void AddressMapper::GetMappedIDAndOffset(
-    const uint64_t real_addr, MappingList::const_iterator real_addr_iter,
-    uint64_t* id, uint64_t* offset) const {
-  CHECK(real_addr_iter != mappings_.end());
-  CHECK(id);
-  CHECK(offset);
+// Looks up |real_addr| and returns the mapping's ID and offset from the
+// start of the mapped space.
+bool AddressMapper::GetMappedAddressIDAndOffset(uint64_t real_addr,
+                                                uint64_t* mapped_addr,
+                                                uint64_t* id,
+                                                uint64_t* offset) const {
+  AddressMapper::MappingList::const_iterator iter =
+      GetRangeContainingAddress(real_addr);
+  if (iter == mappings_.end()) return false;
 
-  *id = real_addr_iter->id;
-  *offset = real_addr - real_addr_iter->real_addr + real_addr_iter->offset_base;
-}
-
-uint64_t AddressMapper::GetMaxMappedLength() const {
-  if (IsEmpty()) return 0;
-
-  uint64_t min = mappings_.begin()->mapped_addr;
-
-  MappingList::const_iterator iter = mappings_.end();
-  --iter;
-  uint64_t max = iter->mapped_addr + iter->size;
-
-  return max - min;
+  *mapped_addr = real_addr - iter->real_addr + iter->mapped_addr;
+  *id = iter->id;
+  *offset = real_addr - iter->real_addr + iter->offset_base;
+  return true;
 }
 
 void AddressMapper::Unmap(MappingList::iterator mapping_iter) {
