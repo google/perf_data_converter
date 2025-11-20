@@ -759,8 +759,8 @@ static bool IsVirtualMapping(const std::string& map_name) {
 void Normalizer::ConvertMmapFromKsymbol(
     const quipper::PerfDataProto_KsymbolEvent& ksymbol_event, uint32_t prot,
     quipper::PerfDataProto_MMapEvent* mmap) {
-  uint32_t pid = 1;
-  uint32_t tid = 1;
+  uint32_t pid = kKernelPid;
+  uint32_t tid = 0;
   uint32_t flags = 0;
   uint64_t pgoff = 0;
   mmap->set_pid(pid);
