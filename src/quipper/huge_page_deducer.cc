@@ -25,10 +25,6 @@ bool IsAnon(const MMapEvent& event) {
   bool is_anon = (event.filename() == kAnonFilename ||
                   event.filename() == kAnonHugepageFilename ||
                   event.filename() == kAnonHugepageDeletedFilename);
-  if (is_anon && event.pgoff() != 0) {
-    LOG(WARNING) << "//anon should have offset=0 for mmap "
-                 << event.ShortDebugString();
-  }
   return is_anon;
 }
 
