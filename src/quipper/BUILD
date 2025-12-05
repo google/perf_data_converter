@@ -82,7 +82,7 @@ cc_library(
         ":perf_parser_options_cc_proto",
         ":perf_stat_cc_proto",
         ":base",
-        "@com_google_protobuf//:protobuf",
+        "@com_google_protobuf//",
     ],
 )
 
