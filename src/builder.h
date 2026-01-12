@@ -16,39 +16,18 @@
 #include <tuple>
 #include <utility>
 
-#include <unordered_map>
-
-namespace perftools {
-namespace profiles {
-
-typedef int64_t int64;
-typedef uint64_t uint64;
-typedef std::string string;
-
-typedef std::unordered_map<string, int64> StringIndexMap;
-
-class FunctionHasher {
- public:
-  size_t operator()(const std::tuple<int64, int64, int64, int64> &f) const {
-    int64 hash = std::get<0>(f);
-    hash = hash + ((hash << 8) ^ std::get<1>(f));
-    hash = hash + ((hash << 8) ^ std::get<2>(f));
-    hash = hash + ((hash << 8) ^ std::get<3>(f));
-    return static_cast<size_t>(hash);
-  }
-};
-
-typedef std::unordered_map<std::tuple<int64, int64, int64, int64>, int64,
-                           FunctionHasher>
-    FunctionIndexMap;
-
-}  // namespace profiles
-}  // namespace perftools
+#include "absl/container/flat_hash_map.h"
+#include "absl/strings/string_view.h"
 
 #include "src/profile.pb.h"
 
 namespace perftools {
 namespace profiles {
+
+typedef absl::flat_hash_map<std::string, int64_t> StringIndexMap;
+typedef absl::flat_hash_map<std::tuple<int64_t, int64_t, int64_t, int64_t>,
+                            int64_t>
+    FunctionIndexMap;
 
 enum CallstackType { kRegular = 0, kInterrupt = 1 };
 
@@ -68,7 +47,10 @@ class Builder {
 
   // Adds a string to the profile string table if not already present.
   // Returns a unique integer id for this string.
-  int64_t StringId(const char *str);
+  int64_t StringId(const char* str) {
+    return StringId(absl::NullSafeStringView(str));
+  }
+  int64_t StringId(absl::string_view str);
 
   // Adds a function with these attributes to the profile function
   // table, if not already present. Returns a unique integer id for
@@ -123,7 +105,7 @@ class Builder {
   Profile *mutable_profile() { return profile_.get(); }
 
  private:
-  int64_t InternalStringId(const std::string &str);
+  int64_t InternalStringId(absl::string_view str);
 
   // Maps to deduplicate strings and functions.
   StringIndexMap strings_;

@@ -17,8 +17,9 @@
 #include <utility>
 #include <vector>
 
-#include <unordered_map>
-#include <unordered_set>
+#include "absl/container/flat_hash_map.h"
+#include "absl/container/flat_hash_set.h"
+#include "absl/strings/string_view.h"
 
 #include "src/quipper/base/logging.h"
 #include "google/protobuf/io/gzip_stream.h"
@@ -31,13 +32,9 @@ using google::protobuf::RepeatedField;
 
 namespace perftools {
 namespace profiles {
-typedef std::unordered_map<uint64, uint64> IndexMap;
-typedef std::unordered_set<uint64> IndexSet;
-}  // namespace profiles
-}  // namespace perftools
 
-namespace perftools {
-namespace profiles {
+typedef absl::flat_hash_map<uint64_t, uint64_t> IndexMap;
+typedef absl::flat_hash_set<uint64_t> IndexSet;
 
 void AddCallstackToSample(Sample *sample, const void *const *stack, int depth,
                           CallstackType type) {
@@ -59,14 +56,14 @@ Builder::Builder() : profile_(new Profile()) {
   profile_->add_string_table("");
 }
 
-int64_t Builder::StringId(const char *str) {
-  if (str == nullptr || !str[0]) {
+int64_t Builder::StringId(absl::string_view str) {
+  if (str.empty()) {
     return 0;
   }
   return InternalStringId(str);
 }
 
-int64_t Builder::InternalStringId(const std::string &str) {
+int64_t Builder::InternalStringId(absl::string_view str) {
   const int64_t index = profile_->string_table_size();
   const auto inserted = strings_.emplace(str, index);
   if (!inserted.second) {
