@@ -9,6 +9,8 @@ set -euox pipefail
 
 if [ -z "${PDC_ROOT:-}" ]; then
   PDC_ROOT="$(realpath $(dirname ${0})/..)"
+  PDC_ROOT_DIR_NAME=$(basename "${PDC_ROOT}")
+  PDC_HOST_ROOT="${KOKORO_HOST_ROOT_DIR}/src/git/${PDC_ROOT_DIR_NAME}"
 fi
 
 # This container is a reasonable start but is missing some prerequisite libs and
@@ -16,7 +18,7 @@ fi
 readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20231218"
 
 time docker run \
-    --volume="${PDC_ROOT}:/perf_data_converter:ro" \
+    --mount "type=bind,src=${PDC_HOST_ROOT},target=/perf_data_converter" \
     --workdir=/perf_data_converter \
     --cap-add=SYS_PTRACE \
     --rm \
