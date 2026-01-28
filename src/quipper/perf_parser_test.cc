@@ -1904,7 +1904,8 @@ TEST(PerfParserTest, BpfMetadataEvents) {
       {
           {.key = "my_key", .value = "my_value"},
           {.key = "longer_key", .value = "slightly_different_value"},
-      });
+      },
+      testing::SampleInfo().Tid(2010));
 
   size_t data_size = event.GetSize();
 

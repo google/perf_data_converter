@@ -115,6 +115,8 @@ const PerfDataProto_SampleInfo* GetSampleInfoForEvent(
       return &event.cgroup_event().sample_info();
     case PERF_RECORD_KSYMBOL:
       return &event.ksymbol_event().sample_info();
+    case PERF_RECORD_BPF_METADATA:
+      return &event.bpf_metadata_event().sample_info();
   }
   return nullptr;
 }
@@ -555,7 +557,7 @@ bool GetEventDataVariablePayloadSize(const event_t& event,
                    << remaining_event_size;
         return false;
       }
-      *size = remaining_event_size;
+      *size = actual_entries * sizeof(struct bpf_metadata_entry);
       break;
     }
     // The below events changed size between kernel versions,

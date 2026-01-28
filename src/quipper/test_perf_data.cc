@@ -940,7 +940,8 @@ void ExampleKsymbolEvent::WriteTo(std::ostream* out) const {
 
 size_t ExampleBpfMetadataEvent::GetSize() const {
   return offsetof(struct bpf_metadata_event, entries) +
-         entries_.size() * sizeof(struct bpf_metadata_entry);
+         entries_.size() * sizeof(struct bpf_metadata_entry) +
+         sample_id_.size();  // sample_id_all
 }
 
 void ExampleBpfMetadataEvent::WriteTo(std::ostream* out) const {
@@ -960,7 +961,9 @@ void ExampleBpfMetadataEvent::WriteTo(std::ostream* out) const {
   }
 
   const size_t previous_offset = out->tellp();
-  out->write(reinterpret_cast<const char*>(event.get()), event_size);
+  out->write(reinterpret_cast<const char*>(event.get()),
+             event_size - sample_id_.size());
+  out->write(sample_id_.data(), sample_id_.size());
   const size_t written_event_size =
       static_cast<size_t>(out->tellp()) - previous_offset;
   CHECK_EQ(event_size, static_cast<u64>(written_event_size));
