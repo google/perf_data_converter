@@ -958,14 +958,18 @@ class ExampleKsymbolEvent : public StreamWriteable {
 class ExampleBpfMetadataEvent : public StreamWriteable {
  public:
   ExampleBpfMetadataEvent(std::string prog_name,
-                          std::vector<struct bpf_metadata_entry> entries)
-      : prog_name_(prog_name), entries_(std::move(entries)) {}
+                          std::vector<struct bpf_metadata_entry> entries,
+                          const SampleInfo& sample_id)
+      : prog_name_(prog_name),
+        entries_(std::move(entries)),
+        sample_id_(sample_id) {}
   size_t GetSize() const;
   void WriteTo(std::ostream* out) const override;
 
  private:
   const std::string prog_name_;
   const std::vector<struct bpf_metadata_entry> entries_;
+  const SampleInfo sample_id_;
 };
 
 }  // namespace testing

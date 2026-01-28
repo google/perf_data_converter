@@ -85,6 +85,8 @@ uint64_t GetSampleTimestampFromEventProto(
     return event.context_switch_event().sample_info().sample_time_ns();
   } else if (event.has_namespaces_event()) {
     return event.namespaces_event().sample_info().sample_time_ns();
+  } else if (event.has_bpf_metadata_event()) {
+    return event.bpf_metadata_event().sample_info().sample_time_ns();
   }
   return 0;
 }
@@ -1868,7 +1870,8 @@ TEST(PerfSerializerTest, SerializesAndDeserializesBpfEvents) {
       {
           {.key = "my_key", .value = "my_value"},
           {.key = "longer_key", .value = "slightly_different_value"},
-      })
+      },
+      testing::SampleInfo().Tid(2010))
       .WriteTo(&input);
 
   // Serialize.
