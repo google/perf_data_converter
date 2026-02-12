@@ -25,10 +25,10 @@
 #include "google/protobuf/io/gzip_stream.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 
-using google::protobuf::io::StringOutputStream;
-using google::protobuf::io::GzipOutputStream;
-using google::protobuf::io::FileOutputStream;
 using google::protobuf::RepeatedField;
+using google::protobuf::io::FileOutputStream;
+using google::protobuf::io::GzipOutputStream;
+using google::protobuf::io::StringOutputStream;
 
 namespace perftools {
 namespace profiles {
@@ -36,7 +36,7 @@ namespace profiles {
 typedef absl::flat_hash_map<uint64_t, uint64_t> IndexMap;
 typedef absl::flat_hash_set<uint64_t> IndexSet;
 
-void AddCallstackToSample(Sample *sample, const void *const *stack, int depth,
+void AddCallstackToSample(Sample* sample, const void* const* stack, int depth,
                           CallstackType type) {
   if (depth <= 0) return;
   if (type == kInterrupt) {
@@ -74,8 +74,8 @@ int64_t Builder::InternalStringId(absl::string_view str) {
   return index;
 }
 
-uint64_t Builder::FunctionId(const char *name, const char *system_name,
-                             const char *file, int64_t start_line) {
+uint64_t Builder::FunctionId(const char* name, const char* system_name,
+                             const char* file, int64_t start_line) {
   int64_t name_index = StringId(name);
   int64_t system_name_index = StringId(system_name);
   int64_t file_index = StringId(file);
@@ -100,7 +100,7 @@ uint64_t Builder::FunctionId(const char *name, const char *system_name,
   return index;
 }
 
-void Builder::SetDocURL(const std::string &url) {
+void Builder::SetDocURL(const std::string& url) {
   const std::string kHttp = "http://";
   const std::string kHttps = "https://";
 
@@ -116,7 +116,7 @@ void Builder::SetDocURL(const std::string &url) {
   profile_->set_doc_url(InternalStringId(url));
 }
 
-bool Builder::Emit(std::string *output) {
+bool Builder::Emit(std::string* output) {
   *output = "";
   if (!profile_ || !Finalize()) {
     return false;
@@ -124,7 +124,7 @@ bool Builder::Emit(std::string *output) {
   return Marshal(*profile_, output);
 }
 
-bool Builder::Marshal(const Profile &profile, std::string *output) {
+bool Builder::Marshal(const Profile& profile, std::string* output) {
   *output = "";
   StringOutputStream stream(output);
   GzipOutputStream gzip_stream(&stream);
@@ -135,7 +135,7 @@ bool Builder::Marshal(const Profile &profile, std::string *output) {
   return gzip_stream.Close();
 }
 
-bool Builder::MarshalToFile(const Profile &profile, int fd) {
+bool Builder::MarshalToFile(const Profile& profile, int fd) {
   FileOutputStream stream(fd);
   GzipOutputStream gzip_stream(&stream);
   if (!profile.SerializeToZeroCopyStream(&gzip_stream)) {
@@ -145,7 +145,7 @@ bool Builder::MarshalToFile(const Profile &profile, int fd) {
   return gzip_stream.Close();
 }
 
-bool Builder::MarshalToFile(const Profile &profile, const char *filename) {
+bool Builder::MarshalToFile(const Profile& profile, const char* filename) {
   int fd;
   while ((fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666)) < 0 &&
          errno == EINTR) {
@@ -161,10 +161,10 @@ bool Builder::MarshalToFile(const Profile &profile, const char *filename) {
 
 // Returns a bool indicating if the profile is valid. It logs any
 // errors it encounters.
-bool Builder::CheckValid(const Profile &profile) {
+bool Builder::CheckValid(const Profile& profile) {
   IndexSet mapping_ids;
   mapping_ids.reserve(profile.mapping_size());
-  for (const auto &mapping : profile.mapping()) {
+  for (const auto& mapping : profile.mapping()) {
     const int64_t id = mapping.id();
     if (id != 0) {
       const bool insert_successful = mapping_ids.insert(id).second;
@@ -177,7 +177,7 @@ bool Builder::CheckValid(const Profile &profile) {
 
   IndexSet function_ids;
   function_ids.reserve(profile.function_size());
-  for (const auto &function : profile.function()) {
+  for (const auto& function : profile.function()) {
     const int64_t id = function.id();
     if (id != 0) {
       const bool insert_successful = function_ids.insert(id).second;
@@ -190,7 +190,7 @@ bool Builder::CheckValid(const Profile &profile) {
 
   IndexSet location_ids;
   location_ids.reserve(profile.location_size());
-  for (const auto &location : profile.location()) {
+  for (const auto& location : profile.location()) {
     const int64_t id = location.id();
     if (id != 0) {
       const bool insert_successful = location_ids.insert(id).second;
@@ -204,7 +204,7 @@ bool Builder::CheckValid(const Profile &profile) {
       LOG(ERROR) << "Missing mapping " << mapping_id << " from location " << id;
       return false;
     }
-    for (const auto &line : location.line()) {
+    for (const auto& line : location.line()) {
       int64_t function_id = line.function_id();
       if (function_id != 0 && function_ids.count(function_id) == 0) {
         LOG(ERROR) << "Missing function " << function_id;
@@ -227,7 +227,7 @@ bool Builder::CheckValid(const Profile &profile) {
   }
 
   std::unordered_set<int> value_types;
-  for (const auto &sample_type : profile.sample_type()) {
+  for (const auto& sample_type : profile.sample_type()) {
     if (!value_types.insert(sample_type.type()).second) {
       LOG(ERROR) << "Duplicate sample_type specified";
       return false;
@@ -239,7 +239,7 @@ bool Builder::CheckValid(const Profile &profile) {
     return false;
   }
 
-  for (const auto &sample : profile.sample()) {
+  for (const auto& sample : profile.sample()) {
     if (sample.value_size() != sample_type_len) {
       LOG(ERROR) << "Found sample with " << sample.value_size()
                  << " values, expecting " << sample_type_len;
@@ -257,7 +257,7 @@ bool Builder::CheckValid(const Profile &profile) {
       }
     }
 
-    for (const auto &label : sample.label()) {
+    for (const auto& label : sample.label()) {
       int64_t str = label.str();
       int64_t num = label.num();
       if (str != 0 && num != 0) {
@@ -281,7 +281,7 @@ bool Builder::Finalize() {
   if (profile_->location_size() == 0) {
     IndexMap address_to_id;
     address_to_id.reserve(profile_->sample_size());
-    for (auto &sample : *profile_->mutable_sample()) {
+    for (auto& sample : *profile_->mutable_sample()) {
       // Copy sample locations into a temp vector, and then clear and
       // repopulate it with the corresponding location IDs.
       const RepeatedField<uint64_t> addresses = sample.location_id();
@@ -302,12 +302,12 @@ bool Builder::Finalize() {
   // Look up location address on mapping ranges.
   if (profile_->mapping_size() > 0) {
     std::map<uint64_t, std::pair<uint64_t, uint64_t> > mapping_map;
-    for (const auto &mapping : profile_->mapping()) {
+    for (const auto& mapping : profile_->mapping()) {
       mapping_map[mapping.memory_start()] =
           std::make_pair(mapping.memory_limit(), mapping.id());
     }
 
-    for (auto &loc : *profile_->mutable_location()) {
+    for (auto& loc : *profile_->mutable_location()) {
       if (loc.address() != 0 && loc.mapping_id() == 0) {
         auto mapping = mapping_map.upper_bound(loc.address());
         if (mapping == mapping_map.begin()) {
