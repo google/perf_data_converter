@@ -1,4 +1,11 @@
 
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
+
 licenses(["notice"])
 
 perf_test_data = glob([
@@ -82,7 +89,7 @@ cc_library(
         ":perf_parser_options_cc_proto",
         ":perf_stat_cc_proto",
         ":base",
-        "@com_google_protobuf//",
+        "@com_google_protobuf//:protobuf",
     ],
 )
 

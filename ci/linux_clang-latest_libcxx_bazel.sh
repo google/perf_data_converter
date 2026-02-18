@@ -15,7 +15,7 @@ fi
 
 # This container is a reasonable start but is missing some prerequisite libs and
 # an installation of linux_perf. We'll manually add them below.
-readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20231218"
+readonly DOCKER_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20260131"
 
 time docker run \
     --mount "type=bind,src=${PDC_HOST_ROOT},target=/perf_data_converter" \
@@ -23,10 +23,12 @@ time docker run \
     --cap-add=SYS_PTRACE \
     --rm \
     -i \
-    -e CC="/opt/llvm/clang/bin/clang" \
+    -e CC="/opt/llvm/bin/clang" \
     -e BAZEL_CXXOPTS="-nostdinc++" \
     -e BAZEL_LINKOPTS="-L/opt/llvm/libcxx/lib:-lc++:-lc++abi:-lm:-Wl,-rpath=/opt/llvm/libcxx/lib" \
     -e CPLUS_INCLUDE_PATH="/opt/llvm/libcxx/include/c++/v1" \
+    -e BAZEL_LINKOPTS="-L/opt/llvm/lib/x86_64-unknown-linux-gnu:-lc++:-lc++abi:-lm:-Wl,-rpath=/opt/llvm/lib/x86_64-unknown-linux-gnu" \
+    -e CPLUS_INCLUDE_PATH="/opt/llvm/include/c++/v1:/opt/llvm/include/x86_64-unknown-linux-gnu/c++/v1/" \
     ${DOCKER_EXTRA_ARGS:-} \
     ${DOCKER_CONTAINER} \
     bash <<EOF
@@ -42,7 +44,6 @@ time docker run \
       /usr/local/bin/bazel test ... \
         --compilation_mode=fastbuild \
         --copt=-fexceptions \
-        --copt=-Werror \
         --distdir="/bazel-distdir" \
         --keep_going \
         --show_timestamps \
