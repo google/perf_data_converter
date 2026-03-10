@@ -261,10 +261,10 @@ class PerfDataConverter : public PerfDataHandler {
   uint64_t AddOrGetMapping(const Pid& pid, const PerfDataHandler::Mapping* smap,
                            ProfileBuilder* builder);
 
-  // Sets the has_functions flag in the specified mapping.
-  void SetMappingHasFunctions(const Pid& pid,
-                              const PerfDataHandler::Mapping* smap,
-                              ProfileBuilder* builder);
+  // Sets the has_functions and has_filenames flags in the specified mapping.
+  void SetMappingHasFunctionsAndFilenames(const Pid& pid,
+                                          const PerfDataHandler::Mapping* smap,
+                                          ProfileBuilder* builder);
 
   // Returns whether pid labels were requested for inclusion in the
   // profile.proto's Sample.Label field.
@@ -585,7 +585,7 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
   return per_pid.builder;
 }
 
-void PerfDataConverter::SetMappingHasFunctions(
+void PerfDataConverter::SetMappingHasFunctionsAndFilenames(
     const Pid& pid, const PerfDataHandler::Mapping* smap,
     ProfileBuilder* builder) {
   CHECK(builder != nullptr) << "Cannot modify mapping in null builder";
@@ -597,7 +597,9 @@ void PerfDataConverter::SetMappingHasFunctions(
 
   Profile* profile = builder->mutable_profile();
   uint64_t mapping_id = it->second - 1;  // Mapping IDs start at 1.
-  profile->mutable_mapping(mapping_id)->set_has_functions(true);
+  perftools::profiles::Mapping* mapping = profile->mutable_mapping(mapping_id);
+  mapping->set_has_functions(true);
+  mapping->set_has_filenames(true);
 }
 
 uint64_t PerfDataConverter::AddOrGetMapping(
@@ -628,7 +630,6 @@ uint64_t PerfDataConverter::AddOrGetMapping(
     }
     mapping_filename = MappingFilename(smap);
   mapping->set_filename(UTF8StringId(mapping_filename, builder));
-  mapping->set_has_filenames(true);
   CHECK_LE(mapping->memory_start(), mapping->memory_limit())
       << "Mapping start must be strictly less than its limit: "
       << mapping->filename();
