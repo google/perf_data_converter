@@ -9,13 +9,14 @@
 
 #include <stddef.h>
 
-#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <tuple>
 #include <utility>
 
+#include "absl/base/attributes.h"
+#include "absl/base/macros.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/strings/string_view.h"
 
@@ -31,7 +32,7 @@ typedef absl::flat_hash_map<std::tuple<int64_t, int64_t, int64_t, int64_t>,
 
 enum CallstackType { kRegular = 0, kInterrupt = 1 };
 
-void AddCallstackToSample(Sample *sample, const void *const *stack, int depth,
+void AddCallstackToSample(Sample* sample, const void* const* stack, int depth,
                           CallstackType type);
 
 // Provides mechanisms to facilitate the generation of profiles
@@ -47,22 +48,37 @@ class Builder {
 
   // Adds a string to the profile string table if not already present.
   // Returns a unique integer id for this string.
-  int64_t StringId(const char* str) {
+  int64_t StringId(absl::string_view str);
+  [[deprecated("Use absl::string_view instead.")]] ABSL_REFACTOR_INLINE int64_t
+  StringId(const char* str) {
     return StringId(absl::NullSafeStringView(str));
   }
-  int64_t StringId(absl::string_view str);
+#if ABSL_HAVE_ATTRIBUTE(enable_if)
+  [[deprecated("Use absl::string_view instead.")]] ABSL_REFACTOR_INLINE int64_t
+  StringId(const char* str) __attribute__((enable_if(str != nullptr, ""))) {
+    return StringIdForMigration(str);
+  }
+#endif
+  // This overload is only for migration. It allows us to avoid
+  // `absl::NullSafeStringView` for strings we can statically prove are not
+  // null.
+  //
+  // This will be marked for inlining once all callers of
+  // `StringId(const char*)` are migrated. Before then, we may run into inlining
+  // cycles or less-than-readable inlining.
+  int64_t StringIdForMigration(absl::string_view str) { return StringId(str); }
 
   // Adds a function with these attributes to the profile function
   // table, if not already present. Returns a unique integer id for
   // this function.
-  uint64_t FunctionId(const char *name, const char *system_name,
-                      const char *file, int64_t start_line);
+  uint64_t FunctionId(const char* name, const char* system_name,
+                      const char* file, int64_t start_line);
 
   // Adds mappings for the currently running binary to the profile.
   void AddCurrentMappings();
 
   // Add documentation URL.
-  void SetDocURL(const std::string &url);
+  void SetDocURL(const std::string& url);
 
   // Prepares the profile for encoding. Returns true on success.
   // If the profile has no locations, inserts location using the
@@ -74,25 +90,25 @@ class Builder {
   // Serializes and compresses the profile into a string, replacing
   // its contents. It calls Finalize() and returns whether the
   // encoding was successful.
-  bool Emit(std::string *output);
+  bool Emit(std::string* output);
 
   // Serializes and compresses a profile into a string, replacing its
   // contents. Returns false if there were errors on the serialization
   // or compression, and the output string will not contain valid data.
-  static bool Marshal(const Profile &profile, std::string *output);
+  static bool Marshal(const Profile& profile, std::string* output);
 
   // Serializes and compresses a profile into a file represented by a
   // file descriptor. Returns false if there were errors on the
   // serialization or compression.
-  static bool MarshalToFile(const Profile &profile, int fd);
+  static bool MarshalToFile(const Profile& profile, int fd);
 
   // Serializes and compresses a profile into a file, creating a new
   // file or replacing its contents if it already exists.
-  static bool MarshalToFile(const Profile &profile, const char *filename);
+  static bool MarshalToFile(const Profile& profile, const char* filename);
 
   // Determines if the profile is internally consistent (suitable for
   // serialization). Returns true if no errors were encountered.
-  static bool CheckValid(const Profile &profile);
+  static bool CheckValid(const Profile& profile);
 
   // Extract the profile from the builder object. No further calls
   // should be made to the builder after this.
@@ -102,7 +118,7 @@ class Builder {
   // managed by the builder. The fields function and string_table
   // should be populated through Builder::StringId and
   // Builder::FunctionId.
-  Profile *mutable_profile() { return profile_.get(); }
+  Profile* mutable_profile() { return profile_.get(); }
 
  private:
   int64_t InternalStringId(absl::string_view str);
