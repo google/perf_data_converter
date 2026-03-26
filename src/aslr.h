@@ -1,9 +1,8 @@
 #ifndef PERFTOOLS_PROFILES_PROTO_ASLR_H_
 #define PERFTOOLS_PROFILES_PROTO_ASLR_H_
 
-#include "src/profile.proto.h"
-
 #include "google/protobuf/io/zero_copy_stream.h"
+#include "src/profile.pb.h"
 
 namespace perftools {
 namespace profiles {

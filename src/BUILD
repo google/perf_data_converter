@@ -181,10 +181,21 @@ cc_proto_library(
 )
 
 cc_library(
+    name = "aslr",
+    srcs = ["aslr.cc"],
+    hdrs = ["aslr.h"],
+    deps = [
+        ":profile_cc_proto",
+        "@com_google_protobuf//:protobuf",
+    ],
+)
+
+cc_library(
     name = "builder",
     srcs = ["builder.cc"],
     hdrs = ["builder.h"],
     deps = [
+        ":aslr",
         ":profile_cc_proto",
         "//src/quipper:base",
         "@com_google_protobuf//:protobuf",
