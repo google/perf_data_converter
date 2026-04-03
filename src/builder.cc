@@ -77,9 +77,9 @@ int64_t Builder::InternalStringId(absl::string_view str) {
 
 uint64_t Builder::FunctionId(const char *name, const char *system_name,
                              const char *file, int64_t start_line) {
-  int64_t name_index = StringId(name);
-  int64_t system_name_index = StringId(system_name);
-  int64_t file_index = StringId(file);
+  int64_t name_index = StringId(absl::NullSafeStringView(name));
+  int64_t system_name_index = StringId(absl::NullSafeStringView(system_name));
+  int64_t file_index = StringId(absl::NullSafeStringView(file));
 
   auto fn =
       std::make_tuple(name_index, system_name_index, file_index, start_line);
