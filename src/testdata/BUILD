@@ -1,4 +1,6 @@
 
+package(default_applicable_licenses = ["//src:license"])
+
 # Description:
 #   Test files for converting sampledb proto to profile proto.
 licenses(["notice"])
