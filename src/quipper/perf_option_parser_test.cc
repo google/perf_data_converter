@@ -28,6 +28,9 @@ TEST(PerfOptionParserTest, GoodRecord) {
   EXPECT_TRUE(ValidatePerfCommandLine(
       {"perf", "record", "-e", "mem_inst_retired.stlb_miss_loads:pp", "-c",
        "10001", "-a", "-d", "--data-page-size"}));
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "record", "--event=cycles"}));
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "record", "--event="}));
+  EXPECT_TRUE(ValidatePerfCommandLine({"perf", "record", "-e=cycles"}));
 }
 
 TEST(PerfOptionParserTest, GoodStat) {
@@ -141,6 +144,12 @@ TEST(PerfOptionParserTest, BadStat_BannedOptions) {
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "stat", "--post", "rm -rf /"}));
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "stat", "-d"}));
   EXPECT_FALSE(ValidatePerfCommandLine({"perf", "stat", "--log-fd", "4"}));
+  EXPECT_FALSE(
+      ValidatePerfCommandLine({"perf", "stat", "--event=cycles", "--pre",
+                               "--filter=;rm -rf /", "--cpu=0", "-a"}));
+  EXPECT_FALSE(
+      ValidatePerfCommandLine({"perf", "stat", "--event=", "--pre",
+                               "--filter=;rm -rf /", "--cpu=0", "-a"}));
 }
 
 TEST(PerfOptionParserTest, GoodInject) {

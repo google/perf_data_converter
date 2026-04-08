@@ -537,8 +537,6 @@ cc_binary(
     srcs = ["quipper.cc"],
     visibility = ["//src:__subpackages__"],
     deps = [
-        ":arm_spe_decoder",
-        ":compat",
         ":file_utils",
         ":perf_protobuf_io",
         ":perf_recorder",

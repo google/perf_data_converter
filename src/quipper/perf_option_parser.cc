@@ -208,7 +208,8 @@ bool ValidatePerfCommandLineOptions(
     if (it == options.end()) {
       return false;
     }
-    if (it->second == OptionType::Value) {
+    if (it->second == OptionType::Value &&
+        args_iter->find('=') == std::string::npos) {
       ++args_iter;
       if (args_iter == end_arg) {
         return false;  // missing value
