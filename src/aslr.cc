@@ -26,8 +26,10 @@ bool SerializeWithAslrEntropyRedaction(const Profile& profile,
   *redacted = profile;
 
   for (auto& mapping : *redacted->mutable_mapping()) {
+    // Fake mappings that should not be redacted.
     if (mapping.memory_start() == 0 &&
         (mapping.memory_limit() == std::numeric_limits<uint64_t>::max() ||
+         mapping.memory_limit() == std::numeric_limits<int64_t>::max() ||
          mapping.memory_limit() == 0)) {
       continue;
     }
