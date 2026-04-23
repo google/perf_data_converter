@@ -58,7 +58,7 @@ const char* ExecModeString(quipper::AddressContext context) {
 // this also ensures the string contains structurally valid UTF-8.
 // In order to successfully unmarshal the proto in Go, all strings inserted into
 // the profile string table must be valid UTF-8.
-int64_t UTF8StringId(const std::string& s, ProfileBuilder* builder) {
+int64_t UTF8StringId(absl::string_view s, ProfileBuilder* builder) {
   return builder->StringId(s);
 }
 
