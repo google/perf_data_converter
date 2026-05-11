@@ -20,7 +20,9 @@
 
 #include "src/quipper/base/logging.h"
 #include "src/builder.h"
+#include "absl/strings/match.h"
 #include "absl/strings/string_view.h"
+#include "absl/strings/strip.h"
 #include "src/perf_data_handler.h"
 #include "src/quipper/address_context.h"
 #include "src/quipper/perf_data.pb.h"

@@ -43,6 +43,7 @@ cc_library(
         ":perf_data_handler",
         ":builder",
         ":profile_cc_proto",
+        "@abseil-cpp//absl/strings",
         "@abseil-cpp//absl/strings:string_view",
         "//src/quipper:address_context",
         "//src/quipper:kernel",
