@@ -38,7 +38,7 @@ typedef perftools::profiles::Builder ProfileBuilder;
 typedef uint32_t Pid;
 typedef uint32_t Tid;
 
-const char* ExecModeString(quipper::AddressContext context) {
+absl::string_view ExecModeString(quipper::AddressContext context) {
   switch (context) {
     case quipper::AddressContext::kHostKernel:
       return ExecutionModeHostKernel;
@@ -684,8 +684,7 @@ void PerfDataConverter::AddOrUpdateSample(
         sample_key.exec_mode != quipper::AddressContext::kUnknown) {
       auto* label = sample->add_label();
       label->set_key(builder->StringIdForMigration(ExecutionModeLabelKey));
-      label->set_str(builder->StringId(
-          absl::NullSafeStringView(ExecModeString(sample_key.exec_mode))));
+      label->set_str(builder->StringId(ExecModeString(sample_key.exec_mode)));
     }
     if (IncludeThreadTypeLabels() && sample_key.thread_type != 0) {
       auto* label = sample->add_label();
