@@ -49,24 +49,10 @@ class Builder {
   // Adds a string to the profile string table if not already present.
   // Returns a unique integer id for this string.
   int64_t StringId(absl::string_view str);
-  [[deprecated("Use absl::string_view instead.")]] ABSL_REFACTOR_INLINE int64_t
-  StringId(const char* str) {
-    return StringId(absl::NullSafeStringView(str));
+  [[deprecated("Use StringId instead.")]] ABSL_REFACTOR_INLINE int64_t
+  StringIdForMigration(absl::string_view str) {
+    return StringId(str);
   }
-#if ABSL_HAVE_ATTRIBUTE(enable_if)
-  [[deprecated("Use absl::string_view instead.")]] ABSL_REFACTOR_INLINE int64_t
-  StringId(const char* str) __attribute__((enable_if(str != nullptr, ""))) {
-    return StringIdForMigration(str);
-  }
-#endif
-  // This overload is only for migration. It allows us to avoid
-  // `absl::NullSafeStringView` for strings we can statically prove are not
-  // null.
-  //
-  // This will be marked for inlining once all callers of
-  // `StringId(const char*)` are migrated. Before then, we may run into inlining
-  // cycles or less-than-readable inlining.
-  int64_t StringIdForMigration(absl::string_view str) { return StringId(str); }
 
   // Adds a function with these attributes to the profile function
   // table, if not already present. Returns a unique integer id for

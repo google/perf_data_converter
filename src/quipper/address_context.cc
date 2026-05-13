@@ -1,7 +1,7 @@
 #include "address_context.h"
 
 #include "kernel/perf_event.h"
-#include "src/quipper/perf_data.pb.h"
+#include "perf_data.pb.h"
 
 namespace quipper {
 
