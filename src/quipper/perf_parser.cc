@@ -108,7 +108,9 @@ bool PerfParser::ParseRawEvents() {
   }
   parsed_events_.resize(write_index);
 
-  ProcessEvents();
+  if (!ProcessEvents()) {
+    return false;
+  }
 
   if (!options_.discard_unused_events) return true;
 
@@ -190,7 +192,8 @@ bool PerfParser::ProcessEvents() {
     // Process user events
     if (event.header().type() >= PERF_RECORD_USER_TYPE_START) {
       if (!ProcessUserEvents(event)) {
-        return false;
+        LOG(WARNING) << "Failed processing user event.";
+        return true;
       }
       continue;
     }
@@ -214,8 +217,14 @@ bool PerfParser::ProcessEvents() {
             (event.header().misc() & quipper::PERF_RECORD_MISC_CPUMODE_MASK) ==
                 quipper::PERF_RECORD_MISC_KERNEL;
         // Use the array index of the current mmap event as a unique identifier.
-        CHECK(MapMmapEvent(event.mutable_mmap_event(), i, is_kernel))
-            << "Unable to map " << mmap_type_name << " event!";
+        if (!MapMmapEvent(event.mutable_mmap_event(), i, is_kernel)) {
+          LOG(ERROR) << "Unable to map " << mmap_type_name << " event! "
+                     << "file: " << event.mmap_event().filename() << " "
+                     << "addr: " << std::hex << event.mmap_event().start()
+                     << " "
+                     << "len: " << event.mmap_event().len() << std::dec;
+          return false;
+        }
         // No samples in this MMAP region yet, hopefully.
         parsed_event.num_samples_in_mmap_region = 0;
         DSOInfo dso_info;
@@ -239,7 +248,10 @@ bool PerfParser::ProcessEvents() {
                 << ":" << event.fork_event().tid();
         // clang-format on
         ++stats_.num_fork_events;
-        CHECK(MapForkEvent(event.fork_event())) << "Unable to map FORK event!";
+        if (!MapForkEvent(event.fork_event())) {
+          LOG(ERROR) << "Unable to map FORK event!";
+          return false;
+        }
         break;
       case PERF_RECORD_EXIT:
         // EXIT events have the same structure as FORK events.
@@ -256,7 +268,10 @@ bool PerfParser::ProcessEvents() {
                 << event.comm_event().comm();
         // clang-format on
         ++stats_.num_comm_events;
-        CHECK(MapCommEvent(event.comm_event()));
+        if (!MapCommEvent(event.comm_event())) {
+          LOG(ERROR) << "Unable to map COMM event!";
+          return false;
+        }
         commands_.insert(event.comm_event().comm());
         const PidTid pidtid =
             std::make_pair(event.comm_event().pid(), event.comm_event().tid());
@@ -284,12 +299,15 @@ bool PerfParser::ProcessEvents() {
                 << ". Doing nothing.";
         break;
       default:
-        LOG(ERROR) << "Unknown event type: "
-                   << GetEventName(event.header().type());
-        return false;
+        LOG(WARNING) << "Unknown event type: "
+                     << GetEventName(event.header().type());
+        return true;
     }
   }
-  if (!FillInDsoBuildIds()) return false;
+  if (!FillInDsoBuildIds()) {
+    LOG(WARNING) << "Failed filling in buildIDs";
+    return true;
+  }
 
   // Print stats collected from parsing.
   // clang-format off
@@ -312,9 +330,9 @@ bool PerfParser::ProcessEvents() {
       LOG(INFO) << "Input perf.data has no sample events due to "
                    "PERF_RECORD_SAMPLE being skipped.";
     } else {
-      LOG(ERROR) << "Input perf.data has no sample events.";
+      LOG(WARNING) << "Input perf.data has no sample events.";
     }
-    return false;
+    return true;
   }
 
   float sample_mapping_percentage =
@@ -322,10 +340,11 @@ bool PerfParser::ProcessEvents() {
       stats_.num_sample_events * 100.;
   float threshold = options_.sample_mapping_percentage_threshold;
   if (sample_mapping_percentage < threshold) {
-    LOG(ERROR) << "Only " << static_cast<int>(sample_mapping_percentage)
-               << "% of samples had all locations mapped to a module, expected "
-               << "at least " << static_cast<int>(threshold) << "%";
-    return false;
+    LOG(WARNING)
+        << "Only " << static_cast<int>(sample_mapping_percentage)
+        << "% of samples had all locations mapped to a module, expected "
+        << "at least " << static_cast<int>(threshold) << "%";
+    return true;
   }
   return true;
 }
