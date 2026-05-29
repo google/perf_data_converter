@@ -170,8 +170,7 @@ class TestPerfDataHandler : public PerfDataHandler {
  private:
   // Ensure necessary information contained in the BranchStackEntry is also
   // present in the resulting profile.
-  inline void CheckBranchEquality(BranchStackEntry expected,
-                                  BranchStackPair actual) {
+  void CheckBranchEquality(BranchStackEntry expected, BranchStackPair actual) {
     EXPECT_EQ(expected.from_ip(), actual.from.ip);
     EXPECT_EQ(expected.to_ip(), actual.to.ip);
     EXPECT_EQ(expected.mispredicted(), actual.mispredicted);
