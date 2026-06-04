@@ -11,7 +11,7 @@
 #include <list>
 #include <map>
 
-#include "base/logging.h"
+#include "compat/check.h"
 
 namespace quipper {
 

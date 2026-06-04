@@ -250,7 +250,12 @@ cc_library(
 cc_library(
     name = "address_mapper",
     srcs = ["address_mapper.cc"],
-    hdrs = ["address_mapper.h"],
+    hdrs = [
+        "address_mapper.h",
+        "compat/check.h",
+        "compat/non_cros/detail/check.h",
+    ],
+    includes = ["compat/non_cros"],
     deps = [
         ":base",
     ],
