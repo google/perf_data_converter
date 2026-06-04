@@ -11,9 +11,9 @@
 #include <string>
 
 #include "base/logging.h"
+#include "compat/proto.h"
 #include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
-#include "perf_data.pb.h"
 
 namespace quipper {
 

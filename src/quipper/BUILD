@@ -242,8 +242,8 @@ cc_library(
     hdrs = ["address_context.h"],
     visibility = ["//src:__subpackages__"],
     deps = [
+        ":compat",
         ":kernel",
-        ":perf_data_cc_proto",
     ],
 )
 
@@ -365,8 +365,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":binary_data_utils",
+        ":compat",
         ":kernel",
-        ":perf_data_cc_proto",
         ":base",
     ],
 )

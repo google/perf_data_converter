@@ -1,8 +1,8 @@
 #ifndef PERF_DATA_CONVERTER_SRC_QUIPPER_ADDRESS_CONTEXT_H_
 #define PERF_DATA_CONVERTER_SRC_QUIPPER_ADDRESS_CONTEXT_H_
 
+#include "compat/proto.h"
 #include "kernel/perf_event.h"
-#include "perf_data.pb.h"
 
 namespace quipper {
 
