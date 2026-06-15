@@ -536,11 +536,11 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
       }
       auto sample_type = profile->add_sample_type();
       sample_type->set_type(UTF8StringId(event_name + "sample", builder));
-      sample_type->set_unit(builder->StringIdForMigration("count"));
+      sample_type->set_unit(builder->StringId("count"));
       sample_type = profile->add_sample_type();
       last_index = UTF8StringId(event_name + "event", builder);
       sample_type->set_type(last_index);
-      sample_type->set_unit(builder->StringIdForMigration("count"));
+      sample_type->set_unit(builder->StringId("count"));
     }
     DCHECK_NE(last_index, 0);
     profile->set_default_sample_type(last_index);
@@ -660,22 +660,22 @@ void PerfDataConverter::AddOrUpdateSample(
     // Emit any requested labels.
     if (IncludePidLabels() && context.sample.has_pid()) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(PidLabelKey));
+      label->set_key(builder->StringId(PidLabelKey));
       label->set_num(static_cast<int64_t>(context.sample.pid()));
     }
     if (IncludeTidLabels() && context.sample.has_tid()) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(TidLabelKey));
+      label->set_key(builder->StringId(TidLabelKey));
       label->set_num(static_cast<int64_t>(context.sample.tid()));
     }
     if (IncludeCommLabels() && sample_key.comm != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(CommLabelKey));
+      label->set_key(builder->StringId(CommLabelKey));
       label->set_str(sample_key.comm);
     }
     if (IncludeTimestampNsLabels() && context.sample.has_sample_time_ns()) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(TimestampNsLabelKey));
+      label->set_key(builder->StringId(TimestampNsLabelKey));
       int64_t timestamp_ns_as_int64 =
           static_cast<int64_t>(context.sample.sample_time_ns());
       label->set_num(timestamp_ns_as_int64);
@@ -683,77 +683,77 @@ void PerfDataConverter::AddOrUpdateSample(
     if (IncludeExecutionModeLabels() &&
         sample_key.exec_mode != quipper::AddressContext::kUnknown) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(ExecutionModeLabelKey));
+      label->set_key(builder->StringId(ExecutionModeLabelKey));
       label->set_str(builder->StringId(ExecModeString(sample_key.exec_mode)));
     }
     if (IncludeThreadTypeLabels() && sample_key.thread_type != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(ThreadTypeLabelKey));
+      label->set_key(builder->StringId(ThreadTypeLabelKey));
       label->set_str(sample_key.thread_type);
     }
     if (IncludeThreadCommLabels() && sample_key.thread_comm != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(ThreadCommLabelKey));
+      label->set_key(builder->StringId(ThreadCommLabelKey));
       label->set_str(sample_key.thread_comm);
     }
     if (IncludeCgroupLabels() && sample_key.cgroup != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(CgroupLabelKey));
+      label->set_key(builder->StringId(CgroupLabelKey));
       label->set_str(sample_key.cgroup);
     }
     if (IncludeCodePageSizeLabels() && sample_key.code_page_size != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(CodePageSizeLabelKey));
+      label->set_key(builder->StringId(CodePageSizeLabelKey));
       label->set_num(sample_key.code_page_size);
     }
     if (IncludeDataPageSizeLabels() && sample_key.data_page_size != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(DataPageSizeLabelKey));
+      label->set_key(builder->StringId(DataPageSizeLabelKey));
       label->set_num(sample_key.data_page_size);
     }
     if (IncludeCpuLabels() && context.sample.has_cpu()) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(CpuLabelKey));
+      label->set_key(builder->StringId(CpuLabelKey));
       label->set_num(static_cast<int64_t>(context.sample.cpu()));
-      label->set_num_unit(builder->StringIdForMigration("cpu"));
+      label->set_num_unit(builder->StringId("cpu"));
     }
     if (IncludeCacheLatencyLabel() && sample_key.cache_latency != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(CacheLatencyLabelKey));
+      label->set_key(builder->StringId(CacheLatencyLabelKey));
       label->set_num(sample_key.cache_latency);
-      label->set_num_unit(builder->StringIdForMigration("cycles"));
+      label->set_num_unit(builder->StringId("cycles"));
     }
     if (IncludeDataSrcLabels()) {
       if (sample_key.data_src != 0) {
         auto* label = sample->add_label();
-        label->set_key(builder->StringIdForMigration(DataSrcLabelKey));
+        label->set_key(builder->StringId(DataSrcLabelKey));
         label->set_str(sample_key.data_src);
       }
       if (sample_key.snoop_status != 0) {
         auto* label = sample->add_label();
-        label->set_key(builder->StringIdForMigration(SnoopStatusLabelKey));
+        label->set_key(builder->StringId(SnoopStatusLabelKey));
         label->set_str(sample_key.snoop_status);
       }
     }
 
     if (IncludeTotalLatencyLabels() && sample_key.total_latency != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(TotalLatencyLabelKey));
+      label->set_key(builder->StringId(TotalLatencyLabelKey));
       label->set_num(sample_key.total_latency);
-      label->set_num_unit(builder->StringIdForMigration("cycles"));
+      label->set_num_unit(builder->StringId("cycles"));
     }
     if (IncludeIssueLatencyLabels() && sample_key.issue_latency != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(IssueLatencyLabelKey));
+      label->set_key(builder->StringId(IssueLatencyLabelKey));
       label->set_num(sample_key.issue_latency);
-      label->set_num_unit(builder->StringIdForMigration("cycles"));
+      label->set_num_unit(builder->StringId("cycles"));
     }
     if (IncludeTranslationLatencyLabels() &&
         sample_key.translation_latency != 0) {
       auto* label = sample->add_label();
-      label->set_key(builder->StringIdForMigration(TranslationLatencyLabelKey));
+      label->set_key(builder->StringId(TranslationLatencyLabelKey));
       label->set_num(sample_key.translation_latency);
-      label->set_num_unit(builder->StringIdForMigration("cycles"));
+      label->set_num_unit(builder->StringId("cycles"));
     }
 
     // Two values per collected event: the first is sample counts, the second is
