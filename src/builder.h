@@ -49,10 +49,6 @@ class Builder {
   // Adds a string to the profile string table if not already present.
   // Returns a unique integer id for this string.
   int64_t StringId(absl::string_view str);
-  [[deprecated("Use StringId instead.")]] ABSL_REFACTOR_INLINE int64_t
-  StringIdForMigration(absl::string_view str) {
-    return StringId(str);
-  }
 
   // Adds a function with these attributes to the profile function
   // table, if not already present. Returns a unique integer id for
