@@ -140,8 +140,9 @@ bool ArmSpeDecoder::NextRecord(struct Record* ret_record) {
           return false;
         }
 
-        p.size =
-            alignment - (((uintptr_t)(buf_.data() + buf_i_)) & (alignment - 1));
+        p.size = alignment -
+                 ((reinterpret_cast<uintptr_t>(buf_.GetPointer(buf_i_))) &
+                  (alignment - 1));
         continue;
       }
     }
@@ -394,26 +395,38 @@ bool ArmSpeDecoder::SetPayloadAndSize(struct Packet* p) {
   switch (payload_size) {
     case 1: {
       uint8_t payload;
-      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      if (!buf_.ReadBytes(pos, sizeof(payload), &payload)) {
+        LOG(ERROR) << "Error reading payload of size 1";
+        return false;
+      }
       // No need to swap when there is only one byte.
       p->payload = payload;
       break;
     }
     case 2: {
       uint16_t payload;
-      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      if (!buf_.ReadBytes(pos, sizeof(payload), &payload)) {
+        LOG(ERROR) << "Error reading payload of size 2";
+        return false;
+      }
       p->payload = MaybeSwap<uint16_t>(payload, is_cross_endian_);
       break;
     }
     case 4: {
       uint32_t payload;
-      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      if (!buf_.ReadBytes(pos, sizeof(payload), &payload)) {
+        LOG(ERROR) << "Error reading payload of size 4";
+        return false;
+      }
       p->payload = MaybeSwap<uint32_t>(payload, is_cross_endian_);
       break;
     }
     case 8: {
       uint64_t payload;
-      memcpy(&payload, buf_.data() + pos, sizeof(payload));
+      if (!buf_.ReadBytes(pos, sizeof(payload), &payload)) {
+        LOG(ERROR) << "Error reading payload of size 8";
+        return false;
+      }
       p->payload = MaybeSwap<uint64_t>(payload, is_cross_endian_);
       break;
     }

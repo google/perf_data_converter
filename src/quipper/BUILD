@@ -514,7 +514,6 @@ cc_test(
         ":compat_gunit",
         ":test_runner",
         ":test_utils",
-        "@com_google_googletest//:gtest_main",
     ],
 )
 

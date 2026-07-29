@@ -3,10 +3,98 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <optional>
 #include <string_view>
 
 namespace quipper {
+
+// A helper class to treat multiple string_views as a contiguous buffer.
+// The class is not copyable or movable to avoid accidental use of the default
+// copy/move implementations that may lead to dangling pointers. These operators
+// can be explicitly defined later if the SegmentedBuffer needs to be copied or
+// moved.
+class SegmentedBuffer {
+ public:
+  SegmentedBuffer() : buffers_(nullptr), num_buffers_(0), total_size_(0) {}
+  explicit SegmentedBuffer(std::string_view buf)
+      : single_buf_(buf),
+        buffers_(&single_buf_),
+        num_buffers_(1),
+        total_size_(buf.size()) {}
+
+  template <size_t N>
+  explicit SegmentedBuffer(const std::string_view (&buffers)[N])
+      : buffers_(buffers), num_buffers_(N), total_size_(0) {
+    for (size_t i = 0; i < N; ++i) {
+      total_size_ += buffers[i].size();
+    }
+  }
+
+  SegmentedBuffer(const SegmentedBuffer&) = delete;
+  SegmentedBuffer& operator=(const SegmentedBuffer&) = delete;
+  SegmentedBuffer(SegmentedBuffer&&) = delete;
+  SegmentedBuffer& operator=(SegmentedBuffer&&) = delete;
+
+  size_t size() const { return total_size_; }
+
+  uint8_t operator[](size_t global_offset) const {
+    size_t offset = global_offset;
+    for (size_t i = 0; i < num_buffers_; ++i) {
+      const auto& buf = buffers_[i];
+      if (offset < buf.size()) {
+        return static_cast<uint8_t>(buf[offset]);
+      }
+      offset -= buf.size();
+    }
+    return 0;
+  }
+
+  const char* GetPointer(size_t global_offset) const {
+    size_t offset = global_offset;
+    for (size_t i = 0; i < num_buffers_; ++i) {
+      const auto& buf = buffers_[i];
+      if (offset < buf.size()) {
+        return buf.data() + offset;
+      }
+      offset -= buf.size();
+    }
+    return nullptr;
+  }
+
+  bool ReadBytes(size_t global_offset, size_t num_bytes, void* dest) const {
+    if (global_offset + num_bytes > total_size_) {
+      return false;
+    }
+    char* d = static_cast<char*>(dest);
+    size_t bytes_to_read = num_bytes;
+    size_t offset = global_offset;
+    for (size_t i = 0; i < num_buffers_; ++i) {
+      const auto& buf = buffers_[i];
+      if (bytes_to_read == 0) break;
+      if (offset < buf.size()) {
+        size_t chunk_size = (bytes_to_read < buf.size() - offset)
+                                ? bytes_to_read
+                                : (buf.size() - offset);
+        std::memcpy(d, buf.data() + offset, chunk_size);
+        d += chunk_size;
+        bytes_to_read -= chunk_size;
+        offset = 0;
+      } else {
+        offset -= buf.size();
+      }
+    }
+    return bytes_to_read == 0;
+  }
+
+ private:
+  // Store the single string_view buffer separately to avoid heap allocations
+  // from creating a container locally.
+  std::string_view single_buf_;
+  const std::string_view* buffers_;
+  size_t num_buffers_;
+  size_t total_size_;
+};
 
 // Decode SPE records from the given binary trace buffer. The decoder is
 // implemented according to the Arm Architecture Reference Manual for A-profile
@@ -114,7 +202,18 @@ class ArmSpeDecoder {
     std::optional<uint64_t> source;
   };
 
+  // Constructors take 'view' overlays over the input data and the decoder
+  // doesn't own any of the memory during its lifetime to avoid heap
+  // allocations. The caller must ensure the lifetime of the buffers exceeds
+  // the lifetime of the decoder.
   ArmSpeDecoder(std::string_view buf, bool is_cross_endian);
+
+  template <size_t N>
+  ArmSpeDecoder(const std::string_view (&bufs)[N], bool is_cross_endian)
+      : buf_(bufs),
+        buf_i_(0),
+        seen_pk_idx_mask_(0),
+        is_cross_endian_(is_cross_endian) {}
 
   // Sets fields of the given record to the next record parsed from the
   // previously given SPE trace. It will return false if it encounters invalid
@@ -153,7 +252,7 @@ class ArmSpeDecoder {
   uint8_t GetCorrectHeader(const ArmSpeDecoder::Packet& p);
 
   // The SPE trace buffer. Note that this class doesn't own the buffer.
-  std::string_view buf_;
+  SegmentedBuffer buf_;
 
   // Current position of the SPE trace.
   size_t buf_i_;

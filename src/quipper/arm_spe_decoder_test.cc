@@ -1,5 +1,6 @@
 #include "arm_spe_decoder.h"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -170,6 +171,57 @@ TEST(ArmSpeDecoderTest, ReturnFalseUponInvalidData) {
   ArmSpeDecoder::Record tmp;
 
   EXPECT_FALSE(decoder.NextRecord(&tmp));
+}
+
+TEST(ArmSpeDecoderTest, CorrectlyParseSegmentedTraceAllSplitPoints) {
+  std::string trace = GenerateBinaryTrace(SampleSPEPackets);
+  // Loop over every possible split point to verify that non-contiguous buffers
+  // split at any position parse exactly the same as a single contiguous buffer.
+  // Use substr to generate separate parts that are not contiguous in memory.
+  for (size_t split_point = 1; split_point < trace.size(); ++split_point) {
+    std::string part1 = trace.substr(0, split_point);
+    std::string part2 = trace.substr(split_point, trace.size() - split_point);
+
+    const std::string_view parts[] = {part1, part2};
+    ArmSpeDecoder decoder(parts, false);
+    ArmSpeDecoder::Record record[2];
+    ArmSpeDecoder::Record tmp;
+
+    EXPECT_TRUE(decoder.NextRecord(&record[0]))
+        << "Failed at split point " << split_point;
+    EXPECT_TRUE(decoder.NextRecord(&record[1]))
+        << "Failed at split point " << split_point;
+    EXPECT_FALSE(decoder.NextRecord(&tmp))
+        << "Failed at split point " << split_point;
+
+    EXPECT_TRUE(CheckEqual(
+        record[0],
+        ArmSpeDecoder::Record{
+            .event = {.retired = true, .l1d_access = true, .tlb_access = true},
+            .op = {.is_ldst = true, .ldst = {.ld = true, .gp_reg = true}},
+            .total_lat = 12,
+            .issue_lat = 4,
+            .translation_lat = 1,
+            .ip = {.addr = 0xffffba66eda1c2d0, .el = 2, .ns = 1},
+            .virt = {.addr = 0xffff0e3703096b28},
+            .timestamp = 44731163950,
+            .context = {.id = 0x5f80, .el2 = true},
+            .source = {0},
+        }));
+
+    EXPECT_TRUE(CheckEqual(
+        record[1],
+        ArmSpeDecoder::Record{
+            .event = {.retired = true, .cond_not_taken = true},
+            .op = {.is_br_eret = true, .br_eret = {.br_cond = true}},
+            .total_lat = 17,
+            .issue_lat = 16,
+            .ip = {.addr = 0xffffba66edefb0e0, .el = 2, .ns = 1},
+            .tgt_br_ip = {.addr = 0xffffba66edefb0e4, .el = 2, .ns = 1},
+            .timestamp = 44731164045,
+            .context = {.id = 0xe, .el2 = true},
+        }));
+  }
 }
 
 }  // namespace quipper
