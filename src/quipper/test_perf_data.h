@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#include "binary_data_utils.h"
+#include "byte_swap_utils.h"
 #include "kernel/perf_event.h"
 #include "kernel/perf_internals.h"
 

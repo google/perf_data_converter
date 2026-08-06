@@ -8,8 +8,6 @@
 
 #include "base/logging.h"
 
-#include "binary_data_utils.h"
-
 namespace quipper {
 
 bool DataReader::ReadDataString(const size_t size, std::string* dest) {

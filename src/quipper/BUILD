@@ -118,8 +118,10 @@ cc_library(
     hdrs = ["dso.h"],
     visibility = ["//src:__subpackages__"],
     deps = [
+        ":binary_data_utils",
         ":data_reader",
         ":file_reader",
+        ":kernel",
         ":base",
     ],
     linkopts = ["-lelf"],
@@ -210,6 +212,7 @@ cc_library(
         ":binary_data_utils",
         ":buffer_reader",
         ":buffer_writer",
+        ":byte_swap_utils",
         ":compat",
         ":file_reader",
         ":file_utils",
@@ -218,6 +221,7 @@ cc_library(
         ":perf_data_utils",
         ":perf_serializer",
         ":sample_info_reader",
+        ":string_utils",
         ":base",
     ],
 )
@@ -256,6 +260,16 @@ cc_library(
         "compat/non_cros/detail/check.h",
     ],
     includes = ["compat/non_cros"],
+    deps = [
+        ":base",
+    ],
+)
+
+cc_library(
+    name = "byte_swap_utils",
+    srcs = ["byte_swap_utils.cc"],
+    hdrs = ["byte_swap_utils.h"],
+    visibility = ["//visibility:public"],
     deps = [
         ":base",
     ],
@@ -309,7 +323,7 @@ cc_library(
     srcs = ["data_reader.cc"],
     hdrs = ["data_reader.h"],
     deps = [
-        ":binary_data_utils",
+        ":byte_swap_utils",
         ":base",
     ],
 )
@@ -437,7 +451,7 @@ cc_library(
     ],
     visibility = ["//src:__subpackages__"],
     deps = [
-        ":binary_data_utils",
+        ":byte_swap_utils",
         ":compat",
         ":compat_gunit",
         ":file_reader",
@@ -502,7 +516,7 @@ cc_library(
     hdrs = ["arm_spe_decoder.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":binary_data_utils",
+        ":byte_swap_utils",
     ],
 )
 
@@ -568,6 +582,16 @@ cc_test(
         ":test_runner",
         ":test_utils",
         ":base",
+    ],
+)
+
+cc_test(
+    name = "byte_swap_utils_test",
+    srcs = ["byte_swap_utils_test.cc"],
+    deps = [
+        ":byte_swap_utils",
+        ":compat_gunit",
+        ":test_runner",
     ],
 )
 

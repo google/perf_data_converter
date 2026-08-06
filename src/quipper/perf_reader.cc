@@ -25,6 +25,7 @@
 #include "binary_data_utils.h"
 #include "buffer_reader.h"
 #include "buffer_writer.h"
+#include "byte_swap_utils.h"
 #include "compat/proto.h"
 #include "file_reader.h"
 #include "file_utils.h"

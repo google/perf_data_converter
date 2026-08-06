@@ -5,7 +5,6 @@
 #ifndef CHROMIUMOS_WIDE_PROFILING_BINARY_DATA_UTILS_H_
 #define CHROMIUMOS_WIDE_PROFILING_BINARY_DATA_UTILS_H_
 
-#include <byteswap.h>
 #include <limits.h>
 #include <stdint.h>
 
@@ -16,18 +15,6 @@
 #include "kernel/perf_internals.h"
 
 namespace quipper {
-
-// Swaps the byte order of 16-bit, 32-bit, and 64-bit unsigned integers.
-template <class T>
-void ByteSwap(T* input);
-
-// Swaps byte order of |value| if the |swap| flag is set. This function is
-// trivial but it avoids filling code with "if (swap) { ... } " statements.
-template <typename T>
-T MaybeSwap(T value, bool swap) {
-  if (swap) ByteSwap(&value);
-  return value;
-}
 
 // Returns the number of bits in a numerical value.
 template <typename T>

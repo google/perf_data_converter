@@ -8,7 +8,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "binary_data_utils.h"
+#include <string>
+
+#include "byte_swap_utils.h"
 
 namespace quipper {
 

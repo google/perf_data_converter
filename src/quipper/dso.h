@@ -7,10 +7,12 @@
 
 #include <sys/stat.h>
 
+#include <string>
 #include <unordered_set>
 #include <utility>
 
 #include "data_reader.h"
+#include "kernel/perf_internals.h"
 
 namespace quipper {
 
