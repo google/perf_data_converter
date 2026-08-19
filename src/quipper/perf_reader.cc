@@ -1101,7 +1101,6 @@ bool PerfReader::ReadNonHeaderEventDataWithoutHeader(
   size_t skip_or_read_size = header.size - sizeof(header);
   if (!PerfSerializer::IsSupportedKernelEventType(header.type) &&
       !PerfSerializer::IsSupportedUserEventType(header.type)) {
-    LOG(WARNING) << "Skipping unsupported event " << GetEventName(header.type);
     if (!data->SeekSet(data->Tell() + skip_or_read_size)) return false;
     *read_size = skip_or_read_size;
     return true;

@@ -575,9 +575,6 @@ ProfileBuilder* PerfDataConverter::GetOrCreateBuilder(
         if (options_ & kFailOnMainMappingMismatch) {
           LOG(FATAL) << "main mapping mismatch: " << sample.sample.pid() << " "
                      << filename << " " << sample_filename;
-        } else {
-          LOG(WARNING) << "main mapping mismatch: " << sample.sample.pid()
-                       << " " << filename << " " << sample_filename;
         }
       }
     }
