@@ -793,7 +793,13 @@ bool PerfSerializer::SerializeCommEvent(const event_t& event,
   sample->set_pid(comm.pid);
   sample->set_tid(comm.tid);
   sample->set_comm(comm.comm);
-  sample->set_comm_md5_prefix(Md5Prefix(comm.comm));
+  if (std::strncmp(comm.comm, "Binder", 6) == 0) {
+    sample->set_comm_md5_prefix(Md5Prefix("Binder"));
+  } else if (std::strncmp(comm.comm, "HwBinder", 8) == 0) {
+    sample->set_comm_md5_prefix(Md5Prefix("HwBinder"));
+  } else {
+    sample->set_comm_md5_prefix(Md5Prefix(comm.comm));
+  }
 
   return SerializeSampleInfo(event, sample->mutable_sample_info());
 }

@@ -8,6 +8,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <map>
 #include <sstream>
 #include <string>
@@ -1905,6 +1907,41 @@ TEST(PerfSerializerTest, SerializesAndDeserializesBpfEvents) {
     EXPECT_EQ("my_value", event.metadata().at("my_key"));
     EXPECT_EQ("slightly_different_value", event.metadata().at("longer_key"));
   }
+}
+
+TEST(PerfSerializerTest, SerializesCommEventDeuniquifiesBinderNames) {
+  PerfSerializer serializer;
+  PerfDataProto_CommEvent sample;
+
+  event_t event;
+  memset(&event, 0, sizeof(event));
+  event.header.type = PERF_RECORD_COMM;
+  event.header.size = sizeof(event.comm);
+  event.comm.pid = 1234;
+  event.comm.tid = 5678;
+
+  // Test Binder thread variations.
+  snprintf(event.comm.comm, sizeof(event.comm.comm), "Binder:16_1");
+  EXPECT_TRUE(serializer.SerializeCommEvent(event, &sample));
+  EXPECT_EQ(Md5Prefix("Binder"), sample.comm_md5_prefix());
+  EXPECT_STREQ("Binder:16_1", sample.comm().c_str());
+
+  snprintf(event.comm.comm, sizeof(event.comm.comm), "Binder:9999_99");
+  EXPECT_TRUE(serializer.SerializeCommEvent(event, &sample));
+  EXPECT_EQ(Md5Prefix("Binder"), sample.comm_md5_prefix());
+  EXPECT_STREQ("Binder:9999_99", sample.comm().c_str());
+
+  // Test HwBinder thread variations.
+  snprintf(event.comm.comm, sizeof(event.comm.comm), "HwBinder:40_2");
+  EXPECT_TRUE(serializer.SerializeCommEvent(event, &sample));
+  EXPECT_EQ(Md5Prefix("HwBinder"), sample.comm_md5_prefix());
+  EXPECT_STREQ("HwBinder:40_2", sample.comm().c_str());
+
+  // Test regular comm names.
+  snprintf(event.comm.comm, sizeof(event.comm.comm), "chrome");
+  EXPECT_TRUE(serializer.SerializeCommEvent(event, &sample));
+  EXPECT_EQ(Md5Prefix("chrome"), sample.comm_md5_prefix());
+  EXPECT_STREQ("chrome", sample.comm().c_str());
 }
 
 namespace {
