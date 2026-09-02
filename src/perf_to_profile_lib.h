@@ -33,12 +33,13 @@ perftools::ProcessProfiles StringToProfiles(
 void CreateFile(const std::string& path, std::ofstream* file,
                 bool overwrite_output);
 
-// Parses arguments, stores the results in |input|, |output|
-// |overwrite_output| and |allow_unaligned_jit_mappings|, and returns true if
-// arguments parsed successfully and false otherwise.
+// Parses arguments, stores the results in |input|, |output|,
+// |overwrite_output|, |allow_unaligned_jit_mappings|, and |sample_labels|,
+// and returns true if arguments parsed successfully and false otherwise.
 bool ParseArguments(int argc, const char* argv[], std::string* input,
                     std::string* output, bool* overwrite_output,
-                    bool* allow_unaligned_jit_mappings);
+                    bool* allow_unaligned_jit_mappings,
+                    uint32_t* sample_labels);
 
 // Prints the usage of the tool.
 void PrintUsage();

@@ -145,6 +145,7 @@ cc_library(
         ":perf_data_converter",
         "//src/quipper:base",
         "//src/quipper:perf_data_cc_proto",
+        "@abseil-cpp//absl/strings",
     ],
 )
 
