@@ -52,13 +52,22 @@ bool SerializeWithAslrEntropyRedaction(const Profile& profile,
       continue;
     }
 
+    // Locations not associated with any mapping in the profile (such as frames
+    // outside recorded ELF mappings or presymbolized __start_<section> entries)
+    // cannot be shifted relative to a mapping, so clear their raw addresses.
+    if (location.mapping_id() == 0) {
+      location.set_address(0);
+      continue;
+    }
+
+    // Either mapping_id refers to one of the fake full-address-space mappings
+    // skipped above, or the profile has a dangling non-zero mapping ID.
     const auto it = mapping_to_difference.find(location.mapping_id());
     if (it == mapping_to_difference.end()) {
       continue;
     }
 
-    const int64_t difference = it->second;
-    location.set_address(location.address() - difference);
+    location.set_address(location.address() - it->second);
   }
   return redacted->SerializeToZeroCopyStream(&out_stream);
 }
