@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -58,6 +59,18 @@ class Builder {
 
   // Adds mappings for the currently running binary to the profile.
   void AddCurrentMappings();
+
+  // Adds a synthetic mapping covering [0, UINT64_MAX] and returns its ID.
+  // Finalize() skips it, so callers must explicitly set mapping_id on
+  // locations whose addresses must survive ASLR redaction. The caller must
+  // show that this will not leak any ASLR entropy.
+  [[nodiscard]] uint64_t AddFullAddressSpaceMapping();
+
+  // Returns true if mapping is a synthetic full-address-space mapping.
+  [[nodiscard]] static bool IsFullAddressSpaceMapping(const Mapping& mapping) {
+    return mapping.memory_start() == 0 &&
+           mapping.memory_limit() == std::numeric_limits<uint64_t>::max();
+  }
 
   // Add documentation URL.
   void SetDocURL(const std::string& url);

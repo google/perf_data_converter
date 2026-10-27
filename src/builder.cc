@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include <cstdint>
+#include <limits>
 #include <map>
 #include <string>
 #include <tuple>
@@ -304,6 +305,9 @@ bool Builder::Finalize() {
   if (profile_->mapping_size() > 0) {
     std::map<uint64_t, std::pair<uint64_t, uint64_t> > mapping_map;
     for (const auto &mapping : profile_->mapping()) {
+      if (IsFullAddressSpaceMapping(mapping)) {
+        continue;
+      }
       mapping_map[mapping.memory_start()] =
           std::make_pair(mapping.memory_limit(), mapping.id());
     }
@@ -326,6 +330,14 @@ bool Builder::Finalize() {
     }
   }
   return CheckValid(*profile_);
+}
+
+uint64_t Builder::AddFullAddressSpaceMapping() {
+  Mapping* mapping = profile_->add_mapping();
+  mapping->set_id(profile_->mapping_size());
+  mapping->set_memory_start(0);
+  mapping->set_memory_limit(std::numeric_limits<uint64_t>::max());
+  return mapping->id();
 }
 
 }  // namespace profiles
