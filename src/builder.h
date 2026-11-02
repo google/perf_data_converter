@@ -73,7 +73,7 @@ class Builder {
   }
 
   // Add documentation URL.
-  void SetDocURL(const std::string& url);
+  void SetDocURL(absl::string_view url);
 
   // Prepares the profile for encoding. Returns true on success.
   // If the profile has no locations, inserts location using the

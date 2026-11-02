@@ -102,7 +102,7 @@ uint64_t Builder::FunctionId(const char *name, const char *system_name,
   return index;
 }
 
-void Builder::SetDocURL(const std::string &url) {
+void Builder::SetDocURL(absl::string_view url) {
   const std::string kHttp = "http://";
   const std::string kHttps = "https://";
 
