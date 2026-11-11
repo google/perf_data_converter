@@ -186,6 +186,7 @@ cc_library(
     name = "aslr",
     srcs = ["aslr.cc"],
     hdrs = ["aslr.h"],
+    textual_hdrs = ["builder.h"],
     deps = [
         ":profile_cc_proto",
         "@com_google_protobuf//:protobuf",

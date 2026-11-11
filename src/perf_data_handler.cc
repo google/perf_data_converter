@@ -777,7 +777,8 @@ void Normalizer::ConvertMmapFromKsymbol(
 
 void Normalizer::UpdateMapsWithMMapEvent(
     const quipper::PerfDataProto_MMapEvent* mmap) {
-  if (mmap->len() == 0) {
+  if (mmap->len() == 0 ||
+      mmap->start() > std::numeric_limits<uint64_t>::max() - mmap->len()) {
     LOG(WARNING) << "bogus mapping: " << mmap->filename();
     return;
   }
@@ -791,23 +792,29 @@ void Normalizer::UpdateMapsWithMMapEvent(
     interval_map = it->second.get();
   }
 
-  PerfDataHandler::Mapping* mapping = new PerfDataHandler::Mapping(
-      mmap->filename(), GetBuildId(mmap), mmap->start(),
-      mmap->start() + mmap->len(), mmap->pgoff(), mmap->filename_md5_prefix());
-  owned_mappings_.emplace_back(mapping);
-  if (mapping->start <= (static_cast<uint64_t>(1) << 63) &&
-      mapping->file_offset > (static_cast<uint64_t>(1) << 63) &&
-      mapping->limit > (static_cast<uint64_t>(1) << 63)) {
+  uint64_t start = mmap->start();
+  uint64_t limit = start + mmap->len();
+  if (start <= (static_cast<uint64_t>(1) << 63) &&
+      mmap->pgoff() > (static_cast<uint64_t>(1) << 63) &&
+      limit > (static_cast<uint64_t>(1) << 63)) {
     // Prior to the fix (https://lore.kernel.org/patchwork/patch/473712/), perf
     // synthesizes the kernel start using the address of the first symbol, found
     // in the `/proc/kallsyms` file, that doesn't contain the `[` character.
     // This address is usually 0. This causes the kernel mapping to subsume the
     // entire user space mapping. Copy the offset value to start.
 
-    // file_offset here actually refers to the address of the text or _stext
-    // kernel symbol and might have to be page aligned.
-    mapping->start = mapping->file_offset - mapping->file_offset % 4096;
+    // pgoff here actually refers to the address of the text or _stext kernel
+    // symbol and might have to be page aligned.
+    start = mmap->pgoff() - mmap->pgoff() % 4096;
+    if (start >= limit) {
+      LOG(WARNING) << "bogus mapping: " << mmap->filename();
+      return;
+    }
   }
+  PerfDataHandler::Mapping* mapping = new PerfDataHandler::Mapping(
+      mmap->filename(), GetBuildId(mmap), start, limit, mmap->pgoff(),
+      mmap->filename_md5_prefix());
+  owned_mappings_.emplace_back(mapping);
 
   interval_map->Set(mapping->start, mapping->limit, mapping);
   // Pass the final mapping through to the subclass also.

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <limits>
 
+#include "src/builder.h"
 #include "absl/container/flat_hash_map.h"
 
 #include "google/protobuf/arena.h"
@@ -27,10 +28,10 @@ bool SerializeWithAslrEntropyRedaction(const Profile& profile,
 
   for (auto& mapping : *redacted->mutable_mapping()) {
     // Fake mappings that should not be redacted.
-    if (mapping.memory_start() == 0 &&
-        (mapping.memory_limit() == std::numeric_limits<uint64_t>::max() ||
-         mapping.memory_limit() == std::numeric_limits<int64_t>::max() ||
-         mapping.memory_limit() == 0)) {
+    if (Builder::IsFullAddressSpaceMapping(mapping) ||
+        (mapping.memory_start() == 0 &&
+         (mapping.memory_limit() == std::numeric_limits<int64_t>::max() ||
+          mapping.memory_limit() == 0))) {
       continue;
     }
 
@@ -52,13 +53,22 @@ bool SerializeWithAslrEntropyRedaction(const Profile& profile,
       continue;
     }
 
+    // Locations not associated with any mapping in the profile (such as frames
+    // outside recorded ELF mappings or presymbolized __start_<section> entries)
+    // cannot be shifted relative to a mapping, so clear their raw addresses.
+    if (location.mapping_id() == 0) {
+      location.set_address(0);
+      continue;
+    }
+
+    // Either mapping_id refers to one of the fake full-address-space mappings
+    // skipped above, or the profile has a dangling non-zero mapping ID.
     const auto it = mapping_to_difference.find(location.mapping_id());
     if (it == mapping_to_difference.end()) {
       continue;
     }
 
-    const int64_t difference = it->second;
-    location.set_address(location.address() - difference);
+    location.set_address(location.address() - it->second);
   }
   return redacted->SerializeToZeroCopyStream(&out_stream);
 }

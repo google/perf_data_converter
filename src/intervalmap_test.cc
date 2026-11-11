@@ -282,6 +282,28 @@ TEST_P(IntervalMapTest, GenericTest) {
 INSTANTIATE_TEST_SUITE_P(AllIntervalMapTests, IntervalMapTest,
                          ::testing::ValuesIn(tests));
 
+TEST(IntervalMapBoundsTest, IgnoresInvalidSetRange) {
+  IntervalMap<std::string> map;
+  map.Set(5, 10, "Added");
+  map.Set(7, 7, "Empty");
+  map.Set(10, 5, "Inverted");
+  EXPECT_EQ(1u, map.Size());
+  std::string value;
+  EXPECT_TRUE(map.Lookup(7, &value));
+  EXPECT_EQ("Added", value);
+}
+
+TEST(IntervalMapBoundsTest, IgnoresInvalidClearRange) {
+  IntervalMap<std::string> map;
+  map.Set(5, 10, "Added");
+  map.ClearInterval(7, 7);
+  map.ClearInterval(10, 5);
+  EXPECT_EQ(1u, map.Size());
+  std::string value;
+  EXPECT_TRUE(map.Lookup(7, &value));
+  EXPECT_EQ("Added", value);
+}
+
 }  // namespace
 }  // namespace perftools
 
