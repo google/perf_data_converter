@@ -111,7 +111,11 @@ IntervalMap<V>::IntervalMap() {}
 
 template <class V>
 void IntervalMap<V>::Set(uint64_t start, uint64_t limit, const V& value) {
-  CHECK_LT(start, limit);
+  if (start >= limit) {
+    LOG(ERROR) << "Ignoring invalid interval [" << start << ", " << limit
+               << ")";
+    return;
+  }
   RemoveInterval(start, limit);
   Insert(start, limit, value);
 }
@@ -146,7 +150,11 @@ void IntervalMap<V>::Clear() {
 
 template <class V>
 void IntervalMap<V>::ClearInterval(uint64_t clear_start, uint64_t clear_limit) {
-  CHECK_LT(clear_start, clear_limit);
+  if (clear_start >= clear_limit) {
+    LOG(ERROR) << "Ignoring invalid interval [" << clear_start << ", "
+               << clear_limit << ")";
+    return;
+  }
   RemoveInterval(clear_start, clear_limit);
 }
 

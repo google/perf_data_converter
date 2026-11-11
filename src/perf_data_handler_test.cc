@@ -127,6 +127,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   }
   void Comm(const CommContext& comm) override {}
   void MMap(const MMapContext& mmap) override {
+    seen_mmap_filenames_.insert(mmap.mapping->filename);
     std::string actual_build_id = mmap.mapping->build_id.value;
     std::string actual_filename = mmap.mapping->filename;
     const auto expected_build_id_it =
@@ -152,6 +153,10 @@ class TestPerfDataHandler : public PerfDataHandler {
       EXPECT_TRUE(expected_filename_to_build_id_.find(filename) !=
                   expected_filename_to_build_id_.end());
     }
+  }
+
+  const std::unordered_set<std::string>& SeenMMapFilenames() const {
+    return seen_mmap_filenames_;
   }
 
   const std::vector<std::unique_ptr<Mapping>>& SeenAddrMappings() const {
@@ -182,6 +187,7 @@ class TestPerfDataHandler : public PerfDataHandler {
   std::vector<std::vector<BranchStackEntry>> expected_branch_stack_sequence_;
   std::unordered_map<std::string, std::string> expected_filename_to_build_id_;
   std::unordered_set<std::string> seen_filenames_;
+  std::unordered_set<std::string> seen_mmap_filenames_;
   std::vector<std::unique_ptr<Mapping>> seen_addr_mappings_;
   std::vector<quipper::PerfDataProto::SampleEvent> seen_sample_events_;
   std::vector<quipper::ArmSpeDecoder::Record> seen_arm_spe_records_;
@@ -614,6 +620,99 @@ TEST(PerfDataHandlerTest, KsymbolIntoMappings) {
   TestPerfDataHandler handler({}, expected_filename_to_build_id);
   PerfDataHandler::Process(proto, &handler);
   handler.CheckSeenFilenames();
+}
+
+namespace {
+
+void AddMMapEvent(quipper::PerfDataProto* proto, const std::string& filename,
+                  uint64_t start, uint64_t len, uint64_t pgoff = 0,
+                  uint32_t pid = 100) {
+  auto* mmap = proto->add_events()->mutable_mmap_event();
+  mmap->set_filename(filename);
+  mmap->set_pid(pid);
+  mmap->set_tid(pid);
+  mmap->set_start(start);
+  mmap->set_len(len);
+  mmap->set_pgoff(pgoff);
+}
+
+void AddSampleEvent(quipper::PerfDataProto* proto, uint64_t addr,
+                    uint32_t pid = 100) {
+  auto* sample = proto->add_events()->mutable_sample_event();
+  sample->set_pid(pid);
+  sample->set_tid(pid);
+  sample->set_addr(addr);
+}
+
+}  // namespace
+
+TEST(PerfDataHandlerTest, IgnoresMMapEventWithOverflowingRange) {
+  quipper::PerfDataProto proto;
+  proto.add_file_attrs()->add_ids(0);
+
+  // 0xfffffffffffff000 + 0x2000 overflows uint64_t and wraps around to 0x1000.
+  AddMMapEvent(&proto, "/bin/overflow", 0xfffffffffffff000ULL, 0x2000);
+  AddMMapEvent(&proto, "/bin/valid", 0x1000, 0x1000);
+  AddSampleEvent(&proto, 0x1100);
+  AddSampleEvent(&proto, 0xfffffffffffff100ULL);
+
+  TestPerfDataHandler handler({}, {{"/bin/valid", ""}});
+  PerfDataHandler::Process(proto, &handler);
+
+  handler.CheckSeenFilenames();
+  EXPECT_EQ(0u, handler.SeenMMapFilenames().count("/bin/overflow"));
+  const auto& mappings = handler.SeenAddrMappings();
+  ASSERT_EQ(2u, mappings.size());
+  ASSERT_NE(nullptr, mappings[0]);
+  EXPECT_EQ("/bin/valid", mappings[0]->filename);
+  EXPECT_EQ(nullptr, mappings[1]);
+}
+
+TEST(PerfDataHandlerTest, IgnoresKernelPgoffFixupWithInvertedRange) {
+  quipper::PerfDataProto proto;
+  proto.add_file_attrs()->add_ids(0);
+
+  // limit = 0x7fffffffffffe000 + 0x4000 = 0x8000000000002000 (> 2^63);
+  // pgoff > 2^63 triggers start fix-up to 0xfffffffffffff000 >= limit.
+  AddMMapEvent(&proto, "[kernel.kallsyms]", 0x7fffffffffffe000ULL, 0x4000,
+               0xfffffffffffff000ULL);
+  AddMMapEvent(&proto, "/bin/valid", 0x1000, 0x1000);
+  AddSampleEvent(&proto, 0x1100);
+  AddSampleEvent(&proto, 0xfffffffffffff100ULL);
+
+  TestPerfDataHandler handler({}, {{"/bin/valid", ""}});
+  PerfDataHandler::Process(proto, &handler);
+
+  handler.CheckSeenFilenames();
+  EXPECT_EQ(0u, handler.SeenMMapFilenames().count("[kernel.kallsyms]"));
+  const auto& mappings = handler.SeenAddrMappings();
+  ASSERT_EQ(2u, mappings.size());
+  ASSERT_NE(nullptr, mappings[0]);
+  EXPECT_EQ("/bin/valid", mappings[0]->filename);
+  EXPECT_EQ(nullptr, mappings[1]);
+}
+
+TEST(PerfDataHandlerTest, AppliesValidKernelPgoffFixup) {
+  quipper::PerfDataProto proto;
+  proto.add_file_attrs()->add_ids(0);
+
+  // Page-aligning pgoff sets start = 0xffffffff81000000 (< limit).
+  AddMMapEvent(&proto, "[kernel.kallsyms]", 0, 0xffffffff81001000ULL,
+               0xffffffff81000123ULL);
+  AddSampleEvent(&proto, 0x1000);
+  AddSampleEvent(&proto, 0xffffffff81000100ULL);
+
+  TestPerfDataHandler handler({}, {{"[kernel.kallsyms]", ""}});
+  PerfDataHandler::Process(proto, &handler);
+
+  handler.CheckSeenFilenames();
+  const auto& mappings = handler.SeenAddrMappings();
+  ASSERT_EQ(2u, mappings.size());
+  EXPECT_EQ(nullptr, mappings[0]);
+  ASSERT_NE(nullptr, mappings[1]);
+  EXPECT_EQ("[kernel.kallsyms]", mappings[1]->filename);
+  EXPECT_EQ(0xffffffff81000000ULL, mappings[1]->start);
+  EXPECT_EQ(0xffffffff81001000ULL, mappings[1]->limit);
 }
 
 }  // namespace perftools
