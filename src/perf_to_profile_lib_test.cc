@@ -23,6 +23,7 @@ TEST(PerfToProfileTest, ParseArguments) {
     std::string expected_output;
     bool expected_overwrite_output;
     bool allow_unaligned_jit_mappings;
+    uint32_t expected_sample_labels;
     bool want_error;
   };
 
@@ -34,6 +35,7 @@ TEST(PerfToProfileTest, ParseArguments) {
       .expected_output = "output_profile",
       .expected_overwrite_output = true,
       .allow_unaligned_jit_mappings = false,
+      .expected_sample_labels = perftools::kNoLabels,
       .want_error = false});
   tests.push_back(
       Test{.desc = "With input and output flags",
@@ -42,6 +44,7 @@ TEST(PerfToProfileTest, ParseArguments) {
            .expected_output = "output_profile",
            .expected_overwrite_output = false,
            .allow_unaligned_jit_mappings = false,
+           .expected_sample_labels = perftools::kNoLabels,
            .want_error = false});
   tests.push_back(Test{
       .desc = "With input and output flags and jit-support",
@@ -50,13 +53,45 @@ TEST(PerfToProfileTest, ParseArguments) {
       .expected_output = "output_profile",
       .expected_overwrite_output = false,
       .allow_unaligned_jit_mappings = true,
+      .expected_sample_labels = perftools::kNoLabels,
       .want_error = false});
+  tests.push_back(Test{
+      .desc = "With pid label",
+      .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile",
+               "-l", "pid"},
+      .expected_input = "input_perf_file",
+      .expected_output = "output_profile",
+      .expected_overwrite_output = false,
+      .allow_unaligned_jit_mappings = false,
+      .expected_sample_labels = perftools::kPidLabel,
+      .want_error = false});
+  tests.push_back(Test{
+      .desc = "With pid and tid labels",
+      .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile",
+               "-l", "pid,tid"},
+      .expected_input = "input_perf_file",
+      .expected_output = "output_profile",
+      .expected_overwrite_output = false,
+      .allow_unaligned_jit_mappings = false,
+      .expected_sample_labels = perftools::kPidAndTidLabels,
+      .want_error = false});
+  tests.push_back(Test{
+      .desc = "With unknown label",
+      .argv = {"<exec>", "-i", "input_perf_file", "-o", "output_profile",
+               "-l", "bogus"},
+      .expected_input = "",
+      .expected_output = "",
+      .expected_overwrite_output = false,
+      .allow_unaligned_jit_mappings = false,
+      .expected_sample_labels = perftools::kNoLabels,
+      .want_error = true});
   tests.push_back(Test{.desc = "With only overwrite flag",
                        .argv = {"<exec>", "-f"},
                        .expected_input = "",
                        .expected_output = "",
                        .expected_overwrite_output = false,
                        .allow_unaligned_jit_mappings = false,
+                       .expected_sample_labels = perftools::kNoLabels,
                        .want_error = true});
   tests.push_back(Test{
       .desc = "With input, output, and invalid flags",
@@ -65,6 +100,7 @@ TEST(PerfToProfileTest, ParseArguments) {
       .expected_output = "",
       .expected_overwrite_output = false,
       .allow_unaligned_jit_mappings = false,
+      .expected_sample_labels = perftools::kNoLabels,
       .want_error = true});
   tests.push_back(Test{.desc = "With an invalid flag",
                        .argv = {"<exec>", "-F"},
@@ -72,16 +108,19 @@ TEST(PerfToProfileTest, ParseArguments) {
                        .expected_output = "",
                        .expected_overwrite_output = false,
                        .allow_unaligned_jit_mappings = false,
+                       .expected_sample_labels = perftools::kNoLabels,
                        .want_error = true});
   for (auto test : tests) {
     std::string input;
     std::string output;
     bool overwrite_output;
     bool allow_unaligned_jit_mappings;
+    uint32_t sample_labels;
     LOG(INFO) << "Testing: " << test.desc;
     EXPECT_THAT(
         ParseArguments(test.argv.size(), test.argv.data(), &input, &output,
-                       &overwrite_output, &allow_unaligned_jit_mappings),
+                       &overwrite_output, &allow_unaligned_jit_mappings,
+                       &sample_labels),
         Eq(!test.want_error));
     if (!test.want_error) {
       EXPECT_THAT(input, Eq(test.expected_input));
@@ -89,6 +128,7 @@ TEST(PerfToProfileTest, ParseArguments) {
       EXPECT_THAT(overwrite_output, Eq(test.expected_overwrite_output));
       EXPECT_THAT(allow_unaligned_jit_mappings,
                   Eq(test.allow_unaligned_jit_mappings));
+      EXPECT_THAT(sample_labels, Eq(test.expected_sample_labels));
     }
     optind = 1;
   }
